@@ -1,0 +1,121 @@
+Bem-vindo à sala de chat!
+StreamElements: sergiocabral_com is now live! Streaming Science & Technology: [Colaboração] Traduzindo o Git Book para português
+mmillecm
+mmillecm está fazendo uma raid com um grupo de 21.
+mmillecm: <3
+mmillecm: Valeu pela raid e pelos bits <3
+Frai42: PERL?
+RN4N: Aqui ta Regex na prática
+sergiocabral_com: RN4N has followed! :)
+Frai42: eu vi uma pasta Perl
+Frai42: eu acho
+sergiocabral_com: mmillecm has followed! :)
+sergiocabral_com: toddysc_ has followed! :)
+bajinho: aula de regex?
+Frai42: //
+bajinho: já tenho 2 reais
+Em1dio: almoco ?
+Em1dio: vc n come nao?
+Em1dio: se vc resolve um problema com expressao regular
+Em1dio: vc tem 2 problemas
+Em1dio: o problema original mal resolvido.
+Em1dio: e a expressao regular pra te atrapalhar
+Em1dio: nem desse jeito
+Em1dio: o ideal ao meu ver eh criar uma classe de validacao
+Em1dio: e dai fica abstrato
+Em1dio: pode ate usar isso
+Em1dio: mas cria todas as expressoes
+Em1dio: mas organiza o codigo
+Em1dio: pra NINGUEM nunca mais mexer nisso
+Em1dio: mas da pra fazer mta coisa legal
+Kaduzius: ola
+raiizoordev: os bonequinho andando ali em baixo, ta atraplhando a ver...
+raiizoordev: e aew
+raiizoordev: kk
+raiizoordev: nice
+raiizoordev: !duel em1dio
+sergiocabral_com: @raiizoordev Has Challenged @em1dio To A Duel with a buyin of 0. Type !accept or !decline within 30 seconds
+sergiocabral_com: @em1dio has declined the duel
+raiizoordev: !dual kaduzius
+raiizoordev: !duel kaduzius
+sergiocabral_com: @raiizoordev Has Challenged @kaduzius To A Duel with a buyin of 0. Type !accept or !decline within 30 seconds
+Kaduzius: !accept
+sergiocabral_com: @kaduzius has accepted the duel against @raiizoordev!
+sergiocabral_com: Congratulations to @kaduzius for winning the duel! +0
+sergiocabral_com: kaduzius has won 5 from the jump catch game!
+raiizoordev: e se colocar o /g no inicio?
+raiizoordev: entendi
+opatrao123: Isso é oque?
+raiizoordev: coisa de louco isso dai kkkkkk
+opatrao123: Se usa com javascript?
+Frai42: já to clonando o chip pra roubar seus cabrons
+Resgatado PIX em CABR0N 1.024
+sergiocabral_com: quero meu dinheiro
+opatrao123: !quero meu dinheiro
+opatrao123: :L
+Resgatado PIX em CABR0N 1.024
+Frai42: quero meu dinheiro!
+opatrao123: Vou ficar rico
+Frai42: que isso em
+Frai42: first block
+opatrao123: Vou juntar pra comprar uma placa de vídeo
+Frai42: vou no procon
+Frai42: rsrrs
+raiizoordev: com 0
+raiizoordev: e C
+opatrao123: k4br0n
+raiizoordev: kkkkk
+wooodstock: Eu tbm BibleThump
+opatrao123: Esse string todinho vai funcionar de hash? entedi direito não como funciona
+Frai42: inviolavel no git não existe com --force rsrs
+Frai42: rsrsrsrs
+Frai42: eu tenho primeiro e unico bloco
+Frai42: eu mando na blockchain então
+Frai42: então eu mando em 50%
+Frai42: kkkkk
+raiizoordev: é pessoa
+EmnemBR: to acompanhando de vez em quando aqui també, @sergiocabral_com
+EmnemBR: mas nao to muito por dentro
+EmnemBR: brabo. tu e o brabo
+EmnemBR: oloko
+opatrao123: Tem como eu receber só os cabrons mesmo?
+EmnemBR: nao entendi onde que eu vou
+Frai42: Já pensou como vai funcionar a transação desse jeito?
+EmnemBR: kkkk
+Frai42: o jeito de decentralizar vai ser por fork? kkkkk
+Frai42: mas como vamos validar um fork valido não violado?
+Frai42: unix date é bom pra isso
+Frai42: data do js = unix timestamp
+Frai42: cada commit vai ser um block?
+sergiocabral_com: dwtoledo has followed! :)
+Frai42: mas ai é so alterar o env quando quiser violar
+opatrao123: Tô entendendo muito não mas bora lá
+Frai42: então, voce não uma boa criar um facade pra isso?
+Frai42: tipo kli pros scripts lá na firma
+Frai42: nao acha*
+Frai42: um software pra controlar esse fluxo
+Frai42: hmmmmm
+Frai42: mas e as transaçoes? voce ia precisar alterar o commit(bloco)
+Frai42: um bloco é constiudo por um hash, uma lista de trancacoes e conteudo
+Frai42: porque tem mais de uma transacao por bloco, entende?
+Frai42: um novo bloco é criado/achado quando é minarado ou algo do tipo
+Frai42: e as transacoes são registradas no ultimo bloco
+Frai42: nao sabia rsrsrs
+
+##########
+
+author mmillecm Frai42 RN4N sergiocabral_com bajinho Em1dio Kaduzius raiizoordev opatrao123 wooodstock EmnemBR <twitch@sergiocabral.com> 1621873356 -0300
+committer twitch.tv/sergiocabral_com <git@sergiocabral.com> 1621873356 -0300
+gpgsig -----BEGIN PGP SIGNATURE-----
+
+ iQEzBAABCAAdFiEEkeqtGplfPR7MFKS45rhNEXPIlpcFAmCr1MsACgkQ5rhNEXPI
+ lpejCgf/YTYP77ijmnS0suQE1hF0G/YfP2zHVoU9wQiHbNRSrfX/TtGM2YE6BKGS
+ qeg814rhBMM5yVwi8LF2QT/LtHu+V8P+6M1YCQ7Jzaz2qfJcIN8CK2GTD+aXt97M
+ bmTV/7yKBngfwhdT0DcoHnfxUUncQyVjH/fGCGtBxvM8jM/1FALI4Hg/lyu/lwTp
+ vmxVD/19lgJ1g8Ob7d0WNBZTluOwx+n0rrsVpuQFpQHmYePuUP4r22lNGkH9VSZ4
+ k+TKxhGaaUjtuhjAmN271LqLTCOt6WgB+/2+jiMHDNfSxFX/ozLyFM+ttkaVObuR
+ /C7rIbvphWnYYbQ94fLkhHh7GErldg==
+ =JZ15
+ -----END PGP SIGNATURE-----
+
+First block
