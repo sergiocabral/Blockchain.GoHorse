@@ -5,6 +5,7 @@ import {Environment} from "../Data/Environment";
 import {ChatBox} from "../Twitch/ChatBox";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
+import {LogContext} from "../Log/LogContext";
 
 export class MainApp {
     /**
@@ -12,22 +13,22 @@ export class MainApp {
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        this.__environment = new Environment(environment);
-        Logger.minLevel = this.__environment.logMinLevel;
-        this.__chatBox = new ChatBox(this.__environment);
+        this.environment = new Environment(environment);
+        Logger.minLevel = this.environment.logMinLevel;
+        this.chatBox = new ChatBox(this.environment);
     }
 
     /**
      * Dados de configuração do ambiente.
      * @private
      */
-    private __environment: Environment;
+    private environment: Environment;
 
     /**
      * Dados de configuração do ambiente.
      * @private
      */
-    private __chatBox: ChatBox;
+    private chatBox: ChatBox;
 
     /**
      * Inicia a aplicação.
@@ -35,12 +36,12 @@ export class MainApp {
     public run(): void {
         Logger.post('Running.', undefined, LogLevel.Information, this);
 
-        if (!this.__environment.isFilled()) {
-            Logger.post('Environment data is not filled.', undefined, LogLevel.Error, this);
+        if (!this.environment.isFilled()) {
+            Logger.post('Environment data is not filled.', undefined, LogLevel.Error, LogContext.MainApp);
             return;
         }
 
-        this.__chatBox.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, LogLevel.Error, this));
+        this.chatBox.start()
+            .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, LogLevel.Error, LogContext.MainApp));
     }
 }

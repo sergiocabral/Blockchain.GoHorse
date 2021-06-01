@@ -2,6 +2,7 @@ import {Text} from "../Helper/Text";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {Message} from "./Message";
+import {LogContext} from "../Log/LogContext";
 
 /**
  * Informações da mensagem que deve ser capturada.
@@ -28,7 +29,7 @@ export class MessageCapture {
      */
     public request(message: Message): void {
         const listener = this.listenerOriginal.bind(this.toBind);
-        Logger.post("Message \"{0}\" requested.", this.messageName, LogLevel.Verbose, this);
+        Logger.post("Message \"{0}\" requested.", this.messageName, LogLevel.Verbose, LogContext.MessageBus);
         listener(message);
     }
 
