@@ -3,6 +3,8 @@
  */
 import {Environment} from "../Data/Environment";
 import {ChatBox} from "../Twitch/ChatBox";
+import {Logger} from "../Log/Logger";
+import {Level} from "../Log/Level";
 
 export class App {
     /**
@@ -11,7 +13,10 @@ export class App {
      */
     public constructor(environment: any) {
         this.__environment = new Environment(environment);
+        Logger.minLevel = this.__environment.logMinLevel;
         this.__chatBox = new ChatBox(this.__environment);
+
+        Logger.post('Created.', Level.Verbose, 'App');
     }
 
     /**
@@ -29,11 +34,13 @@ export class App {
     /**
      * Inicia a aplicação.
      */
-    public async run(): Promise<void> {
+    public run(): void {
         if (!this.__environment.isFilled()) {
-            console.error('Environment data is not filled.');
+            Logger.post('Environment data is not filled.', Level.Error, 'App');
             return;
         }
-        await this.__chatBox.start();
+
+        Logger.post('Starting ChatBox.', Level.Verbose, 'App');
+        this.__chatBox.start().then(() => Logger.post('ChatBox started.', Level.Verbose, 'App'));
     }
 }
