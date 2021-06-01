@@ -24,18 +24,24 @@ export class Logger {
      * @param level Nível do log.
      * @param origin Origem do log.
      */
-    public static post(text: string | (() => string), values: any, level: LogLevel = LogLevel.Debug, origin: any = ''): void {
+    public static post(text: string | (() => string), values: any = undefined, level: LogLevel = LogLevel.Debug, origin: any = ''): void {
         if (level < this.minLevel) return;
-        origin = Text.getObjectName(origin);
+        origin = origin !== '' ? Text.getObjectName(origin) : origin;
 
         if (typeof(text) === 'function') {
             text = text();
         }
 
+        for (const value in values) {
+            if (values.hasOwnProperty(value) && typeof(values[value]) === 'function') {
+                values[value] = values[value]();
+            }
+        }
+
         text = Text.querystring(text, values);
 
         const message = this.factoryMessage(text, level, origin);
-        Logger.write(message, level);
+        Logger.writeToConsole(message, level);
     }
 
     /**
@@ -43,7 +49,7 @@ export class Logger {
      * @param message Mensagem.
      * @param level Nível.
      */
-    private static write(message: LogMessage, level: LogLevel): void {
+    private static writeToConsole(message: LogMessage, level: LogLevel): void {
         const text = `${message.time.toLocaleString()} [${LogLevel[message.level] + (message.origin ? ": " + message.origin : "")}] ${message.text}`;
 
         let log;
@@ -52,7 +58,7 @@ export class Logger {
             case LogLevel.Warning:             log = console.warn; break;
             case LogLevel.Information:         log = console.info; break;
             case LogLevel.Debug:               log = console.log; break;
-            default:                        log = console.debug; break;
+            default:                           log = console.debug; break;
         }
 
         log(text);
