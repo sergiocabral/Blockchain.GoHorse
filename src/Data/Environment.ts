@@ -1,25 +1,28 @@
+import {ChatBoxAuthentication} from "../Twitch/Model/ChatBoxAuthentication";
+import {IModel} from "./IModel";
+
 /**
  * Dados de configuração do ambiente.
  */
-export class Environment {
+export class Environment implements IModel {
 
     /**
      * Construtor.
-     * @param {?} environment JSON com dados do ambiente.
+     * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        this.twitchUserName = environment?.twitchUserName ?? '';
-        this.twitchUserToken = environment?.twitchUserToken ?? '';
+        this.chatBoxAuthentication = new ChatBoxAuthentication(environment?.chatBoxAuthentication);
     }
 
     /**
-     * Usuário da twitch que vai operar o BOT.
+     * Determina se o modelo está preenchido.
      */
-    public twitchUserName: string;
+    public isFilled(): boolean {
+        return this.chatBoxAuthentication.isFilled();
+    }
 
     /**
-     * Token de autenticação do usuário que vai operar o BOT.
-     * Obter em: https://twitchapps.com/tmi/
+     * Modelo com os dados de autenticação do chatbox na Twitch.
      */
-    public twitchUserToken: string;
+    public chatBoxAuthentication: ChatBoxAuthentication;
 }
