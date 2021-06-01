@@ -1,7 +1,25 @@
+import {InvalidArgumentError} from "../Errors/InvalidArgumentError";
+import {EmptyValueError} from "../Errors/EmptyValueError";
+
 /**
  * Utilitários para manipulação e geração de string.
  */
 export class Text {
+    /**
+     * Retorna o nome de uma instância.
+     * @param instance Instância.
+     * @returns Nome.
+     */
+    public static getObjectName(instance: any): string {
+        let name;
+        if (typeof(instance) === 'string') name = instance;
+        else if (typeof(instance) === 'object') name = instance.constructor.name;
+        else if (typeof(instance) === 'function') name = instance.name;
+        else throw new InvalidArgumentError("Instance must be string, object or function. Type: " + typeof(instance));
+        if (!name) throw new EmptyValueError("Name is empty. Type: " + typeof(instance));
+        return name;
+    }
+
     /**
      * Substitui variáveis na string por seus respectivos valores.
      * @param text Texto original

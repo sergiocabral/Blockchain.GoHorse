@@ -1,7 +1,7 @@
 /**
  * Nível de log.
  */
-export enum Level {
+export enum LogLevel {
     /**
      * Informações detalahadas sobre o funcionamento do sistema.
      */

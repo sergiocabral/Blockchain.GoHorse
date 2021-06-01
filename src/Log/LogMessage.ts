@@ -1,9 +1,9 @@
-import {Level} from "./Level";
+import {LogLevel} from "./LogLevel";
 
 /**
  * Mensagem de log.
  */
-export type Message = {
+export type LogMessage = {
     /**
      * Identificador.
      */
@@ -17,7 +17,7 @@ export type Message = {
     /**
      * Nível do log.
      */
-    level: Level,
+    level: LogLevel,
 
     /**
      * Orígem do log.

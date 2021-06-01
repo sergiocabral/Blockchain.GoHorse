@@ -1,7 +1,7 @@
 import {Client, Options} from 'tmi.js'
 import {Environment} from "../Data/Environment";
 import {Logger} from "../Log/Logger";
-import {Level} from "../Log/Level";
+import {LogLevel} from "../Log/LogLevel";
 
 /**
  * Cliente ChatBox da Twitch
@@ -50,11 +50,11 @@ export class ChatBox {
             },
             channels: environment.chatBoxAuthentication.channels,
             logger: Object.assign({
-                info: (message: string) => Logger.post(message, undefined, Level.Information, 'TMI'),
-                warn: (message: string) => Logger.post(message, undefined, Level.Warning, 'TMI'),
-                error: (message: string) => Logger.post(message, undefined, Level.Error, 'TMI'),
+                info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, 'TMI'),
+                warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, 'TMI'),
+                error: (message: string) => Logger.post(message, undefined, LogLevel.Error, 'TMI'),
             }, {
-                debug: (message: string) => Logger.post(message, undefined, Level.Debug, 'TMI')
+                debug: (message: string) => Logger.post(message, undefined, LogLevel.Verbose, 'TMI')
             }),
         };
     }
@@ -63,11 +63,11 @@ export class ChatBox {
      * Estabelece a conexão.
      */
     public async start(): Promise<void> {
-        Logger.post('Connecting.', undefined, Level.Verbose, 'ChatBox');
+        Logger.post('Connecting.', undefined, LogLevel.Verbose, this);
         await this.__client.connect();
         if (this.__options.channels) {
             for (const channel of this.__options.channels) {
-                Logger.post('Sending welcome message.', undefined, Level.Verbose, 'ChatBox');
+                Logger.post('Sending welcome message.', undefined, LogLevel.Verbose, this);
                 await this.__client.say(channel, 'Hi');
             }
         }

@@ -1,6 +1,6 @@
 import {ChatBoxAuthentication} from "../Twitch/Model/ChatBoxAuthentication";
 import {IModel} from "./IModel";
-import {Level} from "../Log/Level";
+import {LogLevel} from "../Log/LogLevel";
 
 /**
  * Informação de configuração do ambiente.
@@ -12,7 +12,7 @@ export class Environment implements IModel {
      */
     public constructor(environment: any) {
         this.environment = environment?.environment ?? '';
-        this.logMinLevel = (Level[environment.logMinLevel] as any) as Level;
+        this.logMinLevel = (LogLevel[environment.logMinLevel] as any) as LogLevel;
         this.chatBoxAuthentication = new ChatBoxAuthentication(environment?.chatBoxAuthentication);
     }
 
@@ -36,7 +36,7 @@ export class Environment implements IModel {
     /**
      * Nível de log.
      */
-    public logMinLevel: Level;
+    public logMinLevel: LogLevel;
 
     /**
      * Determina se o ambiente atual é de produção.
