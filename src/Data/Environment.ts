@@ -26,6 +26,8 @@ export class Environment implements IModel {
         );
     }
 
+    public get applicationName(): string { return 'Cabr0n Coin' };
+
     /**
      * Tipo de ambiente.
      */

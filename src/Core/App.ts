@@ -15,8 +15,6 @@ export class App {
         this.__environment = new Environment(environment);
         Logger.minLevel = this.__environment.logMinLevel;
         this.__chatBox = new ChatBox(this.__environment);
-
-        Logger.post('Created.', Level.Verbose, 'App');
     }
 
     /**
@@ -35,12 +33,14 @@ export class App {
      * Inicia a aplicação.
      */
     public run(): void {
+        Logger.post('Running.', Level.Verbose, 'App');
+
         if (!this.__environment.isFilled()) {
             Logger.post('Environment data is not filled.', Level.Error, 'App');
             return;
         }
 
-        Logger.post('Starting ChatBox.', Level.Verbose, 'App');
-        this.__chatBox.start().then(() => Logger.post('ChatBox started.', Level.Verbose, 'App'));
+        this.__chatBox.start()
+            .catch(error => Logger.post(() => `Error when start the ChatBox: ${error}`, Level.Error, 'App'));
     }
 }
