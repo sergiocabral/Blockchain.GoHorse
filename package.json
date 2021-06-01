@@ -20,7 +20,8 @@
   "devDependencies": {
     "nodemon": "^2.0.7",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.2",
+    "@types/tmi.js": "^1.7.1"
   },
   "dependencies": {
     "tmi.js": "^1.8.3"
