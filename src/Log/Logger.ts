@@ -1,5 +1,6 @@
 import {Level} from "./Level";
 import {Message} from "./Message";
+import {Text} from "../Helper/Text";
 
 /**
  * Manipula e registra mensagens de log.
@@ -19,10 +20,11 @@ export class Logger {
     /**
      * Registra uma mensagem de log
      * @param text Função que monta o texto.
+     * @param values Opcional. Conjunto de valores para substituição na string.
      * @param level Nível do log.
      * @param origin Origem do log.
      */
-    public static post(text: string | (() => string), level: Level = Level.Debug, origin: any = ''): void {
+    public static post(text: string | (() => string), values: any, level: Level = Level.Debug, origin: any = ''): void {
         if (level < this.minLevel) return;
         if (typeof(origin) !== 'string') {
             origin = origin.constructor.name;
@@ -31,6 +33,8 @@ export class Logger {
         if (typeof(text) === 'function') {
             text = text();
         }
+
+        text = Text.querystring(text, values);
 
         const message = this.factoryMessage(text, level, origin);
         Logger.write(message, level);

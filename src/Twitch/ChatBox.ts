@@ -50,11 +50,11 @@ export class ChatBox {
             },
             channels: environment.chatBoxAuthentication.channels,
             logger: Object.assign({
-                info: (message: string) => Logger.post(message, Level.Information, 'TMI'),
-                warn: (message: string) => Logger.post(message, Level.Warning, 'TMI'),
-                error: (message: string) => Logger.post(message, Level.Error, 'TMI'),
+                info: (message: string) => Logger.post(message, undefined, Level.Information, 'TMI'),
+                warn: (message: string) => Logger.post(message, undefined, Level.Warning, 'TMI'),
+                error: (message: string) => Logger.post(message, undefined, Level.Error, 'TMI'),
             }, {
-                debug: (message: string) => Logger.post(message, Level.Debug, 'TMI')
+                debug: (message: string) => Logger.post(message, undefined, Level.Debug, 'TMI')
             }),
         };
     }
@@ -63,11 +63,11 @@ export class ChatBox {
      * Estabelece a conexão.
      */
     public async start(): Promise<void> {
-        Logger.post('Connecting.', Level.Verbose, 'ChatBox');
+        Logger.post('Connecting.', undefined, Level.Verbose, 'ChatBox');
         await this.__client.connect();
         if (this.__options.channels) {
             for (const channel of this.__options.channels) {
-                Logger.post('Sending welcome message.', Level.Verbose, 'ChatBox');
+                Logger.post('Sending welcome message.', undefined, Level.Verbose, 'ChatBox');
                 await this.__client.say(channel, 'Hi');
             }
         }

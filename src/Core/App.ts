@@ -33,14 +33,14 @@ export class App {
      * Inicia a aplicação.
      */
     public run(): void {
-        Logger.post('Running.', Level.Verbose, 'App');
+        Logger.post('Running.', undefined, Level.Verbose, 'App');
 
         if (!this.__environment.isFilled()) {
-            Logger.post('Environment data is not filled.', Level.Error, 'App');
+            Logger.post('Environment data is not filled.', undefined, Level.Error, 'App');
             return;
         }
 
         this.__chatBox.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBox: ${error}`, Level.Error, 'App'));
+            .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, Level.Error, 'App'));
     }
 }
