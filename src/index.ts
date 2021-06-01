@@ -1,3 +1,4 @@
-import { App } from './Core/App';
+import {App} from './Core/App';
+import environment from './env.development.json';
 
-new App().run();
+new App(environment).run();

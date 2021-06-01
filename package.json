@@ -21,5 +21,8 @@
     "nodemon": "^2.0.7",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "tmi.js": "^1.8.3"
   }
 }
