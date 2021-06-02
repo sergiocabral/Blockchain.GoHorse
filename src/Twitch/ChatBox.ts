@@ -39,7 +39,7 @@ export class ChatBox implements Events {
 
         ChatBox.registerEvents(this.client, this);
 
-        Message.capture(SendChatMessageCommand, this, this.onSendChatMessageCommand);
+        Message.capture(SendChatMessageCommand, this, this.handlerSendChatMessageCommand);
     }
 
     /**
@@ -70,11 +70,11 @@ export class ChatBox implements Events {
             },
             channels: environment.chatBoxAuthentication.channels,
             logger: Object.assign({
-                info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBox),
-                warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBox),
-                error: (message: string) => Logger.post(message, undefined, LogLevel.Error, LogContext.ChatBox),
+                info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBoxTmi),
+                warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBoxTmi),
+                error: (message: string) => Logger.post(message, undefined, LogLevel.Error, LogContext.ChatBoxTmi),
             }, {
-                debug: (message: string) => Logger.post(message, undefined, LogLevel.Verbose, LogContext.ChatBox)
+                debug: (message: string) => Logger.post(message, undefined, LogLevel.Verbose, LogContext.ChatBoxTmi)
             }),
         };
     }
@@ -91,7 +91,7 @@ export class ChatBox implements Events {
      * @param message SendChatMessageCommand
      * @private
      */
-    private onSendChatMessageCommand(message: SendChatMessageCommand) {
+    private handlerSendChatMessageCommand(message: SendChatMessageCommand) {
         this.client.say(message.channel, message.message);
     }
 

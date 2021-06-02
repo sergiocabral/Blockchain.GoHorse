@@ -15,6 +15,11 @@ export class LogContext {
     public static readonly ChatBox: string = 'ChatBox';
 
     /**
+     * Chat da Twitch log interno.
+     */
+    public static readonly ChatBoxTmi: string = 'ChatBox TMI';
+
+    /**
      * Bot da moeda no chat.
      */
     public static readonly ChatCoin: string = 'ChatCoin';

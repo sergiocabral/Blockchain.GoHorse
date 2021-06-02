@@ -18,7 +18,7 @@ export class ChatCoin {
         const environment = new EnvironmentQuery().request().message.environment;
         this.redeemCoin = environment.redeemCoin;
 
-        Message.capture(RedeemEvent, this, this.onRedeemEvent);
+        Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
     }
 
     /**
@@ -32,7 +32,7 @@ export class ChatCoin {
      * @param message RedeemEvent
      * @private
      */
-    private onRedeemEvent(message: RedeemEvent) {
+    private handlerRedeemEvent(message: RedeemEvent) {
         if (message.redeem.id !== this.redeemCoin.id) return;
 
         Logger.post(

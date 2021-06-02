@@ -9,7 +9,6 @@ import {ChatCoin} from "../Coin/ChatCoin";
 import {Message} from "../Bus/Message";
 import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
 import {Translate} from "./Translate";
-import {LoggerElasticsearch} from "../Log/LoggerElasticsearch";
 import {LoggerConsole} from "../Log/LoggerConsole";
 
 /**
@@ -28,7 +27,7 @@ export class MainApp {
 
         this.loadLanguages();
 
-        Message.capture(EnvironmentQuery, this, this.onEnvironmentQuery);
+        Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
 
         this.chatBox = new ChatBox();
         this.chatCoin = new ChatCoin();
@@ -82,7 +81,7 @@ export class MainApp {
      * @param message EnvironmentQuery
      * @private
      */
-    private onEnvironmentQuery(message: EnvironmentQuery) {
+    private handlerEnvironmentQuery(message: EnvironmentQuery) {
         message.environment = this.environment;
     }
 }
