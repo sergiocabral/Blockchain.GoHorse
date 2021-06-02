@@ -27,5 +27,15 @@ export type LogMessage = {
     /**
      * Texto.
      */
-    text: string
+    message: string,
+
+    /**
+     * Template do texto.
+     */
+    messageTemplate: string,
+
+    /**
+     * Valores associados.
+     */
+    values: any
 }

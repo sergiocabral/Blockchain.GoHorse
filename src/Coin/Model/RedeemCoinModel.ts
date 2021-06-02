@@ -1,4 +1,4 @@
-import {IModel} from "./IModel";
+import {IModel} from "../../Data/IModel";
 
 /**
  * Resgates conhecidos.

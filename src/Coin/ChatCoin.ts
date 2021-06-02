@@ -1,5 +1,5 @@
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
-import {RedeemCoinModel} from "../Data/RedeemCoinModel";
+import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {Message} from "../Bus/Message";
 import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";
 import {SendChatMessageCommand} from "../Twitch/MessageCommand/SendChatMessageCommand";

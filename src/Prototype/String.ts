@@ -6,6 +6,12 @@ declare global {
      */
     interface String {
         /**
+         * Retorna um valor randômico
+         * @param length Opcional. Comprimento da string
+         */
+        random(length?: number): string;
+
+        /**
          * Substitui todas as ocorrências de uma string.
          * @param search String procurada.
          * @param replacement String de substituição.
@@ -23,6 +29,10 @@ declare global {
          */
         querystring(values: any): string;
     }
+}
+
+String.prototype.random = function(length?: number): string {
+    return Text.random(String(this), length);
 }
 
 String.prototype.replaceAll = function(search: string, replacement: string): string {

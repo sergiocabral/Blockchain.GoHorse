@@ -1,6 +1,7 @@
 import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
 import {Text} from "../Helper/Text";
+import {LoggerElasticsearch} from "./LoggerElasticsearch";
 
 /**
  * Manipula e registra mensagens de log.
@@ -38,22 +39,21 @@ export class Logger {
             }
         }
 
-        text = Text.querystring(text, values);
+        const message = this.factoryMessage(text, values, level, origin);
 
-        const message = this.factoryMessage(text, level, origin);
-        Logger.writeToConsole(message, level);
+        this.writeToConsole(message);
+        this.writeToElasticsearch(message);
     }
 
     /**
      * Escreve a mensagem no console.
      * @param message Mensagem.
-     * @param level Nível.
      */
-    private static writeToConsole(message: LogMessage, level: LogLevel): void {
-        const text = `${message.time.toLocaleString()} [${LogLevel[message.level] + (message.origin ? ": " + message.origin : "")}] ${message.text}`;
+    private static writeToConsole(message: LogMessage): void {
+        const text = `${message.time.toLocaleString()} [${LogLevel[message.level] + (message.origin ? ": " + message.origin : "")}] ${message.message}`;
 
         let log;
-        switch (level) {
+        switch (message.level) {
             case LogLevel.Error:               log = console.error; break;
             case LogLevel.Warning:             log = console.warn; break;
             case LogLevel.Information:         log = console.info; break;
@@ -65,6 +65,21 @@ export class Logger {
     }
 
     /**
+     * Manipula e registra mensagens de log no Elasticsearch.
+     * @private
+     */
+    private static loggerElasticsearch: LoggerElasticsearch | null = null;
+
+    /**
+     * Escreve a mensagem no Elasticsearch
+     * @param message Mensagem.
+     */
+    private static writeToElasticsearch(message: LogMessage): void {
+        this.loggerElasticsearch = this.loggerElasticsearch || new LoggerElasticsearch();
+        this.loggerElasticsearch.write(message);
+    }
+
+    /**
      * Contador de mensagens.
      * @private
      */
@@ -73,16 +88,21 @@ export class Logger {
     /**
      * Monta um objeto de mensagem de log.
      * @param text Texto da mensagem.
+     * @param values Conjunto de valores relacionados.
      * @param level Nível da mensagem.
      * @param origin Orígem do log. Nome do módulo ou arquivo.
      */
-    private static factoryMessage(text: string, level: LogLevel, origin: string): LogMessage {
+    private static factoryMessage(text: string, values: any, level: LogLevel, origin: string): LogMessage {
+        const message = Text.querystring(text, values);
+
         return {
-            id: ++Logger.messageCount,
+            id: ++this.messageCount,
             time: new Date(),
             level: level,
-            text: text,
-            origin: origin
+            message: message,
+            messageTemplate: text,
+            origin: origin,
+            values: values
         };
     }
 }

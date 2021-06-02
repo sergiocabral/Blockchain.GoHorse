@@ -24,6 +24,9 @@
     "@types/tmi.js": "^1.7.1"
   },
   "dependencies": {
-    "tmi.js": "^1.8.3"
+    "@elastic/elasticsearch": "^7.13.0",
+    "@types/node": "^15.6.1",
+    "tmi.js": "^1.8.3",
+    "tslib": "^2.2.0"
   }
 }

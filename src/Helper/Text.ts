@@ -1,10 +1,39 @@
 import {InvalidArgumentError} from "../Errors/InvalidArgumentError";
 import {EmptyValueError} from "../Errors/EmptyValueError";
+import {KeyValue} from "../Types/KeyValue";
 
 /**
  * Utilitários para manipulação e geração de string.
  */
 export class Text {
+    /**
+     * Armazena os valores randômicos fixos.
+     */
+    private static randomFixed: KeyValue = { };
+
+    /**
+     * Retorna um valor randômico
+     * @param {string} generator Opcional. Quando informado gera um randômico fixo para este valor em futuras consultas.
+     * @param {number} length Opcional. Comprimento da string
+     */
+    public static random(generator?: string, length: number = 10): string {
+        if (generator && Text.randomFixed[generator]) {
+            if (length != Text.randomFixed[generator].length) throw new InvalidArgumentError("Cannot change length after randomized.");
+            return Text.randomFixed[generator];
+        }
+        let result = "";
+        while (result.length < length) {
+            result += Buffer
+                .from(Math.random().toString())
+                .toString('base64')
+                .substr(5)
+                .replace(/([^a-z0-9]|^[0-9]*)/gi, '');
+        }
+        result = result.substr(0, length);
+        if (generator) Text.randomFixed[generator] = result;
+        return result;
+    }
+
     /**
      * Retorna o nome de uma instância.
      * @param instance Instância.

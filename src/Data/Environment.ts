@@ -1,7 +1,8 @@
 import {ChatBoxAuthenticationModel} from "../Twitch/Model/ChatBoxAuthenticationModel";
 import {IModel} from "./IModel";
 import {LogLevel} from "../Log/LogLevel";
-import {RedeemCoinModel} from "./RedeemCoinModel";
+import {RedeemCoinModel} from "../Coin/Model/RedeemCoinModel";
+import {LogPersistenceModel} from "../Log/Model/LogPersistenceModel";
 
 /**
  * Informação de configuração do ambiente.
@@ -16,6 +17,7 @@ export class Environment implements IModel {
         this.logMinLevel = (LogLevel[environment.logMinLevel] as any) as LogLevel;
         this.chatBoxAuthentication = new ChatBoxAuthenticationModel(environment?.chatBoxAuthentication);
         this.redeemCoin = new RedeemCoinModel(environment.redeemCoin);
+        this.log = new LogPersistenceModel(environment.log);
     }
 
     /**
@@ -24,7 +26,8 @@ export class Environment implements IModel {
     public isFilled(): boolean {
         return (
             Boolean(this.environment) &&
-            this.chatBoxAuthentication.isFilled()
+            this.chatBoxAuthentication.isFilled() &&
+            this.redeemCoin.isFilled()
         );
     }
 
@@ -56,4 +59,9 @@ export class Environment implements IModel {
      * Informações do resgate de moedas.
      */
     public readonly redeemCoin: RedeemCoinModel;
+
+    /**
+     * Persistência de log.
+     */
+    public readonly log: LogPersistenceModel;
 }
