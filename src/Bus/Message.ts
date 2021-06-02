@@ -49,30 +49,30 @@ export abstract class Message {
     /**
      * Envia uma mensagem para processamento.
      */
-    public sendAsync(): Promise<MessageRequested<this>> {
-        return Message.sendAsync<this>(this);
+    public send(): Promise<MessageRequested<this>> {
+        return Message.send<this>(this);
     }
 
     /**
      * Envia uma mensagem para processamento.
      * @param message Mensagem
      */
-    public static sendAsync<TMessage extends Message>(message: TMessage): Promise<MessageRequested<TMessage>> {
-        return new Promise(resolve => resolve(Message.send(message)));
+    public static send<TMessage extends Message>(message: TMessage): Promise<MessageRequested<TMessage>> {
+        return new Promise(resolve => resolve(Message.request(message)));
     }
 
     /**
      * Requisita o processamento da mensagem.
      */
-    public send(): MessageRequested<this> {
-        return Message.send<this>(this);
+    public request(): MessageRequested<this> {
+        return Message.request<this>(this);
     }
 
     /**
      * Requisita o processamento da mensagem.
      * @param message Mensagem
      */
-    public static send<TMessage extends Message>(message: TMessage): MessageRequested<TMessage> {
+    public static request<TMessage extends Message>(message: TMessage): MessageRequested<TMessage> {
         const messageName = Text.getObjectName(message);
         const captures = this.captures.filter(v => v.messageName === messageName);
         if (captures.length) {

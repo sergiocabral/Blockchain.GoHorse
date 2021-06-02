@@ -19,6 +19,11 @@ import {Environment} from "../Data/Environment";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
+import {RedeemEvent} from "./MessageEvent/RedeemEvent";
+import {RedeemModel} from "./Model/RedeemModel";
+import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
+import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
+import {Message} from "../Bus/Message";
 
 /**
  * Cliente ChatBox da Twitch
@@ -26,12 +31,15 @@ import {LogContext} from "../Log/LogContext";
 export class ChatBox implements Events {
     /**
      * Construtor.
-     * @param environment Informação de configuração do ambiente.
      */
-    public constructor(environment: Environment) {
-        this.options = ChatBox.factoryClientOptions(environment);
-        this.client = new Client(this.options);
+    public constructor() {
+        const environment = new EnvironmentQuery().request().message.environment;
+        const options = ChatBox.factoryClientOptions(environment);
+        this.client = new Client(options);
+
         ChatBox.registerEvents(this.client, this);
+
+        Message.capture(SendChatMessageCommand, this, this.onSendChatMessageCommand);
     }
 
     /**
@@ -39,12 +47,6 @@ export class ChatBox implements Events {
      * @private
      */
     private readonly client: Client;
-
-    /**
-     * opções de conexão.
-     * @private
-     */
-    private readonly options: Options;
 
     /**
      * Monta o objeto com informações para conexão do chatbox.
@@ -82,6 +84,15 @@ export class ChatBox implements Events {
      */
     public async start(): Promise<void> {
         await this.client.connect();
+    }
+
+    /**
+     * Processar mensagem
+     * @param message SendChatMessageCommand
+     * @private
+     */
+    private onSendChatMessageCommand(message: SendChatMessageCommand) {
+        this.client.say(message.channel, message.message);
     }
 
     /**
@@ -145,7 +156,7 @@ export class ChatBox implements Events {
      * @private
      */
     private static log(description: string, data: any): void {
-        Logger.post(() => `${description}: {0}`, [() => JSON.stringify(data, undefined, ), data], LogLevel.Verbose, LogContext.ChatBox);
+        Logger.post(() => `${description}: {0}`, [() => JSON.stringify(data, undefined, 2), data], LogLevel.Verbose, LogContext.ChatBox);
     }
 
     /**
@@ -526,8 +537,17 @@ export class ChatBox implements Events {
         ChatBox.log('reconnect', arguments);
     }
 
-    public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate): void {
+    /**
+     *
+     * @param channel
+     * @param username
+     * @param rewardType
+     * @param tags
+     * @param message
+     */
+    public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate, message: string = ''): void {
         ChatBox.log('redeem', arguments);
+        new RedeemEvent(new RedeemModel(channel, tags, rewardType, message)).send();
     }
 
     /**

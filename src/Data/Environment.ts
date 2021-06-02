@@ -1,6 +1,7 @@
-import {ChatBoxAuthentication} from "../Twitch/Model/ChatBoxAuthentication";
+import {ChatBoxAuthenticationModel} from "../Twitch/Model/ChatBoxAuthenticationModel";
 import {IModel} from "./IModel";
 import {LogLevel} from "../Log/LogLevel";
+import {RedeemCoinModel} from "./RedeemCoinModel";
 
 /**
  * Informação de configuração do ambiente.
@@ -13,7 +14,8 @@ export class Environment implements IModel {
     public constructor(environment: any) {
         this.environment = environment?.environment ?? '';
         this.logMinLevel = (LogLevel[environment.logMinLevel] as any) as LogLevel;
-        this.chatBoxAuthentication = new ChatBoxAuthentication(environment?.chatBoxAuthentication);
+        this.chatBoxAuthentication = new ChatBoxAuthenticationModel(environment?.chatBoxAuthentication);
+        this.redeemCoin = new RedeemCoinModel(environment.redeemCoin);
     }
 
     /**
@@ -31,12 +33,12 @@ export class Environment implements IModel {
     /**
      * Tipo de ambiente.
      */
-    public environment: string;
+    public readonly environment: string;
 
     /**
      * Nível de log.
      */
-    public logMinLevel: LogLevel;
+    public readonly logMinLevel: LogLevel;
 
     /**
      * Determina se o ambiente atual é de produção.
@@ -48,5 +50,10 @@ export class Environment implements IModel {
     /**
      * Modelo com os dados de autenticação do chatbox na Twitch.
      */
-    public chatBoxAuthentication: ChatBoxAuthentication;
+    public readonly chatBoxAuthentication: ChatBoxAuthenticationModel;
+
+    /**
+     * Informações do resgate de moedas.
+     */
+    public readonly redeemCoin: RedeemCoinModel;
 }

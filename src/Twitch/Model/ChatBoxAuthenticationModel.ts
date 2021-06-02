@@ -3,7 +3,7 @@ import {IModel} from "../../Data/IModel";
 /**
  * Modelo com os dados de autenticação do chatbox na Twitch.
  */
-export class ChatBoxAuthentication implements IModel {
+export class ChatBoxAuthenticationModel implements IModel {
     /**
      * Construtor.
      * @param data JSON para preencher o modelo.
