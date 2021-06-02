@@ -1,5 +1,4 @@
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
-import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {Message} from "../Bus/Message";
 import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";
 import {SendChatMessageCommand} from "../Twitch/MessageCommand/SendChatMessageCommand";
@@ -7,6 +6,8 @@ import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
 import {CoinModel} from "./Model/CoinModel";
+import {HumanMiner} from "./HumanMiner";
+import {ComputerMiner} from "./ComputerMiner";
 
 /**
  * Escuta do chat da moeda.
@@ -19,8 +20,23 @@ export class ChatCoin {
         const environment = new EnvironmentQuery().request().message.environment;
         this.coins = environment.coins;
 
+        this.humanMiner = new HumanMiner();
+        this.computerMiner = new ComputerMiner();
+
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
     }
+
+    /**
+     * Minerador humano
+     * @private
+     */
+    private humanMiner: HumanMiner;
+
+    /**
+     * Minerador computacional
+     * @private
+     */
+    private computerMiner: ComputerMiner;
 
     /**
      * Moedas disponíveis

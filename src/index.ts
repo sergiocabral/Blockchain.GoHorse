@@ -1,6 +1,6 @@
-import {MainApp} from './Core/MainApp';
+import {App} from './Core/App';
 import environment from './env.json';
 import './Helper/Prototype/String';
 import './Helper/Prototype/List';
 
-new MainApp(environment).run();
+new App(environment).run();

@@ -24,21 +24,20 @@ import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
 import {Message} from "../Bus/Message";
-import {List} from "../Helper/List";
 
 /**
- * Cliente ChatBox da Twitch
+ * Cliente ChatBot da Twitch
  */
-export class ChatBox implements Events {
+export class ChatBot implements Events {
     /**
      * Construtor.
      */
     public constructor() {
         const environment = new EnvironmentQuery().request().message.environment;
-        const options = ChatBox.factoryClientOptions(environment);
+        const options = ChatBot.factoryClientOptions(environment);
         this.client = new Client(options);
 
-        ChatBox.registerEvents(this.client, this);
+        ChatBot.registerEvents(this.client, this);
 
         Message.capture(SendChatMessageCommand, this, this.handlerSendChatMessageCommand);
     }
@@ -167,7 +166,7 @@ export class ChatBox implements Events {
      * @param message The message data object
      */
     public raw_message(messageCloned: { [p: string]: any }, message: { [p: string]: any }): void {
-        ChatBox.log('raw_message', arguments);
+        ChatBot.log('raw_message', arguments);
     }
 
     /**
@@ -178,7 +177,7 @@ export class ChatBox implements Events {
      * @param self Message was sent by the client
      */
     public action(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBox.log('action', arguments);
+        ChatBot.log('action', arguments);
     }
 
     /**
@@ -188,7 +187,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public anongiftpaidupgrade(channel: string, username: string, userstate: AnonSubGiftUpgradeUserstate): void {
-        ChatBox.log('anongiftpaidupgrade', arguments);
+        ChatBot.log('anongiftpaidupgrade', arguments);
     }
 
     /**
@@ -198,7 +197,7 @@ export class ChatBox implements Events {
      * @param message
      */
     public automod(channel: string, msgID: "msg_rejected" | "msg_rejected_mandatory", message: string): void {
-        ChatBox.log('automod', arguments);
+        ChatBot.log('automod', arguments);
     }
 
     /**
@@ -208,7 +207,7 @@ export class ChatBox implements Events {
      * @param reason Deprecated, always null. See event description above
      */
     public ban(channel: string, username: string, reason: string): void {
-        ChatBox.log('ban', arguments);
+        ChatBot.log('ban', arguments);
     }
 
     /**
@@ -219,7 +218,7 @@ export class ChatBox implements Events {
      * @param self Message was sent by the client
      */
     public chat(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBox.log('chat', arguments);
+        ChatBot.log('chat', arguments);
     }
 
     /**
@@ -229,7 +228,7 @@ export class ChatBox implements Events {
      * @param message Message
      */
     public cheer(channel: string, userstate: ChatUserstate, message: string): void {
-        ChatBox.log('cheer', arguments);
+        ChatBot.log('cheer', arguments);
     }
 
     /**
@@ -237,7 +236,7 @@ export class ChatBox implements Events {
      * @param clearchat Channel name
      */
     public clearchat(clearchat: string): void {
-        ChatBox.log('clearchat', arguments);
+        ChatBot.log('clearchat', arguments);
     }
 
     /**
@@ -246,7 +245,7 @@ export class ChatBox implements Events {
      * @param port Remote port
      */
     public connected(address: string, port: number): void {
-        ChatBox.log('connected', arguments);
+        ChatBot.log('connected', arguments);
     }
 
     /**
@@ -255,7 +254,7 @@ export class ChatBox implements Events {
      * @param port Remote port
      */
     public connecting(address: string, port: number): void {
-        ChatBox.log('connecting', arguments);
+        ChatBot.log('connecting', arguments);
     }
 
     /**
@@ -263,7 +262,7 @@ export class ChatBox implements Events {
      * @param reason Reason why you got disconnected
      */
     public disconnected(reason: string): void {
-        ChatBox.log('disconnected', arguments);
+        ChatBot.log('disconnected', arguments);
     }
 
     /**
@@ -272,7 +271,7 @@ export class ChatBox implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public emoteonly(channel: string, enabled: boolean): void {
-        ChatBox.log('emoteonly', arguments);
+        ChatBot.log('emoteonly', arguments);
     }
 
     /**
@@ -281,7 +280,7 @@ export class ChatBox implements Events {
      * @param obj Your emote sets with IDs and codes received from the Twitch API
      */
     public emotesets(sets: string, obj: EmoteObj): void {
-        ChatBox.log('emotesets', arguments);
+        ChatBot.log('emotesets', arguments);
     }
 
     /**
@@ -291,7 +290,7 @@ export class ChatBox implements Events {
      * @param length Length in minutes
      */
     public followersonly(channel: string, enabled: boolean, length: number): void {
-        ChatBox.log('followersonly', arguments);
+        ChatBot.log('followersonly', arguments);
     }
 
     /**
@@ -302,7 +301,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public giftpaidupgrade(channel: string, username: string, sender: string, userstate: SubGiftUpgradeUserstate): void {
-        ChatBox.log('giftpaidupgrade', arguments);
+        ChatBot.log('giftpaidupgrade', arguments);
     }
 
     /**
@@ -313,7 +312,7 @@ export class ChatBox implements Events {
      * @param autohost Auto-hosting
      */
     public hosted(channel: string, username: string, viewers: number, autohost: boolean): void {
-        ChatBox.log('hosted', arguments);
+        ChatBot.log('hosted', arguments);
     }
 
     /**
@@ -323,7 +322,7 @@ export class ChatBox implements Events {
      * @param viewers Viewers count
      */
     public hosting(channel: string, target: string, viewers: number): void {
-        ChatBox.log('hosting', arguments);
+        ChatBot.log('hosting', arguments);
     }
 
     /**
@@ -333,14 +332,14 @@ export class ChatBox implements Events {
      * @param self Client has joined the channel
      */
     public join(channel: string, username: string, self: boolean): void {
-        ChatBox.log('join', arguments);
+        ChatBot.log('join', arguments);
     }
 
     /**
      * Connection established, sending informations to server
      */
     public logon(): void {
-        ChatBox.log('logon', arguments);
+        ChatBot.log('logon', arguments);
     }
 
     /**
@@ -351,7 +350,7 @@ export class ChatBox implements Events {
      * @param self Message was sent by the client
      */
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBox.log('message', arguments);
+        ChatBot.log('message', arguments);
     }
 
     /**
@@ -362,7 +361,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public messagedeleted(channel: string, username: string, deletedMessage: string, userstate: DeleteUserstate): void {
-        ChatBox.log('messagedeleted', arguments);
+        ChatBot.log('messagedeleted', arguments);
     }
 
     /**
@@ -371,7 +370,7 @@ export class ChatBox implements Events {
      * @param username Username
      */
     public mod(channel: string, username: string): void {
-        ChatBox.log('mod', arguments);
+        ChatBot.log('mod', arguments);
     }
 
     /**
@@ -380,7 +379,7 @@ export class ChatBox implements Events {
      * @param mods Moderators of the channel
      */
     public mods(channel: string, mods: string[]): void {
-        ChatBox.log('mods', arguments);
+        ChatBot.log('mods', arguments);
     }
 
     /**
@@ -474,7 +473,7 @@ export class ChatBox implements Events {
      * @param message Message received
      */
     public notice(channel: string, msgid: MsgID, message: string): void {
-        ChatBox.log('notice', arguments);
+        ChatBot.log('notice', arguments);
     }
 
     /**
@@ -484,14 +483,14 @@ export class ChatBox implements Events {
      * @param self Client has left the channel
      */
     public part(channel: string, username: string, self: boolean): void {
-        ChatBox.log('part', arguments);
+        ChatBot.log('part', arguments);
     }
 
     /**
      * Received PING from server
      */
     public ping(): void {
-        ChatBox.log('ping', arguments);
+        ChatBot.log('ping', arguments);
     }
 
     /**
@@ -499,7 +498,7 @@ export class ChatBox implements Events {
      * @param latency
      */
     public pong(latency: number): void {
-        ChatBox.log('pong', arguments);
+        ChatBot.log('pong', arguments);
     }
 
     /**
@@ -510,7 +509,7 @@ export class ChatBox implements Events {
      * @param userstate
      */
     public primepaidupgrade(channel: string, username: string, methods: SubMethods, userstate: PrimeUpgradeUserstate): void {
-        ChatBox.log('primepaidupgrade', arguments);
+        ChatBot.log('primepaidupgrade', arguments);
     }
 
     /**
@@ -519,7 +518,7 @@ export class ChatBox implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public r9kbeta(channel: string, enabled: boolean): void {
-        ChatBox.log('r9kbeta', arguments);
+        ChatBot.log('r9kbeta', arguments);
     }
 
     /**
@@ -529,14 +528,14 @@ export class ChatBox implements Events {
      * @param viewers Viewers count
      */
     public raided(channel: string, username: string, viewers: number): void {
-        ChatBox.log('raided', arguments);
+        ChatBot.log('raided', arguments);
     }
 
     /**
      * Trying to reconnect to server
      */
     public reconnect(): void {
-        ChatBox.log('reconnect', arguments);
+        ChatBot.log('reconnect', arguments);
     }
 
     /**
@@ -548,7 +547,7 @@ export class ChatBox implements Events {
      * @param message
      */
     public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate, message: string = ''): void {
-        ChatBox.log('redeem', arguments);
+        ChatBot.log('redeem', arguments);
         new RedeemEvent(new RedeemModel(channel, tags, rewardType, message, arguments)).send();
     }
 
@@ -563,7 +562,7 @@ export class ChatBox implements Events {
      * @param methods Resub methods and plan (such as Prime)
      */
     public resub(channel: string, username: string, months: number, message: string, userstate: SubUserstate, methods: SubMethods): void {
-        ChatBox.log('resub', arguments);
+        ChatBot.log('resub', arguments);
     }
 
     /**
@@ -572,7 +571,7 @@ export class ChatBox implements Events {
      * @param state Current state of the channel
      */
     public roomstate(channel: string, state: RoomState): void {
-        ChatBox.log('roomstate', arguments);
+        ChatBot.log('roomstate', arguments);
     }
 
     /**
@@ -580,7 +579,7 @@ export class ChatBox implements Events {
      * @param channel Channel name
      */
     public serverchange(channel: string): void {
-        ChatBox.log('serverchange', arguments);
+        ChatBot.log('serverchange', arguments);
     }
 
     /**
@@ -590,7 +589,7 @@ export class ChatBox implements Events {
      * @param length
      */
     public slowmode(channel: string, enabled: boolean, length: number): void {
-        ChatBox.log('slowmode', arguments);
+        ChatBot.log('slowmode', arguments);
     }
 
     /**
@@ -603,7 +602,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: SubMethods, userstate: SubGiftUserstate): void {
-        ChatBox.log('subgift', arguments);
+        ChatBot.log('subgift', arguments);
     }
 
     /**
@@ -615,7 +614,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public submysterygift(channel: string, username: string, numbOfSubs: number, methods: SubMethods, userstate: SubMysteryGiftUserstate): void {
-        ChatBox.log('submysterygift', arguments);
+        ChatBot.log('submysterygift', arguments);
     }
 
     /**
@@ -624,7 +623,7 @@ export class ChatBox implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public subscribers(channel: string, enabled: boolean): void {
-        ChatBox.log('subscribers', arguments);
+        ChatBot.log('subscribers', arguments);
     }
 
     /**
@@ -636,7 +635,7 @@ export class ChatBox implements Events {
      * @param userstate Userstate object
      */
     public subscription(channel: string, username: string, methods: SubMethods, message: string, userstate: SubUserstate): void {
-        ChatBox.log('subscription', arguments);
+        ChatBot.log('subscription', arguments);
     }
 
     /**
@@ -647,7 +646,7 @@ export class ChatBox implements Events {
      * @param duration Duration of the timeout
      */
     public timeout(channel: string, username: string, reason: string, duration: number): void {
-        ChatBox.log('timeout', arguments);
+        ChatBot.log('timeout', arguments);
     }
 
     /**
@@ -656,7 +655,7 @@ export class ChatBox implements Events {
      * @param viewers Viewer count
      */
     public unhost(channel: string, viewers: number): void {
-        ChatBox.log('unhost', arguments);
+        ChatBot.log('unhost', arguments);
     }
 
     /**
@@ -666,7 +665,7 @@ export class ChatBox implements Events {
      * @param username Username
      */
     public unmod(channel: string, username: string): void {
-        ChatBox.log('unmod', arguments);
+        ChatBot.log('unmod', arguments);
     }
 
     /**
@@ -675,7 +674,7 @@ export class ChatBox implements Events {
      * @param vips VIPs of the channel
      */
     public vips(channel: string, vips: string[]): void {
-        ChatBox.log('vips', arguments);
+        ChatBot.log('vips', arguments);
     }
 
     /**
@@ -686,6 +685,6 @@ export class ChatBox implements Events {
      * @param self Message was sent by the client
      */
     public whisper(from: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBox.log('whisper', arguments);
+        ChatBot.log('whisper', arguments);
     }
 }

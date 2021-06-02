@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import {Environment} from "./Environment";
-import {ChatBox} from "../Twitch/ChatBox";
+import {ChatBot} from "../Twitch/ChatBot";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
@@ -14,7 +14,7 @@ import {LoggerConsole} from "../Log/LoggerConsole";
 /**
  * Classe principal do sistema.
  */
-export class MainApp {
+export class App {
     /**
      * Construtor.
      * @param environment JSON com dados do ambiente.
@@ -29,7 +29,7 @@ export class MainApp {
 
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
 
-        this.chatBox = new ChatBox();
+        this.chatBot = new ChatBot();
         this.chatCoin = new ChatCoin();
     }
 
@@ -43,7 +43,7 @@ export class MainApp {
      * Cliente ChatBox da Twitch.
      * @private
      */
-    private readonly chatBox: ChatBox;
+    private readonly chatBot: ChatBot;
 
     /**
      * Escuta do chat da moeda.
@@ -62,7 +62,7 @@ export class MainApp {
             return;
         }
 
-        this.chatBox.start()
+        this.chatBot.start()
             .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, LogLevel.Error, LogContext.MainApp));
     }
 
