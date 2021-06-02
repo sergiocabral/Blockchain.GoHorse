@@ -1,14 +1,14 @@
 import fs from "fs";
 import path from "path";
-import {Environment} from "../Data/Environment";
+import {Environment} from "./Environment";
 import {ChatBox} from "../Twitch/ChatBox";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {ChatCoin} from "./ChatCoin";
+import {ChatCoin} from "../Coin/ChatCoin";
 import {Message} from "../Bus/Message";
 import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
-import {Translate} from "../Data/Translate";
+import {Translate} from "./Translate";
 
 /**
  * Classe principal do sistema.

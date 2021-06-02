@@ -15,7 +15,7 @@ import {
     SubMysteryGiftUserstate,
     SubUserstate
 } from 'tmi.js'
-import {Environment} from "../Data/Environment";
+import {Environment} from "../Core/Environment";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";

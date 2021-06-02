@@ -1,7 +1,7 @@
 import {ChatBoxAuthenticationModel} from "../Twitch/Model/ChatBoxAuthenticationModel";
 import {IModel} from "./IModel";
 import {LogLevel} from "../Log/LogLevel";
-import {RedeemCoinModel} from "../Core/Model/RedeemCoinModel";
+import {RedeemCoinModel} from "../Coin/Model/RedeemCoinModel";
 import {LogPersistenceModel} from "../Log/Model/LogPersistenceModel";
 
 /**

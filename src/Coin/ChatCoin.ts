@@ -1,4 +1,4 @@
-import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
+import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {Message} from "../Bus/Message";
 import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";

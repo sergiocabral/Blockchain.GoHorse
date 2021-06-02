@@ -1,5 +1,5 @@
 import {MainApp} from './Core/MainApp';
 import environment from './env.json';
-import './Prototype/String';
+import './Types/Prototype/String';
 
 new MainApp(environment).run();

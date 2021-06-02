@@ -1,5 +1,5 @@
-import {Text} from "../Helper/Text";
-import {Translate} from "../Data/Translate";
+import {Text} from "../../Helper/Text";
+import {Translate} from "../../Core/Translate";
 
 declare global {
     /**
