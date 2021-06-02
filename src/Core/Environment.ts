@@ -1,8 +1,9 @@
-import {ChatBoxAuthenticationModel} from "../Twitch/Model/ChatBoxAuthenticationModel";
+import {UserAuthenticationModel} from "../Twitch/Model/UserAuthenticationModel";
 import {IModel} from "./IModel";
 import {LogLevel} from "../Log/LogLevel";
 import {RedeemCoinModel} from "../Coin/Model/RedeemCoinModel";
 import {LogPersistenceModel} from "../Log/Model/LogPersistenceModel";
+import {CoinModel} from "../Coin/Model/CoinModel";
 
 /**
  * Informação de configuração do ambiente.
@@ -15,8 +16,8 @@ export class Environment implements IModel {
     public constructor(environment: any) {
         this.environment = environment?.environment ?? '';
         this.language = environment?.language ?? '';
-        this.chatBoxAuthentication = new ChatBoxAuthenticationModel(environment?.chatBoxAuthentication);
-        this.redeemCoin = new RedeemCoinModel(environment.redeemCoin);
+        this.chatBot = new UserAuthenticationModel(environment?.chatBot);
+        this.coins = environment.coins?.length ? environment.coins.map((coin: any) => new CoinModel(coin)) : null;
         this.log = new LogPersistenceModel(environment.log);
     }
 
@@ -27,8 +28,9 @@ export class Environment implements IModel {
         return (
             Boolean(this.environment) &&
             Boolean(this.language) &&
-            this.chatBoxAuthentication.isFilled() &&
-            this.redeemCoin.isFilled()
+            this.chatBot.isFilled() &&
+            Boolean(this.coins?.length) &&
+            this.coins.filter(coin => coin.isFilled()).length === this.coins.length
         );
     }
 
@@ -54,12 +56,12 @@ export class Environment implements IModel {
     /**
      * Modelo com os dados de autenticação do chatbox na Twitch.
      */
-    public readonly chatBoxAuthentication: ChatBoxAuthenticationModel;
+    public readonly chatBot: UserAuthenticationModel;
 
     /**
-     * Informações do resgate de moedas.
+     * Moedas disponíveis.
      */
-    public readonly redeemCoin: RedeemCoinModel;
+    public readonly coins: CoinModel[];
 
     /**
      * Persistência de log.

@@ -84,7 +84,7 @@ export class Logger {
      * @param origin Orígem do log. Nome do módulo ou arquivo.
      */
     private static factoryMessage(text: string, values: any, level: LogLevel, origin: string): LogMessage {
-        const message = Text.querystring(text, values);
+        const message = text.querystring(values);
 
         return {
             id: ++this.messageCount,

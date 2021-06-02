@@ -24,6 +24,7 @@ import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
 import {Message} from "../Bus/Message";
+import {List} from "../Helper/List";
 
 /**
  * Cliente ChatBox da Twitch
@@ -54,6 +55,7 @@ export class ChatBox implements Events {
      * @private
      */
     private static factoryClientOptions(environment: Environment): Options {
+        const channels = environment.coins.map(coin => coin.channels).flat<string>();
         return {
             options: {
                 clientId: environment.applicationName,
@@ -65,10 +67,10 @@ export class ChatBox implements Events {
                 secure: true,
             },
             identity: {
-                username: environment.chatBoxAuthentication.username,
-                password: environment.chatBoxAuthentication.token,
+                username: environment.chatBot.username,
+                password: environment.chatBot.token,
             },
-            channels: environment.chatBoxAuthentication.channels,
+            channels: channels,
             logger: Object.assign({
                 info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBoxTmi),
                 warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBoxTmi),

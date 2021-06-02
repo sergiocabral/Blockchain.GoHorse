@@ -2,7 +2,7 @@
  * Consulta de textos traduzidos.
  */
 import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
-import {KeyValue} from "../Types/KeyValue";
+import {KeyValue} from "../Helper/Types/KeyValue";
 
 export class Translate {
 

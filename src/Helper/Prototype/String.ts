@@ -1,4 +1,4 @@
-import {Text} from "../../Helper/Text";
+import {Text} from "../Text";
 import {Translate} from "../../Core/Translate";
 
 declare global {

@@ -6,6 +6,7 @@ import {SendChatMessageCommand} from "../Twitch/MessageCommand/SendChatMessageCo
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
+import {CoinModel} from "./Model/CoinModel";
 
 /**
  * Escuta do chat da moeda.
@@ -16,16 +17,16 @@ export class ChatCoin {
      */
     constructor() {
         const environment = new EnvironmentQuery().request().message.environment;
-        this.redeemCoin = environment.redeemCoin;
+        this.coins = environment.coins;
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
     }
 
     /**
-     * Informações do resgate de moedas
+     * Moedas disponíveis
      * @private
      */
-    private redeemCoin: RedeemCoinModel;
+    private coins: CoinModel[];
 
     /**
      * Processa mensagem
@@ -33,14 +34,26 @@ export class ChatCoin {
      * @private
      */
     private handlerRedeemEvent(message: RedeemEvent) {
-        if (message.redeem.id !== this.redeemCoin.id) return;
+        let coins = this.coins;
+        if (coins.length === 0) return;
 
-        Logger.post(
-            'Redeemed requested in the chat "{0}", pelo usuário "{1}", no valor de {2}. Mensagem: "{3}"',
-            [message.redeem.channel.name, message.redeem.user.name, this.redeemCoin.amount, message.redeem.message, message],
-            LogLevel.Information,
-            LogContext.ChatCoin)
+        coins = coins.filter(coin => coin.channels.filter(channelName => channelName === message.redeem.channel.name).length);
+        if (coins.length === 0) return;
 
-        new SendChatMessageCommand(message.redeem.channel.name, `Seriously you said "{0}?"`.translate().querystring(message.redeem.message)).send();
+        coins = coins.filter(coin => coin.redeems.filter(redeem => redeem.id === message.redeem.id).length);
+        if (coins.length === 0) return;
+
+        for (const coin of coins) {
+            const redeems = coin.redeems.filter(redeem => redeem.id === message.redeem.id);
+            for (const redeem of redeems) {
+                Logger.post(
+                    'Redeemed requested in the chat "{0}", pelo usuário "{1}", no valor de {2}. Mensagem: "{3}"',
+                    [message.redeem.channel.name, message.redeem.user.name, redeem.amount, message.redeem.message, message],
+                    LogLevel.Information,
+                    LogContext.ChatCoin)
+
+                new SendChatMessageCommand(message.redeem.channel.name, `Seriously you said "{0}?"`.translate().querystring(message.redeem.message)).send();
+            }
+        }
     }
 }

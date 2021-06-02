@@ -1,6 +1,6 @@
 import {InvalidArgumentError} from "../Errors/InvalidArgumentError";
 import {EmptyValueError} from "../Errors/EmptyValueError";
-import {KeyValue} from "../Types/KeyValue";
+import {KeyValue} from "./Types/KeyValue";
 
 /**
  * Utilitários para manipulação e geração de string.

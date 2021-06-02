@@ -1,9 +1,9 @@
 import {IModel} from "../../Core/IModel";
 
 /**
- * Modelo com os dados de autenticação do chatbox na Twitch.
+ * Modelo com os dados de autenticação do usuário na Twitch.
  */
-export class ChatBoxAuthenticationModel implements IModel {
+export class UserAuthenticationModel implements IModel {
     /**
      * Construtor.
      * @param data JSON para preencher o modelo.
@@ -11,7 +11,6 @@ export class ChatBoxAuthenticationModel implements IModel {
     public constructor(data: any) {
         this.username = data?.username ?? '';
         this.token = data?.token ?? '';
-        this.channels = data?.channels ?? [];
     }
 
     /**
@@ -20,8 +19,7 @@ export class ChatBoxAuthenticationModel implements IModel {
     public isFilled(): boolean {
         return (
             Boolean(this.username) &&
-            Boolean(this.token) &&
-            Boolean(this.channels?.length)
+            Boolean(this.token)
         );
     }
 
@@ -34,9 +32,4 @@ export class ChatBoxAuthenticationModel implements IModel {
      * Token de autenticação para o usuário autor das mensagens do BOT.
      */
     public token: string;
-
-    /**
-     * Lista de canais onde o BOT será moderador.
-     */
-    public channels: string[];
 }

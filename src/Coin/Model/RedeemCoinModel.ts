@@ -1,7 +1,7 @@
 import {IModel} from "../../Core/IModel";
 
 /**
- * Resgates conhecidos.
+ * Modelo para um resgates conhecido.
  */
 export class RedeemCoinModel implements IModel {
     /**
@@ -10,6 +10,7 @@ export class RedeemCoinModel implements IModel {
      */
     public constructor(data: any) {
         this.id = data?.id ?? '';
+        this.description = data?.description ?? '';
         this.amount = data?.amount ?? null;
     }
 
@@ -19,6 +20,7 @@ export class RedeemCoinModel implements IModel {
     public isFilled(): boolean {
         return (
             Boolean(this.id) &&
+            Boolean(this.description) &&
             Number.isFinite(this.amount)
         );
     }
@@ -27,6 +29,11 @@ export class RedeemCoinModel implements IModel {
      * Identificador do resgate.
      */
     public id: string;
+
+    /**
+     * Descrição do resgate.
+     */
+    public description: string;
 
     /**
      * Quantidade resgatada.
