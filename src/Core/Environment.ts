@@ -14,7 +14,6 @@ export class Environment implements IModel {
      */
     public constructor(environment: any) {
         this.environment = environment?.environment ?? '';
-        this.logMinLevel = (LogLevel[environment.logMinLevel] as any) as LogLevel;
         this.language = environment?.language ?? '';
         this.chatBoxAuthentication = new ChatBoxAuthenticationModel(environment?.chatBoxAuthentication);
         this.redeemCoin = new RedeemCoinModel(environment.redeemCoin);
@@ -39,11 +38,6 @@ export class Environment implements IModel {
      * Tipo de ambiente.
      */
     public readonly environment: string;
-
-    /**
-     * Nível de log.
-     */
-    public readonly logMinLevel: LogLevel;
 
     /**
      * Idioma.

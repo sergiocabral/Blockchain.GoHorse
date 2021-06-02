@@ -2,6 +2,7 @@ import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
 import {Text} from "../Helper/Text";
 import {LoggerElasticsearch} from "./LoggerElasticsearch";
+import {LoggerConsole} from "./LoggerConsole";
 
 /**
  * Manipula e registra mensagens de log.
@@ -16,7 +17,7 @@ export class Logger {
     /**
      * Nível mínimo de log para exibição.
      */
-    public static minLevel: LogLevel = LogLevel.Verbose;
+    public static minimumLevel: LogLevel = LogLevel.Verbose;
 
     /**
      * Registra uma mensagem de log
@@ -26,7 +27,8 @@ export class Logger {
      * @param origin Origem do log.
      */
     public static post(text: string | (() => string), values: any = undefined, level: LogLevel = LogLevel.Debug, origin: any = ''): void {
-        if (level < this.minLevel) return;
+        if (level < this.minimumLevel) return;
+
         origin = origin !== '' ? Text.getObjectName(origin) : origin;
 
         if (typeof(text) === 'function') {
@@ -50,18 +52,7 @@ export class Logger {
      * @param message Mensagem.
      */
     private static writeToConsole(message: LogMessage): void {
-        const text = `${message.time.toLocaleString()} [${LogLevel[message.level] + (message.origin ? ": " + message.origin : "")}] ${message.message}`;
-
-        let log;
-        switch (message.level) {
-            case LogLevel.Error:               log = console.error; break;
-            case LogLevel.Warning:             log = console.warn; break;
-            case LogLevel.Information:         log = console.info; break;
-            case LogLevel.Debug:               log = console.log; break;
-            default:                           log = console.debug; break;
-        }
-
-        log(text);
+        LoggerConsole.write(message);
     }
 
     /**

@@ -8,16 +8,13 @@ import {LogElasticsearchMessage} from "./LogElasticsearchMessage";
 import {Text} from "../Helper/Text";
 
 /**
- * Manipula e registra mensagens de log no Elasticsearch.
+ * Registra log no elasticsearch.
  */
 export class LoggerElasticsearch {
     /**
-     * Construtor.
-     * @param minLevel Nível mínimo de log para exibição
+     * Nível mínimo de log.
      */
-    constructor(
-        public minLevel: LogLevel = LogLevel.Information) {
-    }
+    public minimumLevel: LogLevel | null = null;
 
     /**
      * Identificador da instância.
@@ -70,7 +67,9 @@ export class LoggerElasticsearch {
         ) {
             while (this.queue.length) {
                 const logMessage = this.queue.shift();
-                if (logMessage === undefined) continue;
+                if (logMessage === undefined ||
+                    this.minimumLevel === null ||
+                    logMessage.level < this.minimumLevel) continue;
 
                 const logElasticsearchMessage = new LogElasticsearchMessage(logMessage);
                 const id = logElasticsearchMessage.id;
@@ -98,6 +97,7 @@ export class LoggerElasticsearch {
         this.state = PersistenceState.Connecting;
 
         this.options = new EnvironmentQuery().request().message.environment.log.elasticsearch;
+        this.minimumLevel = this.options.minimumLevel;
 
         if (!this.options.isFilled()) {
             this.state = PersistenceState.Disabled;
