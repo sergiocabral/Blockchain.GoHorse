@@ -13,11 +13,12 @@ export class RedeemModel implements IModel {
      * @param redeemId Identificador da recompensa.
      * @param redeemMessage Mensage da recompensa.
      */
-    public constructor(channelName: any, userData: any, redeemId: any, redeemMessage: string) {
+    public constructor(channelName: any, userData: any, redeemId: any, redeemMessage: string, raw?: any) {
         this.channel = new ChannelModel(channelName);
         this.user = new UserModel(userData);
         this.id = redeemId ?? '';
         this.message = redeemMessage ?? '';
+        this.raw = raw;
     }
 
     /**
@@ -50,4 +51,9 @@ export class RedeemModel implements IModel {
      * Mensagem associada.
      */
     public message: string;
+
+    /**
+     * Dados bruto.
+     */
+    public raw?: string;
 }

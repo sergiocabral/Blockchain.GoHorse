@@ -547,7 +547,7 @@ export class ChatBox implements Events {
      */
     public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate, message: string = ''): void {
         ChatBox.log('redeem', arguments);
-        new RedeemEvent(new RedeemModel(channel, tags, rewardType, message)).send();
+        new RedeemEvent(new RedeemModel(channel, tags, rewardType, message, arguments)).send();
     }
 
     /**
