@@ -1,10 +1,18 @@
 import {Text} from "../Helper/Text";
+import {Translate} from "../Data/Translate";
 
 declare global {
     /**
      * Interface para extender propriedades de String.
      */
     interface String {
+        /**
+         * Retorna um texto traduzido.
+         * @param values Opcional. Conjunto de valores para substituição na string.
+         * @param language Opcional. Idioma.
+         */
+        translate(values?: any, language?: string): string;
+
         /**
          * Retorna um valor randômico
          * @param length Opcional. Comprimento da string
@@ -29,6 +37,10 @@ declare global {
          */
         querystring(values: any): string;
     }
+}
+
+String.prototype.translate = function(values?: any, language?: string): string {
+    return Translate.get(String(this), values, language);
 }
 
 String.prototype.random = function(length?: number): string {

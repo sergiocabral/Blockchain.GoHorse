@@ -1,11 +1,14 @@
+import fs from "fs";
+import path from "path";
 import {Environment} from "../Data/Environment";
 import {ChatBox} from "../Twitch/ChatBox";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {ChatCoin} from "../Coin/ChatCoin";
+import {ChatCoin} from "./ChatCoin";
 import {Message} from "../Bus/Message";
 import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
+import {Translate} from "../Data/Translate";
 
 /**
  * Classe principal do sistema.
@@ -18,6 +21,8 @@ export class MainApp {
     public constructor(environment: any) {
         this.environment = new Environment(environment);
         Logger.minLevel = this.environment.logMinLevel;
+
+        this.loadLanguages();
 
         Message.capture(EnvironmentQuery, this, this.onEnvironmentQuery);
 
@@ -56,6 +61,16 @@ export class MainApp {
 
         this.chatBox.start()
             .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, LogLevel.Error, LogContext.MainApp));
+    }
+
+    /**
+     * Carrega o arquivo de idiomas.
+     * @private
+     */
+    private loadLanguages() {
+        const translate = new Translate(this.environment.language, true);
+        const content = JSON.parse(fs.readFileSync(path.resolve("src", `translates.${translate.language}.json`)).toString());
+        translate.load(content, translate.language);
     }
 
     /**

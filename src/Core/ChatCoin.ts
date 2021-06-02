@@ -1,4 +1,4 @@
-import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
+import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {Message} from "../Bus/Message";
 import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";
@@ -41,6 +41,6 @@ export class ChatCoin {
             LogLevel.Information,
             LogContext.ChatCoin)
 
-        new SendChatMessageCommand(message.redeem.channel.name, `Sério que você disse "${message.redeem.message}?"`).send();
+        new SendChatMessageCommand(message.redeem.channel.name, `Seriously you said "{0}?"`.translate().querystring(message.redeem.message)).send();
     }
 }

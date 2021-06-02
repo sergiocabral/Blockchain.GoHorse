@@ -1,7 +1,7 @@
 import {ChatBoxAuthenticationModel} from "../Twitch/Model/ChatBoxAuthenticationModel";
 import {IModel} from "./IModel";
 import {LogLevel} from "../Log/LogLevel";
-import {RedeemCoinModel} from "../Coin/Model/RedeemCoinModel";
+import {RedeemCoinModel} from "../Core/Model/RedeemCoinModel";
 import {LogPersistenceModel} from "../Log/Model/LogPersistenceModel";
 
 /**
@@ -15,6 +15,7 @@ export class Environment implements IModel {
     public constructor(environment: any) {
         this.environment = environment?.environment ?? '';
         this.logMinLevel = (LogLevel[environment.logMinLevel] as any) as LogLevel;
+        this.language = environment?.language ?? '';
         this.chatBoxAuthentication = new ChatBoxAuthenticationModel(environment?.chatBoxAuthentication);
         this.redeemCoin = new RedeemCoinModel(environment.redeemCoin);
         this.log = new LogPersistenceModel(environment.log);
@@ -26,6 +27,7 @@ export class Environment implements IModel {
     public isFilled(): boolean {
         return (
             Boolean(this.environment) &&
+            Boolean(this.language) &&
             this.chatBoxAuthentication.isFilled() &&
             this.redeemCoin.isFilled()
         );
@@ -42,6 +44,11 @@ export class Environment implements IModel {
      * Nível de log.
      */
     public readonly logMinLevel: LogLevel;
+
+    /**
+     * Idioma.
+     */
+    public readonly language: string;
 
     /**
      * Determina se o ambiente atual é de produção.
