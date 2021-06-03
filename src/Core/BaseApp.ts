@@ -9,6 +9,7 @@ import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
 import {Translate} from "./Translate";
 import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
 import {IModel} from "./IModel";
+import {ApplicationEnvironment} from "./Environment/ApplicationEnvironment";
 
 /**
  * Aplicação: chatbot da Cabr0n Coin.
@@ -16,10 +17,11 @@ import {IModel} from "./IModel";
 export abstract class BaseApp {
     /**
      * Construtor.
+     * @param applicationName Nome da aplicação.
      * @param environment JSON com dados do ambiente.
      */
-    public constructor(environment: any) {
-        this.environment = new Environment('coinChatBot', environment);
+    public constructor(applicationName: keyof ApplicationEnvironment, environment: any) {
+        this.environment = new Environment(applicationName, environment);
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
         Logger.initialize(this.environment.applicationName, this.environment.log.console.minimumLevel);
         this.loadLanguages();

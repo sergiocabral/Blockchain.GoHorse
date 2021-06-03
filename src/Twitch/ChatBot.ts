@@ -19,11 +19,14 @@ import {Environment} from "../Core/Environment/Environment";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {RedeemEvent} from "./MessageEvent/RedeemEvent";
+import {RedeemEvent} from "./MessageEvent/ChatRedeemEvent";
 import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
 import {Message} from "../Bus/Message";
+import {ChatJoinPartModel} from "./Model/ChatJoinPartModel";
+import {ChatJoinEvent} from "./MessageEvent/ChatJoinEvent";
+import {ChatPartEvent} from "./MessageEvent/ChatPartEvent";
 
 /**
  * Cliente ChatBot da Twitch
@@ -333,6 +336,7 @@ export class ChatBot implements Events {
      */
     public join(channel: string, username: string, self: boolean): void {
         ChatBot.log('join', arguments);
+        new ChatJoinEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
 
     /**
@@ -484,6 +488,7 @@ export class ChatBot implements Events {
      */
     public part(channel: string, username: string, self: boolean): void {
         ChatBot.log('part', arguments);
+        new ChatPartEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
 
     /**

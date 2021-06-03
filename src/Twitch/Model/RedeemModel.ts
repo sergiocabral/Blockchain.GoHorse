@@ -1,6 +1,7 @@
 import {IModel} from "../../Core/IModel";
 import {UserModel} from "./UserModel";
 import {ChannelModel} from "./ChannelModel";
+import {ChatUserstate} from "tmi.js";
 
 /**
  * Modelo com os dados do resgate
@@ -14,7 +15,12 @@ export class RedeemModel implements IModel {
      * @param redeemMessage Mensage da recompensa.
      * @param raw Dado original em formato bruto.
      */
-    public constructor(channelName: any, userData: any, redeemId: any, redeemMessage: string, raw?: any) {
+    public constructor(
+        channelName: string,
+        userData: ChatUserstate,
+        redeemId: "highlighted-message" | "skip-subs-mode-message" | string,
+        redeemMessage: string,
+        raw?: any) {
         this.channel = new ChannelModel(channelName);
         this.user = new UserModel(userData);
         this.id = redeemId ?? '';

@@ -2,7 +2,6 @@ import {ChatBot} from "../Twitch/ChatBot";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {ChatCoin} from "../Coin/ChatCoin";
 import {BaseApp} from "./BaseApp";
 
 /**
@@ -14,10 +13,9 @@ export class ChatWatcherApp extends BaseApp {
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        super(environment);
+        super('chatWatcher', environment);
 
         this.chatBot = new ChatBot();
-        this.chatCoin = new ChatCoin();
     }
 
     /**
@@ -25,12 +23,6 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private readonly chatBot: ChatBot;
-
-    /**
-     * Escuta do chat da moeda.
-     * @private
-     */
-    private readonly chatCoin: ChatCoin;
 
     /**
      * Inicia a aplicação.

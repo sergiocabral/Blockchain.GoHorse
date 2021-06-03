@@ -14,7 +14,7 @@ export class CoinChatBotApp extends BaseApp {
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        super(environment);
+        super('coinChatBot', environment);
 
         this.chatBot = new ChatBot();
         this.chatCoin = new ChatCoin();
