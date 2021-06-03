@@ -6,9 +6,9 @@ import {ChatCoin} from "../Coin/ChatCoin";
 import {BaseApp} from "./BaseApp";
 
 /**
- * Aplicação: chatbot da Cabr0n Coin.
+ * Aplicação: Monitorador do chat.
  */
-export class CoinChatBotApp extends BaseApp {
+export class ChatWatcherApp extends BaseApp {
     /**
      * Construtor.
      * @param environment JSON com dados do ambiente.

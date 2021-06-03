@@ -15,6 +15,17 @@ export class Logger {
     private constructor() { }
 
     /**
+     * Inicializa as informações comuns do Logger global.
+     * @param applicationName Nome da aplicação.
+     * @param minimumLevel Nível mínimo de log para exibição
+     */
+    public static initialize(applicationName: string, minimumLevel: LogLevel): void {
+        this.applicationName = applicationName;
+        this.minimumLevel = minimumLevel;
+        ConsoleLogger.minimumLevel = minimumLevel;
+    }
+
+    /**
      * Nome da aplicação.
      */
     public static applicationName: string = 'Logger';
