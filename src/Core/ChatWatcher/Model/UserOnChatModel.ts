@@ -16,4 +16,9 @@ export class UserOnChatModel implements IModel {
             Boolean(this.userName)
         );
     }
+
+    /**
+     * Contagem de mensagens enviadas.
+     */
+    public messageCount: number = 0;
 }

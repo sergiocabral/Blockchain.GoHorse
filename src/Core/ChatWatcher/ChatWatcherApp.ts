@@ -60,6 +60,41 @@ export class ChatWatcherApp extends BaseApp {
     private readonly channelsUsers: KeyValue<UserOnChatModel[]> = { };
 
     /**
+     * Adiciona um canal na lista.
+     * @param channelName
+     * @param autoInsert Insere caso não exista.
+     * @private
+     */
+    private getChannel(channelName: string, autoInsert: boolean = false): UserOnChatModel[] | null {
+        if (autoInsert) {
+            return this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
+        } else {
+            return this.channelsUsers[channelName] || null;
+        }
+    }
+
+    /**
+     * Adiciona um usuário na lista de canais.
+     * @param channelName
+     * @param userName
+     * @param autoInsert Insere caso não exista.
+     * @private
+     */
+    private getUser(channelName: string, userName: string, autoInsert: boolean = false): UserOnChatModel | null {
+        const users = this.getChannel(channelName, autoInsert);
+        let user = users?.find(user => user.userName === userName);
+
+        if (user) return user;
+
+        if (autoInsert) {
+            user = new UserOnChatModel(userName);
+            users?.push(user);
+        }
+
+        return user || null;
+    }
+
+    /**
      * Atualiza a lista de canais e usuários.
      * @param channelName
      * @param userName
@@ -67,19 +102,33 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private update(channelName: string, userName: string, action: 'add' | 'remove'): void {
-        const users = this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
-        const indexOf = users.findIndex(user => user.userName === userName);
-
         switch (action) {
             case 'add':
-                if (indexOf < 0) users.push(new UserOnChatModel(userName));
+                this.getUser(channelName, userName, true);
                 break;
             case 'remove':
-                if (indexOf >= 0) users.splice(indexOf, 1);
+                const users = this.getChannel(channelName);
+                if (users?.length) {
+                    const indexOf = users.findIndex(user => user.userName === userName);
+                    if (indexOf >= 0) users.splice(indexOf, 1);
+                }
                 break;
         }
 
         this.saveReport();
+    }
+
+    /**
+     * Incrementa a contagem de mensagens do usuário.
+     * @param channelName
+     * @param userName
+     * @private
+     */
+    private incrementMessageCount(channelName: string, userName: string): void {
+        const user = this.getUser(channelName, userName, true);
+        if (user) user.messageCount++;
+
+        //TODO: Implementar o incremento do total de mensagens enviadas pelo usuário.
     }
 
     /**
