@@ -17,7 +17,50 @@ export class ElasticsearchLogMessage {
         this.origin = message.origin;
         this.message = message.message;
         this.messageTemplate = message.messageTemplate;
-        this.values = JSON.stringify(message.values, undefined, 2);
+        this.raw = message.values ? JSON.stringify(message.values, undefined, 2) : undefined;
+        Object.assign(this, this.extractFields());
+
+        if (this.raw === undefined) delete this.raw;
+    }
+
+    /**
+     * Expressão regular para capturar as propriedades de um JSON formatados (global).
+     * @private
+     */
+    private readonly regexPropertiesG: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W$/mg;
+
+    /**
+     * Expressão regular para capturar as propriedades de um JSON formatados.
+     * @private
+     */
+    private readonly regexProperties: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W$/m;
+
+    /**
+     * Preencher a instância com campos extras.
+     * @private
+     */
+    private extractFields(): any {
+        if (!this.raw) return;
+
+        const globalMatches = this.raw.match(this.regexPropertiesG);
+        if (globalMatches === null) return;
+
+        const result: any = { };
+
+        for (const globalMatch of globalMatches) {
+            const match = globalMatch.match(this.regexProperties);
+            if (match === null) continue;
+
+            result[match[1]] = String(match[3]);
+        }
+
+        if (result.id !== undefined) {
+            const id = result.id;
+            delete result.id;
+            result.id_ = id;
+        }
+
+        return result;
     }
 
     /**
@@ -53,5 +96,5 @@ export class ElasticsearchLogMessage {
     /**
      * Valores associados.
      */
-    values: any;
+    raw?: string;
 }

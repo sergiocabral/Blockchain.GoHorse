@@ -63,8 +63,8 @@ export class ChatCoin {
             const redeems = coin.redeems.filter(redeem => redeem.id === message.redeem.id);
             for (const redeem of redeems) {
                 Logger.post(
-                    'Redeemed requested in the chat "{0}", pelo usuário "{1}", no valor de {2}. Mensagem: "{3}"',
-                    [message.redeem.channel.name, message.redeem.user.name, redeem.amount, message.redeem.message, message],
+                    'Redeemed requested in the chat "{0}", by user "{1}", with amount {2}. Description of redeem: "{3}". Message from user: "{4}"',
+                    [message.redeem.channel.name, message.redeem.user.name, redeem.amount, redeem.description, message.redeem.message, message],
                     LogLevel.Information,
                     LogContext.ChatCoin)
 
