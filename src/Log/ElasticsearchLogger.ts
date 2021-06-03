@@ -6,6 +6,7 @@ import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {ElasticsearchLogModel} from "./Model/ElasticsearchLogModel";
 import {ElasticsearchLogMessage} from "./ElasticsearchLogMessage";
 import {Text} from "../Helper/Text";
+import {Logger} from "./Logger";
 
 /**
  * Registra log no elasticsearch.
@@ -79,6 +80,7 @@ export class ElasticsearchLogger {
                     index: this.options.index,
                     id: id,
                     body: Object.assign(logElasticsearchMessage, {
+                        applicationName: Logger.applicationName,
                         instanceId: this.instanceId
                     })
                 });

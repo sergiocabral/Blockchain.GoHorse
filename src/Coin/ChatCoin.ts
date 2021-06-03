@@ -18,7 +18,7 @@ export class ChatCoin {
      */
     constructor() {
         const environment = new EnvironmentQuery().request().message.environment;
-        this.coins = environment.coins;
+        this.coins = environment.application.coinChatBox.coins;
 
         this.humanMiner = new HumanMiner();
         this.computerMiner = new ComputerMiner();

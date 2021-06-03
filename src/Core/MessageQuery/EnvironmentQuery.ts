@@ -1,5 +1,5 @@
 import {Message} from "../../Bus/Message";
-import {Environment} from "../Environment";
+import {Environment} from "../Environment/Environment";
 import {EmptyValueError} from "../../Errors/EmptyValueError";
 
 /**

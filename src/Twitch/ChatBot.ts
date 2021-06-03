@@ -15,7 +15,7 @@ import {
     SubMysteryGiftUserstate,
     SubUserstate
 } from 'tmi.js'
-import {Environment} from "../Core/Environment";
+import {Environment} from "../Core/Environment/Environment";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
@@ -54,7 +54,7 @@ export class ChatBot implements Events {
      * @private
      */
     private static factoryClientOptions(environment: Environment): Options {
-        const channels = environment.coins.map(coin => coin.channels).flat<string>();
+        const channels = environment.application.coinChatBox.coins.map(coin => coin.channels).flat<string>();
         return {
             options: {
                 clientId: environment.applicationName,
@@ -66,8 +66,8 @@ export class ChatBot implements Events {
                 secure: true,
             },
             identity: {
-                username: environment.chatBot.username,
-                password: environment.chatBot.token,
+                username: environment.application.coinChatBox.twitchAccount.username,
+                password: environment.application.coinChatBox.twitchAccount.token,
             },
             channels: channels,
             logger: Object.assign({

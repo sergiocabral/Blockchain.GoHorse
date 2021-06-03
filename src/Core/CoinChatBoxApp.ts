@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import {Environment} from "./Environment";
+import {Environment} from "./Environment/Environment";
 import {ChatBot} from "../Twitch/ChatBot";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
@@ -12,16 +12,17 @@ import {Translate} from "./Translate";
 import {ConsoleLogger} from "../Log/ConsoleLogger";
 
 /**
- * Classe principal do sistema.
+ * Classe CoinChatBox.
  */
-export class App {
+export class CoinChatBoxApp {
     /**
      * Construtor.
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        this.environment = new Environment(environment);
+        this.environment = new Environment('coinChatBox', environment);
 
+        Logger.applicationName = this.environment.applicationName;
         Logger.minimumLevel = this.environment.log.minimumLevel;
         ConsoleLogger.minimumLevel = this.environment.log.console.minimumLevel;
 
@@ -57,7 +58,8 @@ export class App {
     public run(): void {
         Logger.post('Running.', undefined, LogLevel.Information, this);
 
-        if (!this.environment.isFilled()) {
+        if (!this.environment.isFilled() ||
+            !this.environment.application.coinChatBox.isFilled()) {
             Logger.post('Environment data is not filled.', undefined, LogLevel.Error, LogContext.MainApp);
             return;
         }

@@ -15,6 +15,11 @@ export class Logger {
     private constructor() { }
 
     /**
+     * Nome da aplicação.
+     */
+    public static applicationName: string = 'Logger';
+
+    /**
      * Nível mínimo de log para exibição.
      */
     public static minimumLevel: LogLevel = LogLevel.Verbose;
