@@ -1,8 +1,8 @@
 import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
 import {Text} from "../Helper/Text";
-import {LoggerElasticsearch} from "./LoggerElasticsearch";
-import {LoggerConsole} from "./LoggerConsole";
+import {ElasticsearchLogger} from "./ElasticsearchLogger";
+import {ConsoleLogger} from "./ConsoleLogger";
 
 /**
  * Manipula e registra mensagens de log.
@@ -52,22 +52,22 @@ export class Logger {
      * @param message Mensagem.
      */
     private static writeToConsole(message: LogMessage): void {
-        LoggerConsole.write(message);
+        ConsoleLogger.write(message);
     }
 
     /**
      * Manipula e registra mensagens de log no Elasticsearch.
      * @private
      */
-    private static loggerElasticsearch: LoggerElasticsearch | null = null;
+    private static elasticsearchLogger: ElasticsearchLogger | null = null;
 
     /**
      * Escreve a mensagem no Elasticsearch
      * @param message Mensagem.
      */
     private static writeToElasticsearch(message: LogMessage): void {
-        this.loggerElasticsearch = this.loggerElasticsearch || new LoggerElasticsearch();
-        this.loggerElasticsearch.write(message);
+        this.elasticsearchLogger = this.elasticsearchLogger || new ElasticsearchLogger();
+        this.elasticsearchLogger.write(message);
     }
 
     /**

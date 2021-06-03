@@ -9,7 +9,7 @@ import {ChatCoin} from "../Coin/ChatCoin";
 import {Message} from "../Bus/Message";
 import {EnvironmentQuery} from "./MessageQuery/EnvironmentQuery";
 import {Translate} from "./Translate";
-import {LoggerConsole} from "../Log/LoggerConsole";
+import {ConsoleLogger} from "../Log/ConsoleLogger";
 
 /**
  * Classe principal do sistema.
@@ -23,7 +23,7 @@ export class App {
         this.environment = new Environment(environment);
 
         Logger.minimumLevel = this.environment.log.minimumLevel;
-        LoggerConsole.minimumLevel = this.environment.log.console.minimumLevel;
+        ConsoleLogger.minimumLevel = this.environment.log.console.minimumLevel;
 
         this.loadLanguages();
 

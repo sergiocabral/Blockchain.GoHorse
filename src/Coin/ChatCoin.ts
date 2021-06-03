@@ -30,19 +30,19 @@ export class ChatCoin {
      * Minerador humano
      * @private
      */
-    private humanMiner: HumanMiner;
+    private readonly humanMiner: HumanMiner;
 
     /**
      * Minerador computacional
      * @private
      */
-    private computerMiner: ComputerMiner;
+    private readonly computerMiner: ComputerMiner;
 
     /**
      * Moedas disponíveis
      * @private
      */
-    private coins: CoinModel[];
+    private readonly coins: CoinModel[];
 
     /**
      * Processa mensagem

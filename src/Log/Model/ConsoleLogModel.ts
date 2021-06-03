@@ -4,7 +4,7 @@ import {LogLevel} from "../LogLevel";
 /**
  * Modelo com os informações de log para console.
  */
-export class LogConsoleModel implements IModel {
+export class ConsoleLogModel implements IModel {
     /**
      * Construtor.
      * @param data JSON para preencher o modelo.

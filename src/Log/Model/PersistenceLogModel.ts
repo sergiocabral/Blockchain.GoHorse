@@ -1,12 +1,12 @@
 import {IModel} from "../../Core/IModel";
-import {LogElasticsearchModel} from "./LogElasticsearchModel";
-import {LogConsoleModel} from "./LogConsoleModel";
+import {ElasticsearchLogModel} from "./ElasticsearchLogModel";
+import {ConsoleLogModel} from "./ConsoleLogModel";
 import {LogLevel} from "../LogLevel";
 
 /**
  * Modelo com os tipos de persistência de log
  */
-export class LogPersistenceModel implements IModel {
+export class PersistenceLogModel implements IModel {
     /**
      * Construtor.
      * @param data JSON para preencher o modelo.
@@ -15,8 +15,8 @@ export class LogPersistenceModel implements IModel {
         this.minimumLevel = data?.minimumLevel
             ? LogLevel[data?.minimumLevel ?? ''] as any
             : null;
-        this.console = new LogConsoleModel(data?.console);
-        this.elasticsearch = new LogElasticsearchModel(data?.elasticsearch);
+        this.console = new ConsoleLogModel(data?.console);
+        this.elasticsearch = new ElasticsearchLogModel(data?.elasticsearch);
     }
 
     /**
@@ -38,10 +38,10 @@ export class LogPersistenceModel implements IModel {
     /**
      * Log para console.
      */
-    public console: LogConsoleModel;
+    public console: ConsoleLogModel;
 
     /**
      * Log para elasticsearch
      */
-    public elasticsearch: LogElasticsearchModel;
+    public elasticsearch: ElasticsearchLogModel;
 }

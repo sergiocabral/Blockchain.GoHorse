@@ -1,8 +1,6 @@
 import {UserAuthenticationModel} from "../Twitch/Model/UserAuthenticationModel";
 import {IModel} from "./IModel";
-import {LogLevel} from "../Log/LogLevel";
-import {RedeemCoinModel} from "../Coin/Model/RedeemCoinModel";
-import {LogPersistenceModel} from "../Log/Model/LogPersistenceModel";
+import {PersistenceLogModel} from "../Log/Model/PersistenceLogModel";
 import {CoinModel} from "../Coin/Model/CoinModel";
 
 /**
@@ -18,7 +16,7 @@ export class Environment implements IModel {
         this.language = environment?.language ?? '';
         this.chatBot = new UserAuthenticationModel(environment?.chatBot);
         this.coins = environment.coins?.length ? environment.coins.map((coin: any) => new CoinModel(coin)) : null;
-        this.log = new LogPersistenceModel(environment.log);
+        this.log = new PersistenceLogModel(environment.log);
     }
 
     /**
@@ -66,5 +64,5 @@ export class Environment implements IModel {
     /**
      * Persistência de log.
      */
-    public readonly log: LogPersistenceModel;
+    public readonly log: PersistenceLogModel;
 }

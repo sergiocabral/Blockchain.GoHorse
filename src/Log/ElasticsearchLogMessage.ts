@@ -5,7 +5,7 @@ import {Text} from "../Helper/Text";
 /**
  * Mensagem de log para Elasticsearch.
  */
-export class LogElasticsearchMessage {
+export class ElasticsearchLogMessage {
     /**
      * Construtor.
      * @param message Mensagem de log.

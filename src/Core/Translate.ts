@@ -26,7 +26,7 @@ export class Translate {
     /**
      * Fonte de traduções.
      */
-    public translates: KeyValue<KeyValue> = { };
+    private readonly translates: KeyValue<KeyValue> = { };
 
     /**
      * Carrega traduções.
@@ -37,8 +37,10 @@ export class Translate {
         this.translates[language] = this.translates[language] ? this.translates[language] : { };
         const find = (destination: KeyValue, source: any) => {
             for (const key in source) {
-                if (typeof(source[key]) === 'string') destination[key] = source[key];
-                else find(destination, source[key]);
+                if (source.hasOwnProperty(key)) {
+                    if (typeof(source[key]) === 'string') destination[key] = source[key];
+                    else find(destination, source[key]);
+                }
             }
         };
         find(this.translates[language], source);

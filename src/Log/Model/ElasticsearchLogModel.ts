@@ -4,7 +4,7 @@ import {LogLevel} from "../LogLevel";
 /**
  * Modelo com os informações de log para elasticsearch.
  */
-export class LogElasticsearchModel implements IModel {
+export class ElasticsearchLogModel implements IModel {
     /**
      * Construtor.
      * @param data JSON para preencher o modelo.

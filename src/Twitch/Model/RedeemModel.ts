@@ -12,6 +12,7 @@ export class RedeemModel implements IModel {
      * @param userData Dados do usuário.
      * @param redeemId Identificador da recompensa.
      * @param redeemMessage Mensage da recompensa.
+     * @param raw Dado original em formato bruto.
      */
     public constructor(channelName: any, userData: any, redeemId: any, redeemMessage: string, raw?: any) {
         this.channel = new ChannelModel(channelName);

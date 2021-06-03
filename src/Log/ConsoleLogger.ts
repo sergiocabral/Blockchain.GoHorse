@@ -1,13 +1,10 @@
 import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
-import {Text} from "../Helper/Text";
-import {LoggerElasticsearch} from "./LoggerElasticsearch";
-import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 
 /**
  * Registra log no console.
  */
-export class LoggerConsole {
+export class ConsoleLogger {
     /**
      * Nível mínimo de log para exibição.
      */

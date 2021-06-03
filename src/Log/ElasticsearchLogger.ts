@@ -3,14 +3,14 @@ import {LogMessage} from "./LogMessage";
 import {Client} from "@elastic/elasticsearch";
 import {PersistenceState} from "../Helper/Types/PersistenceState";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
-import {LogElasticsearchModel} from "./Model/LogElasticsearchModel";
-import {LogElasticsearchMessage} from "./LogElasticsearchMessage";
+import {ElasticsearchLogModel} from "./Model/ElasticsearchLogModel";
+import {ElasticsearchLogMessage} from "./ElasticsearchLogMessage";
 import {Text} from "../Helper/Text";
 
 /**
  * Registra log no elasticsearch.
  */
-export class LoggerElasticsearch {
+export class ElasticsearchLogger {
     /**
      * Nível mínimo de log.
      */
@@ -44,7 +44,7 @@ export class LoggerElasticsearch {
      * Dados de conexão com o elasticsearch.
      * @private
      */
-    private options: LogElasticsearchModel | null = null;
+    private options: ElasticsearchLogModel | null = null;
 
     /**
      * Escreve a mensagem no Elasticsearch
@@ -71,7 +71,7 @@ export class LoggerElasticsearch {
                     this.minimumLevel === null ||
                     logMessage.level < this.minimumLevel) continue;
 
-                const logElasticsearchMessage = new LogElasticsearchMessage(logMessage);
+                const logElasticsearchMessage = new ElasticsearchLogMessage(logMessage);
                 const id = logElasticsearchMessage.id;
                 delete logElasticsearchMessage.id;
 
