@@ -12,15 +12,15 @@ import {Translate} from "./Translate";
 import {ConsoleLogger} from "../Log/ConsoleLogger";
 
 /**
- * Classe CoinChatBox.
+ * Classe CoinChatBot.
  */
-export class CoinChatBoxApp {
+export class CoinChatBotApp {
     /**
      * Construtor.
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        this.environment = new Environment('coinChatBox', environment);
+        this.environment = new Environment('coinChatBot', environment);
 
         Logger.applicationName = this.environment.applicationName;
         Logger.minimumLevel = this.environment.log.minimumLevel;
@@ -41,7 +41,7 @@ export class CoinChatBoxApp {
     private readonly environment: Environment;
 
     /**
-     * Cliente ChatBox da Twitch.
+     * Cliente ChatBot da Twitch.
      * @private
      */
     private readonly chatBot: ChatBot;
@@ -59,13 +59,13 @@ export class CoinChatBoxApp {
         Logger.post('Running.', undefined, LogLevel.Information, this);
 
         if (!this.environment.isFilled() ||
-            !this.environment.application.coinChatBox.isFilled()) {
+            !this.environment.application.coinChatBot.isFilled()) {
             Logger.post('Environment data is not filled.', undefined, LogLevel.Error, LogContext.MainApp);
             return;
         }
 
         this.chatBot.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBox: {0}`, error, LogLevel.Error, LogContext.MainApp));
+            .catch(error => Logger.post(() => `Error when start the ChatBot: {0}`, error, LogLevel.Error, LogContext.MainApp));
     }
 
     /**

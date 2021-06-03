@@ -1,6 +1,6 @@
-import {CoinChatBoxApp} from './Core/CoinChatBoxApp';
+import {CoinChatBotApp} from './Core/CoinChatBotApp';
 import environment from './env.json';
 import './Helper/Prototype/String';
 import './Helper/Prototype/List';
 
-new CoinChatBoxApp(environment).run();
+new CoinChatBotApp(environment).run();

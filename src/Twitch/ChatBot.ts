@@ -54,7 +54,7 @@ export class ChatBot implements Events {
      * @private
      */
     private static factoryClientOptions(environment: Environment): Options {
-        const channels = environment.application.coinChatBox.coins.map(coin => coin.channels).flat<string>();
+        const channels = environment.application.coinChatBot.coins.map(coin => coin.channels).flat<string>();
         return {
             options: {
                 clientId: environment.applicationName,
@@ -66,16 +66,16 @@ export class ChatBot implements Events {
                 secure: true,
             },
             identity: {
-                username: environment.application.coinChatBox.twitchAccount.username,
-                password: environment.application.coinChatBox.twitchAccount.token,
+                username: environment.application.coinChatBot.twitchAccount.username,
+                password: environment.application.coinChatBot.twitchAccount.token,
             },
             channels: channels,
             logger: Object.assign({
-                info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBoxTmi),
-                warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBoxTmi),
-                error: (message: string) => Logger.post(message, undefined, LogLevel.Error, LogContext.ChatBoxTmi),
+                info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBotTmi),
+                warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBotTmi),
+                error: (message: string) => Logger.post(message, undefined, LogLevel.Error, LogContext.ChatBotTmi),
             }, {
-                debug: (message: string) => Logger.post(message, undefined, LogLevel.Verbose, LogContext.ChatBoxTmi)
+                debug: (message: string) => Logger.post(message, undefined, LogLevel.Verbose, LogContext.ChatBotTmi)
             }),
         };
     }
@@ -157,7 +157,7 @@ export class ChatBot implements Events {
      * @private
      */
     private static log(description: string, data: any): void {
-        Logger.post(() => `${description}: {0}`, [() => JSON.stringify(data, undefined, 2), data], LogLevel.Verbose, LogContext.ChatBox);
+        Logger.post(() => `${description}: {0}`, [() => JSON.stringify(data, undefined, 2), data], LogLevel.Verbose, LogContext.ChatBot);
     }
 
     /**

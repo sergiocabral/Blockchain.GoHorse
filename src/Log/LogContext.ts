@@ -12,12 +12,12 @@ export class LogContext {
     /**
      * Chat da Twitch.
      */
-    public static readonly ChatBox: string = 'ChatBox';
+    public static readonly ChatBot: string = 'ChatBot';
 
     /**
      * Chat da Twitch log interno.
      */
-    public static readonly ChatBoxTmi: string = 'ChatBox TMI';
+    public static readonly ChatBotTmi: string = 'ChatBot TMI';
 
     /**
      * Bot da moeda no chat.

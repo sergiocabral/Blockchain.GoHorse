@@ -1,5 +1,5 @@
 import {IModel} from "../IModel";
-import {CoinChatBoxEnvironment} from "./CoinChatBoxEnvironment";
+import {CoinChatBotEnvironment} from "./CoinChatBotEnvironment";
 
 /**
  * Aplicações configuradas.
@@ -10,7 +10,7 @@ export class ApplicationEnvironment implements IModel {
      * @param environment JSON com dados do ambiente.
      */
     public constructor(environment: any) {
-        this.coinChatBox = new CoinChatBoxEnvironment(environment?.coinChatBox);
+        this.coinChatBot = new CoinChatBotEnvironment(environment?.coinChatBot);
     }
 
     /**
@@ -18,12 +18,12 @@ export class ApplicationEnvironment implements IModel {
      */
     public isFilled(): boolean {
         return (
-            this.coinChatBox.isFilled()
+            this.coinChatBot.isFilled()
         );
     }
 
     /**
-     * Aplicação CoinChatBox
+     * Aplicação CoinChatBot
      */
-    public readonly coinChatBox: CoinChatBoxEnvironment;
+    public readonly coinChatBot: CoinChatBotEnvironment;
 }

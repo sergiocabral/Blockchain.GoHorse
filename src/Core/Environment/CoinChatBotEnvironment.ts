@@ -5,7 +5,7 @@ import {CoinModel} from "../../Coin/Model/CoinModel";
 /**
  * Informação de configuração do ambiente da aplicação Chatbot.
  */
-export class CoinChatBoxEnvironment implements IModel {
+export class CoinChatBotEnvironment implements IModel {
     /**
      * Construtor.
      * @param environment JSON com dados do ambiente.
