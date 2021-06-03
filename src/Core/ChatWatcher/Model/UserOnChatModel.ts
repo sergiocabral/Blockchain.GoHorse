@@ -1,0 +1,19 @@
+import {IModel} from "../../IModel";
+
+export class UserOnChatModel implements IModel {
+    /**
+     * Construtor.
+     * @param userName Usuário.
+     */
+    public constructor(public userName: string) {
+    }
+
+    /**
+     * Determina se o modelo está preenchido.
+     */
+    isFilled(): boolean {
+        return (
+            Boolean(this.userName)
+        );
+    }
+}

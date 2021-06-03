@@ -1,16 +1,16 @@
 import fs from 'fs';
-import {ChatBot} from "../Twitch/ChatBot";
-import {Logger} from "../Log/Logger";
-import {LogLevel} from "../Log/LogLevel";
-import {LogContext} from "../Log/LogContext";
-import {BaseApp} from "./BaseApp";
-import {Message} from "../Bus/Message";
-import {ChatJoinEvent} from "../Twitch/MessageEvent/ChatJoinEvent";
-import {ChatPartEvent} from "../Twitch/MessageEvent/ChatPartEvent";
-import {KeyValue} from "../Helper/Types/KeyValue";
-import {ChatJoinPartModel} from "../Twitch/Model/ChatJoinPartModel";
-import {ChatWatcherEnvironment} from "./Environment/ChatWatcherEnvironment";
+import {ChatBot} from "../../Twitch/ChatBot";
+import {Logger} from "../../Log/Logger";
+import {LogLevel} from "../../Log/LogLevel";
+import {LogContext} from "../../Log/LogContext";
+import {BaseApp} from "../BaseApp";
+import {Message} from "../../Bus/Message";
+import {ChatJoinEvent} from "../../Twitch/MessageEvent/ChatJoinEvent";
+import {ChatPartEvent} from "../../Twitch/MessageEvent/ChatPartEvent";
+import {KeyValue} from "../../Helper/Types/KeyValue";
+import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import Timeout = NodeJS.Timeout;
+import {UserOnChatModel} from "./Model/UserOnChatModel";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -57,21 +57,22 @@ export class ChatWatcherApp extends BaseApp {
      * Lista de atual de usuários nos canais.
      * @private
      */
-    private readonly channelsUsers: KeyValue<string[]> = { };
+    private readonly channelsUsers: KeyValue<UserOnChatModel[]> = { };
 
     /**
      * Atualiza a lista de canais e usuários.
-     * @param data Dados do canal e usuário.
+     * @param channelName
+     * @param userName
      * @param action Ação
      * @private
      */
-    private update(data: ChatJoinPartModel, action: 'add' | 'remove'): void {
-        const users = this.channelsUsers[data.channel.name] = this.channelsUsers[data.channel.name] || [];
-        const indexOf = users.indexOf(data.userName);
+    private update(channelName: string, userName: string, action: 'add' | 'remove'): void {
+        const users = this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
+        const indexOf = users.findIndex(user => user.userName === userName);
 
         switch (action) {
             case 'add':
-                if (indexOf < 0) users.push(data.userName);
+                if (indexOf < 0) users.push(new UserOnChatModel(userName));
                 break;
             case 'remove':
                 if (indexOf >= 0) users.splice(indexOf, 1);
@@ -121,7 +122,7 @@ export class ChatWatcherApp extends BaseApp {
      */
     private handlerChatJoinEvent(message: ChatJoinEvent) {
         Logger.post("Channel: {0}. Joined: {1}", [message.join.channel.name, message.join.userName, message], LogLevel.Information, LogContext.ChatWatcherApp);
-        this.update(message.join, 'add');
+        this.update(message.join.channel.name, message.join.userName, 'add');
     }
 
     /**
@@ -131,6 +132,6 @@ export class ChatWatcherApp extends BaseApp {
      */
     private handlerChatPartEvent(message: ChatPartEvent) {
         Logger.post("Channel: {0}. Parted: {1}", [message.part.channel.name, message.part.userName, message], LogLevel.Information, LogContext.ChatWatcherApp);
-        this.update(message.part, 'remove');
+        this.update(message.part.channel.name, message.part.userName, 'remove');
     }
 }

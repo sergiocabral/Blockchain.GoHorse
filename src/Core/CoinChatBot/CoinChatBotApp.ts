@@ -1,10 +1,10 @@
-import {ChatBot} from "../Twitch/ChatBot";
-import {Logger} from "../Log/Logger";
-import {LogLevel} from "../Log/LogLevel";
-import {LogContext} from "../Log/LogContext";
-import {ChatCoin} from "../Coin/ChatCoin";
-import {BaseApp} from "./BaseApp";
-import {CoinChatBotEnvironment} from "./Environment/CoinChatBotEnvironment";
+import {ChatBot} from "../../Twitch/ChatBot";
+import {Logger} from "../../Log/Logger";
+import {LogLevel} from "../../Log/LogLevel";
+import {LogContext} from "../../Log/LogContext";
+import {ChatCoin} from "../../Coin/ChatCoin";
+import {BaseApp} from "../BaseApp";
+import {CoinChatBotEnvironment} from "./CoinChatBotEnvironment";
 
 /**
  * Aplicação: chatbot da Cabr0n Coin.
