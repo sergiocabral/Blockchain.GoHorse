@@ -15,7 +15,6 @@ import {
     SubMysteryGiftUserstate,
     SubUserstate
 } from 'tmi.js'
-import {Environment} from "../Core/Environment/Environment";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
@@ -27,6 +26,7 @@ import {Message} from "../Bus/Message";
 import {ChatJoinPartModel} from "./Model/ChatJoinPartModel";
 import {ChatJoinEvent} from "./MessageEvent/ChatJoinEvent";
 import {ChatPartEvent} from "./MessageEvent/ChatPartEvent";
+import {UserAuthenticationModel} from "./Model/UserAuthenticationModel";
 
 /**
  * Cliente ChatBot da Twitch
@@ -35,9 +35,10 @@ export class ChatBot implements Events {
     /**
      * Construtor.
      */
-    public constructor() {
-        const environment = new EnvironmentQuery().request().message.environment;
-        const options = ChatBot.factoryClientOptions(environment);
+    public constructor(
+        private authentication: UserAuthenticationModel,
+        private channels: string[]) {
+        const options = this.factoryClientOptions();
         this.client = new Client(options);
 
         ChatBot.registerEvents(this.client, this);
@@ -53,11 +54,11 @@ export class ChatBot implements Events {
 
     /**
      * Monta o objeto com informações para conexão do chatbox.
-     * @param environment Informação de configuração do ambiente.
      * @private
      */
-    private static factoryClientOptions(environment: Environment): Options {
-        const channels = environment.application.coinChatBot.coins.map(coin => coin.channels).flat<string>();
+    private factoryClientOptions(): Options {
+        const environment = new EnvironmentQuery().request().message.environment;
+
         return {
             options: {
                 clientId: environment.applicationName,
@@ -69,10 +70,10 @@ export class ChatBot implements Events {
                 secure: true,
             },
             identity: {
-                username: environment.application.coinChatBot.twitchAccount.username,
-                password: environment.application.coinChatBot.twitchAccount.token,
+                username: this.authentication.username,
+                password: this.authentication.token,
             },
-            channels: channels,
+            channels: this.channels,
             logger: Object.assign({
                 info: (message: string) => Logger.post(message, undefined, LogLevel.Debug, LogContext.ChatBotTmi),
                 warn: (message: string) => Logger.post(message, undefined, LogLevel.Warning, LogContext.ChatBotTmi),

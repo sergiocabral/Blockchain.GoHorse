@@ -2,7 +2,13 @@
   "Javascript Types": {
     "undefined": "(não definido)"
   },
-  "System Messages": {
-    "Seriously you said \"{0}?\"": "Sério que você disse \"{0}?\""
+  "Applications": {
+    "Coin Chat Bot": {
+      "Seriously you said \"{0}?\"": "Sério que você disse \"{0}?\""
+    },
+    "Chat Watcher": {
+      "Channel: {0}. Joined: {1}": "Canal: {0}. Entrou: {1}",
+      "Channel: {0}. Parted: {1}": "Canal: {0}. Saiu: {1}"
+    }
   }
 }

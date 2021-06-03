@@ -35,4 +35,11 @@ export class CoinChatBotEnvironment implements IModel {
      * Moedas disponíveis.
      */
     public readonly coins: CoinModel[];
+
+    /**
+     * Todos os canais relacionados.
+     */
+    public get allChannels(): string[] {
+        return this.coins.map(coin => coin.channels).flat<string>();
+    }
 }

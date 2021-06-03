@@ -1,8 +1,18 @@
 export class LogContext {
     /**
-     * Aplicativo principal.
+     * Aplicativo base.
      */
-    public static readonly MainApp: string = 'MainApp';
+    public static readonly BaseApp: string = 'BaseApp';
+
+    /**
+     * Aplicativo: CoinChatBot
+     */
+    public static readonly CoinChatBotApp: string = 'CoinChatBotApp';
+
+    /**
+     * Aplicativo: ChatWatcher
+     */
+    public static readonly ChatWatcherApp: string = 'ChatWatcherApp';
 
     /**
      * Carramento de mensagens.

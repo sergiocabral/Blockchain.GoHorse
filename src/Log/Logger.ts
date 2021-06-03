@@ -50,6 +50,7 @@ export class Logger {
         if (typeof(text) === 'function') {
             text = text();
         }
+        text = String(text).translate();
 
         for (const value in values) {
             if (values.hasOwnProperty(value) && typeof(values[value]) === 'function') {

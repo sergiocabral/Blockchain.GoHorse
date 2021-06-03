@@ -41,7 +41,7 @@ export abstract class BaseApp {
 
         const environmentApplicationModel = this.environment.application[this.environment.applicationName] as IModel;
         if (!this.environment.isFilled() || !environmentApplicationModel.isFilled()) {
-            Logger.post('Environment data is not filled.', undefined, LogLevel.Error, LogContext.MainApp);
+            Logger.post('Environment data is not filled.', undefined, LogLevel.Error, LogContext.BaseApp);
             throw new InvalidExecutionError("Running {0}".querystring(this.environment.applicationName));
         }
     }
