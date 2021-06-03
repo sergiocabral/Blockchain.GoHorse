@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {ChatBot} from "../Twitch/ChatBot";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
@@ -9,6 +10,7 @@ import {ChatPartEvent} from "../Twitch/MessageEvent/ChatPartEvent";
 import {KeyValue} from "../Helper/Types/KeyValue";
 import {ChatJoinPartModel} from "../Twitch/Model/ChatJoinPartModel";
 import {ChatWatcherEnvironment} from "./Environment/ChatWatcherEnvironment";
+import Timeout = NodeJS.Timeout;
 
 /**
  * Aplicação: Monitorador do chat.
@@ -75,6 +77,41 @@ export class ChatWatcherApp extends BaseApp {
                 if (indexOf >= 0) users.splice(indexOf, 1);
                 break;
         }
+
+        this.saveReport();
+    }
+
+    /**
+     * Timeout para bounce do saveReport
+     * @private
+     */
+    private saveReportTimeout: Timeout = 0 as any;
+
+    /**
+     * Grava em um arquivo o estado atual dos canais e usuários.
+     * @private
+     */
+    private saveReport(): void {
+        const action = () => {
+            const lines = [];
+
+            for (const channel in this.channelsUsers) {
+                if (!this.channelsUsers.hasOwnProperty(channel)) continue;
+                lines.push(`#${channel}`);
+                const users = this.channelsUsers[channel];
+                for (const user of users) {
+                    lines.push(`  - ${user}`);
+                }
+            }
+
+            const fileContent = lines.join('\n');
+            fs.writeFileSync(this.environmentApplication.outputFile, Buffer.from(fileContent));
+            Logger.post('Report saved: {0}', this.environmentApplication.outputFile, LogLevel.Debug, LogContext.ChatWatcherApp);
+        };
+
+        clearTimeout(this.saveReportTimeout);
+        const saveAfterMilliseconds = 1000;
+        this.saveReportTimeout = setTimeout(action, saveAfterMilliseconds);
     }
 
     /**

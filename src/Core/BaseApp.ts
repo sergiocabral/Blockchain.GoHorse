@@ -23,7 +23,7 @@ export abstract class BaseApp {
     public constructor(applicationName: keyof ApplicationEnvironment, environment: any) {
         this.environment = new Environment(applicationName, environment);
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
-        Logger.initialize(this.environment.applicationName, this.environment.log.console.minimumLevel);
+        Logger.initialize(this.environment.applicationName, this.environment.log);
         this.loadLanguages();
     }
 

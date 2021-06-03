@@ -1,5 +1,6 @@
 import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
+import {ConsoleLogModel} from "./Model/ConsoleLogModel";
 
 /**
  * Registra log no console.
@@ -9,6 +10,14 @@ export class ConsoleLogger {
      * Nível mínimo de log para exibição.
      */
     public static minimumLevel: LogLevel = LogLevel.Verbose;
+
+    /**
+     * Inicializa o logger.
+     * @param config Configurações do logger.
+     */
+    public static initialize(config: ConsoleLogModel): void {
+        this.minimumLevel = config.minimumLevel;
+    }
 
     /**
      * Escreve a mensagem no console.

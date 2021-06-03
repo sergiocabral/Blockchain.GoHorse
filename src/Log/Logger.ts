@@ -3,6 +3,7 @@ import {LogMessage} from "./LogMessage";
 import {Text} from "../Helper/Text";
 import {ElasticsearchLogger} from "./ElasticsearchLogger";
 import {ConsoleLogger} from "./ConsoleLogger";
+import {PersistenceLogModel} from "./Model/PersistenceLogModel";
 
 /**
  * Manipula e registra mensagens de log.
@@ -15,14 +16,14 @@ export class Logger {
     private constructor() { }
 
     /**
-     * Inicializa as informações comuns do Logger global.
+     * Inicializa o logger.
      * @param applicationName Nome da aplicação.
-     * @param minimumLevel Nível mínimo de log para exibição
+     * @param config Configurações do logger.
      */
-    public static initialize(applicationName: string, minimumLevel: LogLevel): void {
+    public static initialize(applicationName: string, config: PersistenceLogModel): void {
         this.applicationName = applicationName;
-        this.minimumLevel = minimumLevel;
-        ConsoleLogger.minimumLevel = minimumLevel;
+        this.minimumLevel = config.minimumLevel;
+        ConsoleLogger.initialize(config.console);
     }
 
     /**

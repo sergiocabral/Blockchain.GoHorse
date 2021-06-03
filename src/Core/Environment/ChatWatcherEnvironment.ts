@@ -11,7 +11,8 @@ export class ChatWatcherEnvironment implements IModel {
      */
     public constructor(environment: any) {
         this.twitchAccount = new UserAuthenticationModel(environment?.twitchAccount);
-        this.channels = environment.channels?.length ? environment.channels : null;
+        this.channels = environment?.channels?.length ? environment.channels : null;
+        this.outputFile = environment?.outputFile ?? '';
     }
 
     /**
@@ -20,7 +21,8 @@ export class ChatWatcherEnvironment implements IModel {
     public isFilled(): boolean {
         return (
             this.twitchAccount.isFilled() &&
-            Boolean(this.channels?.length)
+            Boolean(this.channels?.length) &&
+            Boolean(this.outputFile)
         );
     }
 
@@ -33,4 +35,9 @@ export class ChatWatcherEnvironment implements IModel {
      * Moedas disponíveis.
      */
     public readonly channels: string[];
+
+    /**
+     * Arquivo de saída do relatório.
+     */
+    public readonly outputFile: string;
 }
