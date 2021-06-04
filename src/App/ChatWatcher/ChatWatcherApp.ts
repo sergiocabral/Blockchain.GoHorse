@@ -9,9 +9,10 @@ import {ChatJoinEvent} from "../../Twitch/MessageEvent/ChatJoinEvent";
 import {ChatPartEvent} from "../../Twitch/MessageEvent/ChatPartEvent";
 import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
-import Timeout = NodeJS.Timeout;
 import {UserOnChatModel} from "./Model/UserOnChatModel";
 import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
+import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
+import Timeout = NodeJS.Timeout;
 
 /**
  * Aplicação: Monitorador do chat.
@@ -79,7 +80,7 @@ export class ChatWatcherApp extends BaseApp {
      */
     private getOrAddUser(channelName: string, userName: string): UserOnChatModel {
         const users = this.getOrAddChannel(channelName);
-        let user = users?.find(user => user.userName === userName);
+        let user = users?.find(user => user.userName.toLowerCase() === userName.toLowerCase());
 
         if (user) {
             user.updated = new Date();
@@ -88,6 +89,10 @@ export class ChatWatcherApp extends BaseApp {
 
         user = new UserOnChatModel(userName);
         users.push(user);
+
+        const tags = this.environmentApplication.tags[user.userName.toLowerCase()]?.split(/[|,;\s]+/);
+        user.tags = tags ?? [];
+        user.tags.sort((a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
         return user;
     }
@@ -116,8 +121,23 @@ export class ChatWatcherApp extends BaseApp {
      */
     private incrementMessageCount(channelName: string, userName: string): void {
         const user = this.getOrAddUser(channelName, userName);
-        if (user) user.messageCount++;
 
+        const firstMessage = user.messageCount++ === 0;
+        if (firstMessage) {
+            Logger.post("Channel: {0}. First message from user: {1}", [channelName, userName], LogLevel.Debug, LogContext.ChatWatcherApp);
+
+            if (user.tags.length) {
+                const messageCommands = user.tags.map(tag => {
+                    const messages = this.environmentApplication.automaticFirstMessagesForTag[tag.toLowerCase()] ?? [];
+                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
+                }).flat<SendChatMessageCommand>();
+
+                if (messageCommands.length) {
+                    messageCommands.forEach(messageCommand => messageCommand.send());
+                    Logger.post(() => 'Answer first message from user "{1}" on channel "{0}" because of tags: {2}', [channelName, userName, () => user.tags.join(", ")], LogLevel.Debug, LogContext.ChatWatcherApp);
+                }
+            }
+        }
         this.saveReport();
     }
 
@@ -133,31 +153,7 @@ export class ChatWatcherApp extends BaseApp {
      */
     private saveReport(): void {
         const action = () => {
-            const lines = [];
-
-            for (const channel in this.channelsUsers) {
-                if (!this.channelsUsers.hasOwnProperty(channel)) continue;
-
-                const total = this.channelsUsers[channel].length;
-                const joined = this.channelsUsers[channel].filter(user => user.joined).length;
-                lines.push(`#${channel}: ${joined}/${total}`);
-
-                ([] as UserOnChatModel[])
-                    .concat(this.channelsUsers[channel])
-                    .sort((a: UserOnChatModel, b: UserOnChatModel) => {
-                        if (a.joined && !b.joined) return -1;
-                        else if (!a.joined && b.joined) return +1;
-                        else if (a.messageCount > b.messageCount) return -1;
-                        else if (a.messageCount < b.messageCount) return +1;
-                        else if (a.updated > b.updated) return -1;
-                        else if (a.updated < b.updated) return +1;
-                        else return a.userName.localeCompare(b.userName);
-                    })
-                    .forEach(user => lines.push(
-                        ` ${user.messageCount.toString().padStart(5)} | ${user.creation.format()} | ${user.updated.format()} | ${user.joined ? 'X' : ' '} | ${user.userName}`));
-            }
-
-            const fileContent = lines.join('\n');
+            const fileContent = this.factoryReport();
             fs.writeFileSync(this.environmentApplication.outputFile, Buffer.from(fileContent));
             Logger.post('Report saved: {0}', this.environmentApplication.outputFile, LogLevel.Debug, LogContext.ChatWatcherApp);
         };
@@ -168,12 +164,52 @@ export class ChatWatcherApp extends BaseApp {
     }
 
     /**
+     * Prepara o texto do relatório com o estado atual dos canais e usuários.
+     * @private
+     */
+    private factoryReport(): string {
+        const lines = [];
+
+        for (const channel in this.channelsUsers) {
+            if (!this.channelsUsers.hasOwnProperty(channel)) continue;
+
+            const total = this.channelsUsers[channel].length;
+            const joined = this.channelsUsers[channel].filter(user => user.joined).length;
+            lines.push(`#${channel}: ${joined}/${total}`);
+
+            ([] as UserOnChatModel[])
+                .concat(this.channelsUsers[channel])
+                .sort((a: UserOnChatModel, b: UserOnChatModel) => {
+                    if (a.joined && !b.joined) return -1;
+                    else if (!a.joined && b.joined) return +1;
+                    else if (a.messageCount > b.messageCount) return -1;
+                    else if (a.messageCount < b.messageCount) return +1;
+                    else if (a.updated > b.updated) return -1;
+                    else if (a.updated < b.updated) return +1;
+                    else return a.userName.localeCompare(b.userName);
+                })
+                .forEach(user => lines.push(
+                    `${user.messageCount.toString().padStart(6)} | ` +
+                    `${user.creation.format()} | ` +
+                    `${user.updated.format()} | ` +
+                    `${user.joined ? 'X' : ' '} | ` +
+                    `${user.userName}` +
+                    (user.tags.length === 0 ? '' : `: ${user.tags.join(', ')}`)
+                ));
+
+            lines.push('');
+        }
+
+        return lines.join('\n');
+    }
+
+    /**
      * Processa resposta para mensagem.
      * @param message ChatJoinEvent
      * @private
      */
     private handlerChatJoinEvent(message: ChatJoinEvent) {
-        Logger.post("Channel: {0}. Joined: {1}", [message.join.channel.name, message.join.userName, message], LogLevel.Information, LogContext.ChatWatcherApp);
+        Logger.post("Channel: {0}. Joined: {1}", [message.join.channel.name, message.join.userName], LogLevel.Information, LogContext.ChatWatcherApp);
         this.update(message.join.channel.name, message.join.userName, 'add');
     }
 
@@ -183,7 +219,7 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private handlerChatPartEvent(message: ChatPartEvent) {
-        Logger.post("Channel: {0}. Parted: {1}", [message.part.channel.name, message.part.userName, message], LogLevel.Information, LogContext.ChatWatcherApp);
+        Logger.post("Channel: {0}. Parted: {1}", [message.part.channel.name, message.part.userName], LogLevel.Information, LogContext.ChatWatcherApp);
         this.update(message.part.channel.name, message.part.userName, 'remove');
     }
 
@@ -193,7 +229,6 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private handlerChatMessageEvent(message: ChatMessageEvent) {
-        Logger.post("Channel: {0}. New message from: {1}", [message.chatMessage.channel.name, message.chatMessage.user.name, message], LogLevel.Debug, LogContext.ChatWatcherApp);
         this.incrementMessageCount(message.chatMessage.channel.name, message.chatMessage.user.name);
     }
 }
