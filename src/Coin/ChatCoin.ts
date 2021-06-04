@@ -68,7 +68,7 @@ export class ChatCoin {
                     LogLevel.Information,
                     LogContext.ChatCoin)
 
-                new SendChatMessageCommand(message.redeem.channel.name, `Seriously you said "{0}?"`.translate().querystring(message.redeem.message)).send();
+                new SendChatMessageCommand(message.redeem.channel.name, redeem.description.translate()).send();
             }
         }
     }
