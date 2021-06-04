@@ -180,7 +180,9 @@ export class ChatWatcherApp extends BaseApp {
             ([] as UserOnChatModel[])
                 .concat(this.channelsUsers[channel])
                 .sort((a: UserOnChatModel, b: UserOnChatModel) => {
-                    if (a.joined && !b.joined) return -1;
+                    if (!a.tags.includes('bot') && b.tags.includes('bot')) return -1;
+                    else if (a.tags.includes('bot') && !b.tags.includes('bot')) return +1;
+                    else if (a.joined && !b.joined) return -1;
                     else if (!a.joined && b.joined) return +1;
                     else if (a.messageCount > b.messageCount) return -1;
                     else if (a.messageCount < b.messageCount) return +1;
@@ -193,8 +195,8 @@ export class ChatWatcherApp extends BaseApp {
                     `${user.creation.format()} | ` +
                     `${user.updated.format()} | ` +
                     `${user.joined ? 'X' : ' '} | ` +
-                    `${user.userName}` +
-                    (user.tags.length === 0 ? '' : `: ${user.tags.join(', ')}`)
+                    `${user.userName.padEnd(30)} | ` +
+                    user.tags.join(', ')
                 ));
 
             lines.push('');
