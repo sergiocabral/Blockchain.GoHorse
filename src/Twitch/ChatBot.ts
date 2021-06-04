@@ -159,11 +159,15 @@ export class ChatBot implements Events {
     /**
      * Registra um log genérico.
      * @param description Descrição.
-     * @param data Dados relacionados.
+     * @param args Dados relacionados.
      * @private
      */
-    private static log(description: string, data: any): void {
-        Logger.post(() => `${description}: {0}`, [() => JSON.stringify(data, undefined, 2), data], LogLevel.Verbose, LogContext.ChatBot);
+    private static log(description: string, args: IArguments): void {
+        const data = Array.from(args).concat({ "event": description });
+        Logger.post(
+            () => `${description}: {0}`,
+            [() => JSON.stringify(data, undefined, 2), data],
+            LogLevel.Verbose, LogContext.ChatBot);
     }
 
     /**

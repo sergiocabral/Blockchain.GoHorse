@@ -27,13 +27,19 @@ export class ElasticsearchLogMessage {
      * Expressão regular para capturar as propriedades de um JSON formatados (global).
      * @private
      */
-    private readonly regexPropertiesG: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W$/mg;
+    private readonly regexPropertiesG: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W?$/mg;
 
     /**
      * Expressão regular para capturar as propriedades de um JSON formatados.
      * @private
      */
-    private readonly regexProperties: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W$/m;
+    private readonly regexProperties: RegExp = /^\s*"([\w-]{2,})":\s("?)([^{\[].*?)\2\W?$/m;
+
+    /**
+     * Expressão regular para capturar os nomes de canais IRC.
+     * @private
+     */
+    private readonly regexChannelNames: RegExp = /"(#[a-z0-9_]+)"/m;
 
     /**
      * Preencher a instância com campos extras.
@@ -46,6 +52,9 @@ export class ElasticsearchLogMessage {
         if (globalMatches === null) return;
 
         const result: any = { };
+
+        const channel = this.raw.match(this.regexChannelNames);
+        if (channel) result['channel'] = channel[1];
 
         for (const globalMatch of globalMatches) {
             const match = globalMatch.match(this.regexProperties);
