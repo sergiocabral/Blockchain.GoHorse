@@ -26,4 +26,14 @@ export class UserOnChatModel implements IModel {
      * Sinaliza que o usuário está na sala de chat.
      */
     public joined: boolean = false;
+
+    /**
+     * Criação
+     */
+    public readonly creation: Date = new Date();
+
+    /**
+     * Última atualização
+     */
+    public updated: Date = new Date();
 }

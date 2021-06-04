@@ -81,7 +81,10 @@ export class ChatWatcherApp extends BaseApp {
         const users = this.getOrAddChannel(channelName);
         let user = users?.find(user => user.userName === userName);
 
-        if (user) return user;
+        if (user) {
+            user.updated = new Date();
+            return user;
+        }
 
         user = new UserOnChatModel(userName);
         users.push(user);
@@ -99,14 +102,8 @@ export class ChatWatcherApp extends BaseApp {
     private update(channelName: string, userName: string, action: 'add' | 'remove'): void {
         const user = this.getOrAddUser(channelName, userName);
 
-        switch (action) {
-            case 'add':
-                user.joined = true;
-                break;
-            case 'remove':
-                user.joined = false;
-                break;
-        }
+        if (action === 'add') user.joined = true;
+        else if (action === 'remove') user.joined = false;
 
         this.saveReport();
     }
@@ -149,13 +146,15 @@ export class ChatWatcherApp extends BaseApp {
                     .concat(this.channelsUsers[channel])
                     .sort((a: UserOnChatModel, b: UserOnChatModel) => {
                         if (a.joined && !b.joined) return -1;
-                        if (!a.joined && b.joined) return +1;
+                        else if (!a.joined && b.joined) return +1;
                         else if (a.messageCount > b.messageCount) return -1;
                         else if (a.messageCount < b.messageCount) return +1;
+                        else if (a.updated > b.updated) return -1;
+                        else if (a.updated < b.updated) return +1;
                         else return a.userName.localeCompare(b.userName);
                     })
                     .forEach(user => lines.push(
-                        ` ${user.messageCount.toString().padStart(5)} [${user.joined ? 'X' : ' '}] ${user.userName}`));
+                        ` ${user.messageCount.toString().padStart(5)} | ${user.creation.format()} | ${user.updated.format()} | ${user.joined ? 'X' : ' '} | ${user.userName}`));
             }
 
             const fileContent = lines.join('\n');

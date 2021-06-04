@@ -1,0 +1,15 @@
+{
+  "numeric": {
+    "digits": 2,
+    "decimal": ",",
+    "miles": ".",
+    "showPositive": false,
+    "prefix": "",
+    "suffix": ""
+  },
+  "datetime": {
+    "mask": "d/M/y h:m:s",
+    "day": "dia",
+    "days": "dias"
+  }
+}

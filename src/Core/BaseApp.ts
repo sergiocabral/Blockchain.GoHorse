@@ -10,6 +10,8 @@ import {Translate} from "./Translate";
 import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
 import {IModel} from "./IModel";
 import {ApplicationEnvironment} from "./Environment/ApplicationEnvironment";
+import {DateTimeFormat} from "../Helper/DateTimeFormat";
+import {NumericFormat} from "../Helper/NumericFormat";
 
 /**
  * Aplicação: chatbot da Cabr0n Coin.
@@ -24,7 +26,7 @@ export abstract class BaseApp {
         this.environment = new Environment(applicationName, environment);
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
         Logger.initialize(this.environment.applicationName, this.environment.log);
-        this.loadLanguages();
+        this.loadLocaleData();
     }
 
     /**
@@ -47,13 +49,17 @@ export abstract class BaseApp {
     }
 
     /**
-     * Carrega o arquivo de idiomas.
+     * Carrega informações regionais.
      * @private
      */
-    private loadLanguages() {
-        const translate = new Translate(this.environment.language, true);
-        const content = JSON.parse(fs.readFileSync(path.resolve("src", `translates.${translate.language}.json`)).toString());
-        translate.load(content, translate.language);
+    private loadLocaleData() {
+        const translateService = new Translate(this.environment.language, true);
+        const translatesContent = JSON.parse(fs.readFileSync(path.resolve("src", `translates.${translateService.language}.json`)).toString());
+        translateService.load(translatesContent, translateService.language);
+
+        const localeContent = JSON.parse(fs.readFileSync(path.resolve("src", `locale.${translateService.language}.json`)).toString());
+        NumericFormat.defaults(localeContent['numeric']);
+        DateTimeFormat.defaults(localeContent['datetime']);
     }
 
     /**

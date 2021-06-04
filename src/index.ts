@@ -1,5 +1,7 @@
-import './Helper/Prototype/String';
+import './Helper/Prototype/Date';
 import './Helper/Prototype/List';
+import './Helper/Prototype/Number';
+import './Helper/Prototype/String';
 import environment from './env.json';
 import {CoinChatBotApp} from './Core/CoinChatBot/CoinChatBotApp';
 import {ChatWatcherApp} from "./Core/ChatWatcher/ChatWatcherApp";
