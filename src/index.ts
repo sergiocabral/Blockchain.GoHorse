@@ -3,8 +3,8 @@ import './Helper/Prototype/List';
 import './Helper/Prototype/Number';
 import './Helper/Prototype/String';
 import environment from './env.json';
-import {CoinChatBotApp} from './Core/CoinChatBot/CoinChatBotApp';
-import {ChatWatcherApp} from "./Core/ChatWatcher/ChatWatcherApp";
+import {CoinChatBotApp} from './App/CoinChatBot/CoinChatBotApp';
+import {ChatWatcherApp} from "./App/ChatWatcher/ChatWatcherApp";
 import {InvalidExecutionError} from "./Errors/InvalidExecutionError";
 
 const applicationName: string = process.argv[2];

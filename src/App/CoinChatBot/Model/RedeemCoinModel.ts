@@ -1,4 +1,4 @@
-import {IModel} from "../../Core/IModel";
+import {IModel} from "../../../Core/IModel";
 
 /**
  * Modelo para um resgates conhecido.

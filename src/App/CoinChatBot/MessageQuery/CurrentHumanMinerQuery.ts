@@ -1,4 +1,4 @@
-import {Message} from "../../Bus/Message";
+import {Message} from "../../../Bus/Message";
 import {HumanMinerRequestModel} from "../Model/HumanMinerRequestModel";
 
 /**

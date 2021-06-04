@@ -1,4 +1,4 @@
-import {IModel} from "../../Core/IModel";
+import {IModel} from "../../../Core/IModel";
 
 export class HumanMinerConfigurationModel implements IModel {
     /**

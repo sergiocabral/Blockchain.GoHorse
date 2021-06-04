@@ -1,5 +1,5 @@
 import {UserAuthenticationModel} from "../../Twitch/Model/UserAuthenticationModel";
-import {IModel} from "../IModel";
+import {IModel} from "../../Core/IModel";
 
 /**
  * Informação de configuração do ambiente da aplicação ChatWatcher.

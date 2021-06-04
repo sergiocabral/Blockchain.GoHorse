@@ -3,7 +3,7 @@ import {ChatBot} from "../../Twitch/ChatBot";
 import {Logger} from "../../Log/Logger";
 import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
-import {BaseApp} from "../BaseApp";
+import {BaseApp} from "../../Core/BaseApp";
 import {Message} from "../../Bus/Message";
 import {ChatJoinEvent} from "../../Twitch/MessageEvent/ChatJoinEvent";
 import {ChatPartEvent} from "../../Twitch/MessageEvent/ChatPartEvent";

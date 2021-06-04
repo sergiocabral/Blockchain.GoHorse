@@ -1,5 +1,5 @@
-import {IModel} from "../../Core/IModel";
-import {NumericFormat} from "../../Helper/NumericFormat";
+import {IModel} from "../../../Core/IModel";
+import {NumericFormat} from "../../../Helper/NumericFormat";
 
 /**
  * Modelo para um problema matemático.

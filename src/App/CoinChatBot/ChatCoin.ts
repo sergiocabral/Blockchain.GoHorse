@@ -1,13 +1,13 @@
-import {Message} from "../Bus/Message";
-import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";
-import {SendChatMessageCommand} from "../Twitch/MessageCommand/SendChatMessageCommand";
-import {Logger} from "../Log/Logger";
-import {LogLevel} from "../Log/LogLevel";
-import {LogContext} from "../Log/LogContext";
+import {Message} from "../../Bus/Message";
+import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
+import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
+import {Logger} from "../../Log/Logger";
+import {LogLevel} from "../../Log/LogLevel";
+import {LogContext} from "../../Log/LogContext";
 import {CoinModel} from "./Model/CoinModel";
 import {HumanMiner} from "./HumanMiner";
 import {ComputerMiner} from "./ComputerMiner";
-import {RedeemModel} from "../Twitch/Model/RedeemModel";
+import {RedeemModel} from "../../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
@@ -89,7 +89,7 @@ export class ChatCoin {
 
         Logger.post(
             'Human miner started for coin: "{0}". Channels: "{1}". Math problem: {2}',
-            [data.id, this.coin.channels.join(', '), currentHumanMiner.mathProblem.problem],
+            [this.coin.id, this.coin.channels.join(', '), currentHumanMiner.mathProblem.problem],
             LogLevel.Information,
             LogContext.ChatCoin)
 

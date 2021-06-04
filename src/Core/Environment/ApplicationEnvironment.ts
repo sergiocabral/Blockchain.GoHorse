@@ -1,6 +1,6 @@
 import {IModel} from "../IModel";
-import {CoinChatBotEnvironment} from "../CoinChatBot/CoinChatBotEnvironment";
-import {ChatWatcherEnvironment} from "../ChatWatcher/ChatWatcherEnvironment";
+import {CoinChatBotEnvironment} from "../../App/CoinChatBot/CoinChatBotEnvironment";
+import {ChatWatcherEnvironment} from "../../App/ChatWatcher/ChatWatcherEnvironment";
 
 /**
  * Aplicações configuradas.

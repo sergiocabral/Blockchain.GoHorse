@@ -18,7 +18,7 @@ export class Git {
      */
     public async clone(repository: string, destinationDirectory: string): Promise<string[]> {
         //TODO: Implementar
-        
+
         let output: string[];
         const commandLine = new CommandLine(`git clone ${repository} ${destinationDirectory}`);
         try {

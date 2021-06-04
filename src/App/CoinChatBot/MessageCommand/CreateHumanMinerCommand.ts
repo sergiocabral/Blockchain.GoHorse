@@ -1,7 +1,7 @@
-import {Message} from "../../Bus/Message";
-import {RedeemModel} from "../../Twitch/Model/RedeemModel";
+import {Message} from "../../../Bus/Message";
+import {RedeemModel} from "../../../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "../Model/RedeemCoinModel";
-import {EmptyValueError} from "../../Errors/EmptyValueError";
+import {EmptyValueError} from "../../../Errors/EmptyValueError";
 import {HumanMinerRequestModel} from "../Model/HumanMinerRequestModel";
 
 /**

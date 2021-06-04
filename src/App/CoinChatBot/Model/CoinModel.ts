@@ -1,4 +1,4 @@
-import {IModel} from "../../Core/IModel";
+import {IModel} from "../../../Core/IModel";
 import {RedeemCoinModel} from "./RedeemCoinModel";
 import {HumanMinerConfigurationModel} from "./HumanMinerConfigurationModel";
 

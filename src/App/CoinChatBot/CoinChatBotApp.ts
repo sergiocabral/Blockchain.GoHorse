@@ -2,8 +2,8 @@ import {ChatBot} from "../../Twitch/ChatBot";
 import {Logger} from "../../Log/Logger";
 import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
-import {ChatCoin} from "../../Coin/ChatCoin";
-import {BaseApp} from "../BaseApp";
+import {ChatCoin} from "./ChatCoin";
+import {BaseApp} from "../../Core/BaseApp";
 import {CoinChatBotEnvironment} from "./CoinChatBotEnvironment";
 
 /**

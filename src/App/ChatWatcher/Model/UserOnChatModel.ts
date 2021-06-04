@@ -1,4 +1,4 @@
-import {IModel} from "../../IModel";
+import {IModel} from "../../../Core/IModel";
 
 export class UserOnChatModel implements IModel {
     /**
@@ -26,6 +26,11 @@ export class UserOnChatModel implements IModel {
      * Sinaliza que o usuário está na sala de chat.
      */
     public joined: boolean = false;
+
+    /**
+     * Tags associadas ao usuário.
+     */
+    public tags: string[] = [];
 
     /**
      * Criação

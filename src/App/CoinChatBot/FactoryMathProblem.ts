@@ -1,5 +1,5 @@
 import {MathProblem} from "./Model/MathProblem";
-import {Numeric} from "../Helper/Numeric";
+import {Numeric} from "../../Helper/Numeric";
 import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
 
 /**

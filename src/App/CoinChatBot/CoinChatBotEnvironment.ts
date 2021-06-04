@@ -1,6 +1,6 @@
 import {UserAuthenticationModel} from "../../Twitch/Model/UserAuthenticationModel";
-import {IModel} from "../IModel";
-import {CoinModel} from "../../Coin/Model/CoinModel";
+import {IModel} from "../../Core/IModel";
+import {CoinModel} from "./Model/CoinModel";
 
 /**
  * Informação de configuração do ambiente da aplicação Chatbot.

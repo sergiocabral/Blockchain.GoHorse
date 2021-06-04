@@ -1,4 +1,4 @@
-import {Message} from "../Bus/Message";
+import {Message} from "../../Bus/Message";
 import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
 import {FactoryMathProblem} from "./FactoryMathProblem";
 import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
