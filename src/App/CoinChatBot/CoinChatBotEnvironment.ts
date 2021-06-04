@@ -12,7 +12,7 @@ export class CoinChatBotEnvironment implements IModel {
      */
     public constructor(environment: any) {
         this.twitchAccount = new UserAuthenticationModel(environment?.twitchAccount);
-        this.coins = environment.coins?.length ? environment.coins.map((coin: any) => new CoinModel(coin)) : null;
+        this.coins = environment?.coins?.length ? environment?.coins.map((coin: any) => new CoinModel(coin)) : null;
     }
 
     /**

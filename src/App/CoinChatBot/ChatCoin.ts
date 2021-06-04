@@ -13,6 +13,7 @@ import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand"
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 import {Git} from "../../Process/Git";
 import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
+import {Blockchain} from "./Blockchain";
 
 /**
  * Escuta do chat da moeda.
@@ -23,16 +24,23 @@ export class ChatCoin {
      * @param coin Dados do ambiente.
      */
     constructor(private coin: CoinModel) {
-        this.humanMiner = new HumanMiner(coin.humanMiner);
-        this.computerMiner = new ComputerMiner();
-
         if (!Git.isInstalled) {
             Logger.post('Git is not installed.', undefined, LogLevel.Error, LogContext.ChatCoin);
             throw new InvalidExecutionError('Git is not installed');
         }
 
+        this.humanMiner = new HumanMiner(coin.humanMiner);
+        this.computerMiner = new ComputerMiner();
+        this.blockchain = new Blockchain(coin);
+
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
     }
+
+    /**
+     * Operações da blockchain
+     * @private
+     */
+    private readonly blockchain: Blockchain;
 
     /**
      * Minerador humano

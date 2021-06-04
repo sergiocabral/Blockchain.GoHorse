@@ -13,6 +13,8 @@ export class CoinModel implements IModel {
     public constructor(data: any) {
         this.id = data?.id ?? '';
         this.name = data?.name ?? null;
+        this.repository = data?.repository ?? null;
+        this.directory = data?.directory ?? null;
         this.channels = data?.channels ?? null;
         this.redeems = data?.redeems ?? null;
         this.humanMiner = new HumanMinerConfigurationModel(data?.humanMiner) ?? null;
@@ -40,6 +42,16 @@ export class CoinModel implements IModel {
      * Nome.
      */
     public name: string;
+
+    /**
+     * Repositório do Git.
+     */
+    public repository: string;
+
+    /**
+     * Diretório da blockchain (repositório do Git local)
+     */
+    public directory: string;
 
     /**
      * Canal da Twitch onde a moeda pode ser operada.

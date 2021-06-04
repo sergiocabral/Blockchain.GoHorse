@@ -1,5 +1,4 @@
 import {CommandLine} from "./CommandLine";
-import {ExecException} from "child_process";
 
 /**
  * Manipula a execução de comandos do Git.
@@ -9,20 +8,36 @@ export class Git {
      * Construtor.
      * @param initialDirectory Diretório inicial.
      */
-    public constructor(private initialDirectory: string) {
+    public constructor(public initialDirectory: string) {
+        this.gitCommandLine = new CommandLine('git', [], initialDirectory);
     }
+
+    /**
+     * Determina se o Git está instalado.
+     * @private
+     */
+    private static isInstalledValue: boolean | null = null;
 
     /**
      * Determina se o Git está instalado.
      */
     public static get isInstalled(): boolean {
-        try {
-            const output = (new CommandLine('git --version').execute()).join('\n');
-            return /^git/.test(output);
-        } catch (error){
-            return false;
+        if (this.isInstalledValue === null) {
+            try {
+                const output = (new CommandLine('git', ['--version']).execute()).join('\n');
+                this.isInstalledValue = /^git/.test(output);
+            } catch (error) {
+                this.isInstalledValue = false;
+            }
         }
+        return this.isInstalledValue;
     }
+
+    /**
+     * Linha de comando para execução do Git.
+     * @private
+     */
+    private gitCommandLine: CommandLine;
 
     /**
      * git clone
@@ -30,16 +45,12 @@ export class Git {
      * @param destinationDirectory Diretório de destino.
      * @param changeDirectoryToRepositry Após o clone muda o diretório atual para o do repositório clonado.
      */
-    public async clone(repository: string, destinationDirectory: string, changeDirectoryToRepositry: boolean = true): Promise<string[]> {
-        let output: string[];
-        const commandLine = new CommandLine(`git clone ${repository} ${destinationDirectory}`);
-        try {
-            output = await commandLine.execute();
-        }
-        catch (e) {
-            output = e[0];
-            const execException = e[1] as ExecException;
-        }
-        return output;
+    public clone(repository: string, destinationDirectory: string, changeDirectoryToRepositry: boolean = true): string[] {
+        this.gitCommandLine.processArguments = [
+            'clone',
+            repository,
+            destinationDirectory
+        ];
+        return this.gitCommandLine.execute();
     }
 }

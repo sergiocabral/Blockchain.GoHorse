@@ -1,5 +1,6 @@
 import {EmptyValueError} from "../Errors/EmptyValueError";
 import {spawnSync, SpawnSyncReturns} from "child_process";
+import {chdir} from "process";
 
 /**
  * Representa a excução de um comando de linha no terminal.
@@ -7,19 +8,12 @@ import {spawnSync, SpawnSyncReturns} from "child_process";
 export class CommandLine {
     /**
      * Construtor.
-     * @param commandLine Linha de comando que será executada.
+     * @param processName Nome do processo.
+     * @param processArguments Argumentos de linha de comando
+     * @param initialDirectory Diretório inicial.
      */
-    public constructor(public commandLine: string) {
-        this.arguments = this.commandLine.split(' ');
-        const process = this.arguments.shift();
-        if (!process) throw new EmptyValueError('CommandLine process path');
-        this.commandLine = process;
+    public constructor(public processName: string, public processArguments: string[] = [], public initialDirectory?: string) {
     }
-
-    /**
-     * Argumentos passado ao processo.
-     */
-    public arguments: string[];
 
     /**
      * Informações do processo da última execução.
@@ -44,13 +38,22 @@ export class CommandLine {
     }
 
     /**
+     * Prepara o ambiente para a executa de um processo git.
+     * @private
+     */
+    private prepare(): void {
+        if (this.initialDirectory) chdir(this.initialDirectory);
+    }
+
+    /**
      * Executa a linha de comandos.
      * @return Saída do comando.
      */
     public execute(): string[] {
         this.lastProcessInfoValue = null;
 
-        const processInfo = spawnSync(this.commandLine, this.arguments);
+        this.prepare();
+        const processInfo = spawnSync(this.processName, this.processArguments);
 
         const stdout = processInfo.stdout?.toString() ?? '';
         const stderr = processInfo.stderr?.toString() ?? '';
