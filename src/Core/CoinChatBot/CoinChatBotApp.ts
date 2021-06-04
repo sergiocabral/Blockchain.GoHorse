@@ -18,7 +18,7 @@ export class CoinChatBotApp extends BaseApp {
         super('coinChatBot', environment);
 
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.allChannels);
-        this.chatCoin = new ChatCoin();
+        this.chatCoins = this.environmentApplication.coins.map(coin => new ChatCoin(coin));
     }
 
     /**
@@ -39,7 +39,7 @@ export class CoinChatBotApp extends BaseApp {
      * Escuta do chat da moeda.
      * @private
      */
-    private readonly chatCoin: ChatCoin;
+    private readonly chatCoins: ChatCoin[];
 
     /**
      * Inicia a aplicação.

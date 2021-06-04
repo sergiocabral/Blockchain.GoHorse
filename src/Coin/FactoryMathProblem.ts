@@ -1,5 +1,6 @@
 import {MathProblem} from "./Model/MathProblem";
 import {Numeric} from "../Helper/Numeric";
+import {HumanMinerModel} from "./Model/HumanMinerModel";
 
 /**
  * Gerador de problemas matemáticos.
@@ -7,32 +8,27 @@ import {Numeric} from "../Helper/Numeric";
 export class FactoryMathProblem {
     /**
      * Constructor.
-     * @param operationCount Total de operações matemáticas.
-     * @param minIntegerPart Menor número possível na parte inteira de cada número.
-     * @param maxIntegerPart Maior número possível na parte inteira de cada número.
+     * @param config Configurações da instância.
      */
-    public constructor(
-        public operationCount: number = 10,
-        public minIntegerPart: number = 0,
-        public maxIntegerPart = 99) {
+    public constructor(private config: HumanMinerModel) {
     }
 
     /**
      * Gera um problema matemático.
      */
     public generate(): MathProblem {
-        let operationCount = this.operationCount;
+        let operationCount = this.config.operationCount;
         let mathProblem = `${this.getRandomNumber()}`;
         while (operationCount-- > 1) {
-            mathProblem += ` ${this.getRandomOperation()} ${this.getRandomNumber().toFixed(2)}`;
+            mathProblem += ` ${this.getRandomOperation()} ${this.getRandomNumber().toFixed(this.config.digits)}`;
         }
 
-        const mathProblemResult = eval(mathProblem).toFixed(2);
+        const mathProblemResult = eval(mathProblem).toFixed(this.config.digits);
         const mathProblemResultExpected = Math.floor(Math.abs(mathProblemResult));
-        const difference = Number((mathProblemResultExpected - mathProblemResult).toFixed(2));
+        const difference = Number((mathProblemResultExpected - mathProblemResult).toFixed(this.config.digits));
         if (difference >= 0) mathProblem += ' + ';
         else mathProblem += ' - ';
-        mathProblem += Math.abs(difference).toFixed(2);
+        mathProblem += Math.abs(difference).toFixed(this.config.digits);
 
         return new MathProblem(mathProblem, mathProblemResultExpected);
     }
@@ -61,6 +57,8 @@ export class FactoryMathProblem {
      * @private
      */
     private getRandomNumber(): number {
-        return Number(`${Numeric.between(this.minIntegerPart, this.maxIntegerPart)}.${Numeric.between(1, 9)}`);
+        const integer = Numeric.between(this.config.minIntegerPart, this.config.maxIntegerPart);
+        const decimals = ' '.repeat(this.config.digits).split('').map(() => Numeric.between(1, 9)).join('');
+        return Number(`${integer}.${decimals}`);
     }
 }

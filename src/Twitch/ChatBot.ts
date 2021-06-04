@@ -29,6 +29,7 @@ import {ChatPartEvent} from "./MessageEvent/ChatPartEvent";
 import {UserAuthenticationModel} from "./Model/UserAuthenticationModel";
 import {ChatMessageEvent} from "./MessageEvent/ChatMessageEvent";
 import {ChatMessageModel} from "./Model/ChatMessageModel";
+import Timeout = NodeJS.Timeout;
 
 /**
  * Cliente ChatBot da Twitch
@@ -94,12 +95,52 @@ export class ChatBot implements Events {
     }
 
     /**
+     * Intervalo de espera entre mensagens enviadas.
+     * @private
+     */
+    private chatMessageWaitMilliseconds: number = 3000;
+
+    /**
+     * Fila de mensagens.
+     * @private
+     */
+    private chatMessageQueue: SendChatMessageCommand[] = [];
+
+    /**
+     * Timeout para bounce de mensagens enviadas.
+     * @private
+     */
+    private chatMessageTimeout: Timeout | null = null;
+
+    /**
+     * Despacha as mensagens de chat que estão na fila.
+     * @param sendNow Envia imediatamente.
+     * @private
+     */
+    private dispatchChatMessage(sendNow: boolean = false): void {
+        if (sendNow) {
+            const message = this.chatMessageQueue.shift();
+            if (message) this.client.say(message.channel, message.message);
+            this.chatMessageTimeout = null;
+        }
+
+        if (this.chatMessageQueue.length && this.chatMessageTimeout === null) {
+            this.chatMessageTimeout =
+                setTimeout(
+                    () => this.dispatchChatMessage(true),
+                    this.chatMessageWaitMilliseconds);
+
+        }
+    }
+
+    /**
      * Processar mensagem
      * @param message SendChatMessageCommand
      * @private
      */
     private handlerSendChatMessageCommand(message: SendChatMessageCommand) {
-        this.client.say(message.channel, message.message);
+        this.chatMessageQueue.push(message);
+        this.dispatchChatMessage();
     }
 
     /**

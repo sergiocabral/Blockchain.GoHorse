@@ -12,6 +12,10 @@
         "minus": "menos",
         "multiplied by": "multiplicado por",
         "divided by": "dividido por"
+      },
+      "General Messages": {
+        "Your message will be publicly registered at blockchain --> {0}": "Sua mensagem ficará registrada publicamente na blockchain --> {0}",
+        "Pending human mining. Solve the math problem to receive the miner reward. To reply send !miner {answer} --> {0}": "Mineração humana pendente. Resolva o problema matemático para receber a recompensa de minerador. Para responder envie !miner {resposta} --> {0}"
       }
     },
     "Chat Watcher": {
