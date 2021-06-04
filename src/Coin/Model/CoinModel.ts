@@ -1,6 +1,6 @@
 import {IModel} from "../../Core/IModel";
 import {RedeemCoinModel} from "./RedeemCoinModel";
-import {HumanMinerModel} from "./HumanMinerModel";
+import {HumanMinerConfigurationModel} from "./HumanMinerConfigurationModel";
 
 /**
  * Modelo para informações de uma moeda.
@@ -15,7 +15,7 @@ export class CoinModel implements IModel {
         this.name = data?.name ?? null;
         this.channels = data?.channels ?? null;
         this.redeems = data?.redeems ?? null;
-        this.humanMiner = new HumanMinerModel(data?.humanMiner) ?? null;
+        this.humanMiner = new HumanMinerConfigurationModel(data?.humanMiner) ?? null;
     }
 
     /**
@@ -54,5 +54,5 @@ export class CoinModel implements IModel {
     /**
      * Configurações do minerador humano.
      */
-    public humanMiner: HumanMinerModel;
+    public humanMiner: HumanMinerConfigurationModel;
 }

@@ -1,7 +1,9 @@
 import {Message} from "../Bus/Message";
-import {ConfigureHumanMinerCommand} from "./MessageCommand/ConfigureHumanMinerCommand";
+import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
 import {FactoryMathProblem} from "./FactoryMathProblem";
-import {HumanMinerModel} from "./Model/HumanMinerModel";
+import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
+import {HumanMinerRequestModel} from "./Model/HumanMinerRequestModel";
+import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 
 /**
  * Minerador humano.
@@ -11,10 +13,11 @@ export class HumanMiner {
      * Constructor.
      * @param config Configurações do minerador.
      */
-    public constructor(config: HumanMinerModel) {
+    public constructor(config: HumanMinerConfigurationModel) {
         this.factoryMathProblem = new FactoryMathProblem(config);
 
-        Message.capture(ConfigureHumanMinerCommand, this, this.handlerConfigureHumanMinerCommand);
+        Message.capture(CreateHumanMinerCommand, this, this.handlerCreateHumanMinerCommand);
+        Message.capture(CurrentHumanMinerQuery, this, this.handlerCurrentHumanMinerQuery);
     }
 
     /**
@@ -25,10 +28,22 @@ export class HumanMiner {
 
     /**
      * Processador de mensagem
-     * @param message ConfigureHumanMinerCommand
+     * @param message CreateHumanMinerCommand
      * @private
      */
-    private handlerConfigureHumanMinerCommand(message: ConfigureHumanMinerCommand): void {
-        message.mathProblem = this.factoryMathProblem.generate();
+    private handlerCreateHumanMinerCommand(message: CreateHumanMinerCommand): void {
+        const mathProblem = this.factoryMathProblem.generate();
+        message.humanMinerRequest = new HumanMinerRequestModel(mathProblem);
+        //TODO: Registrar na blockchain.
+    }
+
+    /**
+     * Processador de mensagem
+     * @param message CurrentHumanMinerQuery
+     * @private
+     */
+    private handlerCurrentHumanMinerQuery(message: CurrentHumanMinerQuery): void {
+        message.humanMinerRequest = null;
+        //TODO: Consultar na blockchain.
     }
 }

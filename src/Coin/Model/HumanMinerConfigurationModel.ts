@@ -1,6 +1,6 @@
 import {IModel} from "../../Core/IModel";
 
-export class HumanMinerModel implements IModel {
+export class HumanMinerConfigurationModel implements IModel {
     /**
      * Construtor.
      * @param data JSON com dados para preencher a instância.

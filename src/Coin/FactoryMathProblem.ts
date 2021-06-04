@@ -1,6 +1,6 @@
 import {MathProblem} from "./Model/MathProblem";
 import {Numeric} from "../Helper/Numeric";
-import {HumanMinerModel} from "./Model/HumanMinerModel";
+import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
 
 /**
  * Gerador de problemas matemáticos.
@@ -10,7 +10,7 @@ export class FactoryMathProblem {
      * Constructor.
      * @param config Configurações da instância.
      */
-    public constructor(private config: HumanMinerModel) {
+    public constructor(private config: HumanMinerConfigurationModel) {
     }
 
     /**

@@ -9,7 +9,8 @@ import {HumanMiner} from "./HumanMiner";
 import {ComputerMiner} from "./ComputerMiner";
 import {RedeemModel} from "../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
-import {ConfigureHumanMinerCommand} from "./MessageCommand/ConfigureHumanMinerCommand";
+import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
+import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 
 /**
  * Escuta do chat da moeda.
@@ -81,11 +82,14 @@ export class ChatCoin {
      * @private
      */
     private startHumanMiner(redeem: RedeemModel, data: RedeemCoinModel): void {
-        const humanMiner = new ConfigureHumanMinerCommand(redeem, data).request().message;
+        let currentHumanMiner = new CurrentHumanMinerQuery().request().message.humanMinerRequest;
+        if (!currentHumanMiner) {
+            currentHumanMiner = new CreateHumanMinerCommand(redeem, data).request().message.humanMinerRequest;
+        }
 
         Logger.post(
             'Human miner started for coin: "{0}". Channels: "{1}". Math problem: {2}',
-            [data.id, this.coin.channels.join(', '), humanMiner.mathProblem.problem],
+            [data.id, this.coin.channels.join(', '), currentHumanMiner.mathProblem.problem],
             LogLevel.Information,
             LogContext.ChatCoin)
 
@@ -93,7 +97,7 @@ export class ChatCoin {
             'Pending human mining. ' +
             'Solve the math problem to receive the miner reward. ' +
             'To reply send !miner {answer} --> ' +
-            '{0}').translate().querystring(humanMiner.mathProblem.problem);
+            '{0}').translate().querystring(currentHumanMiner.mathProblem.problem);
 
         this.coin.channels.forEach(channel =>
             new SendChatMessageCommand(channel, message).send());
