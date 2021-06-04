@@ -21,4 +21,9 @@ export class UserOnChatModel implements IModel {
      * Contagem de mensagens enviadas.
      */
     public messageCount: number = 0;
+
+    /**
+     * Sinaliza que o usuário está na sala de chat.
+     */
+    public joined: boolean = false;
 }

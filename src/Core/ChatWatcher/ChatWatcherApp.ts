@@ -67,33 +67,26 @@ export class ChatWatcherApp extends BaseApp {
      * @param autoInsert Insere caso não exista.
      * @private
      */
-    private getChannel(channelName: string, autoInsert: boolean = false): UserOnChatModel[] | null {
-        if (autoInsert) {
-            return this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
-        } else {
-            return this.channelsUsers[channelName] || null;
-        }
+    private getOrAddChannel(channelName: string, autoInsert: boolean = false): UserOnChatModel[] {
+        return this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
     }
 
     /**
      * Adiciona um usuário na lista de canais.
      * @param channelName
      * @param userName
-     * @param autoInsert Insere caso não exista.
      * @private
      */
-    private getUser(channelName: string, userName: string, autoInsert: boolean = false): UserOnChatModel | null {
-        const users = this.getChannel(channelName, autoInsert);
+    private getOrAddUser(channelName: string, userName: string): UserOnChatModel {
+        const users = this.getOrAddChannel(channelName);
         let user = users?.find(user => user.userName === userName);
 
         if (user) return user;
 
-        if (autoInsert) {
-            user = new UserOnChatModel(userName);
-            users?.push(user);
-        }
+        user = new UserOnChatModel(userName);
+        users.push(user);
 
-        return user || null;
+        return user;
     }
 
     /**
@@ -104,16 +97,14 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private update(channelName: string, userName: string, action: 'add' | 'remove'): void {
+        const user = this.getOrAddUser(channelName, userName);
+
         switch (action) {
             case 'add':
-                this.getUser(channelName, userName, true);
+                user.joined = true;
                 break;
             case 'remove':
-                const users = this.getChannel(channelName);
-                if (users?.length) {
-                    const indexOf = users.findIndex(user => user.userName === userName);
-                    if (indexOf >= 0) users.splice(indexOf, 1);
-                }
+                user.joined = false;
                 break;
         }
 
@@ -127,7 +118,7 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private incrementMessageCount(channelName: string, userName: string): void {
-        const user = this.getUser(channelName, userName, true);
+        const user = this.getOrAddUser(channelName, userName);
         if (user) user.messageCount++;
 
         this.saveReport();
@@ -149,16 +140,22 @@ export class ChatWatcherApp extends BaseApp {
 
             for (const channel in this.channelsUsers) {
                 if (!this.channelsUsers.hasOwnProperty(channel)) continue;
-                lines.push(`#${channel}: ${this.channelsUsers[channel].length}`);
+
+                const total = this.channelsUsers[channel].length;
+                const joined = this.channelsUsers[channel].filter(user => user.joined).length;
+                lines.push(`#${channel}: ${joined}/${total}`);
 
                 ([] as UserOnChatModel[])
                     .concat(this.channelsUsers[channel])
                     .sort((a: UserOnChatModel, b: UserOnChatModel) => {
-                        if (a.messageCount > b.messageCount) return -1;
+                        if (a.joined && !b.joined) return -1;
+                        if (!a.joined && b.joined) return +1;
+                        else if (a.messageCount > b.messageCount) return -1;
                         else if (a.messageCount < b.messageCount) return +1;
                         else return a.userName.localeCompare(b.userName);
                     })
-                    .forEach(user => lines.push(` ${user.messageCount.toString().padStart(5)} | ${user.userName}`));
+                    .forEach(user => lines.push(
+                        ` ${user.messageCount.toString().padStart(5)} [${user.joined ? 'X' : ' '}] ${user.userName}`));
             }
 
             const fileContent = lines.join('\n');
