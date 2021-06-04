@@ -1,3 +1,6 @@
+/**
+ * Contextos de log.
+ */
 export class LogContext {
     /**
      * Aplicativo base.
@@ -33,4 +36,19 @@ export class LogContext {
      * Bot da moeda no chat.
      */
     public static readonly ChatCoin: string = 'ChatCoin';
+
+    /**
+     * CommandLine
+     */
+    public static readonly CommandLine: string = 'CommandLine';
+
+    /**
+     * Git
+     */
+    public static readonly Git: string = 'Git';
+
+    /**
+     * Blockchain
+     */
+    public static readonly Blockchain: string = 'Blockchain';
 }

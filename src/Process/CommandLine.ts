@@ -1,6 +1,9 @@
 import {EmptyValueError} from "../Errors/EmptyValueError";
 import {spawnSync, SpawnSyncReturns} from "child_process";
 import {chdir} from "process";
+import {LogLevel} from "../Log/LogLevel";
+import {LogContext} from "../Log/LogContext";
+import {Logger} from "../Log/Logger";
 
 /**
  * Representa a excução de um comando de linha no terminal.
@@ -46,10 +49,19 @@ export class CommandLine {
     }
 
     /**
+     * Sinaliza uma execução em andamento.
+     * @private
+     */
+    private isRunning: boolean = false;
+
+    /**
      * Executa a linha de comandos.
      * @return Saída do comando.
      */
     public execute(): string[] {
+        while (this.isRunning) { }
+        this.isRunning = true;
+
         this.lastProcessInfoValue = null;
 
         this.prepare();
@@ -64,7 +76,14 @@ export class CommandLine {
             .replaceAll("\r", "\n")
             .split("\n");
 
+        Logger.post('Process executed: {0} - Output: {1}',
+            [() => `${this.processName} ${this.processArguments.join(' ')}`, output],
+            LogLevel.Verbose, LogContext.CommandLine);
+
         this.lastProcessInfoValue = processInfo;
+
+        this.isRunning = false;
+
         return output;
     }
 
