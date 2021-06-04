@@ -18,7 +18,7 @@ import {
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {RedeemEvent} from "./MessageEvent/ChatRedeemEvent";
+import {RedeemEvent} from "./MessageEvent/RedeemEvent";
 import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
@@ -27,6 +27,8 @@ import {ChatJoinPartModel} from "./Model/ChatJoinPartModel";
 import {ChatJoinEvent} from "./MessageEvent/ChatJoinEvent";
 import {ChatPartEvent} from "./MessageEvent/ChatPartEvent";
 import {UserAuthenticationModel} from "./Model/UserAuthenticationModel";
+import {ChatMessageEvent} from "./MessageEvent/ChatMessageEvent";
+import {ChatMessageModel} from "./Model/ChatMessageModel";
 
 /**
  * Cliente ChatBot da Twitch
@@ -356,6 +358,7 @@ export class ChatBot implements Events {
      */
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
         ChatBot.log('message', arguments);
+        new ChatMessageEvent(new ChatMessageModel(channel, userstate, message, arguments)).send();
     }
 
     /**

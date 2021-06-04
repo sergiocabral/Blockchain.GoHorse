@@ -11,6 +11,7 @@ import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import Timeout = NodeJS.Timeout;
 import {UserOnChatModel} from "./Model/UserOnChatModel";
+import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -25,6 +26,7 @@ export class ChatWatcherApp extends BaseApp {
 
         Message.capture(ChatJoinEvent, this, this.handlerChatJoinEvent);
         Message.capture(ChatPartEvent, this, this.handlerChatPartEvent);
+        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
 
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
     }
@@ -128,7 +130,7 @@ export class ChatWatcherApp extends BaseApp {
         const user = this.getUser(channelName, userName, true);
         if (user) user.messageCount++;
 
-        //TODO: Implementar o incremento do total de mensagens enviadas pelo usuário.
+        this.saveReport();
     }
 
     /**
@@ -147,11 +149,16 @@ export class ChatWatcherApp extends BaseApp {
 
             for (const channel in this.channelsUsers) {
                 if (!this.channelsUsers.hasOwnProperty(channel)) continue;
-                lines.push(`#${channel}`);
-                const users = this.channelsUsers[channel];
-                for (const user of users) {
-                    lines.push(`  - ${user}`);
-                }
+                lines.push(`#${channel}: ${this.channelsUsers[channel].length}`);
+
+                ([] as UserOnChatModel[])
+                    .concat(this.channelsUsers[channel])
+                    .sort((a: UserOnChatModel, b: UserOnChatModel) => {
+                        if (a.messageCount > b.messageCount) return -1;
+                        else if (a.messageCount < b.messageCount) return +1;
+                        else return a.userName.localeCompare(b.userName);
+                    })
+                    .forEach(user => lines.push(` ${user.messageCount.toString().padStart(5)} | ${user.userName}`));
             }
 
             const fileContent = lines.join('\n');
@@ -182,5 +189,15 @@ export class ChatWatcherApp extends BaseApp {
     private handlerChatPartEvent(message: ChatPartEvent) {
         Logger.post("Channel: {0}. Parted: {1}", [message.part.channel.name, message.part.userName, message], LogLevel.Information, LogContext.ChatWatcherApp);
         this.update(message.part.channel.name, message.part.userName, 'remove');
+    }
+
+    /**
+     * Processa resposta para mensagem.
+     * @param message ChatMessageEvent
+     * @private
+     */
+    private handlerChatMessageEvent(message: ChatMessageEvent) {
+        Logger.post("Channel: {0}. New message from: {1}", [message.chatMessage.channel.name, message.chatMessage.user.name, message], LogLevel.Debug, LogContext.ChatWatcherApp);
+        this.incrementMessageCount(message.chatMessage.channel.name, message.chatMessage.user.name);
     }
 }

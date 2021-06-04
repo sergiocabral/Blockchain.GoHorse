@@ -1,6 +1,6 @@
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
 import {Message} from "../Bus/Message";
-import {RedeemEvent} from "../Twitch/MessageEvent/ChatRedeemEvent";
+import {RedeemEvent} from "../Twitch/MessageEvent/RedeemEvent";
 import {SendChatMessageCommand} from "../Twitch/MessageCommand/SendChatMessageCommand";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
