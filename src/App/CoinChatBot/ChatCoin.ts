@@ -11,6 +11,8 @@ import {RedeemModel} from "../../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
+import {Git} from "../../Process/Git";
+import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
 
 /**
  * Escuta do chat da moeda.
@@ -23,6 +25,11 @@ export class ChatCoin {
     constructor(private coin: CoinModel) {
         this.humanMiner = new HumanMiner(coin.humanMiner);
         this.computerMiner = new ComputerMiner();
+
+        if (!Git.isInstalled) {
+            Logger.post('Git is not installed.', undefined, LogLevel.Error, LogContext.ChatCoin);
+            throw new InvalidExecutionError('Git is not installed');
+        }
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
     }

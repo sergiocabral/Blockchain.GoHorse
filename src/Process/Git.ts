@@ -7,18 +7,30 @@ import {ExecException} from "child_process";
 export class Git {
     /**
      * Construtor.
+     * @param initialDirectory Diretório inicial.
      */
-    public constructor() {
+    public constructor(private initialDirectory: string) {
+    }
+
+    /**
+     * Determina se o Git está instalado.
+     */
+    public static get isInstalled(): boolean {
+        try {
+            const output = (new CommandLine('git --version').execute()).join('\n');
+            return /^git/.test(output);
+        } catch (error){
+            return false;
+        }
     }
 
     /**
      * git clone
      * @param repository url ou caminho do repositório.
      * @param destinationDirectory Diretório de destino.
+     * @param changeDirectoryToRepositry Após o clone muda o diretório atual para o do repositório clonado.
      */
-    public async clone(repository: string, destinationDirectory: string): Promise<string[]> {
-        //TODO: Implementar
-
+    public async clone(repository: string, destinationDirectory: string, changeDirectoryToRepositry: boolean = true): Promise<string[]> {
         let output: string[];
         const commandLine = new CommandLine(`git clone ${repository} ${destinationDirectory}`);
         try {
