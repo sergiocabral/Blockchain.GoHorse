@@ -8,6 +8,8 @@ import {LogContext} from "../Log/LogContext";
 import {CoinModel} from "./Model/CoinModel";
 import {HumanMiner} from "./HumanMiner";
 import {ComputerMiner} from "./ComputerMiner";
+import {RedeemModel} from "../Twitch/Model/RedeemModel";
+import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 
 /**
  * Escuta do chat da moeda.
@@ -68,8 +70,19 @@ export class ChatCoin {
                     LogLevel.Information,
                     LogContext.ChatCoin)
 
-                new SendChatMessageCommand(message.redeem.channel.name, redeem.description.translate()).send();
+                this.redeemCoin(message.redeem, redeem);
             }
         }
+    }
+
+    /**
+     * Resgate de moeda.
+     * @param redeem Resgate do usuário.
+     * @param data Dados do resgate
+     * @private
+     */
+    private redeemCoin(redeem: RedeemModel, data: RedeemCoinModel): void {
+        new SendChatMessageCommand(redeem.channel.name, data.description.translate()).send();
+
     }
 }

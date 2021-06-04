@@ -4,7 +4,15 @@
   },
   "Applications": {
     "Coin Chat Bot": {
-      "Free Cash! You redeemed 1024 Cabr0n Coins. Congratulations!": "Free Cash! Você resgatou 1024 Cabr0n Coins. Parabéns!"
+      "Redeem Messages": {
+        "Free Cash! You redeemed 1024 Cabr0n Coins. Congratulations!": "Free Cash! Você resgatou 1024 Cabr0n Coins. Parabéns!"
+      },
+      "Math Operations": {
+        "plus": "mais",
+        "minus": "menos",
+        "multiplied by": "multiplicado por",
+        "divided by": "dividido por"
+      }
     },
     "Chat Watcher": {
       "Channel: {0}. Joined: {1}": "Canal: {0}. Entrou: {1}",

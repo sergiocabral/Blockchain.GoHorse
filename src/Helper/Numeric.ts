@@ -18,8 +18,8 @@ export class Numeric {
 
     /**
      * Retorna um valor randômico entre dois números.
-     * @param min Menor número possível.
-     * @param max Maior número possível.
+     * @param min Menor número possível (inclusivo).
+     * @param max Maior número possível (inclusivo).
      * @returns Resultado.
      */
     public static between(min: number = 0, max: number = 100): number {
