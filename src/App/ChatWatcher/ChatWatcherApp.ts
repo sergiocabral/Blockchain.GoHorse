@@ -12,7 +12,9 @@ import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import {UserOnChatModel} from "./Model/UserOnChatModel";
 import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
 import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
+import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
 import Timeout = NodeJS.Timeout;
+import {performance} from "perf_hooks";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -28,6 +30,7 @@ export class ChatWatcherApp extends BaseApp {
         Message.capture(ChatJoinEvent, this, this.handlerChatJoinEvent);
         Message.capture(ChatPartEvent, this, this.handlerChatPartEvent);
         Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
+        Message.capture(ClockEvent, this, this.handlerClockEvent);
 
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
     }
@@ -128,7 +131,8 @@ export class ChatWatcherApp extends BaseApp {
 
             if (user.tags.length) {
                 const messageCommands = user.tags.map(tag => {
-                    const messages = this.environmentApplication.automaticFirstMessagesForTag[tag.toLowerCase()] ?? [];
+                    const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
+                    const messages = tags[tag.toLowerCase()] ?? [];
                     return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
                 }).flat<SendChatMessageCommand>();
 
@@ -161,6 +165,32 @@ export class ChatWatcherApp extends BaseApp {
         clearTimeout(this.saveReportTimeout);
         const saveAfterMilliseconds = 1000;
         this.saveReportTimeout = setTimeout(action, saveAfterMilliseconds);
+    }
+
+    /**
+     * Intervalo entre as gravações no log.
+     * @private
+     */
+    private logReportInterval: number = 1000 * 60 * 5;
+
+    /**
+     * Controle do último log do relatório
+     * @private
+     */
+    private lastReportLog: number = performance.now() - this.logReportInterval + 1000 * 60;
+
+    /**
+     * Registra o relatório atual no log
+     * @private
+     */
+    private logReport(writeNow: boolean = false): void {
+        const now = performance.now();
+        writeNow = writeNow || (now - this.lastReportLog >= this.logReportInterval);
+        if (!writeNow) return;
+        this.lastReportLog = now;
+
+        const content = this.factoryReport();
+        Logger.post('Chat Watcher Report:\n{0}', [content, { event: "ChatWatcherReport" }], LogLevel.Information, LogContext.ChatWatcherApp);
     }
 
     /**
@@ -232,5 +262,14 @@ export class ChatWatcherApp extends BaseApp {
      */
     private handlerChatMessageEvent(message: ChatMessageEvent) {
         this.incrementMessageCount(message.chatMessage.channel.name, message.chatMessage.user.name);
+    }
+
+    /**
+     * Processa resposta para mensagem.
+     * @param message ClockEvent
+     * @private
+     */
+    private handlerClockEvent(message: ClockEvent) {
+        this.logReport();
     }
 }

@@ -12,6 +12,8 @@ import {IModel} from "./IModel";
 import {ApplicationEnvironment} from "./Environment/ApplicationEnvironment";
 import {DateTimeFormat} from "../Helper/DateTimeFormat";
 import {NumericFormat} from "../Helper/NumericFormat";
+import Timeout = NodeJS.Timeout;
+import {ClockEvent} from "./MessageEvent/ClockEvent";
 
 /**
  * Aplicação: chatbot da Cabr0n Coin.
@@ -27,6 +29,7 @@ export abstract class BaseApp {
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
         Logger.initialize(this.environment.applicationName, this.environment.log);
         this.loadLocaleData();
+        this.clockStart();
     }
 
     /**
@@ -69,5 +72,29 @@ export abstract class BaseApp {
      */
     private handlerEnvironmentQuery(message: EnvironmentQuery) {
         message.environment = this.environment;
+    }
+
+    /**
+     * Intervalo do sistema.
+     * @private
+     */
+    private clockInterval: Timeout | null = null;
+
+    /**
+     * Inicia o clock do sistema.
+     * @private
+     */
+    private clockStart(): void {
+        if (this.clockInterval !== null) clearInterval(this.clockInterval);
+        const clockInterval = 100;
+        this.clockInterval = setInterval(BaseApp.clockEmitter, clockInterval);
+    }
+
+    /**
+     * Dispara o pulso do clock.
+     * @private
+     */
+    private static clockEmitter(): void {
+        new ClockEvent().send();
     }
 }

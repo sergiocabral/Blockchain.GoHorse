@@ -15,8 +15,11 @@ export class ChatWatcherEnvironment implements IModel {
         this.channels = environment?.channels?.length ? environment.channels : null;
 
         this.automaticFirstMessagesForTag = {};
-        for (const tag of Object.keys(environment?.automaticFirstMessagesForTag)) {
-            this.automaticFirstMessagesForTag[tag.toLowerCase()] = environment?.automaticFirstMessagesForTag[tag];
+        for (const channel of Object.keys(environment?.automaticFirstMessagesForTag)) {
+            this.automaticFirstMessagesForTag[channel.toLowerCase()] = {};
+            for (const tag of Object.keys(environment?.automaticFirstMessagesForTag[channel])) {
+                this.automaticFirstMessagesForTag[channel.toLowerCase()][tag.toLowerCase()] = environment?.automaticFirstMessagesForTag[channel][tag];
+            }
         }
 
         this.tags = {};
@@ -52,7 +55,7 @@ export class ChatWatcherEnvironment implements IModel {
     /**
      * Comando para tags.
      */
-    public readonly automaticFirstMessagesForTag: KeyValue<string[]>;
+    public readonly automaticFirstMessagesForTag: KeyValue<KeyValue<string[]>>;
 
     /**
      * Tags vinculadas a usuários.
