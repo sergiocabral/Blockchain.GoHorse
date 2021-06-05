@@ -68,7 +68,7 @@ export class ChatCoin {
 
         const redeems = this.coin.redeems.filter(redeem => redeem.id === message.redeem.id);
         for (const redeem of redeems) {
-            this.redeemCoinNotify(message.redeem, redeem);
+            ChatCoin.redeemCoinNotify(message.redeem, redeem);
             this.startHumanMiner(message.redeem, redeem);
         }
     }
@@ -79,7 +79,7 @@ export class ChatCoin {
      * @param data Dados do resgate
      * @private
      */
-    private redeemCoinNotify(redeem: RedeemModel, data: RedeemCoinModel): void {
+    private static redeemCoinNotify(redeem: RedeemModel, data: RedeemCoinModel): void {
         Logger.post(
             'Redeemed requested in the chat "{0}", by user "{1}", with amount {2}. Description of redeem: "{3}". Message from user: "{4}"',
             [redeem.channel.name, redeem.user.name, data.amount, data.description, redeem.message],
@@ -98,12 +98,13 @@ export class ChatCoin {
      */
     private startHumanMiner(redeem: RedeemModel, data: RedeemCoinModel): void {
         let currentHumanMiner = new CurrentHumanMinerQuery().request().message.humanMinerRequest;
+        const isNew = !currentHumanMiner;
         if (!currentHumanMiner) {
             currentHumanMiner = new CreateHumanMinerCommand(redeem, data).request().message.humanMinerRequest;
         }
 
         Logger.post(
-            'Human miner started for coin: "{0}". Channels: "{1}". Math problem: {2}',
+            `Human miner ${(isNew ? 'started' : 'continued')} for coin: "{0}". Channels: "{1}". Math problem: {2}`,
             [this.coin.id, this.coin.channels.join(', '), currentHumanMiner.humanProblem.problem],
             LogLevel.Information,
             LogContext.ChatCoin)
@@ -114,7 +115,7 @@ export class ChatCoin {
             'To reply send !miner {answer} --> ' +
             '{problem}').translate().querystring({
                 url: currentHumanMiner.url,
-                problem: currentHumanMiner.humanProblem.problem
+                problem: currentHumanMiner.humanProblem.problemFormattedAndTranslated
             });
 
         this.coin.channels.forEach(channel =>

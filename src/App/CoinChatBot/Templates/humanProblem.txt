@@ -4,6 +4,7 @@ Type:    {type}
 Created: {created}
 Solved:  {solved}
 Who:     {who}
+Answer:  {answer}
 
         >\\\|/<
         |_"""_|

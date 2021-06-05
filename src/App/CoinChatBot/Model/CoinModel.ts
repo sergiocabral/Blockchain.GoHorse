@@ -14,6 +14,7 @@ export class CoinModel implements IModel {
         this.instanceName = data?.instanceName ?? '';
         this.id = data?.id ?? '';
         this.name = data?.name ?? null;
+        this.repositoryUrl = data?.repositoryUrl ?? null;
         this.repository = data?.repository ?? null;
         this.directory = data?.directory ?? null;
         this.channels = data?.channels ?? null;
@@ -48,6 +49,11 @@ export class CoinModel implements IModel {
      * Nome.
      */
     public name: string;
+
+    /**
+     * Url do repositório do Git.
+     */
+    public repositoryUrl: string;
 
     /**
      * Repositório do Git.

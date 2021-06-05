@@ -5,6 +5,7 @@ import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel
 import {HumanMinerRequestModel} from "./Model/HumanMinerRequestModel";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 import {PutHumanProblemIntoBlockchainCommand} from "./MessageCommand/PutHumanProblemIntoBlockchainCommand";
+import {GetHumanProblemFromBlockchainCommand} from "./MessageCommand/GetHumanProblemFromBlockchainCommand";
 
 /**
  * Minerador humano.
@@ -18,7 +19,7 @@ export class HumanMiner {
         this.factoryMathProblem = new FactoryMathProblem(config);
 
         Message.capture(CreateHumanMinerCommand, this, this.handlerCreateHumanMinerCommand);
-        Message.capture(CurrentHumanMinerQuery, this, this.handlerCurrentHumanMinerQuery);
+        Message.capture(CurrentHumanMinerQuery, this, HumanMiner.handlerCurrentHumanMinerQuery);
     }
 
     /**
@@ -43,8 +44,11 @@ export class HumanMiner {
      * @param message CurrentHumanMinerQuery
      * @private
      */
-    private handlerCurrentHumanMinerQuery(message: CurrentHumanMinerQuery): void {
-        message.humanMinerRequest = null;
-        //TODO: Consultar na blockchain.
+    private static handlerCurrentHumanMinerQuery(message: CurrentHumanMinerQuery): void {
+        const message2 = new GetHumanProblemFromBlockchainCommand().request().message;
+        message.humanMinerRequest =
+            !message2.problem || message2.problem.isSolved
+                ? null
+                : new HumanMinerRequestModel(message2.problem, message2.url);
     }
 }

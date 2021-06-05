@@ -100,14 +100,17 @@ export class Git {
 
     /**
      * Cria um branch.
-     * @param branch
+     * @param branch branch local
+     * @param remote branch remoto
      */
-    public checkout(branch: string): boolean {
-        return this.execute([
+    public checkout(branch: string, remote?: string): boolean {
+        const args = [
             'checkout',
             '-B',
             branch
-        ],'Checkout (with creation) branch {1}: {0}', [branch]);
+        ];
+        if (remote) args.push(remote);
+        return this.execute(args,'Checkout (with creation) branch {1}: {0}', [branch]);
     }
 
     /**
@@ -242,12 +245,13 @@ export class Git {
     }
 
     /**
-     * Apaga arquivos e diretórios do repositório atual.
+     * Apaga arquivos e diretórios do repositório atual
+     * @param except Exceto.
      */
-    public emptyDirectory(): boolean {
+    public emptyDirectory(except: string[]): boolean {
         const items = fs.readdirSync(this.directory);
         for (const item of items) {
-            if (item === '.git') continue;
+            if (item === '.git' || except.includes(item)) continue;
             if (fs.statSync(item).isFile()) fs.unlinkSync(item);
             else IO.removeDirectory(item);
         }
