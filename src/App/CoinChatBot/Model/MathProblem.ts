@@ -1,10 +1,11 @@
 import {IModel} from "../../../Core/IModel";
 import {NumericFormat} from "../../../Helper/NumericFormat";
+import {HumanProblem} from "../HumanProblem";
 
 /**
  * Modelo para um problema matemático.
  */
-export class MathProblem implements IModel {
+export class MathProblem extends HumanProblem implements IModel {
     /**
      * Construtor.
      * @param problem A expressão.
@@ -13,6 +14,7 @@ export class MathProblem implements IModel {
     public constructor(
         public problem: string,
         public result: number) {
+        super();
         this.problem = problem
             .replaceAll(".", NumericFormat.decimal)
             .replaceAll("+", "plus".translate())

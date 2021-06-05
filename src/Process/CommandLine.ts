@@ -13,9 +13,9 @@ export class CommandLine {
      * Construtor.
      * @param processName Nome do processo.
      * @param processArguments Argumentos de linha de comando
-     * @param initialDirectory Diretório inicial.
+     * @param workingDirectory Diretório de trabalho.
      */
-    public constructor(public processName: string, public processArguments: string[] = [], public initialDirectory?: string) {
+    public constructor(public processName: string, public processArguments: string[] = [], public workingDirectory?: string) {
     }
 
     /**
@@ -45,7 +45,7 @@ export class CommandLine {
      * @private
      */
     private prepare(): void {
-        if (this.initialDirectory) chdir(this.initialDirectory);
+        if (this.workingDirectory) chdir(this.workingDirectory);
     }
 
     /**

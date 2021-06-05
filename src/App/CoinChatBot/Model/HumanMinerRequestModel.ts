@@ -1,5 +1,5 @@
 import {IModel} from "../../../Core/IModel";
-import {MathProblem} from "./MathProblem";
+import {HumanProblem} from "../HumanProblem";
 
 /**
  * Modelo de uma requisição de mineração humana.
@@ -7,9 +7,12 @@ import {MathProblem} from "./MathProblem";
 export class HumanMinerRequestModel implements IModel {
     /**
      * Construtor.
-     * @param mathProblem Problema matemático.
+     * @param humanProblem Problema para humano resolver.
+     * @param url Url no GitHub
      */
-    public constructor(public mathProblem: MathProblem) {
+    public constructor(
+        public humanProblem: HumanProblem,
+        public url: string) {
     }
 
     /**
@@ -17,7 +20,7 @@ export class HumanMinerRequestModel implements IModel {
      */
     isFilled(): boolean {
         return (
-            this.mathProblem.isFilled()
+            this.humanProblem.isFilled()
         );
     }
 }

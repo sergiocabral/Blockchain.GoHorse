@@ -10,12 +10,12 @@ export class IO {
      * @param directory
      * @return Sinaliza O diretório existe ou não.
      */
-    public static createDirectiry(directory: string): boolean {
+    public static createDirectory(directory: string): boolean {
         if (fs.existsSync(directory)) return true;
 
         const baseDirectory = path.dirname(directory);
         if (!fs.existsSync(baseDirectory)) {
-            if (!this.createDirectiry(baseDirectory)) {
+            if (!this.createDirectory(baseDirectory)) {
                 return false;
             }
         }
@@ -27,4 +27,24 @@ export class IO {
             return false;
         }
     }
+
+    /**
+     * Remove um diretório recursivamente.
+     * @param directory
+     */
+    public static removeDirectory(directory: string): boolean {
+        try {
+            const files = fs.readdirSync(directory);
+            for (const file of files) {
+                const filePath = path.resolve(directory, file);
+                if (fs.statSync(filePath).isFile()) fs.unlinkSync(filePath);
+                else if (!this.removeDirectory(filePath)) return false;
+            }
+            fs.rmdirSync(directory);
+            return true;
+        }
+        catch(e) {
+            return false;
+        }
+    };
 }

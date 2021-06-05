@@ -11,6 +11,7 @@ export class CoinModel implements IModel {
      * @param data JSON com dados para montar a instância.
      */
     public constructor(data: any) {
+        this.instanceName = data?.instanceName ?? '';
         this.id = data?.id ?? '';
         this.name = data?.name ?? null;
         this.repository = data?.repository ?? null;
@@ -32,6 +33,11 @@ export class CoinModel implements IModel {
             this.humanMiner.isFilled()
         );
     }
+
+    /**
+     * Identificador da instância do minerador.
+     */
+    public instanceName: string;
 
     /**
      * Identificador.

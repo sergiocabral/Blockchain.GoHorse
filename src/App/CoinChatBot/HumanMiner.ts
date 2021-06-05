@@ -4,6 +4,7 @@ import {FactoryMathProblem} from "./FactoryMathProblem";
 import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
 import {HumanMinerRequestModel} from "./Model/HumanMinerRequestModel";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
+import {PutHumanProblemIntoBlockchainCommand} from "./MessageCommand/PutHumanProblemIntoBlockchainCommand";
 
 /**
  * Minerador humano.
@@ -33,8 +34,8 @@ export class HumanMiner {
      */
     private handlerCreateHumanMinerCommand(message: CreateHumanMinerCommand): void {
         const mathProblem = this.factoryMathProblem.generate();
-        message.humanMinerRequest = new HumanMinerRequestModel(mathProblem);
-        //TODO: Registrar na blockchain.
+        const message2 = new PutHumanProblemIntoBlockchainCommand(mathProblem).request().message;
+        message.humanMinerRequest = new HumanMinerRequestModel(message2.problem, message2.url);
     }
 
     /**

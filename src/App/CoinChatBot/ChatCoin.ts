@@ -68,7 +68,7 @@ export class ChatCoin {
 
         const redeems = this.coin.redeems.filter(redeem => redeem.id === message.redeem.id);
         for (const redeem of redeems) {
-            this.redeemCoin(message.redeem, redeem);
+            this.redeemCoinNotify(message.redeem, redeem);
             this.startHumanMiner(message.redeem, redeem);
         }
     }
@@ -79,7 +79,7 @@ export class ChatCoin {
      * @param data Dados do resgate
      * @private
      */
-    private redeemCoin(redeem: RedeemModel, data: RedeemCoinModel): void {
+    private redeemCoinNotify(redeem: RedeemModel, data: RedeemCoinModel): void {
         Logger.post(
             'Redeemed requested in the chat "{0}", by user "{1}", with amount {2}. Description of redeem: "{3}". Message from user: "{4}"',
             [redeem.channel.name, redeem.user.name, data.amount, data.description, redeem.message],
@@ -104,15 +104,18 @@ export class ChatCoin {
 
         Logger.post(
             'Human miner started for coin: "{0}". Channels: "{1}". Math problem: {2}',
-            [this.coin.id, this.coin.channels.join(', '), currentHumanMiner.mathProblem.problem],
+            [this.coin.id, this.coin.channels.join(', '), currentHumanMiner.humanProblem.problem],
             LogLevel.Information,
             LogContext.ChatCoin)
 
         const message = (
-            'Pending human mining. ' +
+            'Pending human mining: {url} ' +
             'Solve the math problem to receive the miner reward. ' +
             'To reply send !miner {answer} --> ' +
-            '{0}').translate().querystring(currentHumanMiner.mathProblem.problem);
+            '{problem}').translate().querystring({
+                url: currentHumanMiner.url,
+                problem: currentHumanMiner.humanProblem.problem
+            });
 
         this.coin.channels.forEach(channel =>
             new SendChatMessageCommand(channel, message).send());

@@ -4,6 +4,7 @@ import fs from "fs";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
+import {IO} from "../Helper/IO";
 
 /**
  * Manipula a execução de comandos do Git.
@@ -11,10 +12,10 @@ import {LogContext} from "../Log/LogContext";
 export class Git {
     /**
      * Construtor.
-     * @param initialDirectory Diretório inicial.
+     * @param directory Diretório do repositório.
      */
-    public constructor(public initialDirectory: string) {
-        this.gitCommandLine = new CommandLine('git', [], initialDirectory);
+    public constructor(public directory: string) {
+        this.gitCommandLine = new CommandLine('git', [], directory);
     }
 
     /**
@@ -50,6 +51,12 @@ export class Git {
      * @private
      */
     private regexGitError: RegExp = /^fatal:/m;
+
+    /**
+     * Verifica se o repositório está limpo.
+     * @private
+     */
+    private regexNothingToCommit: RegExp = /nothing to commit/;
 
     /**
      * Última saída de execução do git.
@@ -104,6 +111,17 @@ export class Git {
     }
 
     /**
+     * Adiciona arquivos para o staging.
+     * @param file
+     */
+    public add(file: string): boolean {
+        return this.execute([
+            'add',
+            file
+        ],'Added file "{1}" to staging: {0}', [file]);
+    }
+
+    /**
      * git push
      */
     public push(): boolean {
@@ -143,6 +161,19 @@ export class Git {
     }
 
     /**
+     * git rev-parse HEAD
+     */
+    public currentCommit(): string {
+        this.gitCommandLine.processArguments = [
+            'rev-parse',
+            'HEAD'
+        ];
+        const hash = this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        Logger.post('Get current hash of commit: {0}', hash, LogLevel.Debug, LogContext.Git);
+        return hash;
+    }
+
+    /**
      * git clone
      * @param repository url ou caminho do repositório.
      * @param destinationDirectory Diretório de destino.
@@ -169,13 +200,64 @@ export class Git {
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
 
         if (changeDirectoryToRepository) {
-            this.initialDirectory =
-                this.gitCommandLine.initialDirectory =
-                    fs.realpathSync(path.resolve(this.initialDirectory, path.basename(destinationDirectory)));
+            this.directory =
+                this.gitCommandLine.workingDirectory =
+                    fs.realpathSync(path.resolve(this.directory, path.basename(destinationDirectory)));
         }
 
         const success = !this.regexGitError.test(this.lastOutputValue);
-        Logger.post('Clonned repository from "{1}" to "{2}": {0}', [success, repository, this.initialDirectory], LogLevel.Debug, LogContext.Git);
+        Logger.post('Clonned repository from "{1}" to "{2}": {0}', [success, repository, this.directory], LogLevel.Debug, LogContext.Git);
+        return success;
+    }
+
+    /**
+     * git commit
+     * @param message Mensagem do commit.
+     * @return Hash do commit.
+     */
+    public commit(message: string): boolean {
+        this.gitCommandLine.processArguments = [
+            'commit',
+            '-m',
+            `"${message}"`
+        ];
+
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        const success =
+            !this.regexGitError.test(this.lastOutputValue) ||
+            !this.lastOutputValue.includes('nothing added to commit');
+
+        Logger.post('Committed at repository with message "{1}": {0}', [success, message], LogLevel.Debug, LogContext.Git);
+
+        return success;
+    }
+
+    /**
+     * Verifica se existem alterações pendentes no repositório.
+     */
+    public hasChanges(): boolean {
+        this.gitCommandLine.processArguments = ['status'];
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        return !this.regexNothingToCommit.test(this.lastOutputValue);
+    }
+
+    /**
+     * Apaga arquivos e diretórios do repositório atual.
+     */
+    public emptyDirectory(): boolean {
+        const items = fs.readdirSync(this.directory);
+        for (const item of items) {
+            if (item === '.git') continue;
+            if (fs.statSync(item).isFile()) fs.unlinkSync(item);
+            else IO.removeDirectory(item);
+        }
+
+        if (!this.hasChanges()) return true;
+
+        const success = this.add("*") && this.commit("Removed directory contents.");
+
+        Logger.post('Removed directory contents: {0}', [success], LogLevel.Debug, LogContext.Git);
+
         return success;
     }
 }
