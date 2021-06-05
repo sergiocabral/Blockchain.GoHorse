@@ -10,6 +10,13 @@ import {LogContext} from "../Log/LogContext";
  * Despachador de mensagens e ancestral de mensagens.
  */
 export abstract class Message {
+    /**
+     * Mensagens que devem ser ignoradas no log.
+     * @private
+     */
+    public static messagesToIgnoreAtLog: string[] = [
+        "ClockEvent"
+    ];
 
     /**
      * Lista de capturar registradas.
@@ -77,9 +84,13 @@ export abstract class Message {
         const captures = this.captures.filter(v => v.messageName === messageName);
         if (captures.length) {
             for (const capture of captures) capture.request(message);
-            Logger.post("Message \"{0}\" sent and captured by {1}x.", [messageName, captures.length], LogLevel.Verbose, LogContext.MessageBus);
+            if (!Message.messagesToIgnoreAtLog.includes(messageName)) {
+                Logger.post("Message \"{0}\" sent and captured by {1}x.", [messageName, captures.length], LogLevel.Verbose, LogContext.MessageBus);
+            }
         } else {
-            Logger.post("Message \"{0}\" sent but not captured.", messageName, LogLevel.Verbose, LogContext.MessageBus);
+            if (!Message.messagesToIgnoreAtLog.includes(messageName)) {
+                Logger.post("Message \"{0}\" sent but not captured.", messageName, LogLevel.Verbose, LogContext.MessageBus);
+            }
         }
         return {captured: captures.length, message: message};
     }
