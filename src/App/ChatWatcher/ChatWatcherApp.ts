@@ -14,7 +14,6 @@ import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
 import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
 import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
 import Timeout = NodeJS.Timeout;
-import {performance} from "perf_hooks";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -168,27 +167,10 @@ export class ChatWatcherApp extends BaseApp {
     }
 
     /**
-     * Intervalo entre as gravações no log.
-     * @private
-     */
-    private logReportInterval: number = 1000 * 60 * 5;
-
-    /**
-     * Controle do último log do relatório
-     * @private
-     */
-    private lastReportLog: number = performance.now() - this.logReportInterval + 1000 * 60;
-
-    /**
      * Registra o relatório atual no log
      * @private
      */
-    private logReport(writeNow: boolean = false): void {
-        const now = performance.now();
-        writeNow = writeNow || (now - this.lastReportLog >= this.logReportInterval);
-        if (!writeNow) return;
-        this.lastReportLog = now;
-
+    private logReport(): void {
         const content = this.factoryReport();
         Logger.post('Chat Watcher Report:\n{0}', [content, { event: "ChatWatcherReport" }], LogLevel.Information, LogContext.ChatWatcherApp);
     }
@@ -270,6 +252,6 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private handlerClockEvent(message: ClockEvent) {
-        this.logReport();
+        if (message.hasElapsedMinutes(5)) this.logReport();
     }
 }

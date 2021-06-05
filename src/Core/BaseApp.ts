@@ -85,9 +85,12 @@ export abstract class BaseApp {
      * @private
      */
     private clockStart(): void {
-        if (this.clockInterval !== null) clearInterval(this.clockInterval);
-        const clockInterval = 100;
-        this.clockInterval = setInterval(BaseApp.clockEmitter, clockInterval);
+        if (this.clockInterval !== null) {
+            clearInterval(this.clockInterval);
+            ClockEvent.pulsesInSeconds = 0;
+        }
+        const oneSecond = 1000;
+        this.clockInterval = setInterval(BaseApp.clockEmitter, oneSecond);
     }
 
     /**
@@ -95,6 +98,6 @@ export abstract class BaseApp {
      * @private
      */
     private static clockEmitter(): void {
-        new ClockEvent().send();
+        new ClockEvent(++ClockEvent.pulsesInSeconds).send();
     }
 }
