@@ -49,6 +49,24 @@ export class Blockchain {
     private readonly branchPendingTransaction: BlockchainBranch = new BlockchainBranch(this.coin, 'pending-transaction');
 
     /**
+     * Sinaliza execução em andamento.
+     * @private
+     */
+    private static workingInProgressState: boolean = false;
+
+    /**
+     * Sinaliza execução em andamento.
+     * @param inProgress Sim ou não para execução em andamento.
+     * @private
+     */
+    private static workingInProgress(inProgress: boolean = true): void {
+        if (inProgress) {
+            while (Blockchain.workingInProgressState) { }
+        }
+        Blockchain.workingInProgressState = inProgress;
+    }
+
+    /**
      * Inicializa um branch da blockchain.
      * @param branch
      */
@@ -103,6 +121,8 @@ export class Blockchain {
      * @private
      */
     private handlerPutHumanProblemIntoBlockchainCommand(message: PutHumanProblemIntoBlockchainCommand): void {
+        Blockchain.workingInProgress();
+
         const content = message.problem.asText();
         const filePath = path.resolve(this.branchHumanMiner.git.directory, this.branchHumanMiner.mainFileName);
 
@@ -125,6 +145,8 @@ export class Blockchain {
 
         message.hash = hash;
         message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
+
+        Blockchain.workingInProgress(false);
     }
 
     /**
@@ -133,6 +155,8 @@ export class Blockchain {
      * @private
      */
     private handlerGetHumanProblemFromBlockchainCommand(message: GetHumanProblemFromBlockchainCommand): void {
+        Blockchain.workingInProgress();
+
         const hash =
             this.branchHumanMiner.git.reset() &&
             this.branchHumanMiner.git.pull() &&
@@ -150,6 +174,8 @@ export class Blockchain {
         message.problem = HumanProblem.factory(content);
         message.hash = hash;
         message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
+
+        Blockchain.workingInProgress(false);
     }
 
     /**
@@ -158,6 +184,8 @@ export class Blockchain {
      * @private
      */
     private handlerPutPendingTransactionIntoBlockchainCommand(message: PutPendingTransactionIntoBlockchainCommand): void {
+        Blockchain.workingInProgress();
+
         const filePath = path.resolve(this.branchPendingTransaction.git.directory, this.branchPendingTransaction.mainFileName);
 
         const isNewPendingTransaction = !fs.existsSync(filePath);
@@ -185,5 +213,7 @@ export class Blockchain {
 
         message.hash = hash;
         message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
+
+        Blockchain.workingInProgress(false);
     }
 }
