@@ -16,7 +16,7 @@ export class HumanMiner {
      * @param config Configurações do minerador.
      */
     public constructor(config: HumanMinerConfigurationModel) {
-        this.factoryMathProblem = new FactoryMathProblem(config);
+        this.factoryMathProblem = new FactoryMathProblem(config.mathProblem);
 
         Message.capture(CreateHumanMinerCommand, this, this.handlerCreateHumanMinerCommand);
         Message.capture(CurrentHumanMinerQuery, this, HumanMiner.handlerCurrentHumanMinerQuery);
