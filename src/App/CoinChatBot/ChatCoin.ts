@@ -16,6 +16,7 @@ import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
 import {Blockchain} from "./Blockchain";
 import {PutPendingTransactionIntoBlockchainCommand} from "./MessageCommand/PutPendingTransactionIntoBlockchainCommand";
 import {PendingTransactionModel} from "./Model/PendingTransactionModel";
+import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
 
 /**
  * Escuta do chat da moeda.
@@ -36,6 +37,7 @@ export class ChatCoin {
         this.blockchain = new Blockchain(coin);
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
+        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
     }
 
     /**
@@ -142,5 +144,16 @@ export class ChatCoin {
 
         this.coin.channels.forEach(channel =>
             new SendChatMessageCommand(channel, message).send());
+    }
+
+    /**
+     * Processamento de mensagem
+     * @param message ChatMessageEvent
+     * @private
+     */
+    private handlerChatMessageEvent(message: ChatMessageEvent): void {
+        if (!message.chatMessage.isCommand) return;
+        const commandArguments = message.chatMessage.getCommandArguments();
+        //TODO: AO invés de ChatMessageEvent criar o ChatCommandEvent e ChatInvalidCommandEvent
     }
 }
