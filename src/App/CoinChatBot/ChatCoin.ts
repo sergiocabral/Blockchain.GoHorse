@@ -16,7 +16,7 @@ import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
 import {Blockchain} from "./Blockchain";
 import {PutPendingTransactionIntoBlockchainAction} from "./MessageAction/PutPendingTransactionIntoBlockchainAction";
 import {PendingTransactionModel} from "./Model/PendingTransactionModel";
-import {ChatCommandHandler} from "../../Twitch/ChatCommandHandler";
+import {ChatCommandHandler} from "../../Twitch/ChatCommand/ChatCommandHandler";
 import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
 
 /**

@@ -1,4 +1,4 @@
-import {ChatCommand} from "../ChatCommand";
+import {ChatCommand} from "./ChatCommand";
 
 /**
  * Comando Hello Word.
@@ -7,7 +7,9 @@ export class HelloWorldChatCommand extends ChatCommand {
     /**
      * Comando a ser tratado.
      */
-    public readonly command: string = 'hello';
+    public get command(): string {
+        return 'hello';
+    };
 
     /**
      * Execução do comando.
