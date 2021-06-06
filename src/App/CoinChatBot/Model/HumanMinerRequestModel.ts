@@ -1,5 +1,5 @@
 import {IModel} from "../../../Core/IModel";
-import {HumanProblem} from "../HumanProblem";
+import {HumanProblem} from "./HumanProblem";
 
 /**
  * Modelo de uma requisição de mineração humana.

@@ -1,5 +1,5 @@
 import {Message} from "../../../Bus/Message";
-import {HumanProblem} from "../HumanProblem";
+import {HumanProblem} from "../Model/HumanProblem";
 import {EmptyValueError} from "../../../Errors/EmptyValueError";
 
 /**

@@ -1,6 +1,6 @@
 import {IModel} from "../../../Core/IModel";
 import {NumericFormat} from "../../../Helper/NumericFormat";
-import {HumanProblem} from "../HumanProblem";
+import {HumanProblem} from "./HumanProblem";
 
 /**
  * Modelo para um problema matemático.

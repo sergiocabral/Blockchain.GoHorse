@@ -1,0 +1,13 @@
+{userMessage}
+
+Created: {created}
+Channel: {channel}
+User Id: {userId}
+User:    https://www.twitch.tv/{userName}
+Amount:  {amount}
+
+        >\\\|/<
+        |_"""_|
+        (O) (o)
++----OOO--(_)--OOOo------------=| PENDING TRANSACTION |=-------------+
+

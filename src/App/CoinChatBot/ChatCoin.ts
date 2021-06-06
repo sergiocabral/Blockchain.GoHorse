@@ -14,6 +14,8 @@ import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 import {Git} from "../../Process/Git";
 import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
 import {Blockchain} from "./Blockchain";
+import {PutPendingTransactionIntoBlockchainCommand} from "./MessageCommand/PutPendingTransactionIntoBlockchainCommand";
+import {PendingTransactionModel} from "./Model/PendingTransactionModel";
 
 /**
  * Escuta do chat da moeda.
@@ -68,7 +70,7 @@ export class ChatCoin {
 
         const redeems = this.coin.redeems.filter(redeem => redeem.id === message.redeem.id);
         for (const redeem of redeems) {
-            ChatCoin.redeemCoinNotify(message.redeem, redeem);
+            this.registerPendingTransaction(message.redeem, redeem);
             this.startHumanMiner(message.redeem, redeem);
         }
     }
@@ -79,15 +81,35 @@ export class ChatCoin {
      * @param data Dados do resgate
      * @private
      */
-    private static redeemCoinNotify(redeem: RedeemModel, data: RedeemCoinModel): void {
+    private registerPendingTransaction(redeem: RedeemModel, data: RedeemCoinModel): void {
+        const message2 =
+            new PutPendingTransactionIntoBlockchainCommand(
+                new PendingTransactionModel(redeem, data, this.coin))
+                .request().message;
+        const pendingTransaction = message2.pendingTransaction;
+
         Logger.post(
             'Redeemed requested in the chat "{0}", by user "{1}", with amount {2}. Description of redeem: "{3}". Message from user: "{4}"',
-            [redeem.channel.name, redeem.user.name, data.amount, data.description, redeem.message],
+            [
+                pendingTransaction.channel.name,
+                pendingTransaction.user.name,
+                pendingTransaction.amount,
+                pendingTransaction.userMessage],
             LogLevel.Information,
-            LogContext.ChatCoin)
+            LogContext.ChatCoin);
 
-        const message = `@${redeem.user.name}, ${data.description.translate()} ${"Your message will be publicly registered at blockchain --> {0}".translate().querystring(redeem.message)}`;
-        new SendChatMessageCommand(redeem.channel.name, message).send();
+        const message = (
+            `@${pendingTransaction.user.name}, ${data.description.translate()} ` +
+            "The transaction has been queued - {url} - until the mining is complete. After that your balance will be updated and your message will be publicly registered on the blockchain --> {message}"
+                .translate()
+                .querystring({
+                    url: message2.url,
+                    message: pendingTransaction.userMessage
+                })
+        );
+
+        this.coin.channels.forEach(channel =>
+            new SendChatMessageCommand(channel, message).send());
     }
 
     /**
@@ -107,7 +129,7 @@ export class ChatCoin {
             `Human miner ${(isNew ? 'started' : 'continued')} for coin: "{0}". Channels: "{1}". Math problem: {2}`,
             [this.coin.id, this.coin.channels.join(', '), currentHumanMiner.humanProblem.problem],
             LogLevel.Information,
-            LogContext.ChatCoin)
+            LogContext.ChatCoin);
 
         const message = (
             'Pending human mining: {url} ' +

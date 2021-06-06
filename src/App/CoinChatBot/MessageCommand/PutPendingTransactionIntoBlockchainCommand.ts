@@ -1,23 +1,19 @@
 import {Message} from "../../../Bus/Message";
-import {HumanProblem} from "../Model/HumanProblem";
+import {PendingTransactionModel} from "../Model/PendingTransactionModel";
 import {EmptyValueError} from "../../../Errors/EmptyValueError";
 
 /**
- * Retorna o último HumanProblem na blockchain.
+ * Inserir uma transação pendente de mineraçã na blockchain.
  */
-export class GetHumanProblemFromBlockchainCommand extends Message {
+export class PutPendingTransactionIntoBlockchainCommand extends Message {
     /**
      * Construtor.
+     * @param pendingTransaction Transação pendente a entrar na blockchain.
      */
-    public constructor() {
+    public constructor(
+        public readonly pendingTransaction: PendingTransactionModel) {
         super();
     }
-
-    /**
-     * Hash (recibo) da transação.
-     * @private
-     */
-    public problem: HumanProblem | null = null;
 
     /**
      * Hash (recibo) da transação.
@@ -36,7 +32,7 @@ export class GetHumanProblemFromBlockchainCommand extends Message {
      * Hash (recibo) da transação.
      */
     public get hash(): string {
-        if (this.hashValue === null) throw new EmptyValueError('GetHumanProblemFromBlockchainCommand.hash');
+        if (this.hashValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.hash');
         return this.hashValue;
     }
 
@@ -57,7 +53,7 @@ export class GetHumanProblemFromBlockchainCommand extends Message {
      * Url no GitHub.
      */
     public get url(): string {
-        if (this.urlValue === null) throw new EmptyValueError('GetHumanProblemFromBlockchainCommand.url');
+        if (this.urlValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.url');
         return this.urlValue;
     }
 }

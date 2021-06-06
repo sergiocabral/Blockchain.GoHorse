@@ -1,10 +1,9 @@
-import {IModel} from "../../Core/IModel";
-import fs from "fs";
-import path from "path";
-import {Text} from "../../Helper/Text";
-import {MathProblem} from "./Model/MathProblem";
+import {Text} from "../../../Helper/Text";
+import {MathProblem} from "./MathProblem";
+import {IModelPrintable} from "../../../Core/IModelPrintable";
+import {Template} from "../Templates/Template";
 
-export abstract class HumanProblem implements IModel {
+export abstract class HumanProblem implements IModelPrintable {
     /**
      * O problema.
      */
@@ -38,35 +37,17 @@ export abstract class HumanProblem implements IModel {
     public abstract isFilled(): boolean;
 
     /**
-     * Template para montagem do texto.
-     * @private
-     */
-    private static templateValue: string | null = null;
-
-    /**
-     * Template para montagem do texto.
-     * @private
-     */
-    private static get template(): string {
-        if (this.templateValue === null) {
-            const fileName = "humanProblem.txt";
-            const filePath = path.resolve(__dirname, 'Templates', fileName);
-            this.templateValue = Buffer.from(fs.readFileSync(filePath)).toString();
-        }
-        return this.templateValue;
-    }
-
-    /**
      * Representação do problema como texto.
      */
     public asText(): string {
-        return HumanProblem.template.querystring({
+        return new Template('humanProblem').content.querystring({
             "problem": this.problemFormatted,
             "type": Text.getObjectName(this),
             "created": new Date().toISOString(),
             "solved": "???",
             "who": "???",
             "answer": "???",
+            "reward": "???",
         });
     }
 

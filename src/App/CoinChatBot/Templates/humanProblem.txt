@@ -1,12 +1,15 @@
 {problem}
 
+Answer:  {answer}
+
 Type:    {type}
 Created: {created}
 Solved:  {solved}
 Who:     {who}
-Answer:  {answer}
+Reward:  {reward}
 
         >\\\|/<
         |_"""_|
         (O) (o)
 +----OOO--(_)--OOOo------------------=| HUMAN PROBLEM |=-------------+
+

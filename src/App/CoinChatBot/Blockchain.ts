@@ -11,7 +11,9 @@ import {LogContext} from "../../Log/LogContext";
 import {Message} from "../../Bus/Message";
 import {PutHumanProblemIntoBlockchainCommand} from "./MessageCommand/PutHumanProblemIntoBlockchainCommand";
 import {GetHumanProblemFromBlockchainCommand} from "./MessageCommand/GetHumanProblemFromBlockchainCommand";
-import {HumanProblem} from "./HumanProblem";
+import {HumanProblem} from "./Model/HumanProblem";
+import {PutPendingTransactionIntoBlockchainCommand} from "./MessageCommand/PutPendingTransactionIntoBlockchainCommand";
+import {BlockchainBranch} from "./Model/BlockchainBranch";
 
 /**
  * Operações da blockchain.
@@ -26,40 +28,32 @@ export class Blockchain {
             throw new InvalidArgumentError('Blockchain initial directory canot be created.');
 
         Logger.post('Initializing Blockchain for coin "{0}" at: {1}', [coin.id, coin.directory], LogLevel.Information, LogContext.Blockchain);
-        this.gitHumanMiner = this.initializeBranch(this.gitBranchHumanMiner);
+        this.branchHumanMiner.git = this.initializeBranch(this.branchHumanMiner);
+        this.branchPendingTransaction.git = this.initializeBranch(this.branchPendingTransaction);
 
-        Message.capture(PutHumanProblemIntoBlockchainCommand, this, this.hanlderPutHumanProblemIntoBlockchainCommand);
-        Message.capture(GetHumanProblemFromBlockchainCommand, this, this.hanlderGetHumanProblemFromBlockchainCommand);
+        Message.capture(PutHumanProblemIntoBlockchainCommand, this, this.handlerPutHumanProblemIntoBlockchainCommand);
+        Message.capture(GetHumanProblemFromBlockchainCommand, this, this.handlerGetHumanProblemFromBlockchainCommand);
+        Message.capture(PutPendingTransactionIntoBlockchainCommand, this, this.handlerPutPendingTransactionIntoBlockchainCommand);
     }
 
     /**
-     * Branch vazio.
+     * Branch para o mineração humana.
      * @private
      */
-    private readonly gitBranchEmpty: string = 'first-block';
+    private readonly branchHumanMiner: BlockchainBranch = new BlockchainBranch(this.coin, 'human-miner');
 
     /**
-     * Branch para o HumanMiner
+     * Branch para o transações penentes.
      * @private
      */
-    private get gitBranchHumanMiner(): string {
-        return `coin-${this.coin.id}-human-miner`;
-    }
+    private readonly branchPendingTransaction: BlockchainBranch = new BlockchainBranch(this.coin, 'pending-transaction');
 
     /**
-     * Nome do arquivo da mineração humana.
-     * @private
+     * Inicializa um branch da blockchain.
+     * @param branch
      */
-    private humanMinerFileName: string = "last-human-problem.txt";
-
-    /**
-     * Git branch: human-miner
-     * @private
-     */
-    private gitHumanMiner: Git;
-
-    public initializeBranch(branch: string): Git {
-        const repositoryDirectory = path.resolve(this.coin.directory, branch);
+    public initializeBranch(branch: BlockchainBranch): Git {
+        const repositoryDirectory = path.resolve(this.coin.directory, branch.branchName);
         const repositoryExists = fs.existsSync(repositoryDirectory);
         const git = new Git(
             repositoryExists
@@ -72,7 +66,7 @@ export class Blockchain {
         }
 
         if (!repositoryExists) {
-            if (!git.clone(this.coin.repository, branch, this.gitBranchEmpty)) {
+            if (!git.clone(this.coin.repository, branch.branchName, BlockchainBranch.emptyBranchName)) {
                 throwError('Error when clone repository: {0}');
             }
         } else {
@@ -81,18 +75,18 @@ export class Blockchain {
             }
         }
 
-        if (!git.branchExists(branch)) {
-            if (!git.checkout(branch)) {
+        if (!git.branchExists(branch.branchName)) {
+            if (!git.checkout(branch.branchName)) {
                 throwError('Error on checkout branch: {0}');
             }
             if (!git.push()) {
                 throwError('Error on update remote repository: {0}');
             }
-        } else if (!git.checkout(branch, 'FETCH_HEAD')) {
+        } else if (!git.checkout(branch.branchName, 'FETCH_HEAD')) {
             throwError('Error on checkout branch: {0}');
         }
 
-        if (!git.emptyDirectory([this.humanMinerFileName]) || !git.push()) {
+        if (!git.emptyDirectory([branch.mainFileName]) || !git.push()) {
             throwError('Error on clean repository directory: {0}');
         }
 
@@ -108,17 +102,27 @@ export class Blockchain {
      * @param message PutHumanProblemIntoBlockchainCommand
      * @private
      */
-    private hanlderPutHumanProblemIntoBlockchainCommand(message: PutHumanProblemIntoBlockchainCommand): void {
+    private handlerPutHumanProblemIntoBlockchainCommand(message: PutHumanProblemIntoBlockchainCommand): void {
         const content = message.problem.asText();
-        const filePath = path.resolve(this.gitHumanMiner.directory, this.humanMinerFileName);
+        const filePath = path.resolve(this.branchHumanMiner.git.directory, this.branchHumanMiner.mainFileName);
+
+        const download =
+            this.branchHumanMiner.git.reset() &&
+            this.branchHumanMiner.git.clean() &&
+            this.branchHumanMiner.git.pull();
+
+        if (!download) throw new InvalidExecutionError('Fail when download data from blockchain.');
+
         fs.writeFileSync(filePath, Buffer.from(content));
+
         const hash =
-            this.gitHumanMiner.reset() &&
-            this.gitHumanMiner.add(this.humanMinerFileName) &&
-            this.gitHumanMiner.commit('Human problem created by miner: {0}'.querystring(this.coin.instanceName)) &&
-            this.gitHumanMiner.push() &&
-            this.gitHumanMiner.currentCommit();
+            this.branchHumanMiner.git.add(this.branchHumanMiner.mainFileName) &&
+            this.branchHumanMiner.git.commit('Human problem created by miner: {0}'.querystring(this.coin.instanceName)) &&
+            this.branchHumanMiner.git.push() &&
+            this.branchHumanMiner.git.currentCommit();
+
         if (!hash) throw new InvalidExecutionError('Fail when commit human problem.');
+
         message.hash = hash;
         message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
     }
@@ -128,15 +132,15 @@ export class Blockchain {
      * @param message GetHumanProblemFromBlockchainCommand
      * @private
      */
-    private hanlderGetHumanProblemFromBlockchainCommand(message: GetHumanProblemFromBlockchainCommand): void {
+    private handlerGetHumanProblemFromBlockchainCommand(message: GetHumanProblemFromBlockchainCommand): void {
         const hash =
-            this.gitHumanMiner.reset() &&
-            this.gitHumanMiner.pull() &&
-            this.gitHumanMiner.currentCommit();
+            this.branchHumanMiner.git.reset() &&
+            this.branchHumanMiner.git.pull() &&
+            this.branchHumanMiner.git.currentCommit();
 
         if (!hash) throw new InvalidExecutionError('Cannot clean the repository.');
 
-        const filePath = path.resolve(this.gitHumanMiner.directory, this.humanMinerFileName);
+        const filePath = path.resolve(this.branchHumanMiner.git.directory, this.branchHumanMiner.mainFileName);
         if (!fs.existsSync(filePath)) {
             message.problem = null;
             return;
@@ -144,6 +148,41 @@ export class Blockchain {
 
         const content = fs.readFileSync(filePath).toString();
         message.problem = HumanProblem.factory(content);
+        message.hash = hash;
+        message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
+    }
+
+    /**
+     * Processamento de mensagem
+     * @param message PutPendingTransactionIntoBlockchainCommand
+     * @private
+     */
+    private handlerPutPendingTransactionIntoBlockchainCommand(message: PutPendingTransactionIntoBlockchainCommand): void {
+        const filePath = path.resolve(this.branchPendingTransaction.git.directory, this.branchPendingTransaction.mainFileName);
+
+        const isNewPendingTransaction = !fs.existsSync(filePath);
+        let content = !isNewPendingTransaction
+            ? fs.readFileSync(filePath).toString()
+            : '';
+        content += message.pendingTransaction.asText();
+
+        const download =
+            this.branchPendingTransaction.git.reset() &&
+            this.branchPendingTransaction.git.clean() &&
+            this.branchPendingTransaction.git.pull();
+
+        if (!download) throw new InvalidExecutionError('Fail when download data from blockchain.');
+
+        fs.writeFileSync(filePath, Buffer.from(content));
+
+        const hash =
+            this.branchPendingTransaction.git.add(this.branchPendingTransaction.mainFileName) &&
+            this.branchPendingTransaction.git.commit('Pending transaction {1} by miner: {0}'.querystring([this.coin.instanceName, isNewPendingTransaction ? 'entered' : 'updated'])) &&
+            this.branchPendingTransaction.git.push() &&
+            this.branchPendingTransaction.git.currentCommit();
+
+        if (!hash) throw new InvalidExecutionError('Fail when commit pending transaction.');
+
         message.hash = hash;
         message.url = `${this.coin.repositoryUrl}/commit/${hash}`;
     }

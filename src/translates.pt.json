@@ -14,7 +14,7 @@
         "divided by": "dividido por"
       },
       "General Messages": {
-        "Your message will be publicly registered at blockchain --> {0}": "Sua mensagem ficará registrada publicamente na blockchain --> {0}",
+        "The transaction has been queued - {url} - until the mining is complete. After that your balance will be updated and your message will be publicly registered on the blockchain --> {message}": "A transação foi colocada na fila de espera - {url} - até que a mineração seja concluída. Depois disso seu saldo será atualizado e sua mensagem será registrada publicamente no blockchain --> {message}",
         "Pending human mining: {url} Solve the math problem to receive the miner reward. To reply send !miner {answer} --> {problem}": "Mineração humana pendente: {url} Resolva o problema matemático para receber a recompensa de minerador. Para responder envie !miner {resposta} --> {problem}"
       }
     },
