@@ -12,13 +12,12 @@ export class ChatCommandHandler {
     /**
      * Construtor.
      * @param channels Canais.
-     * @param commands Comandos para implementar.
+     * @param commands Comandos.
      */
     public constructor(
         private readonly channels: string[],
-        private readonly commands: typeof ChatCommand[]) {
-        this.instances = commands.map(type => new (type as any)());
-
+        ...commands: ChatCommand[]) {
+        this.instances = commands;
         Message.capture(ChatCommandEvent, this, this.handlerChatCommandEvent);
     }
 

@@ -39,7 +39,7 @@ export class ChatCoin {
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
-        this.chatCommandHandler = new ChatCommandHandler(coin.channels, [HelloWorldChatCommand]);
+        this.chatCommandHandler = new ChatCommandHandler(coin.channels, new HelloWorldChatCommand());
     }
 
     /**
