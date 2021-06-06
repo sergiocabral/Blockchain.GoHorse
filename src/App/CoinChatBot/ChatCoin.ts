@@ -1,6 +1,6 @@
 import {Message} from "../../Bus/Message";
 import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
-import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
+import {SendChatMessageAction} from "../../Twitch/MessageAction/SendChatMessageAction";
 import {Logger} from "../../Log/Logger";
 import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
@@ -9,14 +9,15 @@ import {HumanMiner} from "./HumanMiner";
 import {ComputerMiner} from "./ComputerMiner";
 import {RedeemModel} from "../../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
-import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
+import {CreateHumanMinerAction} from "./MessageAction/CreateHumanMinerAction";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
 import {Git} from "../../Process/Git";
 import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
 import {Blockchain} from "./Blockchain";
-import {PutPendingTransactionIntoBlockchainCommand} from "./MessageCommand/PutPendingTransactionIntoBlockchainCommand";
+import {PutPendingTransactionIntoBlockchainAction} from "./MessageAction/PutPendingTransactionIntoBlockchainAction";
 import {PendingTransactionModel} from "./Model/PendingTransactionModel";
-import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
+import {ChatCommandHandler} from "../../Twitch/ChatCommandHandler";
+import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
 
 /**
  * Escuta do chat da moeda.
@@ -37,8 +38,15 @@ export class ChatCoin {
         this.blockchain = new Blockchain(coin);
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
-        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
+
+        this.chatCommandHandler = new ChatCommandHandler(coin.channels, [HelloWorldChatCommand]);
     }
+
+    /**
+     * Gerenciador de captura de comandos do chat
+     * @private
+     */
+    private readonly chatCommandHandler: ChatCommandHandler;
 
     /**
      * Operações da blockchain
@@ -85,7 +93,7 @@ export class ChatCoin {
      */
     private registerPendingTransaction(redeem: RedeemModel, data: RedeemCoinModel): void {
         const message2 =
-            new PutPendingTransactionIntoBlockchainCommand(
+            new PutPendingTransactionIntoBlockchainAction(
                 new PendingTransactionModel(redeem, data, this.coin))
                 .request().message;
         const pendingTransaction = message2.pendingTransaction;
@@ -111,7 +119,7 @@ export class ChatCoin {
         );
 
         this.coin.channels.forEach(channel =>
-            new SendChatMessageCommand(channel, message).send());
+            new SendChatMessageAction(channel, message).send());
     }
 
     /**
@@ -124,7 +132,7 @@ export class ChatCoin {
         let currentHumanMiner = new CurrentHumanMinerQuery().request().message.humanMinerRequest;
         const isNew = !currentHumanMiner;
         if (!currentHumanMiner) {
-            currentHumanMiner = new CreateHumanMinerCommand(redeem, data).request().message.humanMinerRequest;
+            currentHumanMiner = new CreateHumanMinerAction(redeem, data).request().message.humanMinerRequest;
         }
 
         Logger.post(
@@ -143,17 +151,6 @@ export class ChatCoin {
             });
 
         this.coin.channels.forEach(channel =>
-            new SendChatMessageCommand(channel, message).send());
-    }
-
-    /**
-     * Processamento de mensagem
-     * @param message ChatMessageEvent
-     * @private
-     */
-    private handlerChatMessageEvent(message: ChatMessageEvent): void {
-        if (!message.chatMessage.isCommand) return;
-        const commandArguments = message.chatMessage.getCommandArguments();
-        //TODO: AO invés de ChatMessageEvent criar o ChatCommandEvent e ChatInvalidCommandEvent
+            new SendChatMessageAction(channel, message).send());
     }
 }

@@ -100,12 +100,13 @@ export class ChatMessageModel implements IModel {
 
         return input
             .split(/\s+/)
-            .map(argument => {
+            .map((argument, index) => {
                 if (argument.startsWith(ChatMessageModel.commandArgumentQuote)) {
                     argument = argument
                         .substr(1, argument.length - 2)
                         .replace(/\0/g, " ");
                 }
+                if (index === 0) argument = argument.substr(ChatMessageModel.commandPrefix.length);
                 return argument;
             });
     }

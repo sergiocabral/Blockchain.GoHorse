@@ -3,7 +3,7 @@ import {Message} from "../../Bus/Message";
 /**
  * Envia uma mensagem de chat.
  */
-export class SendChatMessageCommand extends Message {
+export class SendChatMessageAction extends Message {
     /**
      * Construtor.
      * @param channel Canal.

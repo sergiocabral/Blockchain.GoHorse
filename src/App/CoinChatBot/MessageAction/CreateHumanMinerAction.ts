@@ -7,7 +7,7 @@ import {HumanMinerRequestModel} from "../Model/HumanMinerRequestModel";
 /**
  * Comando para iniciar a mineração humana.
  */
-export class CreateHumanMinerCommand extends Message {
+export class CreateHumanMinerAction extends Message {
     /**
      * Construtor
      * @param redeem Resgate do usuário.
@@ -36,7 +36,7 @@ export class CreateHumanMinerCommand extends Message {
      */
     public get humanMinerRequest(): HumanMinerRequestModel {
         if (!this.humanMinerRequestValue)
-            throw new EmptyValueError("CreateHumanMinerCommand.HumanMinerRequestModel");
+            throw new EmptyValueError("CreateHumanMinerAction.HumanMinerRequestModel");
         return this.humanMinerRequestValue;
     }
 }

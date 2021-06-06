@@ -5,7 +5,7 @@ import {EmptyValueError} from "../../../Errors/EmptyValueError";
 /**
  * Inserir uma transação pendente de mineraçã na blockchain.
  */
-export class PutPendingTransactionIntoBlockchainCommand extends Message {
+export class PutPendingTransactionIntoBlockchainAction extends Message {
     /**
      * Construtor.
      * @param pendingTransaction Transação pendente a entrar na blockchain.
@@ -32,7 +32,7 @@ export class PutPendingTransactionIntoBlockchainCommand extends Message {
      * Hash (recibo) da transação.
      */
     public get hash(): string {
-        if (this.hashValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.hash');
+        if (this.hashValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainAction.hash');
         return this.hashValue;
     }
 
@@ -53,7 +53,7 @@ export class PutPendingTransactionIntoBlockchainCommand extends Message {
      * Url no GitHub.
      */
     public get url(): string {
-        if (this.urlValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.url');
+        if (this.urlValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainAction.url');
         return this.urlValue;
     }
 }

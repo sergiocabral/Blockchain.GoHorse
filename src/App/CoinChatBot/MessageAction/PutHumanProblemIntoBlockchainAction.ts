@@ -5,7 +5,7 @@ import {EmptyValueError} from "../../../Errors/EmptyValueError";
 /**
  * Insere um HumanProblem na blockchain.
  */
-export class PutHumanProblemIntoBlockchainCommand extends Message {
+export class PutHumanProblemIntoBlockchainAction extends Message {
     /**
      * Construtor.
      * @param problem Problema humano.
@@ -31,7 +31,7 @@ export class PutHumanProblemIntoBlockchainCommand extends Message {
      * Hash (recibo) da transação.
      */
     public get hash(): string {
-        if (this.hashValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.hash');
+        if (this.hashValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainAction.hash');
         return this.hashValue;
     }
 
@@ -52,7 +52,7 @@ export class PutHumanProblemIntoBlockchainCommand extends Message {
      * Url no GitHub.
      */
     public get url(): string {
-        if (this.urlValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainCommand.url');
+        if (this.urlValue === null) throw new EmptyValueError('PutHumanProblemIntoBlockchainAction.url');
         return this.urlValue;
     }
 }

@@ -9,10 +9,10 @@ import {Logger} from "../../Log/Logger";
 import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
 import {Message} from "../../Bus/Message";
-import {PutHumanProblemIntoBlockchainCommand} from "./MessageCommand/PutHumanProblemIntoBlockchainCommand";
-import {GetHumanProblemFromBlockchainCommand} from "./MessageCommand/GetHumanProblemFromBlockchainCommand";
+import {PutHumanProblemIntoBlockchainAction} from "./MessageAction/PutHumanProblemIntoBlockchainAction";
+import {GetHumanProblemFromBlockchainAction} from "./MessageAction/GetHumanProblemFromBlockchainAction";
 import {HumanProblem} from "./Model/HumanProblem";
-import {PutPendingTransactionIntoBlockchainCommand} from "./MessageCommand/PutPendingTransactionIntoBlockchainCommand";
+import {PutPendingTransactionIntoBlockchainAction} from "./MessageAction/PutPendingTransactionIntoBlockchainAction";
 import {BlockchainBranch} from "./Model/BlockchainBranch";
 
 /**
@@ -31,9 +31,9 @@ export class Blockchain {
         this.branchHumanMiner.git = this.initializeBranch(this.branchHumanMiner);
         this.branchPendingTransaction.git = this.initializeBranch(this.branchPendingTransaction);
 
-        Message.capture(PutHumanProblemIntoBlockchainCommand, this, this.handlerPutHumanProblemIntoBlockchainCommand);
-        Message.capture(GetHumanProblemFromBlockchainCommand, this, this.handlerGetHumanProblemFromBlockchainCommand);
-        Message.capture(PutPendingTransactionIntoBlockchainCommand, this, this.handlerPutPendingTransactionIntoBlockchainCommand);
+        Message.capture(PutHumanProblemIntoBlockchainAction, this, this.handlerPutHumanProblemIntoBlockchainAction);
+        Message.capture(GetHumanProblemFromBlockchainAction, this, this.handlerGetHumanProblemFromBlockchainAction);
+        Message.capture(PutPendingTransactionIntoBlockchainAction, this, this.handlerPutPendingTransactionIntoBlockchainAction);
     }
 
     /**
@@ -117,10 +117,10 @@ export class Blockchain {
 
     /**
      * Processador de mensagem.
-     * @param message PutHumanProblemIntoBlockchainCommand
+     * @param message PutHumanProblemIntoBlockchainAction
      * @private
      */
-    private handlerPutHumanProblemIntoBlockchainCommand(message: PutHumanProblemIntoBlockchainCommand): void {
+    private handlerPutHumanProblemIntoBlockchainAction(message: PutHumanProblemIntoBlockchainAction): void {
         Blockchain.workingInProgress();
 
         const content = message.problem.asText();
@@ -151,10 +151,10 @@ export class Blockchain {
 
     /**
      * Processador de mensagem.
-     * @param message GetHumanProblemFromBlockchainCommand
+     * @param message GetHumanProblemFromBlockchainAction
      * @private
      */
-    private handlerGetHumanProblemFromBlockchainCommand(message: GetHumanProblemFromBlockchainCommand): void {
+    private handlerGetHumanProblemFromBlockchainAction(message: GetHumanProblemFromBlockchainAction): void {
         Blockchain.workingInProgress();
 
         const hash =
@@ -180,10 +180,10 @@ export class Blockchain {
 
     /**
      * Processamento de mensagem
-     * @param message PutPendingTransactionIntoBlockchainCommand
+     * @param message PutPendingTransactionIntoBlockchainAction
      * @private
      */
-    private handlerPutPendingTransactionIntoBlockchainCommand(message: PutPendingTransactionIntoBlockchainCommand): void {
+    private handlerPutPendingTransactionIntoBlockchainAction(message: PutPendingTransactionIntoBlockchainAction): void {
         Blockchain.workingInProgress();
 
         const filePath = path.resolve(this.branchPendingTransaction.git.directory, this.branchPendingTransaction.mainFileName);

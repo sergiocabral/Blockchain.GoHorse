@@ -1,11 +1,11 @@
 import {Message} from "../../Bus/Message";
-import {CreateHumanMinerCommand} from "./MessageCommand/CreateHumanMinerCommand";
+import {CreateHumanMinerAction} from "./MessageAction/CreateHumanMinerAction";
 import {FactoryMathProblem} from "./FactoryMathProblem";
 import {HumanMinerConfigurationModel} from "./Model/HumanMinerConfigurationModel";
 import {HumanMinerRequestModel} from "./Model/HumanMinerRequestModel";
 import {CurrentHumanMinerQuery} from "./MessageQuery/CurrentHumanMinerQuery";
-import {PutHumanProblemIntoBlockchainCommand} from "./MessageCommand/PutHumanProblemIntoBlockchainCommand";
-import {GetHumanProblemFromBlockchainCommand} from "./MessageCommand/GetHumanProblemFromBlockchainCommand";
+import {PutHumanProblemIntoBlockchainAction} from "./MessageAction/PutHumanProblemIntoBlockchainAction";
+import {GetHumanProblemFromBlockchainAction} from "./MessageAction/GetHumanProblemFromBlockchainAction";
 
 /**
  * Minerador humano.
@@ -18,7 +18,7 @@ export class HumanMiner {
     public constructor(config: HumanMinerConfigurationModel) {
         this.factoryMathProblem = new FactoryMathProblem(config.mathProblem);
 
-        Message.capture(CreateHumanMinerCommand, this, this.handlerCreateHumanMinerCommand);
+        Message.capture(CreateHumanMinerAction, this, this.handlerCreateHumanMinerAction);
         Message.capture(CurrentHumanMinerQuery, this, HumanMiner.handlerCurrentHumanMinerQuery);
     }
 
@@ -30,12 +30,12 @@ export class HumanMiner {
 
     /**
      * Processador de mensagem
-     * @param message CreateHumanMinerCommand
+     * @param message CreateHumanMinerAction
      * @private
      */
-    private handlerCreateHumanMinerCommand(message: CreateHumanMinerCommand): void {
+    private handlerCreateHumanMinerAction(message: CreateHumanMinerAction): void {
         const mathProblem = this.factoryMathProblem.generate();
-        const message2 = new PutHumanProblemIntoBlockchainCommand(mathProblem).request().message;
+        const message2 = new PutHumanProblemIntoBlockchainAction(mathProblem).request().message;
         message.humanMinerRequest = new HumanMinerRequestModel(message2.problem, message2.url);
     }
 
@@ -45,7 +45,7 @@ export class HumanMiner {
      * @private
      */
     private static handlerCurrentHumanMinerQuery(message: CurrentHumanMinerQuery): void {
-        const message2 = new GetHumanProblemFromBlockchainCommand().request().message;
+        const message2 = new GetHumanProblemFromBlockchainAction().request().message;
         message.humanMinerRequest =
             !message2.problem || message2.problem.isSolved
                 ? null

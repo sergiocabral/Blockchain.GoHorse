@@ -11,7 +11,7 @@ import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import {UserOnChatModel} from "./Model/UserOnChatModel";
 import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
-import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
+import {SendChatMessageAction} from "../../Twitch/MessageAction/SendChatMessageAction";
 import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
 import Timeout = NodeJS.Timeout;
 
@@ -129,14 +129,14 @@ export class ChatWatcherApp extends BaseApp {
             Logger.post("Channel: {0}. First message from user: {1}", [channelName, userName], LogLevel.Debug, LogContext.ChatWatcherApp);
 
             if (user.tags.length) {
-                const messageCommands = user.tags.map(tag => {
+                const MessageActions = user.tags.map(tag => {
                     const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
                     const messages = tags[tag.toLowerCase()] ?? [];
-                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
-                }).flat<SendChatMessageCommand>();
+                    return messages.map(message => new SendChatMessageAction(channelName, message.translate().querystring([userName, channelName])));
+                }).flat<SendChatMessageAction>();
 
-                if (messageCommands.length) {
-                    messageCommands.forEach(messageCommand => messageCommand.send());
+                if (MessageActions.length) {
+                    MessageActions.forEach(MessageAction => MessageAction.send());
                     Logger.post(() => 'Answer first message from user "{1}" on channel "{0}" because of tags: {2}', [channelName, userName, () => user.tags.join(", ")], LogLevel.Debug, LogContext.ChatWatcherApp);
                 }
             }

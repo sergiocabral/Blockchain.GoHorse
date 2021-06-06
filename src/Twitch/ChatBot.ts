@@ -21,7 +21,7 @@ import {LogContext} from "../Log/LogContext";
 import {RedeemEvent} from "./MessageEvent/RedeemEvent";
 import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
-import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
+import {SendChatMessageAction} from "./MessageAction/SendChatMessageAction";
 import {Message} from "../Bus/Message";
 import {ChatJoinPartModel} from "./Model/ChatJoinPartModel";
 import {ChatJoinEvent} from "./MessageEvent/ChatJoinEvent";
@@ -30,6 +30,7 @@ import {UserAuthenticationModel} from "./Model/UserAuthenticationModel";
 import {ChatMessageEvent} from "./MessageEvent/ChatMessageEvent";
 import {ChatMessageModel} from "./Model/ChatMessageModel";
 import Timeout = NodeJS.Timeout;
+import {ChatCommandEvent} from "./MessageEvent/ChatCommandEvent";
 
 /**
  * Cliente ChatBot da Twitch
@@ -46,7 +47,7 @@ export class ChatBot implements Events {
 
         ChatBot.registerEvents(this.client, this);
 
-        Message.capture(SendChatMessageCommand, this, this.handlerSendChatMessageCommand);
+        Message.capture(SendChatMessageAction, this, this.handlerSendChatMessageAction);
     }
 
     /**
@@ -104,7 +105,7 @@ export class ChatBot implements Events {
      * Fila de mensagens.
      * @private
      */
-    private chatMessageQueue: SendChatMessageCommand[] = [];
+    private chatMessageQueue: SendChatMessageAction[] = [];
 
     /**
      * Timeout para bounce de mensagens enviadas.
@@ -135,10 +136,10 @@ export class ChatBot implements Events {
 
     /**
      * Processar mensagem
-     * @param message SendChatMessageCommand
+     * @param message SendChatMessageAction
      * @private
      */
-    private handlerSendChatMessageCommand(message: SendChatMessageCommand) {
+    private handlerSendChatMessageAction(message: SendChatMessageAction) {
         this.chatMessageQueue.push(message);
         this.dispatchChatMessage();
     }
@@ -404,7 +405,10 @@ export class ChatBot implements Events {
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
         ChatBot.log('message', arguments);
         Logger.post(() => `Channel: {0}, User: {1}: {2}`,[channel, userstate.username, message, { "event": "ChatMessage" }],LogLevel.Debug, LogContext.ChatBot);
-        new ChatMessageEvent(new ChatMessageModel(channel, userstate, message, arguments)).send();
+
+        const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
+        new ChatMessageEvent(chatMessage).send();
+        if (chatMessage.isCommand) new ChatCommandEvent(chatMessage).send();
     }
 
     /**
