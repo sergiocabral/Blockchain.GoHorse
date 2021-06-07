@@ -18,6 +18,7 @@ import {PutPendingTransactionIntoBlockchainAction} from "./MessageAction/PutPend
 import {PendingTransactionModel} from "./Model/PendingTransactionModel";
 import {ChatCommandHandler} from "../../Twitch/ChatCommand/ChatCommandHandler";
 import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
+import {MinerChatCommand} from "./ChatCommand/MinerChatCommand";
 
 /**
  * Escuta do chat da moeda.
@@ -39,7 +40,9 @@ export class ChatCoin {
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
-        this.chatCommandHandler = new ChatCommandHandler(coin.channels, new HelloWorldChatCommand());
+        this.chatCommandHandler = new ChatCommandHandler(coin.channels,
+            new HelloWorldChatCommand(),
+            new MinerChatCommand());
     }
 
     /**
