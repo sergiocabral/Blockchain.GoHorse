@@ -158,7 +158,7 @@ export class ChatWatcherApp extends BaseApp {
         const action = () => {
             const fileContent = this.factoryReport();
             fs.writeFileSync(this.environmentApplication.outputFile, Buffer.from(fileContent));
-            Logger.post('Report saved: {0}', this.environmentApplication.outputFile, LogLevel.Debug, LogContext.ChatWatcherApp);
+            Logger.post('Report saved: {0}', this.environmentApplication.outputFile, LogLevel.Verbose, LogContext.ChatWatcherApp);
         };
 
         clearTimeout(this.saveReportTimeout);

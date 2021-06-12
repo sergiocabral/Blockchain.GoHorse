@@ -230,6 +230,12 @@ export class ChatBot implements Events {
      */
     public action(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
         ChatBot.log('action', arguments);
+
+        Logger.post(message,[{
+            "event": "ActionMessage",
+            "channel": channel,
+            "user": userstate.username,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -240,6 +246,12 @@ export class ChatBot implements Events {
      */
     public anongiftpaidupgrade(channel: string, username: string, userstate: AnonSubGiftUpgradeUserstate): void {
         ChatBot.log('anongiftpaidupgrade', arguments);
+
+        Logger.post("Username is continuing the Gift Sub they got from an anonymous user in channel.",[{
+            "event": "UserContinueSubscription",
+            "channel": channel,
+            "user": userstate.username,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -250,6 +262,12 @@ export class ChatBot implements Events {
      */
     public automod(channel: string, msgID: "msg_rejected" | "msg_rejected_mandatory", message: string): void {
         ChatBot.log('automod', arguments);
+
+        Logger.post(message,[{
+            "event": "AutoMod",
+            "channel": channel,
+            "msgID": msgID,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -260,6 +278,12 @@ export class ChatBot implements Events {
      */
     public ban(channel: string, username: string, reason: string): void {
         ChatBot.log('ban', arguments);
+
+        Logger.post(reason,[{
+            "event": "UserBanned",
+            "channel": channel,
+            "user": username,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -281,6 +305,12 @@ export class ChatBot implements Events {
      */
     public cheer(channel: string, userstate: ChatUserstate, message: string): void {
         ChatBot.log('cheer', arguments);
+
+        Logger.post(message,[{
+            "event": "UserCheered",
+            "channel": channel,
+            "user": userstate.username,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -289,6 +319,10 @@ export class ChatBot implements Events {
      */
     public clearchat(clearchat: string): void {
         ChatBot.log('clearchat', arguments);
+
+        Logger.post(clearchat,[{
+            "event": "ChannelChatCleared",
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -298,6 +332,12 @@ export class ChatBot implements Events {
      */
     public connected(address: string, port: number): void {
         ChatBot.log('connected', arguments);
+
+        Logger.post(`${address}:${port}`,[{
+            "event": "ServerConnected",
+            "address": address,
+            "port": port
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -307,6 +347,12 @@ export class ChatBot implements Events {
      */
     public connecting(address: string, port: number): void {
         ChatBot.log('connecting', arguments);
+
+        Logger.post(`${address}:${port}`,[{
+            "event": "ServerConnecting",
+            "address": address,
+            "port": port
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -315,6 +361,10 @@ export class ChatBot implements Events {
      */
     public disconnected(reason: string): void {
         ChatBot.log('disconnected', arguments);
+
+        Logger.post(reason,[{
+            "event": "ServerDisconnected"
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -324,6 +374,12 @@ export class ChatBot implements Events {
      */
     public emoteonly(channel: string, enabled: boolean): void {
         ChatBot.log('emoteonly', arguments);
+
+        Logger.post(`Channel chat emote only: ${enabled}`,[{
+            "event": "ChannelChatEmoteOnly",
+            "channel": channel,
+            "enabled": enabled
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -333,6 +389,11 @@ export class ChatBot implements Events {
      */
     public emotesets(sets: string, obj: EmoteObj): void {
         ChatBot.log('emotesets', arguments);
+
+        Logger.post(sets,[{
+            "event": "TwitchEmote",
+            "emoteObj": obj
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -343,6 +404,12 @@ export class ChatBot implements Events {
      */
     public followersonly(channel: string, enabled: boolean, length: number): void {
         ChatBot.log('followersonly', arguments);
+
+        Logger.post(`Channel chat followers only: ${enabled}`,[{
+            "event": "ChannelChatFollowersOnly",
+            "channel": channel,
+            "enabled": enabled
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -354,6 +421,12 @@ export class ChatBot implements Events {
      */
     public giftpaidupgrade(channel: string, username: string, sender: string, userstate: SubGiftUpgradeUserstate): void {
         ChatBot.log('giftpaidupgrade', arguments);
+
+        Logger.post("Username is continuing the Gift Sub they got from sender in channel.",[{
+            "event": "UserContinueSubscription",
+            "channel": channel,
+            "user": userstate.username,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -365,6 +438,14 @@ export class ChatBot implements Events {
      */
     public hosted(channel: string, username: string, viewers: number, autohost: boolean): void {
         ChatBot.log('hosted', arguments);
+
+        Logger.post("Channel is now hosted by {0} with {1} viewers. Autohost: {2}",[username, viewers, autohost, {
+            "event": "Hosted",
+            "channel": channel,
+            "user": username,
+            "viewers": viewers,
+            "autohost": autohost
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -375,6 +456,13 @@ export class ChatBot implements Events {
      */
     public hosting(channel: string, target: string, viewers: number): void {
         ChatBot.log('hosting', arguments);
+
+        Logger.post("Channel is now hosting another channel {0} with {1} viewers.",[target, viewers, {
+            "event": "Hosting",
+            "channel": channel,
+            "targetChannel": target,
+            "viewers": viewers,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -385,6 +473,13 @@ export class ChatBot implements Events {
      */
     public join(channel: string, username: string, self: boolean): void {
         ChatBot.log('join', arguments);
+
+        Logger.post("{0} join into channel",[username, {
+            "event": "JoinChannel",
+            "channel": channel,
+            "user": username,
+        }],LogLevel.Debug, LogContext.ChatBot);
+
         new ChatJoinEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
 
@@ -393,6 +488,10 @@ export class ChatBot implements Events {
      */
     public logon(): void {
         ChatBot.log('logon', arguments);
+
+        Logger.post("Connection established, sending informations to server.",[{
+            "event": "ServerLogon",
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -404,7 +503,12 @@ export class ChatBot implements Events {
      */
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
         ChatBot.log('message', arguments);
-        Logger.post(() => `Channel: {0}, User: {1}: {2}`,[channel, userstate.username, message, { "event": "ChatMessage" }],LogLevel.Debug, LogContext.ChatBot);
+
+        Logger.post(message,[{
+            "event": "ChatMessage",
+            "channel": channel,
+            "user": userstate.username,
+        }],LogLevel.Debug, LogContext.ChatBot);
 
         const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
         new ChatMessageEvent(chatMessage).send();
@@ -420,6 +524,12 @@ export class ChatBot implements Events {
      */
     public messagedeleted(channel: string, username: string, deletedMessage: string, userstate: DeleteUserstate): void {
         ChatBot.log('messagedeleted', arguments);
+
+        Logger.post(deletedMessage,[{
+            "event": "ChatMessageDeleted",
+            "channel": channel,
+            "user": userstate,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -542,6 +652,13 @@ export class ChatBot implements Events {
      */
     public part(channel: string, username: string, self: boolean): void {
         ChatBot.log('part', arguments);
+
+        Logger.post("{0} part from channel",[username, {
+            "event": "PartChannel",
+            "channel": channel,
+            "user": username,
+        }],LogLevel.Debug, LogContext.ChatBot);
+
         new ChatPartEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
 
@@ -588,6 +705,13 @@ export class ChatBot implements Events {
      */
     public raided(channel: string, username: string, viewers: number): void {
         ChatBot.log('raided', arguments);
+
+        Logger.post("Channel is now being raided by {0} with {1} viewers.",[username, viewers, {
+            "event": "Raided",
+            "channel": channel,
+            "user": username,
+            "viewers": viewers
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -595,6 +719,10 @@ export class ChatBot implements Events {
      */
     public reconnect(): void {
         ChatBot.log('reconnect', arguments);
+
+        Logger.post("Trying to reconnect to server.",[{
+            "event": "ServerReconnect",
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
@@ -608,6 +736,13 @@ export class ChatBot implements Events {
     public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate, message: string = ''): void {
         ChatBot.log('redeem', arguments);
         new RedeemEvent(new RedeemModel(channel, tags, rewardType, message, arguments)).send();
+
+        Logger.post(message,[{
+            "event": "ChannelRedeem",
+            "channel": channel,
+            "user": username,
+            "rewardType": rewardType
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
