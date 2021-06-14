@@ -60,8 +60,8 @@ export class Blockchain {
      * @private
      */
     private static workingInProgress(inProgress: boolean = true): void {
-        if (inProgress) {
-            while (Blockchain.workingInProgressState) { }
+        if (inProgress && Blockchain.workingInProgressState) {
+            throw new InvalidExecutionError('Blockchain: Working in progress');
         }
         Blockchain.workingInProgressState = inProgress;
     }
