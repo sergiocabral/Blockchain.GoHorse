@@ -77,7 +77,7 @@ export class ElasticsearchLogger {
                 delete logElasticsearchMessage.id;
 
                 await this.client.index({
-                    index: this.options.index,
+                    index: `${this.options.index}-${new Date().format({mask: "y-M-d"})}`,
                     id: id,
                     body: Object.assign(logElasticsearchMessage, {
                         applicationName: Logger.applicationName,
