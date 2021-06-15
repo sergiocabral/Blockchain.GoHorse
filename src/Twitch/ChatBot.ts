@@ -204,11 +204,14 @@ export class ChatBot implements Events {
      * @param args Dados relacionados.
      * @private
      */
-    private static log(description: string, args: IArguments): void {
-        const data = Array.from(args).concat({ "event": description });
+    private static log(description: string, args?: any): void {
+        const data = Object.assign({}, { "event": description }, args);
         Logger.post(
-            () => `${description}: {0}`,
-            [() => JSON.stringify(data, undefined, 2), data],
+            () => `${description}: {sourceAsText}`,
+            {
+                sourceAsText: () => JSON.stringify(data),
+                source: data
+            },
             LogLevel.Verbose, LogContext.ChatBot);
     }
 
@@ -218,7 +221,7 @@ export class ChatBot implements Events {
      * @param message The message data object
      */
     public raw_message(messageCloned: { [p: string]: any }, message: { [p: string]: any }): void {
-        ChatBot.log('raw_message', arguments);
+        ChatBot.log('raw_message', {messageCloned, message});
     }
 
     /**
@@ -229,13 +232,7 @@ export class ChatBot implements Events {
      * @param self Message was sent by the client
      */
     public action(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBot.log('action', arguments);
-
-        Logger.post(message,[{
-            "event": "ActionMessage",
-            "channel": channel,
-            "user": userstate.username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('action', {channel, userstate, message, self});
     }
 
     /**
@@ -245,13 +242,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public anongiftpaidupgrade(channel: string, username: string, userstate: AnonSubGiftUpgradeUserstate): void {
-        ChatBot.log('anongiftpaidupgrade', arguments);
-
-        Logger.post("Username is continuing the Gift Sub they got from an anonymous user in channel.",[{
-            "event": "UserContinueSubscription",
-            "channel": channel,
-            "user": userstate.username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('anongiftpaidupgrade', {channel, username, userstate});
     }
 
     /**
@@ -261,13 +252,7 @@ export class ChatBot implements Events {
      * @param message
      */
     public automod(channel: string, msgID: "msg_rejected" | "msg_rejected_mandatory", message: string): void {
-        ChatBot.log('automod', arguments);
-
-        Logger.post(message,[{
-            "event": "AutoMod",
-            "channel": channel,
-            "msgID": msgID,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('automod', {channel, msgID, message});
     }
 
     /**
@@ -277,13 +262,7 @@ export class ChatBot implements Events {
      * @param reason Deprecated, always null. See event description above
      */
     public ban(channel: string, username: string, reason: string): void {
-        ChatBot.log('ban', arguments);
-
-        Logger.post(reason,[{
-            "event": "UserBanned",
-            "channel": channel,
-            "user": username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('ban', {channel, username, reason});
     }
 
     /**
@@ -294,7 +273,7 @@ export class ChatBot implements Events {
      * @param self Message was sent by the client
      */
     public chat(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBot.log('chat', arguments);
+        ChatBot.log('chat', {channel, userstate, message, self});
     }
 
     /**
@@ -304,14 +283,7 @@ export class ChatBot implements Events {
      * @param message Message
      */
     public cheer(channel: string, userstate: ChatUserstate, message: string): void {
-        ChatBot.log('cheer', arguments);
-
-        Logger.post(message,[{
-            "event": "UserCheered",
-            "channel": channel,
-            "user": userstate.username,
-            "bits": userstate.bits,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('cheer', {channel, userstate, message});
     }
 
     /**
@@ -319,11 +291,7 @@ export class ChatBot implements Events {
      * @param clearchat Channel name
      */
     public clearchat(clearchat: string): void {
-        ChatBot.log('clearchat', arguments);
-
-        Logger.post(clearchat,[{
-            "event": "ChannelChatCleared",
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('clearchat', {clearchat});
     }
 
     /**
@@ -332,13 +300,7 @@ export class ChatBot implements Events {
      * @param port Remote port
      */
     public connected(address: string, port: number): void {
-        ChatBot.log('connected', arguments);
-
-        Logger.post(`${address}:${port}`,[{
-            "event": "ServerConnected",
-            "address": address,
-            "port": port
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('connected', {address, port});
     }
 
     /**
@@ -347,13 +309,7 @@ export class ChatBot implements Events {
      * @param port Remote port
      */
     public connecting(address: string, port: number): void {
-        ChatBot.log('connecting', arguments);
-
-        Logger.post(`${address}:${port}`,[{
-            "event": "ServerConnecting",
-            "address": address,
-            "port": port
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('connecting', {address, port});
     }
 
     /**
@@ -361,11 +317,7 @@ export class ChatBot implements Events {
      * @param reason Reason why you got disconnected
      */
     public disconnected(reason: string): void {
-        ChatBot.log('disconnected', arguments);
-
-        Logger.post(reason,[{
-            "event": "ServerDisconnected"
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('disconnected', {reason});
     }
 
     /**
@@ -374,13 +326,7 @@ export class ChatBot implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public emoteonly(channel: string, enabled: boolean): void {
-        ChatBot.log('emoteonly', arguments);
-
-        Logger.post(`Channel chat emote only: ${enabled}`,[{
-            "event": "ChannelChatEmoteOnly",
-            "channel": channel,
-            "enabled": enabled
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('emoteonly', {channel, enabled});
     }
 
     /**
@@ -389,12 +335,7 @@ export class ChatBot implements Events {
      * @param obj Your emote sets with IDs and codes received from the Twitch API
      */
     public emotesets(sets: string, obj: EmoteObj): void {
-        ChatBot.log('emotesets', arguments);
-
-        Logger.post(sets,[{
-            "event": "TwitchEmote",
-            "emoteObj": obj
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('emotesets', {sets, obj});
     }
 
     /**
@@ -404,13 +345,7 @@ export class ChatBot implements Events {
      * @param length Length in minutes
      */
     public followersonly(channel: string, enabled: boolean, length: number): void {
-        ChatBot.log('followersonly', arguments);
-
-        Logger.post(`Channel chat followers only: ${enabled}`,[{
-            "event": "ChannelChatFollowersOnly",
-            "channel": channel,
-            "enabled": enabled
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('followersonly', {channel, enabled, length});
     }
 
     /**
@@ -421,13 +356,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public giftpaidupgrade(channel: string, username: string, sender: string, userstate: SubGiftUpgradeUserstate): void {
-        ChatBot.log('giftpaidupgrade', arguments);
-
-        Logger.post("Username is continuing the Gift Sub they got from sender in channel.",[{
-            "event": "UserContinueSubscription",
-            "channel": channel,
-            "user": userstate.username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('giftpaidupgrade', {channel, username, sender, userstate});
     }
 
     /**
@@ -438,15 +367,7 @@ export class ChatBot implements Events {
      * @param autohost Auto-hosting
      */
     public hosted(channel: string, username: string, viewers: number, autohost: boolean): void {
-        ChatBot.log('hosted', arguments);
-
-        Logger.post("Channel is now hosted by {0} with {1} viewers. Autohost: {2}",[username, viewers, autohost, {
-            "event": "Hosted",
-            "channel": channel,
-            "user": username,
-            "viewers": viewers,
-            "autohost": autohost
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('hosted', {channel, username, viewers, autohost});
     }
 
     /**
@@ -456,14 +377,7 @@ export class ChatBot implements Events {
      * @param viewers Viewers count
      */
     public hosting(channel: string, target: string, viewers: number): void {
-        ChatBot.log('hosting', arguments);
-
-        Logger.post("Channel is now hosting another channel {0} with {1} viewers.",[target, viewers, {
-            "event": "Hosting",
-            "channel": channel,
-            "targetChannel": target,
-            "viewers": viewers,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('hosting', {channel, target, viewers});
     }
 
     /**
@@ -473,13 +387,7 @@ export class ChatBot implements Events {
      * @param self Client has joined the channel
      */
     public join(channel: string, username: string, self: boolean): void {
-        ChatBot.log('join', arguments);
-
-        Logger.post("{0} join into channel",[username, {
-            "event": "JoinChannel",
-            "channel": channel,
-            "user": username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('join', {channel, username, self});
 
         new ChatJoinEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
@@ -488,11 +396,7 @@ export class ChatBot implements Events {
      * Connection established, sending informations to server
      */
     public logon(): void {
-        ChatBot.log('logon', arguments);
-
-        Logger.post("Connection established, sending informations to server.",[{
-            "event": "ServerLogon",
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('logon');
     }
 
     /**
@@ -503,13 +407,7 @@ export class ChatBot implements Events {
      * @param self Message was sent by the client
      */
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBot.log('message', arguments);
-
-        Logger.post(message,[{
-            "event": "ChatMessage",
-            "channel": channel,
-            "user": userstate.username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('message', {channel, userstate, message, self});
 
         const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
         new ChatMessageEvent(chatMessage).send();
@@ -524,13 +422,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public messagedeleted(channel: string, username: string, deletedMessage: string, userstate: DeleteUserstate): void {
-        ChatBot.log('messagedeleted', arguments);
-
-        Logger.post(deletedMessage,[{
-            "event": "ChatMessageDeleted",
-            "channel": channel,
-            "user": userstate,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('messagedeleted', {channel, username, deletedMessage, userstate});
     }
 
     /**
@@ -539,7 +431,7 @@ export class ChatBot implements Events {
      * @param username Username
      */
     public mod(channel: string, username: string): void {
-        ChatBot.log('mod', arguments);
+        ChatBot.log('mod', {channel, username});
     }
 
     /**
@@ -548,7 +440,7 @@ export class ChatBot implements Events {
      * @param mods Moderators of the channel
      */
     public mods(channel: string, mods: string[]): void {
-        ChatBot.log('mods', arguments);
+        ChatBot.log('mods', {channel, mods});
     }
 
     /**
@@ -642,7 +534,7 @@ export class ChatBot implements Events {
      * @param message Message received
      */
     public notice(channel: string, msgid: MsgID, message: string): void {
-        ChatBot.log('notice', arguments);
+        ChatBot.log('notice', {channel, msgid, message});
     }
 
     /**
@@ -652,13 +544,7 @@ export class ChatBot implements Events {
      * @param self Client has left the channel
      */
     public part(channel: string, username: string, self: boolean): void {
-        ChatBot.log('part', arguments);
-
-        Logger.post("{0} part from channel",[username, {
-            "event": "PartChannel",
-            "channel": channel,
-            "user": username,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('part', {channel, username, self});
 
         new ChatPartEvent(new ChatJoinPartModel(channel, username, arguments)).send();
     }
@@ -667,7 +553,7 @@ export class ChatBot implements Events {
      * Received PING from server
      */
     public ping(): void {
-        ChatBot.log('ping', arguments);
+        ChatBot.log('ping');
     }
 
     /**
@@ -675,7 +561,7 @@ export class ChatBot implements Events {
      * @param latency
      */
     public pong(latency: number): void {
-        ChatBot.log('pong', arguments);
+        ChatBot.log('pong', {latency});
     }
 
     /**
@@ -686,7 +572,7 @@ export class ChatBot implements Events {
      * @param userstate
      */
     public primepaidupgrade(channel: string, username: string, methods: SubMethods, userstate: PrimeUpgradeUserstate): void {
-        ChatBot.log('primepaidupgrade', arguments);
+        ChatBot.log('primepaidupgrade', {channel, username, methods, userstate});
     }
 
     /**
@@ -695,7 +581,7 @@ export class ChatBot implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public r9kbeta(channel: string, enabled: boolean): void {
-        ChatBot.log('r9kbeta', arguments);
+        ChatBot.log('r9kbeta', {channel, enabled});
     }
 
     /**
@@ -705,25 +591,14 @@ export class ChatBot implements Events {
      * @param viewers Viewers count
      */
     public raided(channel: string, username: string, viewers: number): void {
-        ChatBot.log('raided', arguments);
-
-        Logger.post("Channel is now being raided by {0} with {1} viewers.",[username, viewers, {
-            "event": "Raided",
-            "channel": channel,
-            "user": username,
-            "viewers": viewers
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('raided', {channel, username, viewers});
     }
 
     /**
      * Trying to reconnect to server
      */
     public reconnect(): void {
-        ChatBot.log('reconnect', arguments);
-
-        Logger.post("Trying to reconnect to server.",[{
-            "event": "ServerReconnect",
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('reconnect');
     }
 
     /**
@@ -735,15 +610,9 @@ export class ChatBot implements Events {
      * @param message
      */
     public redeem(channel: string, username: string, rewardType: "highlighted-message" | "skip-subs-mode-message" | string, tags: ChatUserstate, message: string = ''): void {
-        ChatBot.log('redeem', arguments);
-        new RedeemEvent(new RedeemModel(channel, tags, rewardType, message, arguments)).send();
+        ChatBot.log('redeem', {channel, username, rewardType, tags, message});
 
-        Logger.post(message,[{
-            "event": "ChannelRedeem",
-            "channel": channel,
-            "user": username,
-            "rewardType": rewardType
-        }],LogLevel.Debug, LogContext.ChatBot);
+        new RedeemEvent(new RedeemModel(channel, tags, rewardType, message, arguments)).send();
     }
 
     /**
@@ -757,7 +626,7 @@ export class ChatBot implements Events {
      * @param methods Resub methods and plan (such as Prime)
      */
     public resub(channel: string, username: string, months: number, message: string, userstate: SubUserstate, methods: SubMethods): void {
-        ChatBot.log('resub', arguments);
+        ChatBot.log('resub', {channel, username, months, message, userstate, methods});
     }
 
     /**
@@ -766,7 +635,7 @@ export class ChatBot implements Events {
      * @param state Current state of the channel
      */
     public roomstate(channel: string, state: RoomState): void {
-        ChatBot.log('roomstate', arguments);
+        ChatBot.log('roomstate', {channel, state});
     }
 
     /**
@@ -774,7 +643,7 @@ export class ChatBot implements Events {
      * @param channel Channel name
      */
     public serverchange(channel: string): void {
-        ChatBot.log('serverchange', arguments);
+        ChatBot.log('serverchange', {channel});
     }
 
     /**
@@ -784,7 +653,7 @@ export class ChatBot implements Events {
      * @param length
      */
     public slowmode(channel: string, enabled: boolean, length: number): void {
-        ChatBot.log('slowmode', arguments);
+        ChatBot.log('slowmode', {channel, enabled, length});
     }
 
     /**
@@ -797,7 +666,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public subgift(channel: string, username: string, streakMonths: number, recipient: string, methods: SubMethods, userstate: SubGiftUserstate): void {
-        ChatBot.log('subgift', arguments);
+        ChatBot.log('subgift', {channel, username, streakMonths, recipient, methods, userstate});
     }
 
     /**
@@ -809,7 +678,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public submysterygift(channel: string, username: string, numbOfSubs: number, methods: SubMethods, userstate: SubMysteryGiftUserstate): void {
-        ChatBot.log('submysterygift', arguments);
+        ChatBot.log('submysterygift', {channel, username, numbOfSubs, methods, userstate});
     }
 
     /**
@@ -818,7 +687,7 @@ export class ChatBot implements Events {
      * @param enabled Returns true if mode is enabled or false if disabled
      */
     public subscribers(channel: string, enabled: boolean): void {
-        ChatBot.log('subscribers', arguments);
+        ChatBot.log('subscribers', {channel, enabled});
     }
 
     /**
@@ -830,16 +699,7 @@ export class ChatBot implements Events {
      * @param userstate Userstate object
      */
     public subscription(channel: string, username: string, methods: SubMethods, message: string, userstate: SubUserstate): void {
-        ChatBot.log('subscription', arguments);
-
-        Logger.post(message,[{
-            "event": "UserSubscription",
-            "channel": channel,
-            "user": username,
-            "prime": methods.prime,
-            "plan": methods.plan,
-            "planName": methods.planName,
-        }],LogLevel.Debug, LogContext.ChatBot);
+        ChatBot.log('subscription', {channel, username, methods, message, userstate});
     }
 
     /**
@@ -850,7 +710,7 @@ export class ChatBot implements Events {
      * @param duration Duration of the timeout
      */
     public timeout(channel: string, username: string, reason: string, duration: number): void {
-        ChatBot.log('timeout', arguments);
+        ChatBot.log('timeout', {channel, username, reason, duration});
     }
 
     /**
@@ -859,7 +719,7 @@ export class ChatBot implements Events {
      * @param viewers Viewer count
      */
     public unhost(channel: string, viewers: number): void {
-        ChatBot.log('unhost', arguments);
+        ChatBot.log('unhost', {channel, viewers});
     }
 
     /**
@@ -869,7 +729,7 @@ export class ChatBot implements Events {
      * @param username Username
      */
     public unmod(channel: string, username: string): void {
-        ChatBot.log('unmod', arguments);
+        ChatBot.log('unmod', {channel, username});
     }
 
     /**
@@ -878,7 +738,7 @@ export class ChatBot implements Events {
      * @param vips VIPs of the channel
      */
     public vips(channel: string, vips: string[]): void {
-        ChatBot.log('vips', arguments);
+        ChatBot.log('vips', {channel, vips});
     }
 
     /**
@@ -889,6 +749,6 @@ export class ChatBot implements Events {
      * @param self Message was sent by the client
      */
     public whisper(from: string, userstate: ChatUserstate, message: string, self: boolean): void {
-        ChatBot.log('whisper', arguments);
+        ChatBot.log('whisper', {from, userstate, message, self});
     }
 }

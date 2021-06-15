@@ -1,6 +1,7 @@
 import {LogLevel} from "./LogLevel";
 import {LogMessage} from "./LogMessage";
 import {Text} from "../Helper/Text";
+import {KeyValue} from "../Helper/Types/KeyValue";
 
 /**
  * Mensagem de log para Elasticsearch.
@@ -17,10 +18,16 @@ export class ElasticsearchLogMessage {
         this.origin = message.origin;
         this.message = message.message;
         this.messageTemplate = message.messageTemplate;
-        this.raw = message.values ? JSON.stringify(message.values, undefined, 2) : undefined;
+        this.source =
+            message.values?.source
+                ? JSON.stringify(message.values.source, undefined, 2)
+                : (message.values
+                    ? JSON.stringify(message.values, undefined, 2)
+                    : undefined
+                );
         Object.assign(this, this.extractFields());
 
-        if (this.raw === undefined) delete this.raw;
+        if (this.source === undefined) delete this.source;
     }
 
     /**
@@ -46,21 +53,29 @@ export class ElasticsearchLogMessage {
      * @private
      */
     private extractFields(): any {
-        if (!this.raw) return;
+        if (!this.source) return;
 
-        const globalMatches = this.raw.match(this.regexPropertiesG);
+        const globalMatches = this.source.match(this.regexPropertiesG);
         if (globalMatches === null) return;
 
         const result: any = { };
 
-        const channel = this.raw.match(this.regexChannelNames);
+        const channel = this.source.match(this.regexChannelNames);
         if (channel) result['channel'] = channel[1];
 
         for (const globalMatch of globalMatches) {
             const match = globalMatch.match(this.regexProperties);
             if (match === null) continue;
 
-            result[match[1]] = ElasticsearchLogMessage.fornatData(match[3]);
+            const propertyName = match[1];
+            const propertyValue = match[3];
+            const typedPropertyValues = ElasticsearchLogMessage.extractTypes(propertyName, propertyValue);
+            for (const typedPropertyName in typedPropertyValues) {
+                if (typedPropertyValues.hasOwnProperty(typedPropertyName)) {
+                    result[typedPropertyName] = typedPropertyValues[typedPropertyName];
+                }
+            }
+
         }
 
         if (result.id !== undefined) {
@@ -74,14 +89,33 @@ export class ElasticsearchLogMessage {
 
     /**
      * Formata o dado no tipo correto.
-     * @param data Dado.
      * @private
+     * @param propertyName Nome da propriedade.
+     * @param propertyValue Valor original.
      */
-    private static fornatData(data: any): any {
-        const text = String(data);
-        if (text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') return null;
-        else if (Number.isInteger(text)) return Number(text);
-        else return text;
+    private static extractTypes(propertyName: string, propertyValue: any): KeyValue<any> {
+        const result: KeyValue<any> = { };
+
+        const text = String(propertyValue).trim();
+
+        if (text === 'null' || text === 'undefined') {
+            result[propertyName] = null;
+            return result;
+        }
+
+        result[propertyName] = text;
+
+        let number: number;
+        if ((number = Number(text)).toString() == text) {
+            result[`${propertyName}-number`] = number;
+        }
+
+        let booleanText: string;
+        if ((booleanText = text.toLowerCase()) === 'false' || booleanText === 'true' || booleanText === '0' || booleanText === '1' || booleanText === '-1') {
+            result[`${propertyName}-boolean`] = ['true', '1', '-1'].includes(booleanText);
+        }
+
+        return result;
     }
 
     /**
@@ -117,5 +151,5 @@ export class ElasticsearchLogMessage {
     /**
      * Valores associados.
      */
-    raw?: string;
+    source?: string;
 }
