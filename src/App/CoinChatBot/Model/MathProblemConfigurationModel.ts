@@ -1,5 +1,8 @@
 import {IModel} from "../../../Core/IModel";
 
+/**
+ * Configurações de dificuldade da mineração humana baseada em problema matemático.
+ */
 export class MathProblemConfigurationModel implements IModel {
     /**
      * Construtor.

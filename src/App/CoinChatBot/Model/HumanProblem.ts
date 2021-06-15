@@ -3,6 +3,9 @@ import {MathProblem} from "./MathProblem";
 import {IModelPrintable} from "../../../Core/IModelPrintable";
 import {Template} from "../Templates/Template";
 
+/**
+ * Classe base para problemas que humanos podem resolver como forma de mineração.
+ */
 export abstract class HumanProblem implements IModelPrintable {
     /**
      * O problema.

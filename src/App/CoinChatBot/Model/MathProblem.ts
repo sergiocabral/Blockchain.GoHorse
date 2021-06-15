@@ -3,7 +3,7 @@ import {NumericFormat} from "../../../Helper/NumericFormat";
 import {HumanProblem} from "./HumanProblem";
 
 /**
- * Modelo para um problema matemático.
+ * Modelo para um problema matemático para mineração humana.
  */
 export class MathProblem extends HumanProblem implements IModel {
     /**
