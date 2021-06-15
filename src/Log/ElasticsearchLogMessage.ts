@@ -60,7 +60,7 @@ export class ElasticsearchLogMessage {
             const match = globalMatch.match(this.regexProperties);
             if (match === null) continue;
 
-            result[match[1]] = String(match[3]);
+            result[match[1]] = ElasticsearchLogMessage.fornatData(match[3]);
         }
 
         if (result.id !== undefined) {
@@ -70,6 +70,18 @@ export class ElasticsearchLogMessage {
         }
 
         return result;
+    }
+
+    /**
+     * Formata o dado no tipo correto.
+     * @param data Dado.
+     * @private
+     */
+    private static fornatData(data: any): any {
+        const text = String(data);
+        if (text.toLowerCase() === 'null' || text.toLowerCase() === 'undefined') return null;
+        else if (Number.isInteger(text)) return Number(text);
+        else return text;
     }
 
     /**

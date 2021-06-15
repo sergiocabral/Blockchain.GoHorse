@@ -310,6 +310,7 @@ export class ChatBot implements Events {
             "event": "UserCheered",
             "channel": channel,
             "user": userstate.username,
+            "bits": userstate.bits,
         }],LogLevel.Debug, LogContext.ChatBot);
     }
 
@@ -830,6 +831,15 @@ export class ChatBot implements Events {
      */
     public subscription(channel: string, username: string, methods: SubMethods, message: string, userstate: SubUserstate): void {
         ChatBot.log('subscription', arguments);
+
+        Logger.post(message,[{
+            "event": "UserSubscription",
+            "channel": channel,
+            "user": username,
+            "prime": methods.prime,
+            "plan": methods.plan,
+            "planName": methods.planName,
+        }],LogLevel.Debug, LogContext.ChatBot);
     }
 
     /**
