@@ -22,11 +22,6 @@ export class ChatCoin {
      * @param coin Dados do ambiente.
      */
     constructor(private coin: CoinModel) {
-        if (!Git.isInstalled) {
-            Logger.post('Git is not installed.', undefined, LogLevel.Error, LogContext.ChatCoin);
-            throw new InvalidExecutionError('Git is not installed');
-        }
-
         this.blockchain = new Blockchain(coin);
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
