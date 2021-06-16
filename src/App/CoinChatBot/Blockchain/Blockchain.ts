@@ -22,8 +22,8 @@ export class Blockchain {
     public constructor(private coin: CoinModel) {
         Logger.post('Initializing Blockchain for coin "{0}" at: {1}', [coin.id, coin.directory], LogLevel.Information, LogContext.Blockchain);
         this.git = Blockchain.initializeRepository(coin);
+        this.initialize();
         this.database = new Database(this.git.directory, this.commitTransaction.bind(this));
-        this.database.initialize();
     }
 
     /**
@@ -55,6 +55,25 @@ export class Blockchain {
             throw new InvalidExecutionError('Blockchain: Working in progress');
         }
         this.workingInProgressState = inProgress;
+    }
+
+    /**
+     * Inicializa a blockchain.
+     * @private
+     */
+    private initialize(): void {
+        const previousCommitHash = this.git.getCommit(1);
+        if (previousCommitHash === null) {
+            //TODO: Implementar commits iniciais costurados.
+        } else {
+            for (let i = 1; i <= Definition.LinkLevel; i++) {
+                const hash = this.git.getCommit(1);
+                if (hash === null) {
+                    Logger.post('Cannot go to parent commit HEAD~{0}.', i, LogLevel.Error, LogContext.Blockchain);
+                    throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(i));
+                }
+            }
+        }
     }
 
     /**

@@ -11,4 +11,9 @@ export class Definition {
      * Template para o nome do diretório do repositório Git local.
      */
     public static readonly BranchName: string = "blockchain-{coin}";
+
+    /**
+     * Nível de enlace com commits anteriores.
+     */
+    public static readonly LinkLevel: number = 10;
 }

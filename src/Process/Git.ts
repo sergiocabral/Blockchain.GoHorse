@@ -166,13 +166,16 @@ export class Git {
     /**
      * git rev-parse HEAD
      */
-    public currentCommit(): string {
+    public getCommit(parent: number = 0): string | null {
+        const position = `HEAD~${parent}`;
         this.gitCommandLine.processArguments = [
             'rev-parse',
-            'HEAD'
+            position
         ];
-        const hash = this.lastOutputValue = this.gitCommandLine.execute().join('\n');
-        Logger.post('Get current hash of commit: {0}', hash, LogLevel.Debug, LogContext.Git);
+
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        const hash = this.regexGitError.test(this.lastOutputValue) ? null : this.lastOutputValue;
+        Logger.post('Get commit hash for {0}: {1}', [position, hash], LogLevel.Debug, LogContext.Git);
         return hash;
     }
 

@@ -13,6 +13,7 @@ export class Database {
     public constructor(
         private readonly directory: string,
         private readonly commitTransaction: Function) {
+        this.initialize();
     }
 
     /**
