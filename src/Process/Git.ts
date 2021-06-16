@@ -47,6 +47,12 @@ export class Git {
     private gitCommandLine: CommandLine;
 
     /**
+     * Captura um hash de commit
+     * @private
+     */
+    private regexIsCommit: RegExp = /^[0-9a-f]{4,40}$/;
+
+    /**
      * Testa se houve algum erro de execução no git.
      * @private
      */
@@ -78,7 +84,7 @@ export class Git {
      * @private
      */
     private execute(processArguments: string[], logMessage: string, logValues: any[] = []): boolean {
-        this.gitCommandLine.processArguments = processArguments;
+        this.gitCommandLine.processArguments = processArguments.filter(arg => Boolean(arg));
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const success = !this.regexGitError.test(this.lastOutputValue);
         logValues.unshift(success);
@@ -146,10 +152,11 @@ export class Git {
     /**
      * git reset --hard
      */
-    public reset(): boolean {
+    public reset(hard: boolean = true, to?: string | null): boolean {
         return this.execute([
             'reset',
-            '--hard'
+            hard ? '--hard' : '',
+            to ? to : '',
         ],'Reset hard local branch: {0}');
     }
 
@@ -166,8 +173,13 @@ export class Git {
     /**
      * git rev-parse HEAD
      */
-    public getCommit(parent: number = 0): string | null {
-        const position = `HEAD~${parent}`;
+    public getCommit(parent: number|string = 0): string | null {
+        const position = typeof(parent) === 'number'
+            ? `HEAD~${parent}`
+            : (!this.regexIsCommit.test(parent)
+                ? `heads/${parent}`
+                : parent);
+
         this.gitCommandLine.processArguments = [
             'rev-parse',
             position
@@ -175,7 +187,20 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const hash = this.regexGitError.test(this.lastOutputValue) ? null : this.lastOutputValue;
-        Logger.post('Get commit hash for {0}: {1}', [position, hash], LogLevel.Debug, LogContext.Git);
+        Logger.post('Get commit hash for {1}: {0}', [hash, position], LogLevel.Debug, LogContext.Git);
+        return hash;
+    }
+
+    /**
+     * git write-tree
+     */
+    public writeTree(): string {
+        this.gitCommandLine.processArguments = [
+            'write-tree'
+        ];
+
+        const hash = this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        Logger.post('Create work tree: {0}', [hash], LogLevel.Debug, LogContext.Git);
         return hash;
     }
 
@@ -225,7 +250,7 @@ export class Git {
         this.gitCommandLine.processArguments = [
             'commit',
             '-m',
-            `"${message}"`
+            `${message}`
         ];
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
@@ -236,6 +261,37 @@ export class Git {
         Logger.post('Committed at repository with message "{1}": {0}', [success, message], LogLevel.Debug, LogContext.Git);
 
         return success;
+    }
+
+    /**
+     * git commit-tree
+     * @param message
+     * @param parentsCommits
+     * @param treeHash Opcional. Se não informada usa o valor do staging
+     */
+    public commitTree(message: string, parentsCommits: string[], treeHash?: string): string | null {
+        treeHash = treeHash ? treeHash : this.writeTree();
+
+        this.gitCommandLine.processArguments = [
+            'commit-tree',
+            treeHash,
+            '-m',
+            `${message}`
+        ].concat(parentsCommits.map(parentCommitHash => `-p ${parentCommitHash}`).join(' ').split(' '));
+
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        const hash =
+            !this.regexGitError.test(this.lastOutputValue) && this.regexIsCommit.test(this.lastOutputValue)
+                ? this.lastOutputValue
+                : null;
+
+        Logger.post('Committed tree {2} at repository with message "{1}" and parents {3}: {0}', [
+            hash, message, treeHash,
+            parentsCommits.join(", ")
+        ], LogLevel.Debug, LogContext.Git);
+
+        return hash;
+
     }
 
     /**

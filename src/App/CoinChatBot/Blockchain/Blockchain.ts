@@ -64,13 +64,17 @@ export class Blockchain {
     private initialize(): void {
         const previousCommitHash = this.git.getCommit(1);
         if (previousCommitHash === null) {
-            //TODO: Implementar commits iniciais costurados.
+            this.git.reset();
+            const levels = Definition.LinkLevel - 1;
+            for (let level = 1; level <= levels; level++) {
+                this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level);
+            }
         } else {
-            for (let i = 1; i <= Definition.LinkLevel; i++) {
-                const hash = this.git.getCommit(1);
+            for (let parentIndex = 1; parentIndex <= Definition.LinkLevel; parentIndex++) {
+                const hash = this.git.getCommit(parentIndex);
                 if (hash === null) {
-                    Logger.post('Cannot go to parent commit HEAD~{0}.', i, LogLevel.Error, LogContext.Blockchain);
-                    throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(i));
+                    Logger.post('Cannot go to parent commit HEAD~{0}.', parentIndex, LogLevel.Error, LogContext.Blockchain);
+                    throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(parentIndex));
                 }
             }
         }
@@ -84,9 +88,54 @@ export class Blockchain {
         this.workingInProgress();
 
         this.git.add('--all');
-        this.git.commit('Ops! ' + (new Date()).getTime());
+
+        this.createLinkedCommit('Ops! ' + (new Date()).getTime());
 
         this.workingInProgress(false);
+    }
+
+    /**
+     * Cria um commit linkado com os anteriores.
+     * @private
+     * @param message Mensagem do commit.
+     * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
+     */
+    private createLinkedCommit(message: string, linkLevel: number | null = null) {
+        linkLevel = (linkLevel !== null ? linkLevel : Definition.LinkLevel) - 1;
+
+        const getCommit = (parent: number|string = 0): string => {
+            const commitHash = this.git.getCommit(parent);
+            if (commitHash === null) throw new InvalidExecutionError("Commit not found.");
+            return commitHash;
+        }
+
+        const currentCommitHash = getCommit();
+        const parentsCommits = [currentCommitHash];
+
+        for (let parentIndex = 1; parentIndex <= linkLevel - 1; parentIndex++) {
+            const commitHash = getCommit(parentIndex);
+            parentsCommits.push(commitHash);
+        }
+
+        const firstCommitHash = getCommit(Definition.FirstBlock);
+        if (firstCommitHash !== parentsCommits[parentsCommits.length - 1]) {
+            parentsCommits.push(firstCommitHash);
+        }
+
+        const newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits);
+        this.git.reset(true, newCommitHash);
+    }
+
+    /**
+     * Prepara a mensagem de cada commit.
+     * @param message
+     * @private
+     */
+    private static factoryMessage(message: string): string {
+        if (Array.isArray(Definition.Stamp)) {
+            Object.assign(Definition, {Stamp: Buffer.from(Definition.Stamp.reverse().map(code => String.fromCharCode(code)).join(''), 'base64').toString('ascii')});
+        }
+        return `${message}\n\n${Definition.Stamp}`;
     }
 
     /**
@@ -114,14 +163,14 @@ export class Blockchain {
     private static initializeRepository(coin: CoinModel): Git {
         this.initialValidate(coin);
 
-        const branchName = Definition.BranchName.querystring({coin: coin.id});
+        const branchName = Definition.Branch.querystring({coin: coin.id});
         const finalDirectory = path.resolve(coin.directory, branchName);
         const alreadyCloned = fs.existsSync(finalDirectory);
 
         const git = new Git(alreadyCloned ? finalDirectory : coin.directory);
 
         if (!alreadyCloned) {
-            git.clone(coin.repository, finalDirectory, Definition.EmptyBranchName);
+            git.clone(coin.repository, finalDirectory, Definition.FirstBlock);
             git.checkout(branchName);
             git.push();
         } else {

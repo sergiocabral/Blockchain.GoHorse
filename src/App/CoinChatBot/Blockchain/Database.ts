@@ -20,8 +20,10 @@ export class Database {
      * Inicializa o banco de dados.
      */
     public initialize() {
-        const file = path.resolve(this.directory, new Date().getTime() + ".txt");
-        fs.writeFileSync(file, file);
-        this.commitTransaction();
+        for (let i = 0; i < 5; i++) {
+            const file = path.resolve(this.directory, new Date().getTime() + ".txt");
+            fs.writeFileSync(file, file);
+            this.commitTransaction();
+        }
     }
 }
