@@ -10,6 +10,7 @@ import {LogContext} from "../../../Log/LogContext";
 import {Git} from "../../../Process/Git";
 import {Definition} from "./Definition";
 import {Database} from "./Database";
+import {CommitModel} from "../../../Process/Model/CommitModel";
 
 /**
  * Operações da blockchain.
@@ -22,6 +23,11 @@ export class Blockchain {
     public constructor(private coin: CoinModel) {
         Logger.post('Initializing Blockchain for coin "{0}" at: {1}', [coin.id, coin.directory], LogLevel.Information, LogContext.Blockchain);
         this.git = Blockchain.initializeRepository(coin);
+
+        const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
+        if (firstBlock === null) throw new InvalidExecutionError("First block not found.");
+        this.firstBlock = firstBlock;
+
         this.initialize();
         this.database = new Database(this.git.directory, this.commitTransaction.bind(this));
     }
@@ -37,6 +43,12 @@ export class Blockchain {
      * @private
      */
     private git: Git;
+
+    /**
+     * Informações do primeiro bloco de commit.
+     * @private
+     */
+    private firstBlock: CommitModel;
 
     /**
      * Banco de dados com as informações da moeda.
@@ -61,13 +73,13 @@ export class Blockchain {
      * Inicializa a blockchain.
      * @private
      */
-    private initialize(): void {
+    private initialize(): CommitModel {
         const previousCommitHash = this.git.getCommit(1);
         if (previousCommitHash === null) {
             this.git.reset();
             const levels = Definition.LinkLevel - 1;
             for (let level = 1; level <= levels; level++) {
-                this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level);
+                this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level, false);
             }
         } else {
             for (let parentIndex = 1; parentIndex <= Definition.LinkLevel; parentIndex++) {
@@ -78,6 +90,8 @@ export class Blockchain {
                 }
             }
         }
+
+        return this.firstBlock;
     }
 
     /**
@@ -99,8 +113,9 @@ export class Blockchain {
      * @private
      * @param message Mensagem do commit.
      * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
+     * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
      */
-    private createLinkedCommit(message: string, linkLevel: number | null = null) {
+    private createLinkedCommit(message: string, linkLevel: number | null = null, currentDate: boolean = true) {
         linkLevel = (linkLevel !== null ? linkLevel : Definition.LinkLevel) - 1;
 
         const getCommit = (parent: number|string = 0): string => {
@@ -117,11 +132,13 @@ export class Blockchain {
             parentsCommits.push(commitHash);
         }
 
-        const firstCommitHash = getCommit(Definition.FirstBlock);
-        if (firstCommitHash !== parentsCommits[parentsCommits.length - 1]) {
-            parentsCommits.push(firstCommitHash);
+        if (this.firstBlock.hash !== parentsCommits[parentsCommits.length - 1]) {
+            parentsCommits.push(this.firstBlock.hash);
         }
 
+        process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
+        process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
+        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = currentDate ? "" : this.firstBlock.committerDate;
         const newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits);
         this.git.reset(true, newCommitHash);
     }

@@ -5,6 +5,8 @@ import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
 import {IO} from "../Helper/IO";
+import {CommitModel} from "./Model/CommitModel";
+import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
 
 /**
  * Manipula a execução de comandos do Git.
@@ -189,6 +191,27 @@ export class Git {
         const hash = this.regexGitError.test(this.lastOutputValue) ? null : this.lastOutputValue;
         Logger.post('Get commit hash for {1}: {0}', [hash, position], LogLevel.Debug, LogContext.Git);
         return hash;
+    }
+
+    /**
+     * Obtem o conteúdo de um commit.
+     * @param commit
+     */
+    public getCommitContent(commit: string): CommitModel | null {
+        const commitHash = this.getCommit(commit);
+        if (commitHash === null) throw new InvalidExecutionError("Commit not found.");
+
+        this.gitCommandLine.processArguments = [
+            'cat-file',
+            '-p',
+            commitHash
+        ];
+
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        const model = this.regexGitError.test(this.lastOutputValue) ? null : new CommitModel(commitHash, this.lastOutputValue);
+        Logger.post('Get commit content for {1}: {0}', [model?.commitContent, commitHash], LogLevel.Debug, LogContext.Git);
+
+        return model;
     }
 
     /**
