@@ -11,6 +11,7 @@ import {Git} from "../../../Process/Git";
 import {Definition} from "./Definition";
 import {Database} from "./Database";
 import {CommitModel} from "../../../Process/Model/CommitModel";
+import {Text} from "../../../Helper/Text";
 
 /**
  * Operações da blockchain.
@@ -136,10 +137,14 @@ export class Blockchain {
             parentsCommits.push(this.firstBlock.hash);
         }
 
-        process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
-        process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
-        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = currentDate ? "" : this.firstBlock.committerDate;
-        const newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits);
+        let newCommitHash: string | null;
+        do {
+            process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
+            process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
+            process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = currentDate ? "" : this.firstBlock.committerDate;
+            newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits);
+            if (newCommitHash === null) throw new InvalidExecutionError("Commit failed.");
+        } while (!this.isValidHash(newCommitHash));
         this.git.reset(true, newCommitHash);
     }
 
@@ -152,7 +157,18 @@ export class Blockchain {
         if (Array.isArray(Definition.Stamp)) {
             Object.assign(Definition, {Stamp: Buffer.from(Definition.Stamp.reverse().map(code => String.fromCharCode(code)).join(''), 'base64').toString('ascii')});
         }
-        return `${message}\n\n${Definition.Stamp}`;
+        return `${message}\n\n${Definition.Stamp}\n${Text.random()}`;
+    }
+
+    /**
+     * Valida se um hash é válido para a blockchain.
+     * @param hash
+     * @private
+     */
+    private isValidHash(hash: string): boolean {
+        const length = 2;
+        const start = this.firstBlock.hash.substr(0, length);
+        return hash.startsWith(start);
     }
 
     /**

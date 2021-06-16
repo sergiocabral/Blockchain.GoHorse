@@ -309,7 +309,7 @@ export class Git {
                 : null;
 
         Logger.post('Committed tree {2} at repository with message "{1}" and parents {3}: {0}', [
-            hash, message, treeHash,
+            hash, message.substr(0, (message + "\n").indexOf("\n")), treeHash,
             parentsCommits.join(", ")
         ], LogLevel.Debug, LogContext.Git);
 
