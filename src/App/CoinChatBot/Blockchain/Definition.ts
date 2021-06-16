@@ -1,7 +1,7 @@
 /**
  * Definições da blockchain.
  */
-export class BlockchainDefinition {
+export class Definition {
     /**
      * Template para um branch vazio.
      */

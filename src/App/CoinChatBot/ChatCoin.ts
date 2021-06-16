@@ -9,7 +9,7 @@ import {RedeemModel} from "../../Twitch/Model/RedeemModel";
 import {RedeemCoinModel} from "./Model/RedeemCoinModel";
 import {Git} from "../../Process/Git";
 import {InvalidExecutionError} from "../../Errors/InvalidExecutionError";
-import {Blockchain} from "./Blockchain";
+import {Blockchain} from "./Blockchain/Blockchain";
 import {ChatCommandHandler} from "../../Twitch/ChatCommand/ChatCommandHandler";
 import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
 
