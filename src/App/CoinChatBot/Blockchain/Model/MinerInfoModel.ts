@@ -1,6 +1,7 @@
 import {IModel} from "../../../../Core/IModel";
 import {Definition} from "../Definition";
 import {Text} from "../../../../Helper/Text";
+import {StaleAction} from "../StaleAction";
 
 /**
  * Informações necessárias para minerar um bloco.
@@ -12,12 +13,14 @@ export class MinerInfoModel implements IModel {
      * @param message Mensagem.
      * @param linkLevel Nível de link.
      * @param useCurrentDate Usar data atual.
+     * @param staleAction Ação para o caso da mineração falhar.
      */
     public constructor(
         public readonly treeHash: string,
-        public readonly message?: string,
-        linkLevel?: number,
-        public readonly useCurrentDate: boolean = true
+        public readonly message: string | undefined,
+        linkLevel: number | undefined,
+        public readonly useCurrentDate: boolean,
+        public readonly staleAction: StaleAction
     ) {
         this.linkLevel = linkLevel !== undefined ? linkLevel : Definition.LinkLevel;
     }

@@ -13,11 +13,14 @@ import {Database} from "./Database";
 import {CommitModel} from "../../../Process/Model/CommitModel";
 import {performance} from "perf_hooks";
 import {MinerInfoModel} from "./Model/MinerInfoModel";
+import {StaleAction} from "./StaleAction";
 
 /**
  * Operações da blockchain.
  */
 export class Blockchain {
+    //TODO: Ajustar log receber o nome das variáveis
+
     /**
      * Construtor.
      * @param coin Moeda.
@@ -84,7 +87,11 @@ export class Blockchain {
             IO.removeAll(this.git.directory, '.git');
             this.git.add("--all");
             for (let level = 1; level <= levels; level++) {
-                this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level, false);
+                this.createLinkedCommit(
+                    StaleAction.Stop,
+                    'Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]),
+                    level,
+                    false);
             }
         } else {
             for (let parentIndex = 1; parentIndex <= levels; parentIndex++) {
@@ -107,7 +114,7 @@ export class Blockchain {
 
         this.git.add('--all');
 
-        this.createLinkedCommit(message);
+        this.createLinkedCommit(StaleAction.Stop, message);
 
         this.workingInProgress(false);
     }
@@ -160,10 +167,29 @@ export class Blockchain {
                 Logger.post("Block mining COMPLETED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
             } else {
                 Logger.post("Block mining STALED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+
                 this.updateRepository();
-                //TODO: Verificar como determinar se minera novamente o bloco
+                const currentCommitHash = this.git.getCommit();
+                Logger.post("Block mining staled because there was already a more recent commit: {0}. Action after stale: {1}", [currentCommitHash, StaleAction[minerInfo.staleAction]], LogLevel.Warning, LogContext.Blockchain);
+
+                switch (minerInfo.staleAction) {
+                    case StaleAction.Stop:
+                        Logger.post("Total pending blocks that will be dropped: {0}", [this.queueLinkedCommit.length], LogLevel.Warning, LogContext.Blockchain);
+                        this.queueLinkedCommit.length = 0;
+                        break;
+                    case StaleAction.Retry:
+                        Logger.post("Retrying to mine this block. Tree: {0}.", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+                        this.queueLinkedCommit.unshift(minerInfo);
+                        break;
+                    case StaleAction.Discard:
+                    default:
+                        Logger.post("Dropping this block. Tree: {0}.", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+                        break;
+                }
             }
-            this.minerInProgress = Boolean(minerInfo = null);
+
+            minerInfo = null
+            this.minerInProgress = false;
         }
 
         setImmediate(() => this.miner(minerInfo));
@@ -199,13 +225,14 @@ export class Blockchain {
     /**
      * Cria um commit linkado com os anteriores.
      * @private
+     * @param staleAction Ação para o caso da mineração falhar.
      * @param message Mensagem do commit.
      * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
      * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
      */
-    private createLinkedCommit(message?: string, linkLevel?: number, currentDate: boolean = true) {
+    private createLinkedCommit(staleAction: StaleAction, message?: string, linkLevel?: number, currentDate: boolean = true) {
         const treeHash = this.git.writeTree();
-        this.queueLinkedCommit.push(new MinerInfoModel(treeHash, message, linkLevel, currentDate));
+        this.queueLinkedCommit.push(new MinerInfoModel(treeHash, message, linkLevel, currentDate, staleAction));
         this.miner();
     }
 
