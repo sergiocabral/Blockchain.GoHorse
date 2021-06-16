@@ -58,7 +58,7 @@ export class Git {
      * Testa se houve algum erro de execução no git.
      * @private
      */
-    private regexGitError: RegExp = /^fatal:/m;
+    private regexGitError: RegExp = /(^fatal:|^error:|^ ! \[rejected])/m;
 
     /**
      * Verifica se o repositório está limpo.
@@ -122,6 +122,18 @@ export class Git {
     }
 
     /**
+     * git fetch
+     * @param branch branch local
+     */
+    public fetch(branch: string): boolean {
+        return this.execute([
+            'fetch',
+            'origin',
+            branch
+        ],'Fetched branch {1}: {0}', [branch]);
+    }
+
+    /**
      * Adiciona arquivos para o staging.
      * @param file
      */
@@ -134,11 +146,13 @@ export class Git {
 
     /**
      * git push
+     * @param branch
      */
-    public push(): boolean {
+    public push(branch?: string): boolean {
         return this.execute([
             'push',
-            '--all'
+            'origin',
+            branch ? branch : 'HEAD',
         ],'Pushed changes to remote: {0}');
     }
 
@@ -171,6 +185,21 @@ export class Git {
             'clean',
             '-df'
         ],'Cleaned all untracked files and directories: {0}');
+    }
+
+    /**
+     * Retorna o nome do branch atual.
+     */
+    public getCurrentBranch(): string {
+        this.gitCommandLine.processArguments = [
+            'branch',
+            '--show-current'
+        ];
+
+        this.lastOutputValue = this.gitCommandLine.execute().join('\n');
+        const branch = this.regexGitError.test(this.lastOutputValue) ? '' : this.lastOutputValue;
+        Logger.post('Get current branch: {0}', branch, LogLevel.Debug, LogContext.Git);
+        return branch;
     }
 
     /**

@@ -25,6 +25,7 @@ export class Blockchain {
     public constructor(private coin: CoinModel) {
         Logger.post('Initializing Blockchain for coin "{0}" at: {1}', [coin.id, coin.directory], LogLevel.Information, LogContext.Blockchain);
         this.git = Blockchain.initializeRepository(coin);
+        this.updateRepository();
 
         const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
         if (firstBlock === null) throw new InvalidExecutionError("First block not found.");
@@ -138,7 +139,7 @@ export class Blockchain {
 
             minerInfo.startTime = performance.now();
             minerInfo.parentCommitHash = this.getParentsCommits(minerInfo.linkLevel);
-            Logger.post("Starting block mining. Tree: {0}", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+            Logger.post("Starting block mining. Tree: {0}. Message: {1}", [minerInfo.treeHash, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
         }
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
@@ -153,7 +154,13 @@ export class Blockchain {
 
         if (this.isValidHash(minedCommit)) {
             this.git.reset(true, minedCommit);
-            Logger.post("Block mining completed. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds.", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds], LogLevel.Information, LogContext.Blockchain);
+            if (this.git.push()) {
+                Logger.post("Block mining COMPLETED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+            } else {
+                Logger.post("Block mining STALED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+                this.updateRepository();
+                //TODO: Verificar como determinar se minera novamente o bloco
+            }
             this.minerInProgress = Boolean(minerInfo = null);
         }
 
@@ -243,16 +250,24 @@ export class Blockchain {
 
         if (!alreadyCloned) {
             git.clone(coin.repository, finalDirectory, Definition.FirstBlock);
-            git.checkout(branchName);
-            git.push();
-        } else {
-            //TODO: Testar essa sequência. Usar fetch.
-            git.reset();
-            git.clean();
-            git.checkout(branchName);
-            git.pull();
         }
+        git.checkout(branchName);
 
         return git;
+    }
+
+    /**
+     * Atualiz ao repositório atual com os dados remotos.
+     * @private
+     */
+    private updateRepository() {
+        const branchName = this.git.getCurrentBranch();
+        const check =
+            this.git.reset() &&
+            this.git.clean() &&
+            this.git.fetch(branchName) &&
+            this.git.checkout(branchName) &&
+            this.git.reset(true, "FETCH_HEAD");
+        if (!check) throw new InvalidExecutionError("Error when synchronize repository: " + this.git.lastOutput);
     }
 }

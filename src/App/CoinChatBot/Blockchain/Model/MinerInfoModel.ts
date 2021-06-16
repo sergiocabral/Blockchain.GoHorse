@@ -42,6 +42,14 @@ export class MinerInfoModel implements IModel {
     }
 
     /**
+     * Retorna a primeira linha da mensagem.
+     */
+    public get messageFirstLine(): string {
+        if (!this.message) return '';
+        return this.message.substr(0, (this.message + '\n').indexOf('\n'));
+    }
+
+    /**
      * Nível de link
      */
     public readonly linkLevel: number;
