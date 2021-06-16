@@ -38,7 +38,7 @@ export class Git {
             } catch (error) {
                 this.isInstalledValue = false;
             }
-            Logger.post('Verifying if git is installed: {0}', [this.isInstalledValue], LogLevel.Debug, LogContext.Git);
+            Logger.post('Verifying if git is installed: {result}', {result: this.isInstalledValue}, LogLevel.Debug, LogContext.Git);
         }
         return this.isInstalledValue;
     }
@@ -86,11 +86,11 @@ export class Git {
      * @param logValues Valores de interpolação do log.
      * @private
      */
-    private execute(processArguments: string[], logMessage: string, logValues: any[] = []): boolean {
+    private execute(processArguments: string[], logMessage: string, logValues?: any): boolean {
         this.gitCommandLine.processArguments = processArguments.filter(arg => Boolean(arg));
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const success = !this.regexGitError.test(this.lastOutputValue);
-        logValues.unshift(success);
+        logValues = Object.assign({}, logValues, { result: success });
         Logger.post(logMessage, logValues, LogLevel.Debug, LogContext.Git);
         return success;
     }
@@ -154,7 +154,7 @@ export class Git {
             'push',
             'origin',
             branch ? branch : 'HEAD',
-        ],'Pushed changes to remote: {0}');
+        ],'Pushed changes to remote: {result}');
     }
 
     /**
@@ -164,7 +164,7 @@ export class Git {
         return this.execute([
             'pull',
             '--force'
-        ],'Pulled changes to local: {0}');
+        ],'Pulled changes to local: {result}');
     }
 
     /**
@@ -175,7 +175,7 @@ export class Git {
             'reset',
             hard ? '--hard' : '',
             to ? to : '',
-        ],'Reset hard local branch: {0}');
+        ],'Reset hard local branch: {result}');
     }
 
     /**
@@ -185,7 +185,7 @@ export class Git {
         return this.execute([
             'clean',
             '-df'
-        ],'Cleaned all untracked files and directories: {0}');
+        ],'Cleaned all untracked files and directories: {result}');
     }
 
     /**
@@ -199,7 +199,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const branch = this.regexGitError.test(this.lastOutputValue) ? '' : this.lastOutputValue;
-        Logger.post('Get current branch: {0}', branch, LogLevel.Debug, LogContext.Git);
+        Logger.post('Get current branch: {result}', branch, LogLevel.Debug, LogContext.Git);
         return branch;
     }
 
@@ -220,7 +220,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const hash = this.regexGitError.test(this.lastOutputValue) ? null : this.lastOutputValue;
-        Logger.post('Get commit hash for {1}: {0}', [hash, position], LogLevel.Debug, LogContext.Git);
+        Logger.post('Get commit hash for {hash}: {result}', {hash, position}, LogLevel.Debug, LogContext.Git);
         return hash;
     }
 
@@ -240,7 +240,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const model = this.regexGitError.test(this.lastOutputValue) ? null : new CommitModel(commitHash, this.lastOutputValue);
-        Logger.post('Get commit content for {1}: {0}', [model?.commitContent, commitHash], LogLevel.Debug, LogContext.Git);
+        Logger.post('Get commit content for {commit}: {content}', {content: model?.commitContent, commit: commitHash}, LogLevel.Debug, LogContext.Git);
 
         return model;
     }
@@ -254,7 +254,7 @@ export class Git {
         ];
 
         const hash = this.lastOutputValue = this.gitCommandLine.execute().join('\n');
-        Logger.post('Create work tree: {0}', [hash], LogLevel.Debug, LogContext.Git);
+        Logger.post('Create work tree: {tree}', {tree: hash}, LogLevel.Debug, LogContext.Git);
         return hash;
     }
 
@@ -265,7 +265,7 @@ export class Git {
         return this.execute([
             'gc',
             '--prune=now'
-        ],'Calling garbage collector: {0}');
+        ],'Calling garbage collector: {result}');
     }
 
     /**
@@ -301,7 +301,7 @@ export class Git {
         }
 
         const success = !this.regexGitError.test(this.lastOutputValue);
-        Logger.post('Clonned repository from "{1}" to "{2}": {0}', [success, repository, this.directory], LogLevel.Debug, LogContext.Git);
+        Logger.post('Clonned repository from "{repository}" to "{directory}": {result}', {result: success, repository, directory: this.directory}, LogLevel.Debug, LogContext.Git);
         return success;
     }
 
@@ -322,7 +322,7 @@ export class Git {
             !this.regexGitError.test(this.lastOutputValue) ||
             !this.lastOutputValue.includes('nothing added to commit');
 
-        Logger.post('Committed at repository with message "{1}": {0}', [success, message], LogLevel.Debug, LogContext.Git);
+        Logger.post('Committed at repository with message "{message}": {result}', { result: success, message}, LogLevel.Debug, LogContext.Git);
 
         return success;
     }
@@ -349,10 +349,12 @@ export class Git {
                 ? this.lastOutputValue
                 : null;
 
-        Logger.post('Committed tree {2} at repository with message "{1}" and parents {3}: {0}', [
-            hash, message.substr(0, (message + "\n").indexOf("\n")), treeHash,
-            parentsCommits.join(", ")
-        ], LogLevel.Debug, LogContext.Git);
+        Logger.post('Committed tree {tree} at repository with message "{message}" and parents {parentsCommits}: {commit}', {
+            commit: hash,
+            message: message.substr(0, (message + "\n").indexOf("\n")),
+            tree: treeHash,
+            parentsCommits: parentsCommits.join(", ")
+        }, LogLevel.Debug, LogContext.Git);
 
         return hash;
 
@@ -383,7 +385,7 @@ export class Git {
 
         const success = this.add("*") && this.commit("Removed directory contents.");
 
-        Logger.post('Removed directory contents: {0}', [success], LogLevel.Debug, LogContext.Git);
+        Logger.post('Removed directory contents: {result}', {result: success}, LogLevel.Debug, LogContext.Git);
 
         return success;
     }

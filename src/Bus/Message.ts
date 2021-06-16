@@ -85,11 +85,11 @@ export abstract class Message {
         if (captures.length) {
             for (const capture of captures) capture.request(message);
             if (!Message.messagesToIgnoreAtLog.includes(messageName)) {
-                Logger.post("Message \"{0}\" sent and captured by {1}x.", [messageName, captures.length], LogLevel.Verbose, LogContext.MessageBus);
+                Logger.post("Message {messageName} sent and captured by {count}x.", {messageName, count: captures.length}, LogLevel.Verbose, LogContext.MessageBus);
             }
         } else {
             if (!Message.messagesToIgnoreAtLog.includes(messageName)) {
-                Logger.post("Message \"{0}\" sent but not captured.", messageName, LogLevel.Verbose, LogContext.MessageBus);
+                Logger.post("Message {messageName} sent but not captured.", {messageName}, LogLevel.Verbose, LogContext.MessageBus);
             }
         }
         return {captured: captures.length, message: message};

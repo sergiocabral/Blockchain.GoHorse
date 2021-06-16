@@ -30,7 +30,7 @@ export class MessageCapture {
     public request(message: Message): void {
         const listener = this.listenerOriginal.bind(this.toBind);
         if (!Message.messagesToIgnoreAtLog.includes(this.messageName)) {
-            Logger.post("Message \"{0}\" requested.", this.messageName, LogLevel.Verbose, LogContext.MessageBus);
+            Logger.post("Message {messageName} requested.", {messageName: this.messageName}, LogLevel.Verbose, LogContext.MessageBus);
         }
         listener(message);
     }

@@ -48,6 +48,6 @@ export class CoinChatBotApp extends BaseApp {
         super.run();
 
         this.chatBot.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBot: {0}`, error, LogLevel.Error, LogContext.CoinChatBotApp));
+            .catch(error => Logger.post(() => `Error when start the ChatBot: {message}`, {message: error}, LogLevel.Error, LogContext.CoinChatBotApp));
     }
 }

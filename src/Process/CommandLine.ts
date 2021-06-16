@@ -76,8 +76,8 @@ export class CommandLine {
             .replaceAll("\r", "\n")
             .split("\n");
 
-        Logger.post('Process executed: {0} - Output: {1}',
-            [() => `${this.processName} ${this.processArguments.join(' ')}`, output],
+        Logger.post('Process executed: {commandLine} - Output: {output}',
+            {commandLine: () => `${this.processName} ${this.processArguments.join(' ')}`, output},
             LogLevel.Verbose, LogContext.CommandLine);
 
         this.lastProcessInfoValue = processInfo;

@@ -55,7 +55,7 @@ export class ChatWatcherApp extends BaseApp {
         super.run();
 
         this.chatBot.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBot: {0}`, error, LogLevel.Error, LogContext.ChatWatcherApp));
+            .catch(error => Logger.post(() => `Error when start the ChatBot: {message}`, { message: error }, LogLevel.Error, LogContext.ChatWatcherApp));
     }
 
     /**
@@ -126,7 +126,7 @@ export class ChatWatcherApp extends BaseApp {
 
         const firstMessage = user.messageCount++ === 0;
         if (firstMessage) {
-            Logger.post("Channel: {0}. First message from user: {1}", [channelName, userName], LogLevel.Debug, LogContext.ChatWatcherApp);
+            Logger.post("Channel: {channel}. First message from user: {username}", {channel: channelName, username: userName}, LogLevel.Debug, LogContext.ChatWatcherApp);
 
             if (user.tags.length) {
                 const MessageActions = user.tags.map(tag => {
@@ -137,7 +137,7 @@ export class ChatWatcherApp extends BaseApp {
 
                 if (MessageActions.length) {
                     MessageActions.forEach(MessageAction => MessageAction.send());
-                    Logger.post(() => 'Answer first message from user "{1}" on channel "{0}" because of tags: {2}', [channelName, userName, () => user.tags.join(", ")], LogLevel.Debug, LogContext.ChatWatcherApp);
+                    Logger.post(() => 'Answer first message from user "{username}" on channel "{channel}" because of tags: {tags}', {channel: channelName, username: userName, tags: () => user.tags.join(", ")}, LogLevel.Debug, LogContext.ChatWatcherApp);
                 }
             }
         }
@@ -158,7 +158,7 @@ export class ChatWatcherApp extends BaseApp {
         const action = () => {
             const fileContent = this.factoryReport();
             fs.writeFileSync(this.environmentApplication.outputFile, Buffer.from(fileContent));
-            Logger.post('Report saved: {0}', this.environmentApplication.outputFile, LogLevel.Verbose, LogContext.ChatWatcherApp);
+            Logger.post('Report saved: {outputFile}', {outputFile: this.environmentApplication.outputFile}, LogLevel.Verbose, LogContext.ChatWatcherApp);
         };
 
         clearTimeout(this.saveReportTimeout);
@@ -172,7 +172,7 @@ export class ChatWatcherApp extends BaseApp {
      */
     private logReport(): void {
         const content = this.factoryReport();
-        Logger.post('Chat Watcher Report:\n{0}', [content, { event: "ChatWatcherReport" }], LogLevel.Information, LogContext.ChatWatcherApp);
+        Logger.post('Chat Watcher Report:\n{chatWatcherReport}', {chatWatcherReport: content, event: "ChatWatcherReport" }, LogLevel.Information, LogContext.ChatWatcherApp);
     }
 
     /**
@@ -223,7 +223,7 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private handlerChatJoinEvent(message: ChatJoinEvent) {
-        Logger.post("Channel: {0}. Joined: {1}", [message.join.channel.name, message.join.userName], LogLevel.Information, LogContext.ChatWatcherApp);
+        Logger.post("Channel: {channel}. User joined: {username}", {channel: message.join.channel.name, username: message.join.userName}, LogLevel.Information, LogContext.ChatWatcherApp);
         this.update(message.join.channel.name, message.join.userName, 'add');
     }
 
@@ -233,7 +233,7 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private handlerChatPartEvent(message: ChatPartEvent) {
-        Logger.post("Channel: {0}. Parted: {1}", [message.part.channel.name, message.part.userName], LogLevel.Information, LogContext.ChatWatcherApp);
+        Logger.post("Channel: {channel}. User parted: {username}", {channel:message.part.channel.name, username: message.part.userName}, LogLevel.Information, LogContext.ChatWatcherApp);
         this.update(message.part.channel.name, message.part.userName, 'remove');
     }
 

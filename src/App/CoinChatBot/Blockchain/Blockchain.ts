@@ -19,14 +19,12 @@ import {StaleAction} from "./StaleAction";
  * Operações da blockchain.
  */
 export class Blockchain {
-    //TODO: Ajustar log receber o nome das variáveis
-
     /**
      * Construtor.
      * @param coin Moeda.
      */
     public constructor(private coin: CoinModel) {
-        Logger.post('Initializing Blockchain for coin "{0}" at: {1}', [coin.id, coin.directory], LogLevel.Information, LogContext.Blockchain);
+        Logger.post('Initializing Blockchain for coin "{coin}" at: {directory}', {coin: coin.id, directory: coin.directory}, LogLevel.Information, LogContext.Blockchain);
         this.git = Blockchain.initializeRepository(coin);
         this.updateRepository();
 
@@ -97,7 +95,7 @@ export class Blockchain {
             for (let parentIndex = 1; parentIndex <= levels; parentIndex++) {
                 const hash = this.git.getCommit(parentIndex);
                 if (hash === null) {
-                    Logger.post('Cannot go to parent commit HEAD~{0}.', parentIndex, LogLevel.Error, LogContext.Blockchain);
+                    Logger.post('Cannot go to parent commit HEAD~{parentIndex}.', {parentIndex}, LogLevel.Error, LogContext.Blockchain);
                     throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(parentIndex));
                 }
             }
@@ -148,7 +146,7 @@ export class Blockchain {
 
             minerInfo.startTime = performance.now();
             minerInfo.parentCommitHash = this.getParentsCommits(minerInfo.linkLevel);
-            Logger.post("Starting block mining. Tree: {0}. Message: {1}", [minerInfo.treeHash, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+            Logger.post("Starting block mining. Tree: {tree}. Message: {message}", {tree: minerInfo.treeHash, message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.Blockchain);
         }
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
@@ -164,26 +162,37 @@ export class Blockchain {
         if (this.isValidHash(minedCommit)) {
             this.git.reset(true, minedCommit);
             if (this.git.push()) {
-                Logger.post("Block mining COMPLETED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+                Logger.post("Block mining COMPLETED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
+                    tree: minerInfo.treeHash,
+                    commit: minedCommit,
+                    difficulty: Definition.ComputerMinerDifficult,
+                    elapsedSeconds,
+                    message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.Blockchain);
             } else {
-                Logger.post("Block mining STALED. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds. Message: {4}", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds, minerInfo.messageFirstLine], LogLevel.Information, LogContext.Blockchain);
+                Logger.post("Block mining STALED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
+                    tree: minerInfo.treeHash,
+                    commit: minedCommit,
+                    difficulty: Definition.ComputerMinerDifficult,
+                    elapsedSeconds,
+                    message: minerInfo.messageFirstLine
+                }, LogLevel.Information, LogContext.Blockchain);
 
                 this.updateRepository();
                 const currentCommitHash = this.git.getCommit();
-                Logger.post("Block mining staled because there was already a more recent commit: {0}. Action after stale: {1}", [currentCommitHash, StaleAction[minerInfo.staleAction]], LogLevel.Warning, LogContext.Blockchain);
+                Logger.post("Block mining staled because there was already a more recent commit: {commit}. Action after stale: {slateAction}", {commit: currentCommitHash, slateAction: StaleAction[minerInfo.staleAction]}, LogLevel.Warning, LogContext.Blockchain);
 
                 switch (minerInfo.staleAction) {
                     case StaleAction.Stop:
-                        Logger.post("Total pending blocks that will be dropped: {0}", [this.queueLinkedCommit.length], LogLevel.Warning, LogContext.Blockchain);
+                        Logger.post("Total pending blocks that will be dropped: {count}", {count: this.queueLinkedCommit.length}, LogLevel.Warning, LogContext.Blockchain);
                         this.queueLinkedCommit.length = 0;
                         break;
                     case StaleAction.Retry:
-                        Logger.post("Retrying to mine this block. Tree: {0}.", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+                        Logger.post("Retrying to mine this block. Tree: {tree}.", {tree: minerInfo.treeHash}, LogLevel.Information, LogContext.Blockchain);
                         this.queueLinkedCommit.unshift(minerInfo);
                         break;
                     case StaleAction.Discard:
                     default:
-                        Logger.post("Dropping this block. Tree: {0}.", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+                        Logger.post("Dropping this block. Tree: {tree}.", { tree: minerInfo.treeHash }, LogLevel.Information, LogContext.Blockchain);
                         break;
                 }
             }
@@ -258,7 +267,7 @@ export class Blockchain {
         }
 
         if (!IO.createDirectory(coin.directory)) {
-            Logger.post('Blockchain initial directory cannot be created: {0}', coin.directory, LogLevel.Error, LogContext.Blockchain);
+            Logger.post('Blockchain initial directory cannot be created: {directory}', { directory: coin.directory }, LogLevel.Error, LogContext.Blockchain);
             throw new InvalidArgumentError('Blockchain initial directory cannot be created: {0}'.querystring(coin.directory));
         }
     }

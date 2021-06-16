@@ -42,7 +42,7 @@ export abstract class BaseApp {
      * Inicia a aplicação.
      */
     public run(): void {
-        Logger.post('Running {0}', this.environment.applicationName, LogLevel.Information, this);
+        Logger.post('Running {applicationName}', { applicationName: this.environment.applicationName }, LogLevel.Information, this);
 
         const environmentApplicationModel = this.environment.application[this.environment.applicationName] as IModel;
         if (!this.environment.isFilled() || !environmentApplicationModel.isFilled()) {
