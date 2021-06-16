@@ -28,7 +28,7 @@ export class Blockchain {
         this.updateRepository();
 
         const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
-        if (firstBlock === null) throw new InvalidExecutionError("First block not found.");
+        if (!firstBlock) throw new InvalidExecutionError("First block not found.");
         this.firstBlock = firstBlock;
 
         this.initialize();
@@ -146,7 +146,7 @@ export class Blockchain {
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
         process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
-        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = minerInfo.useCurrentDate ? "" : this.firstBlock.committerDate;
+        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = minerInfo.useCurrentDate ? "" : Git.incrementDate(this.firstBlock.committerDate);
 
         const elapsedSeconds = Math.round((performance.now() - minerInfo.startTime) / 1000);
         const message = minerInfo.factoryMessage(`Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`);

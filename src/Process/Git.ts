@@ -7,6 +7,7 @@ import {LogContext} from "../Log/LogContext";
 import {IO} from "../Helper/IO";
 import {CommitModel} from "./Model/CommitModel";
 import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
+import {InvalidArgumentError} from "../Errors/InvalidArgumentError";
 
 /**
  * Manipula a execução de comandos do Git.
@@ -385,5 +386,19 @@ export class Git {
         Logger.post('Removed directory contents: {0}', [success], LogLevel.Debug, LogContext.Git);
 
         return success;
+    }
+
+    /**
+     * Incrementa uma data com ticks.
+     * @param date Data no formato Git.
+     * @param seconds Incremento.
+     */
+    public static incrementDate(date: string, seconds: number = 1): string {
+        const regexDateParts = /(\d+)( [+-]\d+)/;
+        const parts = date.match(regexDateParts);
+        if (!parts) throw new InvalidArgumentError("Git date format is not valid.");
+        const unixDate = parseInt(parts[1]) + seconds;
+        const timezone = parts[2];
+        return `${unixDate}${timezone}`;
     }
 }
