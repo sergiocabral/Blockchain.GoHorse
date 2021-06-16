@@ -11,8 +11,8 @@ import {Git} from "../../../Process/Git";
 import {Definition} from "./Definition";
 import {Database} from "./Database";
 import {CommitModel} from "../../../Process/Model/CommitModel";
-import {Text} from "../../../Helper/Text";
 import {performance} from "perf_hooks";
+import {MinerInfoModel} from "./Model/MinerInfoModel";
 
 /**
  * Operações da blockchain.
@@ -75,7 +75,7 @@ export class Blockchain {
      * Inicializa a blockchain.
      * @private
      */
-    private initialize(): CommitModel {
+    private initialize(): void {
         const previousCommitHash = this.git.getCommit(1);
         const levels = Definition.LinkLevel - 1;
         if (previousCommitHash === null) {
@@ -92,22 +92,99 @@ export class Blockchain {
                 }
             }
         }
-
-        return this.firstBlock;
     }
 
     /**
      * Faz uma trasação entrar no bloco.
+     * @param message Mensagem do bloco
      * @private
      */
-    private commitTransaction(): void {
+    private commitTransaction(message: string): void {
         this.workingInProgress();
 
         this.git.add('--all');
 
-        this.createLinkedCommit();
+        this.createLinkedCommit(message);
 
         this.workingInProgress(false);
+    }
+
+    /**
+     * Fila de commits pendentes de mineração.
+     * @private
+     */
+    private readonly queueLinkedCommit: MinerInfoModel[] = [];
+
+    /**
+     * Sinaliza que o processo de mineração está em andamento.
+     * @private
+     */
+    private minerInProgress: boolean = false;
+
+    /**
+     * Inicia o processo de mineração.
+     * @private
+     * @param minerInfo Informações de mineração.
+     */
+    private miner(minerInfo: MinerInfoModel | null | undefined = null): void {
+        if (!minerInfo) {
+            if (this.minerInProgress) return;
+
+            this.minerInProgress = Boolean(minerInfo = this.queueLinkedCommit.shift());
+            if (!minerInfo) {
+                this.git.gc();
+                return;
+            }
+
+            minerInfo.startTime = performance.now();
+            minerInfo.parentCommitHash = this.getParentsCommits(minerInfo.linkLevel);
+            Logger.post("Starting block mining. Tree: {0}", [minerInfo.treeHash], LogLevel.Information, LogContext.Blockchain);
+        }
+
+        process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
+        process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
+        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = minerInfo.useCurrentDate ? "" : this.firstBlock.committerDate;
+
+        const elapsedSeconds = Math.round((performance.now() - minerInfo.startTime) / 1000);
+        const message = minerInfo.factoryMessage(`Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`);
+        const minedCommit = this.git.commitTree(message, minerInfo.parentCommitHash, minerInfo.treeHash);
+
+        if (minedCommit === null) throw new InvalidExecutionError("Commit failed: " + this.git.lastOutput);
+
+        if (this.isValidHash(minedCommit)) {
+            this.git.reset(true, minedCommit);
+            Logger.post("Block mining completed. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds.", [minerInfo.treeHash, minedCommit, Definition.ComputerMinerDifficult, elapsedSeconds], LogLevel.Information, LogContext.Blockchain);
+            this.minerInProgress = Boolean(minerInfo = null);
+        }
+
+        setImmediate(() => this.miner(minerInfo));
+    }
+
+    /**
+     * Monta a lista de hash dos commits anteriores.
+     * @param linkLevel
+     * @private
+     */
+    private getParentsCommits(linkLevel: number): string[] {
+        const getCommit = (parent: number|string = 0): string => {
+            const commitHash = this.git.getCommit(parent);
+            if (commitHash === null) throw new InvalidExecutionError("Commit not found.");
+            return commitHash;
+        }
+
+        const currentCommitHash = getCommit();
+        const result = [currentCommitHash];
+
+        for (let parentIndex = 1; parentIndex <= linkLevel - 1; parentIndex++) {
+            const commitHash = getCommit(parentIndex);
+            result.push(commitHash);
+        }
+
+        if (this.firstBlock.hash !== result[result.length - 1]) {
+            result.push(this.firstBlock.hash);
+        }
+
+        return result;
     }
 
     /**
@@ -118,63 +195,9 @@ export class Blockchain {
      * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
      */
     private createLinkedCommit(message?: string, linkLevel?: number, currentDate: boolean = true) {
-        const hasMessage = message !== undefined;
-        message = message ?? '';
-
-        linkLevel = (linkLevel !== undefined ? linkLevel : Definition.LinkLevel) - 1;
-
-        const getCommit = (parent: number|string = 0): string => {
-            const commitHash = this.git.getCommit(parent);
-            if (commitHash === null) throw new InvalidExecutionError("Commit not found.");
-            return commitHash;
-        }
-
-        const currentCommitHash = getCommit();
-        const parentsCommits = [currentCommitHash];
-
-        for (let parentIndex = 1; parentIndex <= linkLevel - 1; parentIndex++) {
-            const commitHash = getCommit(parentIndex);
-            parentsCommits.push(commitHash);
-        }
-
-        if (this.firstBlock.hash !== parentsCommits[parentsCommits.length - 1]) {
-            parentsCommits.push(this.firstBlock.hash);
-        }
-
-        const startTime = performance.now();
-        let elapsedSeconds: number;
         const treeHash = this.git.writeTree();
-        Logger.post("Starting block mining. Tree: {0}", [treeHash], LogLevel.Information, LogContext.Blockchain);
-
-        let newCommitHash: string | null;
-        do {
-            process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
-            process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
-            process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = currentDate ? "" : this.firstBlock.committerDate;
-
-            elapsedSeconds = Math.round((performance.now() - startTime) / 1000);
-            if (!hasMessage) {
-                message = `Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`;
-            }
-            newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits, treeHash);
-            if (newCommitHash === null) throw new InvalidExecutionError("Commit failed.");
-        } while (!this.isValidHash(newCommitHash));
-        this.git.reset(true, newCommitHash);
-
-
-        Logger.post("Block mining completed. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds.", [treeHash, newCommitHash, Definition.ComputerMinerDifficult, elapsedSeconds], LogLevel.Information, LogContext.Blockchain);
-    }
-
-    /**
-     * Prepara a mensagem de cada commit.
-     * @param message
-     * @private
-     */
-    private static factoryMessage(message: string): string {
-        if (Array.isArray(Definition.Stamp)) {
-            Object.assign(Definition, {Stamp: Buffer.from(Definition.Stamp.reverse().map(code => String.fromCharCode(code)).join(''), 'base64').toString('ascii')});
-        }
-        return `${message}\n\n${Definition.Stamp}\n\n${Text.random()}`;
+        this.queueLinkedCommit.push(new MinerInfoModel(treeHash, message, linkLevel, currentDate));
+        this.miner();
     }
 
     /**

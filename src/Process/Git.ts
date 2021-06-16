@@ -229,6 +229,16 @@ export class Git {
     }
 
     /**
+     * git gc (Garbage Collector)
+     */
+    public gc() {
+        return this.execute([
+            'gc',
+            '--prune=now'
+        ],'Calling garbage collector: {0}');
+    }
+
+    /**
      * git clone
      * @param repository url ou caminho do repositório.
      * @param destinationDirectory Diretório de destino.

@@ -5,7 +5,7 @@ export class Definition {
     /**
      * Dificuldade da mineração computacional.
      */
-    public static readonly ComputerMinerDifficult: number = 4;
+    public static readonly ComputerMinerDifficult: number = 1;
 
     /**
      * Template para um branch vazio.
