@@ -147,7 +147,8 @@ export class Git {
      */
     public pull(): boolean {
         return this.execute([
-            'pull'
+            'pull',
+            '--force'
         ],'Pulled changes to local: {0}');
     }
 

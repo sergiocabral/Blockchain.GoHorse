@@ -3,6 +3,11 @@
  */
 export class Definition {
     /**
+     * Dificuldade da mineração computacional.
+     */
+    public static readonly ComputerMinerDifficult: number = 4;
+
+    /**
      * Template para um branch vazio.
      */
     public static readonly FirstBlock: string = "first-block";

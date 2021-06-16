@@ -12,6 +12,7 @@ import {Definition} from "./Definition";
 import {Database} from "./Database";
 import {CommitModel} from "../../../Process/Model/CommitModel";
 import {Text} from "../../../Helper/Text";
+import {performance} from "perf_hooks";
 
 /**
  * Operações da blockchain.
@@ -76,14 +77,14 @@ export class Blockchain {
      */
     private initialize(): CommitModel {
         const previousCommitHash = this.git.getCommit(1);
+        const levels = Definition.LinkLevel - 1;
         if (previousCommitHash === null) {
             this.git.reset();
-            const levels = Definition.LinkLevel - 1;
             for (let level = 1; level <= levels; level++) {
                 this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level, false);
             }
         } else {
-            for (let parentIndex = 1; parentIndex <= Definition.LinkLevel; parentIndex++) {
+            for (let parentIndex = 1; parentIndex <= levels; parentIndex++) {
                 const hash = this.git.getCommit(parentIndex);
                 if (hash === null) {
                     Logger.post('Cannot go to parent commit HEAD~{0}.', parentIndex, LogLevel.Error, LogContext.Blockchain);
@@ -104,7 +105,7 @@ export class Blockchain {
 
         this.git.add('--all');
 
-        this.createLinkedCommit('Ops! ' + (new Date()).getTime());
+        this.createLinkedCommit();
 
         this.workingInProgress(false);
     }
@@ -116,8 +117,11 @@ export class Blockchain {
      * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
      * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
      */
-    private createLinkedCommit(message: string, linkLevel: number | null = null, currentDate: boolean = true) {
-        linkLevel = (linkLevel !== null ? linkLevel : Definition.LinkLevel) - 1;
+    private createLinkedCommit(message?: string, linkLevel?: number, currentDate: boolean = true) {
+        const hasMessage = message !== undefined;
+        message = message ?? '';
+
+        linkLevel = (linkLevel !== undefined ? linkLevel : Definition.LinkLevel) - 1;
 
         const getCommit = (parent: number|string = 0): string => {
             const commitHash = this.git.getCommit(parent);
@@ -137,15 +141,28 @@ export class Blockchain {
             parentsCommits.push(this.firstBlock.hash);
         }
 
+        const startTime = performance.now();
+        let elapsedSeconds: number;
+        const treeHash = this.git.writeTree();
+        Logger.post("Starting block mining. Tree: {0}", [treeHash], LogLevel.Information, LogContext.Blockchain);
+
         let newCommitHash: string | null;
         do {
             process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
             process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
             process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = currentDate ? "" : this.firstBlock.committerDate;
-            newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits);
+
+            elapsedSeconds = Math.round((performance.now() - startTime) / 1000);
+            if (!hasMessage) {
+                message = `Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`;
+            }
+            newCommitHash = this.git.commitTree(Blockchain.factoryMessage(message), parentsCommits, treeHash);
             if (newCommitHash === null) throw new InvalidExecutionError("Commit failed.");
         } while (!this.isValidHash(newCommitHash));
         this.git.reset(true, newCommitHash);
+
+
+        Logger.post("Block mining completed. Tree: {0}. Hash: {1}. Difficulty: {2}. Elapsed time: {3} seconds.", [treeHash, newCommitHash, Definition.ComputerMinerDifficult, elapsedSeconds], LogLevel.Information, LogContext.Blockchain);
     }
 
     /**
@@ -157,7 +174,7 @@ export class Blockchain {
         if (Array.isArray(Definition.Stamp)) {
             Object.assign(Definition, {Stamp: Buffer.from(Definition.Stamp.reverse().map(code => String.fromCharCode(code)).join(''), 'base64').toString('ascii')});
         }
-        return `${message}\n\n${Definition.Stamp}\n${Text.random()}`;
+        return `${message}\n\n${Definition.Stamp}\n\n${Text.random()}`;
     }
 
     /**
@@ -166,8 +183,7 @@ export class Blockchain {
      * @private
      */
     private isValidHash(hash: string): boolean {
-        const length = 2;
-        const start = this.firstBlock.hash.substr(0, length);
+        const start = this.firstBlock.hash.substr(0, Definition.ComputerMinerDifficult);
         return hash.startsWith(start);
     }
 
@@ -207,8 +223,10 @@ export class Blockchain {
             git.checkout(branchName);
             git.push();
         } else {
+            //TODO: Testar essa sequência. Usar fetch.
             git.reset();
             git.clean();
+            git.checkout(branchName);
             git.pull();
         }
 
