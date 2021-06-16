@@ -47,4 +47,19 @@ export class IO {
             return false;
         }
     };
+
+    /**
+     * Remove o conteúdo de um diretório exceto.
+     * @param directory Diretório.
+     * @param except Exceção
+     */
+    public static removeAll(directory: string, ...except: string[]) {
+        const files = fs.readdirSync(directory);
+        for (const file of files) {
+            if (except.includes(file)) continue;
+            const filePath = path.resolve(directory, file);
+            if (fs.statSync(filePath).isFile()) fs.unlinkSync(filePath);
+            else if (!this.removeAll(filePath, ...except)) return false;
+        }
+    }
 }

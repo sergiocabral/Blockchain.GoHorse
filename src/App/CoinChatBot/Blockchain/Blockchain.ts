@@ -81,6 +81,8 @@ export class Blockchain {
         const levels = Definition.LinkLevel - 1;
         if (previousCommitHash === null) {
             this.git.reset();
+            IO.removeAll(this.git.directory, '.git');
+            this.git.add("--all");
             for (let level = 1; level <= levels; level++) {
                 this.createLinkedCommit('Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]), level, false);
             }
