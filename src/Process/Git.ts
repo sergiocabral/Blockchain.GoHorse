@@ -4,7 +4,6 @@ import fs from "fs";
 import {Logger} from "../Log/Logger";
 import {LogLevel} from "../Log/LogLevel";
 import {LogContext} from "../Log/LogContext";
-import {IO} from "../Helper/IO";
 import {CommitModel} from "./Model/CommitModel";
 import {InvalidExecutionError} from "../Errors/InvalidExecutionError";
 import {InvalidArgumentError} from "../Errors/InvalidArgumentError";
@@ -96,18 +95,6 @@ export class Git {
     }
 
     /**
-     * Verifica se um branch existe.
-     * @param branch
-     */
-    public branchExists(branch: string): boolean {
-        return this.execute([
-            'fetch',
-            'origin',
-            branch
-        ],'Verified if branch {1} does exists: {0}', [branch]);
-    }
-
-    /**
      * Cria um branch.
      * @param branch branch local
      * @param remote branch remoto
@@ -155,16 +142,6 @@ export class Git {
             'origin',
             branch ? branch : 'HEAD',
         ],'Pushed changes to remote: {result}');
-    }
-
-    /**
-     * git pull
-     */
-    public pull(): boolean {
-        return this.execute([
-            'pull',
-            '--force'
-        ],'Pulled changes to local: {result}');
     }
 
     /**
@@ -367,27 +344,6 @@ export class Git {
         this.gitCommandLine.processArguments = ['status'];
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         return !this.regexNothingToCommit.test(this.lastOutputValue);
-    }
-
-    /**
-     * Apaga arquivos e diretórios do repositório atual
-     * @param except Exceto.
-     */
-    public emptyDirectory(except: string[]): boolean {
-        const items = fs.readdirSync(this.directory);
-        for (const item of items) {
-            if (item === '.git' || except.includes(item)) continue;
-            if (fs.statSync(item).isFile()) fs.unlinkSync(item);
-            else IO.removeDirectory(item);
-        }
-
-        if (!this.hasChanges()) return true;
-
-        const success = this.add("*") && this.commit("Removed directory contents.");
-
-        Logger.post('Removed directory contents: {result}', {result: success}, LogLevel.Debug, LogContext.Git);
-
-        return success;
     }
 
     /**

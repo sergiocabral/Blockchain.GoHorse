@@ -24,7 +24,7 @@ export abstract class BaseApp {
      * @param applicationName Nome da aplicação.
      * @param environment JSON com dados do ambiente.
      */
-    public constructor(applicationName: keyof ApplicationEnvironment, environment: any) {
+    protected constructor(applicationName: keyof ApplicationEnvironment, environment: any) {
         this.environment = new Environment(applicationName, environment);
         Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
         Logger.initialize(this.environment.applicationName, this.environment.log);

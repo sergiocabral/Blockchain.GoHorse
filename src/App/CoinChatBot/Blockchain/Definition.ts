@@ -8,7 +8,7 @@ export class Definition {
     public static readonly ComputerMinerDifficult: number = 1;
 
     /**
-     * Template para um branch vazio.
+     * Nome do branch que aponta para o primeiro bloco.
      */
     public static readonly FirstBlock: string = "first-block";
 
