@@ -10,13 +10,13 @@ export class CommitModel implements IModel {
      * @param commitContent Texto do commitContent.
      */
     public constructor(public readonly hash: string, public readonly commitContent: string) {
-        this.treeHash = (/(?<=^tree\s)[0-9a-f]{40}/m.exec(commitContent) as any)[0];
-        this.authorName = (/(?<=^author\s)[^<]+(?=\s<)/m.exec(commitContent) as any)[0];
-        this.authorEmail = (/(?<=^author[^<]*<)[^>]+/m.exec(commitContent) as any)[0];
-        this.authorDate = (/(?<=^author[^>]*>\s).*/m.exec(commitContent) as any)[0];
-        this.committerName = (/(?<=^committer\s)[^<]+(?=\s<)/m.exec(commitContent) as any)[0];
-        this.committerEmail = (/(?<=^committer[^<]*<)[^>]+/m.exec(commitContent) as any)[0];
-        this.committerDate = (/(?<=^author[^>]*>\s).*/m.exec(commitContent) as any)[0];
+        this.treeHash = (/(?<=tree )[0-9a-f]{40}/.exec(commitContent) as any)[0];
+        this.authorName = (/(?<=author )[^<]+(?=\s)/.exec(commitContent) as any)[0];
+        this.authorEmail = (/(?<=author.*?<)[^>]+/.exec(commitContent) as any)[0];
+        this.authorDate = (/(?<=author.*?>\s)[\d -]+/.exec(commitContent) as any)[0];
+        this.committerName = (/(?<=committer )[^<]+(?=\s)/.exec(commitContent) as any)[0];
+        this.committerEmail = (/(?<=committer.*?<)[^>]+/.exec(commitContent) as any)[0];
+        this.committerDate = (/(?<=committer.*?>\s)[\d -]+/.exec(commitContent) as any)[0];
         this.message = commitContent.substr(commitContent.indexOf("\n\n") + 2);
     }
 
