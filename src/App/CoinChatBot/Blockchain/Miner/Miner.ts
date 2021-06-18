@@ -1,32 +1,31 @@
 import path from "path";
 import fs from "fs";
-import {CoinModel} from "../Model/CoinModel";
-import {InvalidArgumentError} from "../../../Errors/InvalidArgumentError";
-import {IO} from "../../../Helper/IO";
-import {InvalidExecutionError} from "../../../Errors/InvalidExecutionError";
-import {Logger} from "../../../Log/Logger";
-import {LogLevel} from "../../../Log/LogLevel";
-import {LogContext} from "../../../Log/LogContext";
-import {Git} from "../../../Process/Git";
-import {Definition} from "./Definition";
-import {Database} from "./Database";
-import {CommitModel} from "../../../Process/Model/CommitModel";
+import {CoinModel} from "../../Model/CoinModel";
+import {InvalidArgumentError} from "../../../../Errors/InvalidArgumentError";
+import {IO} from "../../../../Helper/IO";
+import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
+import {Logger} from "../../../../Log/Logger";
+import {LogLevel} from "../../../../Log/LogLevel";
+import {LogContext} from "../../../../Log/LogContext";
+import {Git} from "../../../../Process/Git";
+import {Definition} from "../Definition";
+import {CommitModel} from "../../../../Process/Model/CommitModel";
 import {performance} from "perf_hooks";
-import {MinerInfoModel} from "./Model/MinerInfoModel";
+import {MinerInfoModel} from "./MinerInfoModel";
 import {StaleAction} from "./StaleAction";
 
 /**
  * Operações da blockchain.
  */
-export class Blockchain {
+export class Miner {
     /**
      * Construtor.
      * @param coin Moeda.
      * @param callbackWhenInitialized Chamada quando a blockchain está pronta para funcionar.
      */
     public constructor(private coin: CoinModel, private callbackWhenInitialized: () => void) {
-        Logger.post('Initializing Blockchain for coin "{coin}" at: {directory}', {coin: coin.id, directory: coin.directory}, LogLevel.Information, LogContext.Blockchain);
-        this.git = Blockchain.initializeRepository(coin);
+        Logger.post('Initializing Blockchain for coin "{coin}" at: {directory}', {coin: coin.id, directory: coin.directory}, LogLevel.Information, LogContext.BlockchainMiner);
+        this.git = Miner.initializeRepository(coin);
         this.updateRepository();
 
         const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
@@ -97,7 +96,7 @@ export class Blockchain {
             for (let parentIndex = 1; parentIndex <= levelsWithoutFirstBlock; parentIndex++) {
                 const hash = this.git.getCommit(parentIndex);
                 if (hash === null) {
-                    Logger.post('Cannot go to parent commit HEAD~{parentIndex}.', {parentIndex}, LogLevel.Error, LogContext.Blockchain);
+                    Logger.post('Cannot go to parent commit HEAD~{parentIndex}.', {parentIndex}, LogLevel.Error, LogContext.BlockchainMiner);
                     throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(parentIndex));
                 }
             }
@@ -120,7 +119,7 @@ export class Blockchain {
      */
     private commitInProgress(inProgress: boolean = true): void {
         if (inProgress && this.commitInProgressState) {
-            Logger.post('Commit in progress.', undefined, LogLevel.Error, LogContext.Blockchain);
+            Logger.post('Commit in progress.', undefined, LogLevel.Error, LogContext.BlockchainMiner);
             throw new InvalidExecutionError('Commit in progress');
         }
         this.commitInProgressState = inProgress;
@@ -168,7 +167,7 @@ export class Blockchain {
 
             minerInfo.startTime = performance.now();
             minerInfo.parentCommitHash = this.getParentsCommits(minerInfo.linkLevel);
-            Logger.post("Starting block mining. Tree: {tree}. Message: {message}", {tree: minerInfo.treeHash, message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.Blockchain);
+            Logger.post("Starting block mining. Tree: {tree}. Message: {message}", {tree: minerInfo.treeHash, message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.BlockchainMiner);
         }
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
@@ -191,7 +190,7 @@ export class Blockchain {
                     commit: minedCommit,
                     difficulty: Definition.ComputerMinerDifficult,
                     elapsedSeconds,
-                    message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.Blockchain);
+                    message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.BlockchainMiner);
                 minerInfo.callbackWhenFinished(true);
             } else {
                 Logger.post("Block mining STALED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
@@ -200,27 +199,27 @@ export class Blockchain {
                     difficulty: Definition.ComputerMinerDifficult,
                     elapsedSeconds,
                     message: minerInfo.messageFirstLine
-                }, LogLevel.Information, LogContext.Blockchain);
+                }, LogLevel.Information, LogContext.BlockchainMiner);
 
                 this.updateRepository();
                 const currentCommitHash = this.git.getCommit();
-                Logger.post("Block mining staled because there was already a more recent commit: {commit}. Action after stale: {slateAction}", {commit: currentCommitHash, slateAction: StaleAction[minerInfo.staleAction]}, LogLevel.Warning, LogContext.Blockchain);
+                Logger.post("Block mining staled because there was already a more recent commit: {commit}. Action after stale: {slateAction}", {commit: currentCommitHash, slateAction: StaleAction[minerInfo.staleAction]}, LogLevel.Warning, LogContext.BlockchainMiner);
 
                 switch (minerInfo.staleAction) {
                     case StaleAction.Stop:
-                        Logger.post("Total pending blocks that will be dropped: {count}", {count: this.queueToMinerList.length}, LogLevel.Warning, LogContext.Blockchain);
+                        Logger.post("Total pending blocks that will be dropped: {count}", {count: this.queueToMinerList.length}, LogLevel.Warning, LogContext.BlockchainMiner);
                         minerInfo.callbackWhenFinished(false);
                         while (this.queueToMinerList.length) {
                             this.queueToMinerList.pop()?.callbackWhenFinished(false);
                         }
                         break;
                     case StaleAction.Retry:
-                        Logger.post("Retrying to mine this block. Tree: {tree}.", {tree: minerInfo.treeHash}, LogLevel.Information, LogContext.Blockchain);
+                        Logger.post("Retrying to mine this block. Tree: {tree}.", {tree: minerInfo.treeHash}, LogLevel.Information, LogContext.BlockchainMiner);
                         this.queueToMinerList.unshift(minerInfo);
                         break;
                     case StaleAction.Discard:
                     default:
-                        Logger.post("Dropping this block. Tree: {tree}.", { tree: minerInfo.treeHash }, LogLevel.Information, LogContext.Blockchain);
+                        Logger.post("Dropping this block. Tree: {tree}.", { tree: minerInfo.treeHash }, LogLevel.Information, LogContext.BlockchainMiner);
                         minerInfo.callbackWhenFinished(false);
                         break;
                 }
@@ -299,12 +298,12 @@ export class Blockchain {
      */
     private static initialValidate(coin: CoinModel): void {
         if (!Git.isInstalled) {
-            Logger.post('Git is not installed.', undefined, LogLevel.Error, LogContext.Blockchain);
+            Logger.post('Git is not installed.', undefined, LogLevel.Error, LogContext.BlockchainMiner);
             throw new InvalidExecutionError('Git is not installed');
         }
 
         if (!IO.createDirectory(coin.directory)) {
-            Logger.post('Blockchain initial directory cannot be created: {directory}', { directory: coin.directory }, LogLevel.Error, LogContext.Blockchain);
+            Logger.post('Blockchain initial directory cannot be created: {directory}', { directory: coin.directory }, LogLevel.Error, LogContext.BlockchainMiner);
             throw new InvalidArgumentError('Blockchain initial directory cannot be created: {0}'.querystring(coin.directory));
         }
     }

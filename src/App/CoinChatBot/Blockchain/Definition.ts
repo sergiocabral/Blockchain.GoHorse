@@ -3,6 +3,11 @@
  */
 export class Definition {
     /**
+     * Versão
+     */
+    public static MajorVersion: number = 0;
+
+    /**
      * Dificuldade da mineração computacional.
      */
     public static readonly ComputerMinerDifficult: number = 1;

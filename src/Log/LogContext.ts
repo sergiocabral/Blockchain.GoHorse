@@ -50,5 +50,5 @@ export class LogContext {
     /**
      * Blockchain
      */
-    public static readonly Blockchain: string = 'Blockchain';
+    public static readonly BlockchainMiner: string = 'BlockchainMiner';
 }

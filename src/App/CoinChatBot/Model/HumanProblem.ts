@@ -1,7 +1,7 @@
 import {Text} from "../../../Helper/Text";
 import {MathProblem} from "./MathProblem";
 import {IModelPrintable} from "../../../Core/IModelPrintable";
-import {Template} from "../Templates/Template";
+import {HumanProblemTemplate} from "../Blockchain/Template/HumanProblemTemplate";
 
 /**
  * Classe base para problemas que humanos podem resolver como forma de mineração.
@@ -43,7 +43,7 @@ export abstract class HumanProblem implements IModelPrintable {
      * Representação do problema como texto.
      */
     public asText(): string {
-        return new Template('humanProblem').content.querystring({
+        return new HumanProblemTemplate().templateContent.querystring({
             "problem": this.problemFormatted,
             "type": Text.getObjectName(this),
             "created": new Date().toISOString(),

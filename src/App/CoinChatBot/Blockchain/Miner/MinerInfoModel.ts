@@ -1,7 +1,7 @@
 import {IModel} from "../../../../Core/IModel";
 import {Definition} from "../Definition";
 import {Text} from "../../../../Helper/Text";
-import {StaleAction} from "../StaleAction";
+import {StaleAction} from "./StaleAction";
 
 /**
  * Informações necessárias para minerar um bloco.
