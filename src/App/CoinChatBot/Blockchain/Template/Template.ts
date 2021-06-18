@@ -36,27 +36,27 @@ export abstract class Template {
 
     /**
      * Conteúdo do template.
-     * @private
-     */
-    private templateContentValue: string | null = null;
-
-    /**
-     * Conteúdo do template.
      */
     public get templateContent(): string {
-        return this.templateContentValue =
-            this.templateContentValue
-                ? this.templateContentValue
-                : Template.templateContent(this.templateName);
+        return Template.templateContent(this.templateName);
     }
+
+    /**
+     * Cache dos valores de arquivos lidos.
+     * @private
+     */
+    private static templateContentValues: KeyValue = { }
 
     /**
      * Conteúdo do template
      * @param templateName Nome do template.
      */
     public static templateContent(templateName: TemplateFiles): string {
-        const filePath = path.resolve(__dirname, `${templateName}Template.${Template.extension}`);
-        return Buffer.from(fs.readFileSync(filePath)).toString();
+        if (!this.templateContentValues[templateName]) {
+            const filePath = path.resolve(__dirname, `${templateName}Template.${Template.extension}`);
+            this.templateContentValues[templateName] = Buffer.from(fs.readFileSync(filePath)).toString();
+        }
+        return this.templateContentValues[templateName];
     }
 
     /**
