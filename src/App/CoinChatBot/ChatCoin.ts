@@ -1,9 +1,9 @@
 import {Message} from "../../Bus/Message";
 import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
 import {CoinModel} from "./Model/CoinModel";
-import {Blockchain} from "./Blockchain/Blockchain";
 import {ChatCommandHandler} from "../../Twitch/ChatCommand/ChatCommandHandler";
 import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
+import {CoinCommandQueue} from "./Blockchain/CoinCommandQueue";
 
 /**
  * Escuta do chat da moeda.
@@ -14,7 +14,7 @@ export class ChatCoin {
      * @param coin Dados do ambiente.
      */
     constructor(private coin: CoinModel) {
-        this.blockchain = new Blockchain(coin);
+        this.coinCommandQueue = new CoinCommandQueue(coin);
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
@@ -29,10 +29,10 @@ export class ChatCoin {
     private readonly chatCommandHandler: ChatCommandHandler;
 
     /**
-     * Operações da blockchain
+     * Responsável por enfileirar comandos para operar a moeda.
      * @private
      */
-    private readonly blockchain: Blockchain;
+    private readonly coinCommandQueue: CoinCommandQueue;
 
     /**
      * Processa mensagem

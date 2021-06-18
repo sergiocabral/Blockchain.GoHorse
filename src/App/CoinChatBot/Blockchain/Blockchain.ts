@@ -22,8 +22,9 @@ export class Blockchain {
     /**
      * Construtor.
      * @param coin Moeda.
+     * @param callbackWhenInitialized Chamada quando a blockchain está pronta para funcionar.
      */
-    public constructor(private coin: CoinModel) {
+    public constructor(private coin: CoinModel, private callbackWhenInitialized: () => void) {
         Logger.post('Initializing Blockchain for coin "{coin}" at: {directory}', {coin: coin.id, directory: coin.directory}, LogLevel.Information, LogContext.Blockchain);
         this.git = Blockchain.initializeRepository(coin);
         this.updateRepository();
@@ -33,14 +34,32 @@ export class Blockchain {
         this.firstBlock = firstBlock;
 
         this.initialize();
-        this.database = new Database(this.git.directory, this.commitTransaction.bind(this));
+    }
+
+    /**
+     * Diretório da blockchain.
+     */
+    public get directory(): string {
+        return this.git.directory;
+    }
+
+    /**
+     * Estado da inicialização da classe.
+     */
+    private initializedValue: boolean = false;
+
+    /**
+     * Estado da inicialização da classe.
+     */
+    public get initialized(): boolean {
+        return this.initializedValue;
     }
 
     /**
      * Sinaliza execução em andamento.
      * @private
      */
-    private workingInProgressState: boolean = false;
+    private commitInProgressState: boolean = false;
 
     /**
      * Manipulador do Git.
@@ -55,51 +74,56 @@ export class Blockchain {
     private firstBlock: CommitModel;
 
     /**
-     * Banco de dados com as informações da moeda.
-     * @private
-     */
-    private database: Database;
-
-    /**
-     * Sinaliza execução em andamento.
-     * @param inProgress Sim ou não para execução em andamento.
-     * @private
-     */
-    private workingInProgress(inProgress: boolean = true): void {
-        if (inProgress && this.workingInProgressState) {
-            Logger.post('Blockchain: Working in progress.', undefined, LogLevel.Error, LogContext.Blockchain);
-            throw new InvalidExecutionError('Blockchain: Working in progress');
-        }
-        this.workingInProgressState = inProgress;
-    }
-
-    /**
      * Inicializa a blockchain.
      * @private
      */
     private initialize(): void {
+        const initialized: Promise<boolean>[] = []
         const previousCommitHash = this.git.getCommit(1);
-        const levels = Definition.LinkLevel - 1;
+        const levelsWithoutFirstBlock = Definition.LinkLevel - 1;
         if (previousCommitHash === null) {
             this.git.reset();
             IO.removeAll(this.git.directory, '.git');
             this.git.add("--all");
-            for (let level = 1; level <= levels; level++) {
-                this.createLinkedCommit(
-                    StaleAction.Stop,
-                    'Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levels]),
-                    level,
-                    false);
+            for (let level = 1; level <= levelsWithoutFirstBlock; level++) {
+                initialized.push(
+                    this.queueToMiner(
+                        StaleAction.Stop,
+                        'Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levelsWithoutFirstBlock]),
+                        level,
+                        false));
             }
         } else {
-            for (let parentIndex = 1; parentIndex <= levels; parentIndex++) {
+            for (let parentIndex = 1; parentIndex <= levelsWithoutFirstBlock; parentIndex++) {
                 const hash = this.git.getCommit(parentIndex);
                 if (hash === null) {
                     Logger.post('Cannot go to parent commit HEAD~{parentIndex}.', {parentIndex}, LogLevel.Error, LogContext.Blockchain);
                     throw new InvalidExecutionError('Cannot go to parent commit HEAD~{0}.'.querystring(parentIndex));
                 }
             }
+
+            initialized.push(new Promise(resolve => resolve(true)));
         }
+
+        Promise.all(initialized).then(values => {
+            if (!values.includes(false)) {
+                this.initializedValue = true;
+                this.callbackWhenInitialized();
+            }
+        });
+    }
+
+    /**
+     * Sinaliza execução em andamento.
+     * @param inProgress Sim ou não para execução em andamento.
+     * @private
+     */
+    private commitInProgress(inProgress: boolean = true): void {
+        if (inProgress && this.commitInProgressState) {
+            Logger.post('Commit in progress.', undefined, LogLevel.Error, LogContext.Blockchain);
+            throw new InvalidExecutionError('Commit in progress');
+        }
+        this.commitInProgressState = inProgress;
     }
 
     /**
@@ -107,21 +131,19 @@ export class Blockchain {
      * @param message Mensagem do bloco
      * @private
      */
-    private commitTransaction(message: string): void {
-        this.workingInProgress();
-
+    public async commit(message: string): Promise<boolean> {
+        this.commitInProgress();
         this.git.add('--all');
-
-        this.createLinkedCommit(StaleAction.Stop, message);
-
-        this.workingInProgress(false);
+        const success = await this.queueToMiner(StaleAction.Stop, message);
+        this.commitInProgress(false);
+        return success;
     }
 
     /**
      * Fila de commits pendentes de mineração.
      * @private
      */
-    private readonly queueLinkedCommit: MinerInfoModel[] = [];
+    private readonly queueToMinerList: MinerInfoModel[] = [];
 
     /**
      * Sinaliza que o processo de mineração está em andamento.
@@ -138,7 +160,7 @@ export class Blockchain {
         if (!minerInfo) {
             if (this.minerInProgress) return;
 
-            this.minerInProgress = Boolean(minerInfo = this.queueLinkedCommit.shift());
+            this.minerInProgress = Boolean(minerInfo = this.queueToMinerList.shift());
             if (!minerInfo) {
                 this.git.gc();
                 return;
@@ -160,7 +182,9 @@ export class Blockchain {
         if (minedCommit === null) throw new InvalidExecutionError("Commit failed: " + this.git.lastOutput);
 
         if (this.isValidHash(minedCommit)) {
+
             this.git.reset(true, minedCommit);
+
             if (this.git.push()) {
                 Logger.post("Block mining COMPLETED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
                     tree: minerInfo.treeHash,
@@ -168,6 +192,7 @@ export class Blockchain {
                     difficulty: Definition.ComputerMinerDifficult,
                     elapsedSeconds,
                     message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.Blockchain);
+                minerInfo.callbackWhenFinished(true);
             } else {
                 Logger.post("Block mining STALED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
                     tree: minerInfo.treeHash,
@@ -183,21 +208,25 @@ export class Blockchain {
 
                 switch (minerInfo.staleAction) {
                     case StaleAction.Stop:
-                        Logger.post("Total pending blocks that will be dropped: {count}", {count: this.queueLinkedCommit.length}, LogLevel.Warning, LogContext.Blockchain);
-                        this.queueLinkedCommit.length = 0;
+                        Logger.post("Total pending blocks that will be dropped: {count}", {count: this.queueToMinerList.length}, LogLevel.Warning, LogContext.Blockchain);
+                        minerInfo.callbackWhenFinished(false);
+                        while (this.queueToMinerList.length) {
+                            this.queueToMinerList.pop()?.callbackWhenFinished(false);
+                        }
                         break;
                     case StaleAction.Retry:
                         Logger.post("Retrying to mine this block. Tree: {tree}.", {tree: minerInfo.treeHash}, LogLevel.Information, LogContext.Blockchain);
-                        this.queueLinkedCommit.unshift(minerInfo);
+                        this.queueToMinerList.unshift(minerInfo);
                         break;
                     case StaleAction.Discard:
                     default:
                         Logger.post("Dropping this block. Tree: {tree}.", { tree: minerInfo.treeHash }, LogLevel.Information, LogContext.Blockchain);
+                        minerInfo.callbackWhenFinished(false);
                         break;
                 }
             }
 
-            minerInfo = null
+            minerInfo = null;
             this.minerInProgress = false;
         }
 
@@ -239,10 +268,18 @@ export class Blockchain {
      * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
      * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
      */
-    private createLinkedCommit(staleAction: StaleAction, message?: string, linkLevel?: number, currentDate: boolean = true) {
-        const treeHash = this.git.writeTree();
-        this.queueLinkedCommit.push(new MinerInfoModel(treeHash, message, linkLevel, currentDate, staleAction));
-        this.miner();
+    private queueToMiner(staleAction: StaleAction, message?: string, linkLevel?: number, currentDate: boolean = true): Promise<boolean> {
+        return new Promise<boolean>(resolve => {
+            this.queueToMinerList.push(
+                new MinerInfoModel(
+                    this.git.writeTree(),
+                    message,
+                    linkLevel,
+                    currentDate,
+                    staleAction,
+                    success => resolve(success)));
+            this.miner();
+        })
     }
 
     /**

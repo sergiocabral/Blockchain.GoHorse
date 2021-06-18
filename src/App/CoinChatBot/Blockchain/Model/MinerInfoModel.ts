@@ -14,13 +14,15 @@ export class MinerInfoModel implements IModel {
      * @param linkLevel Nível de link.
      * @param useCurrentDate Usar data atual.
      * @param staleAction Ação para o caso da mineração falhar.
+     * @param callbackWhenFinished Função de callback quando a mineração foi concluída.
      */
     public constructor(
         public readonly treeHash: string,
         public readonly message: string | undefined,
         linkLevel: number | undefined,
         public readonly useCurrentDate: boolean,
-        public readonly staleAction: StaleAction
+        public readonly staleAction: StaleAction,
+        public readonly callbackWhenFinished: (minerSuccess: boolean) => void
     ) {
         this.linkLevel = linkLevel !== undefined ? linkLevel : Definition.LinkLevel;
     }

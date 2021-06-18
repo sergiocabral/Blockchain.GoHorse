@@ -9,22 +9,27 @@ export class Database {
     /**
      * Construtor.
      * @param directory Diretório do banco de dados.
-     * @param commitTransaction Função que faz as alterações atuais entrar no bloco.
      */
-    public constructor(
-        private readonly directory: string,
-        private readonly commitTransaction: (message: string) => void) {
-        this.initialize();
+    public constructor(private readonly directory: string) {
     }
 
     /**
-     * Inicializa o banco de dados.
+     * Versão da estrutura atual.
      */
-    public initialize() {
-        for (let i = 0; i < 5; i++) {
-            const file = path.resolve(this.directory, new Date().getTime() + ".txt");
-            fs.writeFileSync(file, file);
-            this.commitTransaction("Teste de bloco {0}/{1} aleatório {2}".querystring([i + 1, 5, Text.random()]));
-        }
+    public get structureVersion(): number {
+        return 0;
+    }
+
+    /**
+     * Cria a estrutura inicial
+     */
+    public updateStructure(): boolean {
+        return false;
+    }
+
+    public writeAnything(): string {
+        const file = path.resolve(this.directory, new Date().getTime() + ".txt");
+        fs.writeFileSync(file, file);
+        return path.basename(file);
     }
 }
