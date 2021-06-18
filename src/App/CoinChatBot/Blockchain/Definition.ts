@@ -5,7 +5,7 @@ export class Definition {
     /**
      * Versão
      */
-    public static MajorVersion: number = 0;
+    public static readonly MajorVersion: number = 0;
 
     /**
      * Dificuldade da mineração computacional.
@@ -26,6 +26,11 @@ export class Definition {
      * Nível de enlace com commits anteriores.
      */
     public static readonly LinkLevel: number = 10;
+
+    /**
+     * Extensão dos arquivos no repositório.
+     */
+    public static readonly FileExtension: string = "txt";
 
     /**
      * Estampa.

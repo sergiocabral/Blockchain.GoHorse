@@ -8,9 +8,13 @@ export class VersionTemplate extends Template {
     /**
      * Construtor.
      * @param coin Nome da moeda.
-     * @param version Versão da blockchain.
+     * @param majorVersion
+     * @param minorVersion
      */
-    public constructor(public coin?: string, public version?: string) {
+    public constructor(
+        public coin?: string,
+        public majorVersion?: number,
+        public minorVersion?: number) {
         super('Version');
     }
 
@@ -21,7 +25,9 @@ export class VersionTemplate extends Template {
     public get content(): string {
         return this.set({
             coin: this.coin ?? '',
-            version: this.version ?? ''
+            version: this.majorVersion !== undefined && this.minorVersion !== undefined
+                ? `${this.majorVersion}.${this.minorVersion}`
+                : ''
         });
     }
 
