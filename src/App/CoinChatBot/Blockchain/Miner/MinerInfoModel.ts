@@ -2,6 +2,7 @@ import {IModel} from "../../../../Core/IModel";
 import {Definition} from "../Definition";
 import {Text} from "../../../../Helper/Text";
 import {StaleAction} from "./StaleAction";
+import {CommitDateMode} from "./CommitDateMode";
 
 /**
  * Informações necessárias para minerar um bloco.
@@ -12,7 +13,7 @@ export class MinerInfoModel implements IModel {
      * @param treeHash Hash da árvore a ser associada ao commit minerado.
      * @param message Mensagem.
      * @param linkLevel Nível de link.
-     * @param useCurrentDate Usar data atual.
+     * @param dateMode Modos de definir a data do commit (bloco) atual.
      * @param staleAction Ação para o caso da mineração falhar.
      * @param callbackWhenFinished Função de callback quando a mineração foi concluída.
      */
@@ -20,7 +21,7 @@ export class MinerInfoModel implements IModel {
         public readonly treeHash: string,
         public readonly message: string | undefined,
         linkLevel: number | undefined,
-        public readonly useCurrentDate: boolean,
+        public readonly dateMode: CommitDateMode,
         public readonly staleAction: StaleAction,
         public readonly callbackWhenFinished: (minerSuccess: boolean) => void
     ) {

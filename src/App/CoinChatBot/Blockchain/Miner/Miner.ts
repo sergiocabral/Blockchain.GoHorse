@@ -13,6 +13,7 @@ import {CommitModel} from "../../../../Process/Model/CommitModel";
 import {performance} from "perf_hooks";
 import {MinerInfoModel} from "./MinerInfoModel";
 import {StaleAction} from "./StaleAction";
+import {CommitDateMode} from "./CommitDateMode";
 
 /**
  * Operações da blockchain.
@@ -31,6 +32,12 @@ export class Miner {
         const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
         if (!firstBlock) throw new InvalidExecutionError("First block not found.");
         this.firstBlock = firstBlock;
+
+        const currentCommit = this.git.getCommit();
+        if (!currentCommit) throw new InvalidExecutionError("Current commit not found.");
+        const currentCommitContent = this.git.getCommitContent(currentCommit);
+        if (!currentCommitContent) throw new InvalidExecutionError("Current commit cannot be read.");
+        this.lastBlock = currentCommitContent;
 
         this.initialize();
     }
@@ -70,7 +77,13 @@ export class Miner {
      * Informações do primeiro bloco de commit.
      * @private
      */
-    public firstBlock: CommitModel;
+    public readonly firstBlock: CommitModel;
+
+    /**
+     * Informações do último bloco de commit minerado.
+     * @private
+     */
+    public lastBlock: CommitModel;
 
     /**
      * Inicializa a blockchain.
@@ -90,7 +103,7 @@ export class Miner {
                         StaleAction.Stop,
                         'Blockchain base with strongly linked commits. Level {0} of {1}.'.querystring([level, levelsWithoutFirstBlock]),
                         level,
-                        false));
+                        CommitDateMode.LastBlockIncrement));
             }
         } else {
             for (let parentIndex = 1; parentIndex <= levelsWithoutFirstBlock; parentIndex++) {
@@ -172,7 +185,7 @@ export class Miner {
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
         process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
-        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = minerInfo.useCurrentDate ? "" : Git.incrementDate(this.firstBlock.committerDate);
+        process.env.GIT_AUTHOR_DATE = this.factoryGitDateString(minerInfo.dateMode);
 
         const elapsedSeconds = Math.round((performance.now() - minerInfo.startTime) / 1000);
         const message = minerInfo.factoryMessage(`Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`);
@@ -191,7 +204,12 @@ export class Miner {
                     difficulty: Definition.ComputerMinerDifficult,
                     elapsedSeconds,
                     message: minerInfo.messageFirstLine}, LogLevel.Information, LogContext.BlockchainMiner);
+
                 minerInfo.callbackWhenFinished(true);
+
+                const minedCommitContent = this.git.getCommitContent(minedCommit);
+                if (!minedCommitContent) throw new InvalidExecutionError("Last commit cannot be read.");
+                this.lastBlock = minedCommitContent;
             } else {
                 Logger.post("Block mining STALED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
                     tree: minerInfo.treeHash,
@@ -265,16 +283,16 @@ export class Miner {
      * @param staleAction Ação para o caso da mineração falhar.
      * @param message Mensagem do commit.
      * @param linkLevel Nível de link com os commits anteiores e o first-block. Define null para usar o padrão.
-     * @param currentDate Utiliza data corrente. Do contrário usa a data do primeiro commit.
+     * @param dateMode Modos de definir a data do commit (bloco) atual.
      */
-    private queueToMiner(staleAction: StaleAction, message?: string, linkLevel?: number, currentDate: boolean = true): Promise<boolean> {
+    private queueToMiner(staleAction: StaleAction, message?: string, linkLevel?: number, dateMode: CommitDateMode = CommitDateMode.CurrentDate): Promise<boolean> {
         return new Promise<boolean>(resolve => {
             this.queueToMinerList.push(
                 new MinerInfoModel(
                     this.git.writeTree(),
                     message,
                     linkLevel,
-                    currentDate,
+                    dateMode,
                     staleAction,
                     success => resolve(success)));
             this.miner();
@@ -343,5 +361,27 @@ export class Miner {
             this.git.checkout(branchName) &&
             this.git.reset(true, "FETCH_HEAD");
         if (!check) throw new InvalidExecutionError("Error when synchronize repository: " + this.git.lastOutput);
+    }
+
+    /**
+     * Constrois a string de data do git conforme o modo especificado.
+     * @param mode
+     * @param source Origem da data.
+     * @private
+     */
+    private factoryGitDateString(mode: CommitDateMode, source: 'author' | 'committer' = 'committer') {
+        const isAuthor = source === 'author';
+        switch (mode) {
+            case CommitDateMode.CurrentDate:
+                return "";
+            case CommitDateMode.FirstBlock:
+                return isAuthor ? this.firstBlock.authorDate : this.firstBlock.committerDate;
+            case CommitDateMode.LastBlock:
+                return isAuthor ? this.lastBlock.authorDate : this.lastBlock.committerDate;
+            case CommitDateMode.LastBlockIncrement:
+                return Git.incrementDate(isAuthor ? this.lastBlock.authorDate : this.lastBlock.committerDate);
+            default:
+                throw new InvalidArgumentError("Date mode is not valid.");
+        }
     }
 }
