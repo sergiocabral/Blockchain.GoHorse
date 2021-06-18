@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import {CoinModel} from "../../Model/CoinModel";
 import {Patcher} from "./Patcher";
+import {Persistence} from "./Persistence";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -21,8 +22,15 @@ export class Database {
     public constructor(
         private coin: CoinModel,
         private readonly directory: string) {
-        this.patcher = new Patcher(coin, directory);
+        this.persister = new Persistence(directory);
+        this.patcher = new Patcher(this.persister, coin);
     }
+
+    /**
+     * Manipulador de entrada e saída no disco.
+     * @private
+     */
+    private persister: Persistence;
 
     /**
      * Gerenciador de versões do repositório.
