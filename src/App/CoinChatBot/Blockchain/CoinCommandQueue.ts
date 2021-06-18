@@ -2,6 +2,7 @@ import {CoinModel} from "../Model/CoinModel";
 import {Database} from "./Database/Database";
 import {Miner} from "./Miner/Miner";
 import {InvalidExecutionError} from "../../../Errors/InvalidExecutionError";
+import {Definition} from "./Definition";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -35,10 +36,11 @@ export class CoinCommandQueue {
     private async minerInitialized() {
         if (!this.miner.initialized) throw new InvalidExecutionError("Blockchain is not initialized.");
 
-        if (this.database.updateStructure()) {
+        const newVersion = this.database.updateStructure();
+        if (newVersion) {
             await this.miner.commit(
-                "Directories and files structure updated for version: {0}."
-                    .querystring(this.database.structureVersion));
+                "Directories and files structure updated for version: {0}.{1}."
+                    .querystring([Definition.MajorVersion, newVersion]));
         }
     }
 }
