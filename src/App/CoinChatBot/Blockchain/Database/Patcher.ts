@@ -6,6 +6,7 @@ import {Definition} from "../Definition";
 import {VersionTemplate} from "../Template/VersionTemplate";
 import {EmptyValueError} from "../../../../Errors/EmptyValueError";
 import {Persistence} from "./Persistence";
+import {CommitModel} from "../../../../Process/Model/CommitModel";
 
 /**
  * Gerenciador de versões do repositório.
@@ -14,10 +15,12 @@ export class Patcher {
     /**
      * Construtor.
      * @param coin Moeda
+     * @param firstBlock Informações do primeiro bloco.
      * @param persistence Manipulador de entrada e saída no disco.
      */
     public constructor(
         private readonly persistence: Persistence,
+        public readonly firstBlock: CommitModel,
         private readonly coin: CoinModel) {
     }
 
@@ -27,7 +30,7 @@ export class Patcher {
      */
     public factoryPatcher(version: number): VersionBase {
         switch (version) {
-            case 1: return new Version001(this.persistence, this.coin);
+            case 1: return new Version001(this.persistence, this.firstBlock, this.coin);
         }
         throw new InvalidExecutionError("Invalid version number.");
     }

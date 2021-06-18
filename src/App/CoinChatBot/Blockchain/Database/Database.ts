@@ -3,6 +3,7 @@ import fs from "fs";
 import {CoinModel} from "../../Model/CoinModel";
 import {Patcher} from "./Patcher";
 import {Persistence} from "./Persistence";
+import {CommitModel} from "../../../../Process/Model/CommitModel";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -17,13 +18,15 @@ export class Database {
     /**
      * Construtor.
      * @param coin Moeda
+     * @param firstBlock Informações do primeiro bloco.
      * @param directory Diretório do banco de dados.
      */
     public constructor(
-        private coin: CoinModel,
+        private readonly coin: CoinModel,
+        public readonly firstBlock: CommitModel,
         private readonly directory: string) {
         this.persister = new Persistence(directory);
-        this.patcher = new Patcher(this.persister, coin);
+        this.patcher = new Patcher(this.persister, firstBlock, coin);
     }
 
     /**

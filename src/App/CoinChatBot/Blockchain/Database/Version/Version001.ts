@@ -8,6 +8,6 @@ export class Version001 extends VersionBase {
      * Aplica a versão.
      */
     public apply(): void {
-        //TODO: Criar estrutura inicial.
+        //TODO: Implementar a versão 1 da estrutura.
     }
 }

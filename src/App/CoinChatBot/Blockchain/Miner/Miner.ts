@@ -70,7 +70,7 @@ export class Miner {
      * Informações do primeiro bloco de commit.
      * @private
      */
-    private firstBlock: CommitModel;
+    public firstBlock: CommitModel;
 
     /**
      * Inicializa a blockchain.
