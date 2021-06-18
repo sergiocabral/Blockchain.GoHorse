@@ -27,7 +27,7 @@ export abstract class Template {
      * Captura a chave e comprimento.
      * @private
      */
-    private static regexKeyAndLength: RegExp = /{(\d+|)(?::|)(\w+)(?::|)(\d+|)}/;
+    private static regexKeyAndLength: RegExp = /{(\d+|)(?::|)(\w+)(?::|)(\d+|)[^}]*}/;
 
     /**
      * Conteúdo do arquivo.
