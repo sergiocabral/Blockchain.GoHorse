@@ -36,6 +36,16 @@ declare global {
          * @param values Opcional. Conjunto de valores para substituição na string.
          */
         querystring(values: any): string;
+
+        /**
+         * Remove acentuaçãao do texto.
+         */
+        removeAccents(): string;
+
+        /**
+         * Converte um texto para representação de slug..
+         */
+        slug(): string;
     }
 }
 
@@ -57,6 +67,14 @@ String.prototype.escapeRegExp = function(): string {
 
 String.prototype.querystring = function(values: any): string {
     return Text.querystring(String(this), values);
+};
+
+String.prototype.removeAccents = function(): string {
+    return Text.removeAccents(String(this));
+};
+
+String.prototype.slug = function(): string {
+    return Text.slug(String(this));
 };
 
 export { }

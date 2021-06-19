@@ -3,8 +3,8 @@ import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
 import {CoinModel} from "./Model/CoinModel";
 import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
 import {CoinCommandQueue} from "./Blockchain/CoinCommandQueue";
-import {HelloWorldChatCommand} from "../../Twitch/ChatListener/Example/HelloWorldChatCommand";
-import {HelloWorldChatMessage} from "../../Twitch/ChatListener/Example/HelloWorldChatMessage";
+import {HelloWorldChatListener} from "../../Twitch/ChatListener/HelloWorldChatListener";
+import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
 
 /**
  * Escuta do chat da moeda.
@@ -20,8 +20,25 @@ export class ChatCoin {
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
         this.chatListenerHandler = new ChatListenerHandler(coin.channels,
-            new HelloWorldChatCommand(),
-            new HelloWorldChatMessage());
+            new HelloWorldChatListener(),
+            new StreamHolicsChatListener([
+                "Stream Holics",
+                "StreamHolics",
+                "sh",
+                "Me",
+                "Eu",
+                "Promote",
+                "Promote Me",
+                "PromoteMe",
+                "Divulgar",
+                "Divulga Aê",
+                "DivulgaAê",
+                "DivulgAê",
+                "WhoAmI",
+                "Alô Aê",
+                "AlôAê",
+                "Hello"
+            ]));
     }
 
     /**

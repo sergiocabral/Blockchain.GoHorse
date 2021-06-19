@@ -34,20 +34,14 @@ export abstract class ChatListener {
     }
 
     /**
-     * Sinaliza que é um comando.
-     * Nesse caso mensage se refere ao nome do comando,
-     * ao invés do texto da mensagem
+     * Valida se uma mensagem deve ser capturada.
      */
-    public abstract get isCommand(): boolean;
+    public abstract isMatch(message: ChatMessageModel): boolean;
 
     /**
-     * Mensagem recebida
+     * Responde uma mensagem.
+     * @param message
+     * @return Texto de resposta.
      */
-    public abstract get message(): string;
-
-    /**
-     * Resposta a uma mensagem.
-     * @return Texto a ser enviado para o chat.
-     */
-    public abstract response(chatMessage: ChatMessageModel): string
+    public abstract response(message: ChatMessageModel): string;
 }

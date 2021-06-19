@@ -408,8 +408,10 @@ export class ChatBot implements Events {
     public message(channel: string, userstate: ChatUserstate, message: string, self: boolean): void {
         ChatBot.log('message', {channel, userstate, message, self});
 
-        const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
-        new ChatMessageEvent(chatMessage).send();
+        if (!self) {
+            const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
+            new ChatMessageEvent(chatMessage).send();
+        }
     }
 
     /**

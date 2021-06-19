@@ -90,4 +90,28 @@ export class Text {
     public static escapeRegExp(value: string): string {
         return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     };
+
+    /**
+     * Remove acentuaçãao do texto.
+     * @param text
+     */
+    public static removeAccents(text: string): string {
+        return text
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    /**
+     * Converte um texto para representação de slug.
+     * @param text
+     */
+    public static slug(text: string): string {
+        const regexDiscardChars = /[^a-z0-9\-]/g;
+        const regexSpaces = /(^-+|-+$|(?<=-)-+)/g;
+        return this
+            .removeAccents(text)
+            .toLowerCase()
+            .replace(regexDiscardChars, "-")
+            .replace(regexSpaces, "");
+    }
 }

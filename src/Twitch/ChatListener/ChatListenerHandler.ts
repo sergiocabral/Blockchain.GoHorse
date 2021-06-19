@@ -46,19 +46,7 @@ export class ChatListenerHandler {
         );
         if (!userMatch) return false;
 
-        const messageMatch = (
-            !chatListener.isCommand &&
-            !chatMessageEvent.chatMessage.isCommand &&
-            chatListener.message.toLowerCase().trim() === chatMessageEvent.chatMessage.message.toLowerCase().trim()
-        );
-
-        const commandMatch = (
-            chatListener.isCommand &&
-            chatMessageEvent.chatMessage.isCommand &&
-            chatListener.message === chatMessageEvent.chatMessage.command
-        );
-
-        return messageMatch || commandMatch;
+        return chatListener.isMatch(chatMessageEvent.chatMessage);
     }
 
     /**
