@@ -7,6 +7,7 @@ import {VersionTemplate} from "../Template/VersionTemplate";
 import {EmptyValueError} from "../../../../Errors/EmptyValueError";
 import {Persistence} from "./Persistence";
 import {CommitModel} from "../../../../Process/Model/CommitModel";
+import {ShouldNeverHappen} from "../../../../Errors/ShouldNeverHappen";
 
 /**
  * Gerenciador de versões do repositório.
@@ -40,7 +41,8 @@ export class Patcher {
      */
     public getStructureVersion(): number {
         const versionData = new VersionTemplate(this.coin.name, Definition.MajorVersion, 0);
-        const content = this.persistence.read("/version", () => versionData.content);
+        const content = this.persistence.read("/version", undefined, () => versionData.content, true);
+        if (!content) throw new ShouldNeverHappen();
         const values = versionData.get(content);
         const regexMinorVersion = /\d+$/;
         const matchVersion = values["version"].match(regexMinorVersion);
@@ -61,7 +63,7 @@ export class Patcher {
             versionTemplate.minorVersion = ++repositoryVersion;
             const patcher = this.factoryPatcher(versionTemplate.minorVersion);
             patcher.apply();
-            this.persistence.write('/version', versionTemplate.content);
+            this.persistence.write('/version', undefined, versionTemplate.content, true);
         } while (repositoryVersion < applicationVersion);
         return repositoryVersion;
     }

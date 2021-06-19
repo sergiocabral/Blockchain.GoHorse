@@ -19,13 +19,6 @@ export abstract class VersionBase {
     }
 
     /**
-     * Wallet principal.
-     */
-    public get mainWallet(): string {
-        return this.firstBlock.hash;
-    }
-
-    /**
      * Aplica a versão.
      */
     public abstract apply(): void;

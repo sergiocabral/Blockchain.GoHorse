@@ -12,7 +12,7 @@ export class WalletTemplate extends Template {
      */
     public constructor(
         public walletId?: string,
-        public date?: Date) {
+        public date?: string) {
         super('Wallet');
     }
 
@@ -23,7 +23,7 @@ export class WalletTemplate extends Template {
     public get content(): string {
         return this.set({
             "wallet-id": this.walletId ?? '',
-            "date-utc": this.date?.format({ mask: "y-M-d h:m:s.z", useUTC: true }) ?? ''
+            "date-utc": this.date ?? ''
         });
     }
 
