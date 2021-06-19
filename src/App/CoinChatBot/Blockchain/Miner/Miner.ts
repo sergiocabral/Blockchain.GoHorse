@@ -185,7 +185,7 @@ export class Miner {
 
         process.env.GIT_AUTHOR_NAME = process.env.GIT_COMMITTER_NAME = this.firstBlock.committerName;
         process.env.GIT_AUTHOR_EMAIL = process.env.GIT_COMMITTER_EMAIL = this.firstBlock.committerEmail;
-        process.env.GIT_AUTHOR_DATE = this.factoryGitDateString(minerInfo.dateMode);
+        process.env.GIT_AUTHOR_DATE = process.env.GIT_COMMITTER_DATE = this.factoryGitDateString(minerInfo.dateMode);
 
         const elapsedSeconds = Math.round((performance.now() - minerInfo.startTime) / 1000);
         const message = minerInfo.factoryMessage(`Mining difficulty: ${Definition.ComputerMinerDifficult}. Elapsed time: ${elapsedSeconds} seconds. Block mined by: ${this.coin.instanceName}`);
@@ -341,9 +341,14 @@ export class Miner {
         const git = new Git(alreadyCloned ? finalDirectory : coin.directory);
 
         if (!alreadyCloned) {
-            git.clone(coin.repository, finalDirectory, Definition.FirstBlock);
+            const cloned =
+                git.clone(coin.repository, finalDirectory, Definition.FirstBlock) &&
+                git.checkout(branchName) &&
+                git.push();
+            if (!cloned) throw new InvalidExecutionError("Failed when clone repository for branch: {0}.".querystring(branchName));
+        } else {
+            git.checkout(branchName);
         }
-        git.checkout(branchName);
 
         return git;
     }

@@ -354,7 +354,7 @@ export class Git {
     public static incrementDate(date: string, seconds: number = 1): string {
         const regexDateParts = /(\d+)( [+-]\d+)/;
         const parts = date.match(regexDateParts);
-        if (!parts) throw new InvalidArgumentError("Git date format is not valid.");
+        if (!parts) throw new InvalidArgumentError("Git date format is not valid: {0}".querystring(date));
         const unixDate = parseInt(parts[1]) + seconds;
         const timezone = parts[2];
         return `${unixDate}${timezone}`;
