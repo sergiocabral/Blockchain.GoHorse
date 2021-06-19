@@ -1,8 +1,8 @@
 import {ChatCommand} from "./ChatCommand";
-import {Message} from "../../Bus/Message";
-import {ChatCommandEvent} from "../MessageEvent/ChatCommandEvent";
-import {SendChatMessageAction} from "../MessageAction/SendChatMessageAction";
-import {ChannelFilter} from "./ChannelFilter";
+import {Message} from "../../../Bus/Message";
+import {ChatCommandEvent} from "../../MessageEvent/ChatCommandEvent";
+import {SendChatMessageAction} from "../../MessageAction/SendChatMessageAction";
+import {ChannelFilter} from "../ChannelFilter";
 
 /**
  * Gerenciador de captura de comandos do chat.

@@ -15,6 +15,9 @@ export class CoinCommandQueue {
     public constructor(private coin: CoinModel) {
         this.miner = new Miner(coin, this.minerInitialized.bind(this));
         this.database = new Database(coin, this.miner.firstBlock, this.miner.directory);
+
+        //TODO: Receber comando para criação de carteira
+        //TODO: Gravar /Version no Database ao invés do Patcher
     }
 
     /**

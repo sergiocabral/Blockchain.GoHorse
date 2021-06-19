@@ -1,8 +1,8 @@
 import {Message} from "../../Bus/Message";
 import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
 import {CoinModel} from "./Model/CoinModel";
-import {ChatCommandHandler} from "../../Twitch/ChatCommand/ChatCommandHandler";
-import {HelloWorldChatCommand} from "../../Twitch/ChatCommand/HelloWorldChatCommand";
+import {ChatCommandHandler} from "../../Twitch/ChatListener/ChatCommand/ChatCommandHandler";
+import {HelloWorldChatCommand} from "../../Twitch/ChatListener/ChatCommand/HelloWorldChatCommand";
 import {CoinCommandQueue} from "./Blockchain/CoinCommandQueue";
 
 /**

@@ -1,9 +1,9 @@
 import {ChannelFilter} from "./ChannelFilter";
 
 /**
- * Classe base para comandos de chat.
+ * Classe base para listeners de chat.
  */
-export abstract class ChatCommand {
+export abstract class ChatListener {
     /**
      * Canais onde o comando será ouvido.
      */
@@ -21,11 +21,6 @@ export abstract class ChatCommand {
             ChannelFilter.ORIGIN_CHANNEL
         ];
     }
-
-    /**
-     * Comando a ser tratado.
-     */
-    public abstract get command(): string;
 
     /**
      * Execução do comando.
