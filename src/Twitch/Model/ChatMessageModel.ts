@@ -13,17 +13,17 @@ export class ChatMessageModel implements IModel {
      * @param channelName Nome do canal.
      * @param userData Dados do usuário.
      * @param message Mensage.
+     * @param self Sinaliza que foi o próprio usuário que escreveu.
      * @param raw Dado original em formato bruto.
      */
     public constructor(
         channelName: string,
         userData: ChatUserstate,
-        message: string,
-        raw?: any) {
+        public message: string,
+        public self: boolean,
+        public raw?: any) {
         this.channel = new ChannelModel(channelName);
         this.user = new UserModel(userData);
-        this.message = message ?? '';
-        this.raw = raw;
     }
 
     /**
@@ -46,16 +46,6 @@ export class ChatMessageModel implements IModel {
      * Usuário.
      */
     public user: UserModel;
-
-    /**
-     * Mensagem associada.
-     */
-    public message: string;
-
-    /**
-     * Dados bruto.
-     */
-    public raw?: string;
 
     /**
      * Prefixo de comando.
