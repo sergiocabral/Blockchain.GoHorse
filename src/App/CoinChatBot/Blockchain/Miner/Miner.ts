@@ -197,7 +197,8 @@ export class Miner {
 
             this.git.reset(true, minedCommit);
 
-            if (this.git.push()) {
+            //TODO: descomentar: if (this.git.push()) {
+            if (!!true) {
                 Logger.post("Block mining COMPLETED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
                     tree: minerInfo.treeHash,
                     commit: minedCommit,

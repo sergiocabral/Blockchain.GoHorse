@@ -10,7 +10,7 @@ export class Definition {
     /**
      * Dificuldade da mineração computacional.
      */
-    public static readonly ComputerMinerDifficult: number = 4;
+    public static readonly ComputerMinerDifficult: number = 0;
 
     /**
      * Nome do branch que aponta para o primeiro bloco.

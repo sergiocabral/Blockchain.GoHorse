@@ -27,6 +27,12 @@ export class Git {
     private static isInstalledValue: boolean | null = null;
 
     /**
+     * Extrai as partes da data.
+     * @private
+     */
+    private static regexDateParts: RegExp = /(\d+)( [+-]\d+)/;
+
+    /**
      * Determina se o Git está instalado.
      */
     public static get isInstalled(): boolean {
@@ -352,11 +358,21 @@ export class Git {
      * @param seconds Incremento.
      */
     public static incrementDate(date: string, seconds: number = 1): string {
-        const regexDateParts = /(\d+)( [+-]\d+)/;
-        const parts = date.match(regexDateParts);
+        const parts = date.match(this.regexDateParts);
         if (!parts) throw new InvalidArgumentError("Git date format is not valid: {0}".querystring(date));
         const unixDate = parseInt(parts[1]) + seconds;
         const timezone = parts[2];
         return `${unixDate}${timezone}`;
+    }
+
+    /**
+     * Converte uma data Git para Date
+     * @param date Data no formato Git.
+     */
+    public static toDate(date: string): Date {
+        const parts = date.match(this.regexDateParts);
+        if (!parts) throw new InvalidArgumentError("Git date format is not valid: {0}".querystring(date));
+        const unixDate = parseInt(parts[1]);
+        return new Date(unixDate * 1000);
     }
 }

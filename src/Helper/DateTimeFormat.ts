@@ -11,6 +11,7 @@ export class DateTimeFormat {
         if (format.mask) DateTimeFormat.mask = format.mask;
         if (format.day) DateTimeFormat.day = format.day;
         if (format.days) DateTimeFormat.days = format.days;
+        if (format.utc) DateTimeFormat.useUTC = format.utc;
     }
 
     /**
@@ -64,4 +65,14 @@ export class DateTimeFormat {
      * Valor padrão para days.
      */
     public static days: string = "dias";
+
+    /**
+     * Exibe sem timezone.
+     */
+    public useUTC?: boolean = DateTimeFormat.useUTC;
+
+    /**
+     * Valor padrão para utc.
+     */
+    public static useUTC: boolean = false;
 }

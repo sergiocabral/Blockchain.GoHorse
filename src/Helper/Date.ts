@@ -17,6 +17,11 @@ export class DateTime {
             case "running": formatFullFill.mask = "D h:m:s"; break;
         }
 
+        if (formatFullFill.useUTC) {
+            const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+            value = new Date(value.getTime() + timezoneOffset);
+        }
+
         const y = value.getFullYear().toString();
         const M = (value.getMonth() + 1).toString().padStart(2, '0');
         const d = value.getDate().toString().padStart(2, '0');

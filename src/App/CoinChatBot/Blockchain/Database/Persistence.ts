@@ -18,11 +18,11 @@ export class Persistence {
     /**
      * Monta a estrutura do diretório.
      * @param filePath
-     * @param values Valores para substituição.
+     * @param fileReplacement Valores para substituição.
      * @private
      */
-    private ensurePath(filePath: string, values?: any): string {
-        const parts = filePath.querystring(values).split('/').filter(a => Boolean(a));
+    private ensurePath(filePath: string, fileReplacement?: any): string {
+        const parts = filePath.querystring(fileReplacement).split('/').filter(a => Boolean(a));
         const realpath = path.resolve(this.directory, ...parts);
         const dirname = path.dirname(realpath);
         IO.createDirectory(dirname);
@@ -33,10 +33,11 @@ export class Persistence {
      * Lê o conteúdo de um arquivo.
      * @param file Arquivo.
      * @param content Conteúdo do arquivo.
+     * @param fileReplacement Parâmetros de substituição no file.
      * @private
      */
-    public write(file: DatabasePath, content: string): void {
-        const realpath = this.ensurePath(file);
+    public write(file: DatabasePath, content: string, fileReplacement?: any): void {
+        const realpath = this.ensurePath(file, fileReplacement);
         fs.writeFileSync(realpath, content);
     }
 

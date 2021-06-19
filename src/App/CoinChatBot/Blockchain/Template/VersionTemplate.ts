@@ -24,8 +24,8 @@ export class VersionTemplate extends Template {
      */
     public get content(): string {
         return this.set({
-            coin: this.coin ?? '',
-            version: this.majorVersion !== undefined && this.minorVersion !== undefined
+            "coin": this.coin ?? '',
+            "version": this.majorVersion !== undefined && this.minorVersion !== undefined
                 ? `${this.majorVersion}.${this.minorVersion}`
                 : ''
         });

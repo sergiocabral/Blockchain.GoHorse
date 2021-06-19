@@ -1,3 +1,5 @@
 export type TemplateFiles =
-    "Version" |
-    "HumanProblem";
+    "Wallet" |
+
+    "HumanProblem" |
+    "Version";
