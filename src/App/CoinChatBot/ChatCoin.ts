@@ -2,8 +2,9 @@ import {Message} from "../../Bus/Message";
 import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
 import {CoinModel} from "./Model/CoinModel";
 import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
-import {HelloWorldChatCommand} from "../../Twitch/ChatListener/ChatCommand/HelloWorldChatCommand";
 import {CoinCommandQueue} from "./Blockchain/CoinCommandQueue";
+import {HelloWorldChatCommand} from "../../Twitch/ChatListener/Example/HelloWorldChatCommand";
+import {HelloWorldChatMessage} from "../../Twitch/ChatListener/Example/HelloWorldChatMessage";
 
 /**
  * Escuta do chat da moeda.
@@ -19,7 +20,8 @@ export class ChatCoin {
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
         this.chatListenerHandler = new ChatListenerHandler(coin.channels,
-            new HelloWorldChatCommand());
+            new HelloWorldChatCommand(),
+            new HelloWorldChatMessage());
     }
 
     /**
