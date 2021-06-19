@@ -81,7 +81,7 @@ export class ChatMessageModel implements IModel {
      */
     public get command(): string {
         if (!this.isCommand) throw new InvalidExecutionError('Is not a command.');
-        return this.message.split(/\s+/)[0].substr(ChatMessageModel.commandPrefix.length).toLowerCase();
+        return this.message.trim().split(/\s+/)[0].substr(ChatMessageModel.commandPrefix.length).toLowerCase();
     }
 
     /**

@@ -1,22 +1,32 @@
-import {ChatCommand} from "./ChatCommand";
+import {ChatMessageModel} from "../../Model/ChatMessageModel";
+import {ChatListener} from "../ChatListener";
 
 /**
  * Comando Hello Word.
  */
-export class HelloWorldChatCommand extends ChatCommand {
+export class HelloWorldChatCommand extends ChatListener {
+    /**
+     * Sinaliza que é um comando.
+     * Nesse caso mensage se refere ao nome do comando,
+     * ao invés do texto da mensagem
+     */
+    public get isCommand(): boolean {
+        return true;
+    }
+
     /**
      * Comando a ser tratado.
      */
-    public get command(): string {
+    public get message(): string {
         return 'hello';
     };
 
     /**
      * Execução do comando.
-     * @param args Argumentos recebidos.
+     * @param chatMessage Mensagem do chat.
      * @return Texto a ser enviado para o chat.
      */
-    public run(args: string[]): string {
+    public response(chatMessage: ChatMessageModel): string {
         return 'world';
     }
 }

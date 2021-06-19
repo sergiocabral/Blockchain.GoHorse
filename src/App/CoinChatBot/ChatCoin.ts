@@ -1,7 +1,7 @@
 import {Message} from "../../Bus/Message";
 import {RedeemEvent} from "../../Twitch/MessageEvent/RedeemEvent";
 import {CoinModel} from "./Model/CoinModel";
-import {ChatCommandHandler} from "../../Twitch/ChatListener/ChatCommand/ChatCommandHandler";
+import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
 import {HelloWorldChatCommand} from "../../Twitch/ChatListener/ChatCommand/HelloWorldChatCommand";
 import {CoinCommandQueue} from "./Blockchain/CoinCommandQueue";
 
@@ -18,7 +18,7 @@ export class ChatCoin {
 
         Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
 
-        this.chatCommandHandler = new ChatCommandHandler(coin.channels,
+        this.chatListenerHandler = new ChatListenerHandler(coin.channels,
             new HelloWorldChatCommand());
     }
 
@@ -26,7 +26,7 @@ export class ChatCoin {
      * Gerenciador de captura de comandos do chat
      * @private
      */
-    private readonly chatCommandHandler: ChatCommandHandler;
+    private readonly chatListenerHandler: ChatListenerHandler;
 
     /**
      * Responsável por enfileirar comandos para operar a moeda.

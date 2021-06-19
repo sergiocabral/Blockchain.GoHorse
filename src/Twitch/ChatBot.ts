@@ -30,7 +30,6 @@ import {UserAuthenticationModel} from "./Model/UserAuthenticationModel";
 import {ChatMessageEvent} from "./MessageEvent/ChatMessageEvent";
 import {ChatMessageModel} from "./Model/ChatMessageModel";
 import Timeout = NodeJS.Timeout;
-import {ChatCommandEvent} from "./MessageEvent/ChatCommandEvent";
 
 /**
  * Cliente ChatBot da Twitch
@@ -411,7 +410,6 @@ export class ChatBot implements Events {
 
         const chatMessage = new ChatMessageModel(channel, userstate, message, arguments);
         new ChatMessageEvent(chatMessage).send();
-        if (chatMessage.isCommand) new ChatCommandEvent(chatMessage).send();
     }
 
     /**
