@@ -21,7 +21,7 @@ import {LogContext} from "../Log/LogContext";
 import {RedeemEvent} from "./MessageEvent/RedeemEvent";
 import {RedeemModel} from "./Model/RedeemModel";
 import {EnvironmentQuery} from "../Core/MessageQuery/EnvironmentQuery";
-import {SendChatMessageAction} from "./MessageAction/SendChatMessageAction";
+import {SendChatMessageCommand} from "./MessageCommand/SendChatMessageCommand";
 import {Message} from "../Bus/Message";
 import {ChatJoinPartModel} from "./Model/ChatJoinPartModel";
 import {ChatJoinEvent} from "./MessageEvent/ChatJoinEvent";
@@ -46,7 +46,7 @@ export class ChatBot implements Events {
 
         ChatBot.registerEvents(this.client, this);
 
-        Message.capture(SendChatMessageAction, this, this.handlerSendChatMessageAction);
+        Message.capture(SendChatMessageCommand, this, this.handlerSendChatMessageCommand);
     }
 
     /**
@@ -104,7 +104,7 @@ export class ChatBot implements Events {
      * Fila de mensagens.
      * @private
      */
-    private chatMessageQueue: SendChatMessageAction[] = [];
+    private chatMessageQueue: SendChatMessageCommand[] = [];
 
     /**
      * Timeout para bounce de mensagens enviadas.
@@ -135,10 +135,10 @@ export class ChatBot implements Events {
 
     /**
      * Processar mensagem
-     * @param message SendChatMessageAction
+     * @param message SendChatMessageCommand
      * @private
      */
-    private handlerSendChatMessageAction(message: SendChatMessageAction) {
+    private handlerSendChatMessageCommand(message: SendChatMessageCommand) {
         this.chatMessageQueue.push(message);
         this.dispatchChatMessage();
     }

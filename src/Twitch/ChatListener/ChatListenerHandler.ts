@@ -1,7 +1,7 @@
 import {ChatListener} from "./ChatListener";
 import {Message} from "../../Bus/Message";
 import {ChatMessageEvent} from "../MessageEvent/ChatMessageEvent";
-import {SendChatMessageAction} from "../MessageAction/SendChatMessageAction";
+import {SendChatMessageCommand} from "../MessageCommand/SendChatMessageCommand";
 import {ChannelFilter} from "./ChannelFilter";
 import {UserFilter} from "./UserFilter";
 
@@ -74,7 +74,7 @@ export class ChatListenerHandler {
                 .filter(channelName => channelName && !ChannelFilter.isFilter(channelName));
 
             for (const toChannel of toChannels) {
-                new SendChatMessageAction(toChannel, response).send();
+                new SendChatMessageCommand(toChannel, response).send();
             }
         }
     }

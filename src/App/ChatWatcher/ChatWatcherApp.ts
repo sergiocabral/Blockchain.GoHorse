@@ -11,7 +11,7 @@ import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import {UserOnChatModel} from "./Model/UserOnChatModel";
 import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
-import {SendChatMessageAction} from "../../Twitch/MessageAction/SendChatMessageAction";
+import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
 import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
 import Timeout = NodeJS.Timeout;
 
@@ -129,14 +129,14 @@ export class ChatWatcherApp extends BaseApp {
             Logger.post("Channel: {channel}. First message from user: {username}", {channel: channelName, username: userName}, LogLevel.Debug, LogContext.ChatWatcherApp);
 
             if (user.tags.length) {
-                const MessageActions = user.tags.map(tag => {
+                const MessageCommands = user.tags.map(tag => {
                     const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
                     const messages = tags[tag.toLowerCase()] ?? [];
-                    return messages.map(message => new SendChatMessageAction(channelName, message.translate().querystring([userName, channelName])));
-                }).flat<SendChatMessageAction>();
+                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
+                }).flat<SendChatMessageCommand>();
 
-                if (MessageActions.length) {
-                    MessageActions.forEach(MessageAction => MessageAction.send());
+                if (MessageCommands.length) {
+                    MessageCommands.forEach(MessageCommand => MessageCommand.send());
                     Logger.post(() => 'Answer first message from user "{username}" on channel "{channel}" because of tags: {tags}', {channel: channelName, username: userName, tags: () => user.tags.join(", ")}, LogLevel.Debug, LogContext.ChatWatcherApp);
                 }
             }
