@@ -14,6 +14,10 @@ import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
 import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
 import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
 import Timeout = NodeJS.Timeout;
+import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
+import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
+
+//TODO: Reescrever esta classe usando chatListeners.
 
 /**
  * Aplicação: Monitorador do chat.
@@ -32,7 +36,33 @@ export class ChatWatcherApp extends BaseApp {
         Message.capture(ClockEvent, this, this.handlerClockEvent);
 
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
+
+        this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
+            new StreamHolicsChatListener([
+                "Stream Holics",
+                "StreamHolics",
+                "sh",
+                "Me",
+                "Eu",
+                "Promote",
+                "Promote Me",
+                "PromoteMe",
+                "Divulgar",
+                "Divulga Aê",
+                "DivulgaAê",
+                "DivulgAê",
+                "WhoAmI",
+                "Alô Aê",
+                "AlôAê",
+                "Hello"
+            ]));
     }
+
+    /**
+     * Gerenciador de captura de comandos do chat
+     * @private
+     */
+    private readonly chatListenerHandler: ChatListenerHandler;
 
     /**
      * Dados do ambiente para a aplicação.
