@@ -105,11 +105,11 @@ export class UserWatcher {
      * @param message ChatMessageEvent
      * @private
      */
-    private handlerChatMessageEvent(message: ChatPartEvent) {
-        const model = this.getOrCreate(message.part.channel.name, message.part.userName);
+    private handlerChatMessageEvent(message: ChatMessageEvent) {
+        const model = this.getOrCreate(message.chatMessage.channel.name, message.chatMessage.user.name);
         model.messageCount++;
         if (model.messageCount === 1) {
-            new UserFirstMessageEvent(message.part.channel.name, message.part.userName).send();
+            new UserFirstMessageEvent(message.chatMessage.channel.name, message.chatMessage.user.name).send();
         }
         this.notifyReportUpdated();
     }

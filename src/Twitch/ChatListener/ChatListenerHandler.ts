@@ -56,24 +56,26 @@ export class ChatListenerHandler {
      * @private
      */
     private response(chatListener: ChatListener, chatMessageEvent: ChatMessageEvent): void {
-        const response = chatListener.response(chatMessageEvent.chatMessage);
-        if (response) {
-            let toChannels = ([] as string[]).concat(chatListener.writeToChannels);
+        const responses = ([] as string[]).concat(chatListener.response(chatMessageEvent.chatMessage));
+        if (responses.length === 0) return;
 
-            if (toChannels.includes(ChannelFilter.ALL_JOINED_CHANNELS)) {
-                toChannels.push(...this.channels);
-            }
+        let toChannels = ([] as string[]).concat(chatListener.writeToChannels);
 
-            if (toChannels.includes(ChannelFilter.ORIGIN_CHANNEL)) {
-                toChannels.push(chatMessageEvent.chatMessage.channel.name);
-            }
+        if (toChannels.includes(ChannelFilter.ALL_JOINED_CHANNELS)) {
+            toChannels.push(...this.channels);
+        }
 
-            toChannels = toChannels
-                .map(channelName => channelName.toLowerCase())
-                .unique<string>()
-                .filter(channelName => channelName && !ChannelFilter.isFilter(channelName));
+        if (toChannels.includes(ChannelFilter.ORIGIN_CHANNEL)) {
+            toChannels.push(chatMessageEvent.chatMessage.channel.name);
+        }
 
-            for (const toChannel of toChannels) {
+        toChannels = toChannels
+            .map(channelName => channelName.toLowerCase())
+            .unique<string>()
+            .filter(channelName => channelName && !ChannelFilter.isFilter(channelName));
+
+        for (const toChannel of toChannels) {
+            for (const response of responses) {
                 new SendChatMessageCommand(toChannel, response).send();
             }
         }

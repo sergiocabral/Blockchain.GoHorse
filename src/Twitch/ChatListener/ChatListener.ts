@@ -43,5 +43,5 @@ export abstract class ChatListener {
      * @param message
      * @return Texto de resposta.
      */
-    public abstract response(message: ChatMessageModel): string;
+    public abstract response(message: ChatMessageModel): string[] | string;
 }

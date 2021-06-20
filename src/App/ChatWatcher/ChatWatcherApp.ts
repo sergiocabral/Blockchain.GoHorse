@@ -8,6 +8,9 @@ import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler
 import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
 import {UserWatcher} from "./UserWatcher";
 import {UserWatcherReport} from "./UserWatcherReport";
+import {ChatMessageModel} from "../../Twitch/Model/ChatMessageModel";
+import {ReplyFirstMessageChatListener} from "../../Twitch/ChatListener/ReplyFirstMessageChatListener";
+import {KeyValue} from "../../Helper/Types/KeyValue";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -20,11 +23,22 @@ export class ChatWatcherApp extends BaseApp {
     public constructor(environment: any) {
         super('chatWatcher', environment);
 
+        this.userTags = { };
+        Object
+            .keys(this.environmentApplication.tags)
+            .forEach(username =>
+                this.userTags[username.toLowerCase()] =
+                    this.environmentApplication.tags[username].toLowerCase()
+                        .split(/[,;|\s]/)
+                        .filter(v => Boolean(v))
+                        .sort());
+
         this.userWatcher = new UserWatcher();
-        this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.environmentApplication.tags);
+        this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.userTags);
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
         this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
-            new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms));
+            new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms),
+            new ReplyFirstMessageChatListener(this.factoryReplyFirstMessage.bind(this)));
     }
 
     /**
@@ -34,6 +48,12 @@ export class ChatWatcherApp extends BaseApp {
     private get environmentApplication(): ChatWatcherEnvironment {
         return this.environment.application.chatWatcher;
     }
+
+    /**
+     * Tags para os usuários.
+     * @private
+     */
+    private userTags: KeyValue<string[]>;
 
     /**
      * Cliente ChatBot da Twitch.
@@ -69,33 +89,33 @@ export class ChatWatcherApp extends BaseApp {
             .catch(error => Logger.post(() => `Error when start the ChatWatcher: {message}`, { message: error }, LogLevel.Error, LogContext.ChatWatcherApp));
     }
 
-//    /**
-//     * Incrementa a contagem de mensagens do usuário.
-//     * @param channelName
-//     * @param userName
-//     * @private
-//     */
-//    private incrementMessageCount(channelName: string, userName: string): void {
-//        const user = this.getOrAddUser(channelName, userName);
-//
-//        const firstMessage = user.messageCount++ === 0;
-//        if (firstMessage) {
-//            Logger.post("Channel: {channel}. First message from user: {username}", {channel: channelName, username: userName}, LogLevel.Debug, LogContext.ChatWatcherApp);
-//
-//            if (user.tags.length) {
-//                const MessageCommands = user.tags.map(tag => {
-//                    const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
-//                    const messages = tags[tag.toLowerCase()] ?? [];
-//                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
-//                }).flat<SendChatMessageCommand>();
-//
-//                if (MessageCommands.length) {
-//                    MessageCommands.forEach(MessageCommand => MessageCommand.send());
-//                    Logger.post(() => 'Answer first message from user "{username}" on channel "{channel}" because of tags: {tags}', {channel: channelName, username: userName, tags: () => user.tags.join(", ")}, LogLevel.Debug, LogContext.ChatWatcherApp);
-//                }
-//            }
-//        }
-//        this.saveReport();
-//    }
+    /**
+     * Constroi a primeira mensagem de resposta para um usuário.
+     * @param message Mensagem.
+     * @private
+     */
+    private factoryReplyFirstMessage(message: ChatMessageModel): string[] | null {
+        const channel = message.channel.name;
+        const username = message.user.name;
+
+        const userTags = this.userTags[username];
+        if (!userTags.length) return null;
+
+        const channels = this.environmentApplication.automaticFirstMessagesForTag;
+        const tags = channels[channel];
+        if (!tags) return null;
+
+        const messages = [];
+        for (const tag of Object.keys(tags)) {
+            if (userTags.includes(tag)) {
+                messages.push(...tags[tag].map(message => message.querystring({
+                    channel: channel,
+                    username: username,
+                })));
+            }
+        }
+
+        return messages;
+    }
 
 }

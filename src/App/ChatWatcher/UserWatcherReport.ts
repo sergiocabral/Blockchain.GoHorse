@@ -21,16 +21,7 @@ export class UserWatcherReport {
      */
     public constructor(
         private outputFile: string,
-        userTags: KeyValue) {
-        this.userTags = { };
-        Object
-            .keys(userTags)
-            .forEach(username =>
-                this.userTags[username.toLowerCase()] =
-                    userTags[username].toLowerCase()
-                        .split(/[,;|\s]/)
-                        .filter(v => Boolean(v))
-                        .sort());
+        private userTags: KeyValue<string[]>) {
 
         Message.capture(ClockEvent, this, this.handlerClockEvent);
         Message.capture(ReportUpdated, this, this.handlerReportUpdated);
@@ -47,12 +38,6 @@ export class UserWatcherReport {
      * @private
      */
     private report: KeyValue<UserOnChatModel[]> = { };
-
-    /**
-     * Tags para os usuários.
-     * @private
-     */
-    private userTags: KeyValue<string[]>;
 
     /**
      * Salvamento do relatório pendente.
