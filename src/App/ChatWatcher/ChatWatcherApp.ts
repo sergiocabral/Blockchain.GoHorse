@@ -11,6 +11,7 @@ import {UserWatcherReport} from "./UserWatcherReport";
 import {ChatMessageModel} from "../../Twitch/Model/ChatMessageModel";
 import {ReplyFirstMessageChatListener} from "../../Twitch/ChatListener/ReplyFirstMessageChatListener";
 import {KeyValue} from "../../Helper/Types/KeyValue";
+import {ReplyFirstMessageMode} from "../../Twitch/ChatListener/ReplyFirstMessageMode";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -38,7 +39,7 @@ export class ChatWatcherApp extends BaseApp {
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
         this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
             new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms),
-            new ReplyFirstMessageChatListener(this.factoryReplyFirstMessage.bind(this)));
+            new ReplyFirstMessageChatListener(this.factoryReplyFirstMessage.bind(this), ReplyFirstMessageMode.PerChannel));
     }
 
     /**
@@ -95,23 +96,24 @@ export class ChatWatcherApp extends BaseApp {
      * @private
      */
     private factoryReplyFirstMessage(message: ChatMessageModel): string[] | null {
+        const messages = [];
+
+        const all = "*";
         const channel = message.channel.name;
         const username = message.user.name;
 
         const userTags = this.userTags[username];
-        if (!userTags.length) return null;
-
         const channels = this.environmentApplication.automaticFirstMessagesForTag;
-        const tags = channels[channel];
-        if (!tags) return null;
+        const tagGroups = [channels[channel] ?? { }, channels[all] ?? { }];
 
-        const messages = [];
-        for (const tag of Object.keys(tags)) {
-            if (userTags.includes(tag)) {
-                messages.push(...tags[tag].map(message => message.querystring({
-                    channel: channel,
-                    username: username,
-                })));
+        for (const tagGroup of tagGroups) {
+            for (const tag of Object.keys(tagGroup)) {
+                if (tag === all || userTags?.includes(tag)) {
+                    messages.push(...tagGroup[tag].map(message => message.querystring({
+                        channel: channel,
+                        username: username,
+                    })));
+                }
             }
         }
 
