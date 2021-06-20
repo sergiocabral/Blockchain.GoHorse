@@ -40,6 +40,7 @@ export class ChatWatcherEnvironment implements IModel {
             this.twitchAccount.isFilled() &&
             Boolean(this.channels?.length) &&
             Boolean(this.tags) &&
+            Boolean(this.autoStreamHolicsTerms) &&
             Boolean(this.outputFile)
         );
     }
