@@ -14,6 +14,7 @@ import {performance} from "perf_hooks";
 import {MinerInfoModel} from "./MinerInfoModel";
 import {StaleAction} from "./StaleAction";
 import {CommitDateMode} from "./CommitDateMode";
+import {EnvironmentQuery} from "../../../../Core/MessageQuery/EnvironmentQuery";
 
 /**
  * Operações da blockchain.
@@ -26,6 +27,9 @@ export class Miner {
      */
     public constructor(private coin: CoinModel, private callbackWhenInitialized: () => void) {
         Logger.post('Initializing Blockchain for coin "{coin}" at: {directory}', {coin: coin.id, directory: coin.directory}, LogLevel.Information, LogContext.BlockchainMiner);
+
+        this.isProduction = new EnvironmentQuery().request().message.environment.isProduction;
+
         this.git = Miner.initializeRepository(coin);
         this.updateRepository();
 
@@ -41,6 +45,12 @@ export class Miner {
 
         this.initialize();
     }
+
+    /**
+     * Determina se o ambiente atual é de produção.
+     * @private
+     */
+    private readonly isProduction: boolean;
 
     /**
      * Diretório da blockchain.
@@ -197,8 +207,7 @@ export class Miner {
 
             this.git.reset(true, minedCommit);
 
-            //TODO: descomentar: if (this.git.push()) {
-            if (!!true) {
+            if (!this.isProduction || this.git.push()) {
                 Logger.post("Block mining COMPLETED. Tree: {tree}. Hash: {commit}. Difficulty: {difficulty}. Elapsed time: {elapsedSeconds} seconds. Message: {message}", {
                     tree: minerInfo.treeHash,
                     commit: minedCommit,
