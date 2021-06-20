@@ -17,7 +17,6 @@ export class CoinCommandQueue {
         this.database = new Database(coin, this.miner.firstBlock, this.miner.directory);
 
         //TODO: Receber comando para criação de carteira
-        //TODO: Gravar /Version no Database ao invés do Patcher
     }
 
     /**

@@ -1,5 +1,3 @@
-import path from "path";
-import fs from "fs";
 import {CoinModel} from "../../Model/CoinModel";
 import {Patcher} from "./Patcher";
 import {Persistence} from "./Persistence";
@@ -8,6 +6,10 @@ import {DatabasePath} from "./DatabasePath";
 import {WalletTemplate} from "../Template/WalletTemplate";
 import {Git} from "../../../../Process/Git";
 import {WalletModel} from "./Model/WalletModel";
+import {VersionTemplate} from "../Template/VersionTemplate";
+import {Definition} from "../Definition";
+import {ShouldNeverHappen} from "../../../../Errors/ShouldNeverHappen";
+import {EmptyValueError} from "../../../../Errors/EmptyValueError";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -37,7 +39,7 @@ export class Database {
      * Manipulador de entrada e saída no disco.
      * @private
      */
-    private persistence: Persistence;
+    private readonly persistence: Persistence;
 
     /**
      * Gerenciador de versões do repositório.
@@ -49,7 +51,10 @@ export class Database {
      * Cria a estrutura inicial
      */
     public updateStructure(): number | boolean {
-        const newVersion = this.patcher.updateStructure(this.version);
+        const structureVersion = this.getVersion();
+        const applicationVersion = this.version;
+        const newVersion = this.patcher.updateStructure(structureVersion, applicationVersion);
+        if (typeof(newVersion) === 'number') this.setVersion(newVersion);
 
         switch (this.version) {
             case 1:
@@ -58,6 +63,29 @@ export class Database {
         }
 
         return newVersion;
+    }
+
+    /**
+     * Cria a estrutura inicial
+     */
+    public setVersion(applicationVersion: number): void {
+        const versionTemplate = new VersionTemplate(this.coin.name, Definition.MajorVersion, applicationVersion);
+        this.persistence.write('/version', undefined, versionTemplate.content, true);
+    }
+
+    /**
+     * Versão da estrutura atual.
+     */
+    public getVersion(): number {
+        const versionData = new VersionTemplate(this.coin.name, Definition.MajorVersion, 0);
+        const content = this.persistence.read("/version", undefined, () => versionData.content, true);
+        if (!content) throw new ShouldNeverHappen();
+        const values = versionData.get(content);
+        const regexMinorVersion = /\d+$/;
+        const matchVersion = values["version"].match(regexMinorVersion);
+        const version = matchVersion ? Number(matchVersion[0]) : NaN;
+        if (Number.isNaN(version)) throw new EmptyValueError("Version not found.");
+        return version;
     }
 
     /**
@@ -83,11 +111,5 @@ export class Database {
             values["wallet-id"],
             this.persistence.convertTextToDate(values["date-utc"]),
         );
-    }
-
-    public writeAnything(): string {
-        const file = path.resolve(this.directory, new Date().getTime() + ".txt");
-        fs.writeFileSync(file, file);
-        return path.basename(file);
     }
 }

@@ -2,12 +2,8 @@ import {VersionBase} from "./Version/VersionBase";
 import {Version001} from "./Version/Version001";
 import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
 import {CoinModel} from "../../Model/CoinModel";
-import {Definition} from "../Definition";
-import {VersionTemplate} from "../Template/VersionTemplate";
-import {EmptyValueError} from "../../../../Errors/EmptyValueError";
 import {Persistence} from "./Persistence";
 import {CommitModel} from "../../../../Process/Model/CommitModel";
-import {ShouldNeverHappen} from "../../../../Errors/ShouldNeverHappen";
 
 /**
  * Gerenciador de versões do repositório.
@@ -37,34 +33,21 @@ export class Patcher {
     }
 
     /**
-     * Versão da estrutura atual.
-     */
-    public getStructureVersion(): number {
-        const versionData = new VersionTemplate(this.coin.name, Definition.MajorVersion, 0);
-        const content = this.persistence.read("/version", undefined, () => versionData.content, true);
-        if (!content) throw new ShouldNeverHappen();
-        const values = versionData.get(content);
-        const regexMinorVersion = /\d+$/;
-        const matchVersion = values["version"].match(regexMinorVersion);
-        const version = matchVersion ? Number(matchVersion[0]) : NaN;
-        if (Number.isNaN(version)) throw new EmptyValueError("Version not found.");
-        return version;
-    }
-
-    /**
      * Cria a estrutura inicial
+     * @param structureVersion Versão da estrutura de arquivos.
+     * @param applicationVersion Versão da aplicação.
      */
-    public updateStructure(applicationVersion: number): number | boolean {
-        let repositoryVersion = this.getStructureVersion();
-        if (repositoryVersion > applicationVersion) throw new InvalidExecutionError("The application is outdated in relation to the blockchain.");
-        if (repositoryVersion === applicationVersion) return false;
-        const versionTemplate = new VersionTemplate(this.coin.name, Definition.MajorVersion, 1);
+    public updateStructure(structureVersion: number, applicationVersion: number): number | boolean {
+        if (structureVersion > applicationVersion) {
+            throw new InvalidExecutionError("The application is outdated in relation to the blockchain.");
+        }
+        if (structureVersion === applicationVersion) {
+            return false;
+        }
         do {
-            versionTemplate.minorVersion = ++repositoryVersion;
-            const patcher = this.factoryPatcher(versionTemplate.minorVersion);
+            const patcher = this.factoryPatcher(++structureVersion);
             patcher.apply();
-            this.persistence.write('/version', undefined, versionTemplate.content, true);
-        } while (repositoryVersion < applicationVersion);
-        return repositoryVersion;
+        } while (structureVersion < applicationVersion);
+        return structureVersion;
     }
 }

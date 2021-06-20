@@ -14,7 +14,7 @@ export abstract class Template {
      * Contrutor.
      * @param templateName
      */
-    public constructor(public readonly templateName: TemplateFiles) {
+    protected constructor(public readonly templateName: TemplateFiles) {
     }
 
     /**

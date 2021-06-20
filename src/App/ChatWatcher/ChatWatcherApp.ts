@@ -54,7 +54,7 @@ export class ChatWatcherApp extends BaseApp {
      * Tags para os usuários.
      * @private
      */
-    private userTags: KeyValue<string[]>;
+    private readonly userTags: KeyValue<string[]>;
 
     /**
      * Cliente ChatBot da Twitch.
