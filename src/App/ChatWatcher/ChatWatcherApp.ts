@@ -1,23 +1,13 @@
-import fs from 'fs';
 import {ChatBot} from "../../Twitch/ChatBot";
 import {Logger} from "../../Log/Logger";
 import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
 import {BaseApp} from "../../Core/BaseApp";
-import {Message} from "../../Bus/Message";
-import {ChatJoinEvent} from "../../Twitch/MessageEvent/ChatJoinEvent";
-import {ChatPartEvent} from "../../Twitch/MessageEvent/ChatPartEvent";
-import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
-import {UserOnChatModel} from "./Model/UserOnChatModel";
-import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
-import {SendChatMessageCommand} from "../../Twitch/MessageCommand/SendChatMessageCommand";
-import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
-import Timeout = NodeJS.Timeout;
 import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
 import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
-
-//TODO: Reescrever esta classe usando chatListeners.
+import {UserWatcher} from "./UserWatcher";
+import {UserWatcherReport} from "./UserWatcherReport";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -30,39 +20,12 @@ export class ChatWatcherApp extends BaseApp {
     public constructor(environment: any) {
         super('chatWatcher', environment);
 
-        Message.capture(ChatJoinEvent, this, this.handlerChatJoinEvent);
-        Message.capture(ChatPartEvent, this, this.handlerChatPartEvent);
-        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
-        Message.capture(ClockEvent, this, this.handlerClockEvent);
-
+        this.userWatcher = new UserWatcher();
+        this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.environmentApplication.tags);
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
-
         this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
-            new StreamHolicsChatListener([
-                "Stream Holics",
-                "StreamHolics",
-                "sh",
-                "Me",
-                "Eu",
-                "Promote",
-                "Promote Me",
-                "PromoteMe",
-                "Divulgar",
-                "Divulga Aê",
-                "DivulgaAê",
-                "DivulgAê",
-                "WhoAmI",
-                "Alô Aê",
-                "AlôAê",
-                "Hello"
-            ]));
+            new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms));
     }
-
-    /**
-     * Gerenciador de captura de comandos do chat
-     * @private
-     */
-    private readonly chatListenerHandler: ChatListenerHandler;
 
     /**
      * Dados do ambiente para a aplicação.
@@ -79,209 +42,60 @@ export class ChatWatcherApp extends BaseApp {
     private readonly chatBot: ChatBot;
 
     /**
+     * Controle de entrada e saída do canal.
+     * @private
+     */
+    private userWatcher: UserWatcher;
+
+    /**
+     * Resposnável pro gravar e enviar o relatório.
+     * @private
+     */
+    private userWatcherReport: UserWatcherReport;
+
+    /**
+     * Gerenciador de captura de comandos do chat
+     * @private
+     */
+    private readonly chatListenerHandler: ChatListenerHandler;
+
+    /**
      * Inicia a aplicação.
      */
     public run(): void {
         super.run();
 
         this.chatBot.start()
-            .catch(error => Logger.post(() => `Error when start the ChatBot: {message}`, { message: error }, LogLevel.Error, LogContext.ChatWatcherApp));
+            .catch(error => Logger.post(() => `Error when start the ChatWatcher: {message}`, { message: error }, LogLevel.Error, LogContext.ChatWatcherApp));
     }
 
-    /**
-     * Lista de atual de usuários nos canais.
-     * @private
-     */
-    private readonly channelsUsers: KeyValue<UserOnChatModel[]> = { };
+//    /**
+//     * Incrementa a contagem de mensagens do usuário.
+//     * @param channelName
+//     * @param userName
+//     * @private
+//     */
+//    private incrementMessageCount(channelName: string, userName: string): void {
+//        const user = this.getOrAddUser(channelName, userName);
+//
+//        const firstMessage = user.messageCount++ === 0;
+//        if (firstMessage) {
+//            Logger.post("Channel: {channel}. First message from user: {username}", {channel: channelName, username: userName}, LogLevel.Debug, LogContext.ChatWatcherApp);
+//
+//            if (user.tags.length) {
+//                const MessageCommands = user.tags.map(tag => {
+//                    const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
+//                    const messages = tags[tag.toLowerCase()] ?? [];
+//                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
+//                }).flat<SendChatMessageCommand>();
+//
+//                if (MessageCommands.length) {
+//                    MessageCommands.forEach(MessageCommand => MessageCommand.send());
+//                    Logger.post(() => 'Answer first message from user "{username}" on channel "{channel}" because of tags: {tags}', {channel: channelName, username: userName, tags: () => user.tags.join(", ")}, LogLevel.Debug, LogContext.ChatWatcherApp);
+//                }
+//            }
+//        }
+//        this.saveReport();
+//    }
 
-    /**
-     * Adiciona um canal na lista.
-     * @param channelName
-     * @param autoInsert Insere caso não exista.
-     * @private
-     */
-    private getOrAddChannel(channelName: string, autoInsert: boolean = false): UserOnChatModel[] {
-        return this.channelsUsers[channelName] = this.channelsUsers[channelName] || [];
-    }
-
-    /**
-     * Adiciona um usuário na lista de canais.
-     * @param channelName
-     * @param userName
-     * @private
-     */
-    private getOrAddUser(channelName: string, userName: string): UserOnChatModel {
-        const users = this.getOrAddChannel(channelName);
-        let user = users?.find(user => user.userName.toLowerCase() === userName.toLowerCase());
-
-        if (user) {
-            user.updated = new Date();
-            return user;
-        }
-
-        user = new UserOnChatModel(userName);
-        users.push(user);
-
-        const tags = this.environmentApplication.tags[user.userName.toLowerCase()]?.split(/[|,;\s]+/);
-        user.tags = tags ?? [];
-        user.tags.sort((a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase()));
-
-        return user;
-    }
-
-    /**
-     * Atualiza a lista de canais e usuários.
-     * @param channelName
-     * @param userName
-     * @param action Ação
-     * @private
-     */
-    private update(channelName: string, userName: string, action: 'add' | 'remove'): void {
-        const user = this.getOrAddUser(channelName, userName);
-
-        if (action === 'add') user.joined = true;
-        else if (action === 'remove') user.joined = false;
-
-        this.saveReport();
-    }
-
-    /**
-     * Incrementa a contagem de mensagens do usuário.
-     * @param channelName
-     * @param userName
-     * @private
-     */
-    private incrementMessageCount(channelName: string, userName: string): void {
-        const user = this.getOrAddUser(channelName, userName);
-
-        const firstMessage = user.messageCount++ === 0;
-        if (firstMessage) {
-            Logger.post("Channel: {channel}. First message from user: {username}", {channel: channelName, username: userName}, LogLevel.Debug, LogContext.ChatWatcherApp);
-
-            if (user.tags.length) {
-                const MessageCommands = user.tags.map(tag => {
-                    const tags = this.environmentApplication.automaticFirstMessagesForTag[channelName.toLowerCase()] ?? [];
-                    const messages = tags[tag.toLowerCase()] ?? [];
-                    return messages.map(message => new SendChatMessageCommand(channelName, message.translate().querystring([userName, channelName])));
-                }).flat<SendChatMessageCommand>();
-
-                if (MessageCommands.length) {
-                    MessageCommands.forEach(MessageCommand => MessageCommand.send());
-                    Logger.post(() => 'Answer first message from user "{username}" on channel "{channel}" because of tags: {tags}', {channel: channelName, username: userName, tags: () => user.tags.join(", ")}, LogLevel.Debug, LogContext.ChatWatcherApp);
-                }
-            }
-        }
-        this.saveReport();
-    }
-
-    /**
-     * Timeout para bounce do saveReport
-     * @private
-     */
-    private saveReportTimeout: Timeout = 0 as any;
-
-    /**
-     * Grava em um arquivo o estado atual dos canais e usuários.
-     * @private
-     */
-    private saveReport(): void {
-        const action = () => {
-            const fileContent = this.factoryReport();
-            fs.writeFileSync(this.environmentApplication.outputFile, Buffer.from(fileContent));
-            Logger.post('Report saved: {outputFile}', {outputFile: this.environmentApplication.outputFile}, LogLevel.Verbose, LogContext.ChatWatcherApp);
-        };
-
-        clearTimeout(this.saveReportTimeout);
-        const saveAfterMilliseconds = 1000;
-        this.saveReportTimeout = setTimeout(action, saveAfterMilliseconds);
-    }
-
-    /**
-     * Registra o relatório atual no log
-     * @private
-     */
-    private logReport(): void {
-        const content = this.factoryReport();
-        Logger.post('Chat Watcher Report:\n{chatWatcherReport}', {chatWatcherReport: content, event: "ChatWatcherReport" }, LogLevel.Information, LogContext.ChatWatcherApp);
-    }
-
-    /**
-     * Prepara o texto do relatório com o estado atual dos canais e usuários.
-     * @private
-     */
-    private factoryReport(): string {
-        const lines = [];
-
-        for (const channel in this.channelsUsers) {
-            if (!this.channelsUsers.hasOwnProperty(channel)) continue;
-
-            const total = this.channelsUsers[channel].length;
-            const joined = this.channelsUsers[channel].filter(user => user.joined).length;
-            lines.push(`#${channel}: ${joined}/${total}`);
-
-            ([] as UserOnChatModel[])
-                .concat(this.channelsUsers[channel])
-                .sort((a: UserOnChatModel, b: UserOnChatModel) => {
-                    if (!a.tags.includes('bot') && b.tags.includes('bot')) return -1;
-                    else if (a.tags.includes('bot') && !b.tags.includes('bot')) return +1;
-                    else if (a.joined && !b.joined) return -1;
-                    else if (!a.joined && b.joined) return +1;
-                    else if (a.messageCount > b.messageCount) return -1;
-                    else if (a.messageCount < b.messageCount) return +1;
-                    else if (a.updated > b.updated) return -1;
-                    else if (a.updated < b.updated) return +1;
-                    else return a.userName.localeCompare(b.userName);
-                })
-                .forEach(user => lines.push(
-                    `${user.messageCount.toString().padStart(6)} | ` +
-                    `${user.creation.format()} | ` +
-                    `${user.updated.format()} | ` +
-                    `${user.joined ? 'X' : ' '} | ` +
-                    `${user.userName.padEnd(30)} | ` +
-                    user.tags.join(', ')
-                ));
-
-            lines.push('');
-        }
-
-        return lines.join('\n');
-    }
-
-    /**
-     * Processa resposta para mensagem.
-     * @param message ChatJoinEvent
-     * @private
-     */
-    private handlerChatJoinEvent(message: ChatJoinEvent) {
-        Logger.post("Channel: {channel}. User joined: {username}", {channel: message.join.channel.name, username: message.join.userName}, LogLevel.Information, LogContext.ChatWatcherApp);
-        this.update(message.join.channel.name, message.join.userName, 'add');
-    }
-
-    /**
-     * Processa resposta para mensagem.
-     * @param message ChatPartEvent
-     * @private
-     */
-    private handlerChatPartEvent(message: ChatPartEvent) {
-        Logger.post("Channel: {channel}. User parted: {username}", {channel:message.part.channel.name, username: message.part.userName}, LogLevel.Information, LogContext.ChatWatcherApp);
-        this.update(message.part.channel.name, message.part.userName, 'remove');
-    }
-
-    /**
-     * Processa resposta para mensagem.
-     * @param message ChatMessageEvent
-     * @private
-     */
-    private handlerChatMessageEvent(message: ChatMessageEvent) {
-        this.incrementMessageCount(message.chatMessage.channel.name, message.chatMessage.user.name);
-    }
-
-    /**
-     * Processa resposta para mensagem.
-     * @param message ClockEvent
-     * @private
-     */
-    private handlerClockEvent(message: ClockEvent) {
-        if (message.hasElapsedMinutes(5)) this.logReport();
-    }
 }

@@ -27,6 +27,8 @@ export class ChatWatcherEnvironment implements IModel {
             this.tags[tag.toLowerCase()] = environment?.tags[tag];
         }
 
+        this.autoStreamHolicsTerms = environment?.autoStreamHolicsTerms;
+
         this.outputFile = environment?.outputFile ?? '';
     }
 
@@ -61,6 +63,11 @@ export class ChatWatcherEnvironment implements IModel {
      * Tags vinculadas a usuários.
      */
     public readonly tags: KeyValue;
+
+    /**
+     * Termos usados para um usuário chamar o auto !SH.
+     */
+    public readonly autoStreamHolicsTerms: string[];
 
     /**
      * Arquivo de saída do relatório.
