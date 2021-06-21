@@ -1,12 +1,12 @@
-import {Message} from "../../Bus/Message";
-import {ChatJoinEvent} from "../../Twitch/MessageEvent/ChatJoinEvent";
-import {ChatPartEvent} from "../../Twitch/MessageEvent/ChatPartEvent";
-import {KeyValue} from "../../Helper/Types/KeyValue";
-import {UserOnChatModel} from "./Model/UserOnChatModel";
-import {ChatMessageEvent} from "../../Twitch/MessageEvent/ChatMessageEvent";
-import {UserFirstMessageEvent} from "./MessageEvent/UserFirstMessageEvent";
+import {Message} from "../../../Bus/Message";
+import {ChatJoinEvent} from "../../../Twitch/MessageEvent/ChatJoinEvent";
+import {ChatPartEvent} from "../../../Twitch/MessageEvent/ChatPartEvent";
+import {KeyValue} from "../../../Helper/Types/KeyValue";
+import {UserOnChatModel} from "../Model/UserOnChatModel";
+import {ChatMessageEvent} from "../../../Twitch/MessageEvent/ChatMessageEvent";
+import {UserFirstMessageEvent} from "../MessageEvent/UserFirstMessageEvent";
 import Timeout = NodeJS.Timeout;
-import {ReportUpdated} from "./MessageEvent/ReportUpdated";
+import {ReportUpdated} from "../MessageEvent/ReportUpdated";
 
 /**
  * Controle de entrada e saída do canal.

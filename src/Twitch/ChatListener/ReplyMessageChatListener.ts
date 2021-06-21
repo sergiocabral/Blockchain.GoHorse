@@ -7,31 +7,27 @@ import {ShouldNeverHappen} from "../../Errors/ShouldNeverHappen";
 /**
  * Resposta a primeira mensagem do usuário.
  */
-export class ReplyFirstMessageChatListener extends ChatListener {
+export class ReplyMessageChatListener extends ChatListener {
 
     /**
      * Construtor.
-     * @param factoryFirstMessageToReplyUser Função para construir a mensagem de resposta.
+     * @param factoryResponseMessage Função para construir a mensagem de resposta.
      * @param firstMessageMode Modo de considerar primeira mensagem.
+     * @param commandToClearMessageCount Comando para limpar o contador de mensagens.
      */
     public constructor(
-        public factoryFirstMessageToReplyUser: (message: ChatMessageModel) => string[] | string | null,
-        public firstMessageMode: ReplyFirstMessageMode
+        public factoryResponseMessage: (message: ChatMessageModel, messageCount: number) => string[] | string | null,
+        public firstMessageMode: ReplyFirstMessageMode,
+        private readonly commandToClearMessageCount: string | null = null
     ) {
         super();
     }
 
     /**
-     * Comando para limpar o cache.
+     * Contagem de mensagem por usuário em cada canal.
      * @private
      */
-    private commandToClearCache: string = "reset";
-
-    /**
-     *
-     * @private
-     */
-    private cacheForUsersAndChannels: KeyValue<string[]> = { };
+    private messageCountForUserAtChannel: KeyValue<KeyValue<number>> = { };
 
     /**
      * Nome temporário da propriedade que recebe a mensagem construída.
@@ -40,20 +36,20 @@ export class ReplyFirstMessageChatListener extends ChatListener {
     private propertyNameForResponse: string = Math.random().toString();
 
     /**
-     * Limpa o cache das primeiras mensagens.
+     * Limpa a contagem de mensagens por usuário.
      * @private
      */
-    private clearCache(message: ChatMessageModel): void {
+    private clearMessageCount(message: ChatMessageModel): void {
         const channel = message.channel.name;
         const username = message.user.name;
         switch (this.firstMessageMode) {
             case ReplyFirstMessageMode.PerChannel:
-                this.cacheForUsersAndChannels[username] =
-                    (this.cacheForUsersAndChannels[username] || [])
-                        .filter(ch => ch !== channel);
+                if (this.messageCountForUserAtChannel[username]) {
+                    delete this.messageCountForUserAtChannel[username][channel];
+                }
                 break;
             case ReplyFirstMessageMode.Global:
-                this.cacheForUsersAndChannels = { };
+                delete this.messageCountForUserAtChannel[username];
                 break;
             default:
                 throw new ShouldNeverHappen();
@@ -61,39 +57,41 @@ export class ReplyFirstMessageChatListener extends ChatListener {
     }
 
     /**
-     * Determina se é primeira mensagem.
+     * Retorna o número de mensagem por usuário.
      * @param message
      * @private
      */
-    private hasCache(message: ChatMessageModel): boolean {
-        let result;
+    private getMessageCount(message: ChatMessageModel): number {
+        let messageCount: number;
         const channel = message.channel.name;
         const username = message.user.name;
+        this.messageCountForUserAtChannel[username] = this.messageCountForUserAtChannel[username] || { };
         switch (this.firstMessageMode) {
             case ReplyFirstMessageMode.PerChannel:
-                result = Boolean(this.cacheForUsersAndChannels[username]?.includes(channel));
+                messageCount = this.messageCountForUserAtChannel[username][channel] || 0;
                 break;
             case ReplyFirstMessageMode.Global:
-                result = Boolean(this.cacheForUsersAndChannels[username]);
+                messageCount = Object
+                    .keys(this.messageCountForUserAtChannel[username])
+                    .reduce((previous, channel) =>
+                        previous + this.messageCountForUserAtChannel[username][channel], 0);
                 break;
             default:
                 throw new ShouldNeverHappen();
         }
-        return result;
+        return messageCount;
     }
 
     /**
-     * Coloca uma mensagem no cache.
+     * Incrementa o número de mensagem por usuário.
      * @param message
      * @private
      */
-    private putCache(message: ChatMessageModel): void {
+    private incrementMessageCount(message: ChatMessageModel): void {
         const channel = message.channel.name;
         const username = message.user.name;
-        this.cacheForUsersAndChannels[username] = this.cacheForUsersAndChannels[username] ?? [];
-        if (!this.cacheForUsersAndChannels[username].includes(channel)) {
-            this.cacheForUsersAndChannels[username].push(channel);
-        }
+        this.messageCountForUserAtChannel[username] = this.messageCountForUserAtChannel[username] || { };
+        this.messageCountForUserAtChannel[username][channel] = (this.messageCountForUserAtChannel[username][channel] || 0) + 1;
     }
 
     /**
@@ -103,26 +101,25 @@ export class ReplyFirstMessageChatListener extends ChatListener {
      */
     private isMatchForClearCache(message: ChatMessageModel): boolean {
         return (
+            this.commandToClearMessageCount !== null &&
             message.channel.name.toLowerCase() === message.user.name.toLowerCase() &&
             message.isCommand &&
-            message.command === this.commandToClearCache.toLowerCase()
+            message.command === this.commandToClearMessageCount.toLowerCase()
         );
     }
 
     /**
-     * Valida se é a primeira mensagem.
+     * Valida se existe mensagem de resposta.
      * @param message
      * @private
      */
-    private isMatchForFirstMessage(message: ChatMessageModel): boolean {
-        const isFirst = !this.hasCache(message);
-        if (isFirst) {
-            const response = this.factoryFirstMessageToReplyUser(message);
-            if (response?.length) {
-                (message as any)[this.propertyNameForResponse] = response;
-                this.putCache(message);
-                return true;
-            }
+    private isMatchForResponseMessage(message: ChatMessageModel): boolean {
+        this.incrementMessageCount(message);
+        const messageCount = this.getMessageCount(message);
+        const response = this.factoryResponseMessage(message, messageCount);
+        if (response?.length) {
+            (message as any)[this.propertyNameForResponse] = response;
+            return true;
         }
         return false;
     }
@@ -132,11 +129,11 @@ export class ReplyFirstMessageChatListener extends ChatListener {
      */
     public isMatch(message: ChatMessageModel): boolean {
         if (this.isMatchForClearCache(message)) {
-            this.clearCache(message);
+            this.clearMessageCount(message);
             return false;
         }
 
-        return this.isMatchForFirstMessage(message);
+        return this.isMatchForResponseMessage(message);
     }
 
     /**

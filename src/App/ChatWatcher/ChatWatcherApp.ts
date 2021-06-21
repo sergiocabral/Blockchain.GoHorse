@@ -6,12 +6,13 @@ import {BaseApp} from "../../Core/BaseApp";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
 import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
-import {UserWatcher} from "./UserWatcher";
-import {UserWatcherReport} from "./UserWatcherReport";
+import {UserWatcher} from "./UserWatcher/UserWatcher";
+import {UserWatcherReport} from "./UserWatcher/UserWatcherReport";
 import {ChatMessageModel} from "../../Twitch/Model/ChatMessageModel";
-import {ReplyFirstMessageChatListener} from "../../Twitch/ChatListener/ReplyFirstMessageChatListener";
-import {KeyValue} from "../../Helper/Types/KeyValue";
+import {ReplyMessageChatListener} from "../../Twitch/ChatListener/ReplyMessageChatListener";
 import {ReplyFirstMessageMode} from "../../Twitch/ChatListener/ReplyFirstMessageMode";
+import {UserTagsList} from "./UserWatcher/UserTagsList";
+import {AutomaticResponseList} from "./UserWatcher/AutomaticResponseList";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -24,22 +25,17 @@ export class ChatWatcherApp extends BaseApp {
     public constructor(environment: any) {
         super('chatWatcher', environment);
 
-        this.userTags = { };
-        Object
-            .keys(this.environmentApplication.tags)
-            .forEach(username =>
-                this.userTags[username.toLowerCase()] =
-                    this.environmentApplication.tags[username].toLowerCase()
-                        .split(/[,;|\s]/)
-                        .filter(v => Boolean(v))
-                        .sort());
+        this.userTagsList = new UserTagsList(this.environmentApplication.tags);
 
         this.userWatcher = new UserWatcher();
-        this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.userTags);
+        this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.userTagsList);
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
         this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
             new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms),
-            new ReplyFirstMessageChatListener(this.factoryReplyFirstMessage.bind(this), ReplyFirstMessageMode.PerChannel));
+            new ReplyMessageChatListener(
+                this.factoryReplyFirstMessage.bind(this),
+                ReplyFirstMessageMode.PerChannel,
+                "reset"));
     }
 
     /**
@@ -51,10 +47,10 @@ export class ChatWatcherApp extends BaseApp {
     }
 
     /**
-     * Tags para os usuários.
+     * Dados para tags do usuário.
      * @private
      */
-    private readonly userTags: KeyValue<string[]>;
+    private readonly userTagsList: UserTagsList;
 
     /**
      * Cliente ChatBot da Twitch.
@@ -93,31 +89,30 @@ export class ChatWatcherApp extends BaseApp {
     /**
      * Constroi a primeira mensagem de resposta para um usuário.
      * @param message Mensagem.
+     * @param messageCount Contagem de mensagem para o usuário.
      * @private
      */
-    private factoryReplyFirstMessage(message: ChatMessageModel): string[] | null {
-        const messages = [];
+    private factoryReplyFirstMessage(message: ChatMessageModel, messageCount: number): string[] | null {
+        const messages: string[] = [];
+        if (messageCount === 1) {
+            messages.push(...this.factoryReplyMessage(this.environmentApplication.firstMessageAutomaticResponseList, message));
+        }
+        messages.push(...this.factoryReplyMessage(this.environmentApplication.generalMessageAutomaticResponseList, message));
+        return messages.unique<string>();
+    }
 
-        const all = "*";
+    /**
+     * Constroi a primeira mensagem de resposta para um usuário.
+     * @param automaticResponseList Lista de respostas automática.
+     * @param message Mensagem.
+     * @private
+     */
+    private factoryReplyMessage(automaticResponseList: AutomaticResponseList, message: ChatMessageModel): string[] {
         const channel = message.channel.name;
         const username = message.user.name;
-
-        const userTags = this.userTags[username];
-        const channels = this.environmentApplication.automaticFirstMessagesForTag;
-        const tagGroups = [channels[channel] ?? { }, channels[all] ?? { }];
-
-        for (const tagGroup of tagGroups) {
-            for (const tag of Object.keys(tagGroup)) {
-                if (tag === all || userTags?.includes(tag)) {
-                    messages.push(...tagGroup[tag].map(message => message.querystring({
-                        channel: channel,
-                        username: username,
-                    })));
-                }
-            }
-        }
-
-        return messages;
+        return automaticResponseList
+            .getResponsesToUser(channel, this.userTagsList.getUserTags(username), message.message)
+            .map(message => message.querystring({ channel, username }));
     }
 
 }

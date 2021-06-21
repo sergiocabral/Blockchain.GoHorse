@@ -1,13 +1,14 @@
-import {Message} from "../../Bus/Message";
-import {ClockEvent} from "../../Core/MessageEvent/ClockEvent";
-import {ReportUpdated} from "./MessageEvent/ReportUpdated";
-import {KeyValue} from "../../Helper/Types/KeyValue";
-import {UserOnChatModel} from "./Model/UserOnChatModel";
+import {Message} from "../../../Bus/Message";
+import {ClockEvent} from "../../../Core/MessageEvent/ClockEvent";
+import {ReportUpdated} from "../MessageEvent/ReportUpdated";
+import {KeyValue} from "../../../Helper/Types/KeyValue";
+import {UserOnChatModel} from "../Model/UserOnChatModel";
 import fs from "fs";
-import {Logger} from "../../Log/Logger";
-import {LogLevel} from "../../Log/LogLevel";
-import {LogContext} from "../../Log/LogContext";
+import {Logger} from "../../../Log/Logger";
+import {LogLevel} from "../../../Log/LogLevel";
+import {LogContext} from "../../../Log/LogContext";
 import Timeout = NodeJS.Timeout;
+import {UserTagsList} from "./UserTagsList";
 
 /**
  * Resposnável pro gravar e enviar o relatório
@@ -17,11 +18,11 @@ export class UserWatcherReport {
     /**
      * Construtor.
      * @param outputFile Arquivo de saída.
-     * @param userTags Tags de usuários.
+     * @param userTagsList Tags de usuários.
      */
     public constructor(
         private outputFile: string,
-        private userTags: KeyValue<string[]>) {
+        private userTagsList: UserTagsList) {
 
         Message.capture(ClockEvent, this, this.handlerClockEvent);
         Message.capture(ReportUpdated, this, this.handlerReportUpdated);
@@ -63,7 +64,7 @@ export class UserWatcherReport {
                 .concat(this.report[channel])
                 .sort(this.sortUserOnChatModel.bind(this))
                 .forEach(user => {
-                    const tags = this.userTags[user.userName.toLowerCase()] ?? [];
+                    const tags = this.userTagsList.getUserTags(user.userName);
                     lines.push(
                         `${user.messageCount.toString().padStart(6)} | ` +
                         `${user.creation.format()} | ` +
@@ -87,8 +88,8 @@ export class UserWatcherReport {
      */
     private sortUserOnChatModel(a: UserOnChatModel, b: UserOnChatModel): number {
         const tagBotName = "bot";
-        const aTags = this.userTags[a.userName.toLowerCase()] ?? [];
-        const bTags = this.userTags[b.userName.toLowerCase()] ?? [];
+        const aTags = this.userTagsList.getUserTags(a.userName);
+        const bTags = this.userTagsList.getUserTags(b.userName)
         if (!aTags.includes(tagBotName) && bTags.includes(tagBotName)) return -1;
         else if (aTags.includes(tagBotName) && !bTags.includes(tagBotName)) return +1;
         else if (a.joined && !b.joined) return -1;

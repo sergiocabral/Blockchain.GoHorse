@@ -1,6 +1,7 @@
 import {UserAuthenticationModel} from "../../Twitch/Model/UserAuthenticationModel";
 import {IModel} from "../../Core/IModel";
 import {KeyValue} from "../../Helper/Types/KeyValue";
+import {AutomaticResponseList} from "./UserWatcher/AutomaticResponseList";
 
 /**
  * Informação de configuração do ambiente da aplicação ChatWatcher.
@@ -14,12 +15,12 @@ export class ChatWatcherEnvironment implements IModel {
         this.twitchAccount = new UserAuthenticationModel(environment?.twitchAccount);
         this.channels = environment?.channels?.length ? environment.channels : null;
 
-        this.automaticFirstMessagesForTag = {};
-        for (const channel of Object.keys(environment?.automaticFirstMessagesForTag)) {
-            this.automaticFirstMessagesForTag[channel.toLowerCase()] = {};
-            for (const tag of Object.keys(environment?.automaticFirstMessagesForTag[channel])) {
-                this.automaticFirstMessagesForTag[channel.toLowerCase()][tag.toLowerCase()] = environment?.automaticFirstMessagesForTag[channel][tag];
-            }
+        try {
+            this.firstMessageAutomaticResponseList = new AutomaticResponseList(environment?.firstMessageAutomaticResponseList);
+            this.generalMessageAutomaticResponseList = new AutomaticResponseList(environment?.generalMessageAutomaticResponseList);
+        } catch (e) {
+            this.firstMessageAutomaticResponseList = undefined as any;
+            this.generalMessageAutomaticResponseList = undefined as any;
         }
 
         this.tags = {};
@@ -41,6 +42,8 @@ export class ChatWatcherEnvironment implements IModel {
             Boolean(this.channels?.length) &&
             Boolean(this.tags) &&
             Boolean(this.autoStreamHolicsTerms) &&
+            Boolean(this.firstMessageAutomaticResponseList) &&
+            Boolean(this.generalMessageAutomaticResponseList) &&
             Boolean(this.outputFile)
         );
     }
@@ -56,9 +59,14 @@ export class ChatWatcherEnvironment implements IModel {
     public readonly channels: string[];
 
     /**
-     * Comando para tags.
+     * Configuração de resposta automática para primeira mensagem.
      */
-    public readonly automaticFirstMessagesForTag: KeyValue<KeyValue<string[]>>;
+    public readonly firstMessageAutomaticResponseList: AutomaticResponseList;
+
+    /**
+     * Configuração de resposta automática para mensagens em geral.
+     */
+    public readonly generalMessageAutomaticResponseList: AutomaticResponseList;
 
     /**
      * Tags vinculadas a usuários.
