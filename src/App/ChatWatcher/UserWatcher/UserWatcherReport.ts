@@ -1,6 +1,6 @@
 import {Message} from "../../../Bus/Message";
 import {ClockEvent} from "../../../Core/MessageEvent/ClockEvent";
-import {ReportUpdated} from "../MessageEvent/ReportUpdated";
+import {ReportUpdated} from "./MessageEvent/ReportUpdated";
 import {KeyValue} from "../../../Helper/Types/KeyValue";
 import {UserOnChatModel} from "../Model/UserOnChatModel";
 import fs from "fs";

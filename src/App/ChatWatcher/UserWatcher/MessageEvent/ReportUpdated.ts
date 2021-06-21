@@ -1,6 +1,6 @@
-import {Message} from "../../../Bus/Message";
-import {KeyValue} from "../../../Helper/Types/KeyValue";
-import {UserOnChatModel} from "../Model/UserOnChatModel";
+import {Message} from "../../../../Bus/Message";
+import {KeyValue} from "../../../../Helper/Types/KeyValue";
+import {UserOnChatModel} from "../../Model/UserOnChatModel";
 
 /**
  * Dados atualizados.
