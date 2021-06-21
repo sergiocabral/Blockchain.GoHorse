@@ -1,6 +1,6 @@
 import {ChatMessageModel} from "../Model/ChatMessageModel";
 import {ChatListener} from "./ChatListener";
-import {ReplyFirstMessageMode} from "./ReplyFirstMessageMode";
+import {ReplyMessageCountMode} from "./ReplyMessageCountMode";
 import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ShouldNeverHappen} from "../../Errors/ShouldNeverHappen";
 
@@ -12,12 +12,12 @@ export class ReplyMessageChatListener extends ChatListener {
     /**
      * Construtor.
      * @param factoryResponseMessage Função para construir a mensagem de resposta.
-     * @param firstMessageMode Modo de considerar primeira mensagem.
+     * @param messageCountMode Modo de considerar primeira mensagem.
      * @param commandToClearMessageCount Comando para limpar o contador de mensagens.
      */
     public constructor(
         public factoryResponseMessage: (message: ChatMessageModel, messageCount: number) => string[] | string | null,
-        public firstMessageMode: ReplyFirstMessageMode,
+        public messageCountMode: ReplyMessageCountMode,
         private readonly commandToClearMessageCount: string | null = null
     ) {
         super();
@@ -42,13 +42,13 @@ export class ReplyMessageChatListener extends ChatListener {
     private clearMessageCount(message: ChatMessageModel): void {
         const channel = message.channel.name;
         const username = message.user.name;
-        switch (this.firstMessageMode) {
-            case ReplyFirstMessageMode.PerChannel:
+        switch (this.messageCountMode) {
+            case ReplyMessageCountMode.PerChannel:
                 if (this.messageCountForUserAtChannel[username]) {
                     delete this.messageCountForUserAtChannel[username][channel];
                 }
                 break;
-            case ReplyFirstMessageMode.Global:
+            case ReplyMessageCountMode.Global:
                 delete this.messageCountForUserAtChannel[username];
                 break;
             default:
@@ -66,11 +66,11 @@ export class ReplyMessageChatListener extends ChatListener {
         const channel = message.channel.name;
         const username = message.user.name;
         this.messageCountForUserAtChannel[username] = this.messageCountForUserAtChannel[username] || { };
-        switch (this.firstMessageMode) {
-            case ReplyFirstMessageMode.PerChannel:
+        switch (this.messageCountMode) {
+            case ReplyMessageCountMode.PerChannel:
                 messageCount = this.messageCountForUserAtChannel[username][channel] || 0;
                 break;
-            case ReplyFirstMessageMode.Global:
+            case ReplyMessageCountMode.Global:
                 messageCount = Object
                     .keys(this.messageCountForUserAtChannel[username])
                     .reduce((previous, channel) =>

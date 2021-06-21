@@ -5,12 +5,11 @@ import {LogContext} from "../../Log/LogContext";
 import {BaseApp} from "../../Core/BaseApp";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
 import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
-import {StreamHolicsChatListener} from "../../Twitch/ChatListener/StreamHolicsChatListener";
 import {UserWatcher} from "./UserWatcher/UserWatcher";
 import {UserWatcherReport} from "./UserWatcher/UserWatcherReport";
 import {ChatMessageModel} from "../../Twitch/Model/ChatMessageModel";
 import {ReplyMessageChatListener} from "../../Twitch/ChatListener/ReplyMessageChatListener";
-import {ReplyFirstMessageMode} from "../../Twitch/ChatListener/ReplyFirstMessageMode";
+import {ReplyMessageCountMode} from "../../Twitch/ChatListener/ReplyMessageCountMode";
 import {UserTagsList} from "./UserWatcher/UserTagsList";
 import {AutomaticResponseList} from "./UserWatcher/AutomaticResponseList";
 
@@ -31,10 +30,9 @@ export class ChatWatcherApp extends BaseApp {
         this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.userTagsList);
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
         this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
-            new StreamHolicsChatListener(this.environmentApplication.autoStreamHolicsTerms),
             new ReplyMessageChatListener(
                 this.factoryReplyFirstMessage.bind(this),
-                ReplyFirstMessageMode.PerChannel,
+                ReplyMessageCountMode.PerChannel,
                 "reset"));
     }
 

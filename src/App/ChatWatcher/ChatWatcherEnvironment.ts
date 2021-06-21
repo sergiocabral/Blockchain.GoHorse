@@ -28,8 +28,6 @@ export class ChatWatcherEnvironment implements IModel {
             this.tags[tag.toLowerCase()] = environment?.tags[tag];
         }
 
-        this.autoStreamHolicsTerms = environment?.autoStreamHolicsTerms;
-
         this.outputFile = environment?.outputFile ?? '';
     }
 
@@ -41,7 +39,6 @@ export class ChatWatcherEnvironment implements IModel {
             this.twitchAccount.isFilled() &&
             Boolean(this.channels?.length) &&
             Boolean(this.tags) &&
-            Boolean(this.autoStreamHolicsTerms) &&
             Boolean(this.firstMessageAutomaticResponseList) &&
             Boolean(this.generalMessageAutomaticResponseList) &&
             Boolean(this.outputFile)
@@ -72,11 +69,6 @@ export class ChatWatcherEnvironment implements IModel {
      * Tags vinculadas a usuários.
      */
     public readonly tags: KeyValue;
-
-    /**
-     * Termos usados para um usuário chamar o auto !SH.
-     */
-    public readonly autoStreamHolicsTerms: string[];
 
     /**
      * Arquivo de saída do relatório.

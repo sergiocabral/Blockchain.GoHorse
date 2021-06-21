@@ -1,7 +1,7 @@
 /**
  * Modo de considerar uma mensagem como sendo a primeira
  */
-export enum ReplyFirstMessageMode {
+export enum ReplyMessageCountMode {
     /**
      * Primeira mensagem por canal.
      */
