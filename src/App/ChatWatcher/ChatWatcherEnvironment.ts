@@ -1,7 +1,7 @@
 import {UserAuthenticationModel} from "../../Twitch/Model/UserAuthenticationModel";
 import {IModel} from "../../Core/IModel";
 import {KeyValue} from "../../Helper/Types/KeyValue";
-import {AutomaticResponseList} from "./UserWatcher/AutomaticResponseList";
+import {AutomaticResponseList} from "./AutomaticResponse/AutomaticResponseList";
 
 /**
  * Informação de configuração do ambiente da aplicação ChatWatcher.

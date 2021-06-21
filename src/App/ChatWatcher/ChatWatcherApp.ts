@@ -4,14 +4,10 @@ import {LogLevel} from "../../Log/LogLevel";
 import {LogContext} from "../../Log/LogContext";
 import {BaseApp} from "../../Core/BaseApp";
 import {ChatWatcherEnvironment} from "./ChatWatcherEnvironment";
-import {ChatListenerHandler} from "../../Twitch/ChatListener/ChatListenerHandler";
 import {UserWatcher} from "./UserWatcher/UserWatcher";
 import {UserWatcherReport} from "./UserWatcher/UserWatcherReport";
-import {ChatMessageModel} from "../../Twitch/Model/ChatMessageModel";
-import {ReplyMessageChatListener} from "../../Twitch/ChatListener/ReplyMessageChatListener";
-import {ReplyMessageCountMode} from "../../Twitch/ChatListener/ReplyMessageCountMode";
 import {UserTagsList} from "./UserWatcher/UserTagsList";
-import {AutomaticResponseList} from "./UserWatcher/AutomaticResponseList";
+import {AutomaticResponse} from "./AutomaticResponse/AutomaticResponse";
 
 /**
  * Aplicação: Monitorador do chat.
@@ -28,12 +24,8 @@ export class ChatWatcherApp extends BaseApp {
 
         this.userWatcher = new UserWatcher();
         this.userWatcherReport = new UserWatcherReport(this.environmentApplication.outputFile, this.userTagsList);
+        this.automaticResponse = new AutomaticResponse(this.userTagsList, this.environmentApplication.channels, this.environmentApplication.firstMessageAutomaticResponseList, this.environmentApplication.generalMessageAutomaticResponseList);
         this.chatBot = new ChatBot(this.environmentApplication.twitchAccount, this.environmentApplication.channels);
-        this.chatListenerHandler = new ChatListenerHandler(this.environmentApplication.channels,
-            new ReplyMessageChatListener(
-                this.factoryReplyFirstMessage.bind(this),
-                ReplyMessageCountMode.PerChannel,
-                "reset"));
     }
 
     /**
@@ -69,10 +61,10 @@ export class ChatWatcherApp extends BaseApp {
     private userWatcherReport: UserWatcherReport;
 
     /**
-     * Gerenciador de captura de comandos do chat
+     * Gerencia a reposta automático ao usuário.
      * @private
      */
-    private readonly chatListenerHandler: ChatListenerHandler;
+    private automaticResponse: AutomaticResponse;
 
     /**
      * Inicia a aplicação.
@@ -82,35 +74,6 @@ export class ChatWatcherApp extends BaseApp {
 
         this.chatBot.start()
             .catch(error => Logger.post(() => `Error when start the ChatWatcher: {message}`, { message: error }, LogLevel.Error, LogContext.ChatWatcherApp));
-    }
-
-    /**
-     * Constroi a primeira mensagem de resposta para um usuário.
-     * @param message Mensagem.
-     * @param messageCount Contagem de mensagem para o usuário.
-     * @private
-     */
-    private factoryReplyFirstMessage(message: ChatMessageModel, messageCount: number): string[] | null {
-        const messages: string[] = [];
-        if (messageCount === 1) {
-            messages.push(...this.factoryReplyMessage(this.environmentApplication.firstMessageAutomaticResponseList, message));
-        }
-        messages.push(...this.factoryReplyMessage(this.environmentApplication.generalMessageAutomaticResponseList, message));
-        return messages.unique<string>();
-    }
-
-    /**
-     * Constroi a primeira mensagem de resposta para um usuário.
-     * @param automaticResponseList Lista de respostas automática.
-     * @param message Mensagem.
-     * @private
-     */
-    private factoryReplyMessage(automaticResponseList: AutomaticResponseList, message: ChatMessageModel): string[] {
-        const channel = message.channel.name;
-        const username = message.user.name;
-        return automaticResponseList
-            .getResponsesToUser(channel, this.userTagsList.getUserTags(username), message.message)
-            .map(message => message.querystring({ channel, username }));
     }
 
 }
