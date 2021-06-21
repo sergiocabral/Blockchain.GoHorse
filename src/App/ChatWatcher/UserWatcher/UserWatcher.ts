@@ -17,9 +17,9 @@ export class UserWatcher {
      * Construtor.
      */
     public constructor() {
-        Message.capture(ChatJoinEvent, this, this.handlerChatJoinEvent);
-        Message.capture(ChatPartEvent, this, this.handlerChatPartEvent);
-        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
+        Message.capture(ChatJoinEvent, this.handlerChatJoinEvent.bind(this));
+        Message.capture(ChatPartEvent, this.handlerChatPartEvent.bind(this));
+        Message.capture(ChatMessageEvent, this.handlerChatMessageEvent.bind(this));
     }
 
     /**

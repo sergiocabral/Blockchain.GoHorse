@@ -11,10 +11,9 @@ export class MessageCapture {
     /**
      * Construtor.
      * @param message Mensagem
-     * @param toBind Instância usada para bind.
      * @param listenerOriginal Função chamada ao capturar a mensagem.
      */
-    public constructor(public message: any, public toBind: any, public listenerOriginal: Function) {
+    public constructor(public message: any, public listenerOriginal: Function) {
         this.messageName = Text.getObjectName(message);
     }
 
@@ -28,11 +27,10 @@ export class MessageCapture {
      * @param message Mensagem.
      */
     public request(message: Message): void {
-        const listener = this.listenerOriginal.bind(this.toBind);
         if (!Message.messagesToIgnoreAtLog.includes(this.messageName)) {
             Logger.post("Message {messageName} requested.", {messageName: this.messageName}, LogLevel.Verbose, LogContext.MessageBus);
         }
-        listener(message);
+        this.listenerOriginal(message);
     }
 
     /**top
@@ -43,7 +41,6 @@ export class MessageCapture {
     public equals(capture: MessageCapture): boolean {
         return (
             this.messageName === capture.messageName &&
-            this.toBind === capture.toBind &&
             this.listenerOriginal === capture.listenerOriginal
         );
     }

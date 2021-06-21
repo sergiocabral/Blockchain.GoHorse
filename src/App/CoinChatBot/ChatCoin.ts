@@ -16,7 +16,7 @@ export class ChatCoin {
     constructor(private coin: CoinModel) {
         this.coinCommandQueue = new CoinCommandQueue(coin);
 
-        Message.capture(RedeemEvent, this, this.handlerRedeemEvent);
+        Message.capture(RedeemEvent, this.handlerRedeemEvent.bind(this));
 
         this.chatListenerHandler = new ChatListenerHandler(coin.channels,
             new HelloWorldChatListener());

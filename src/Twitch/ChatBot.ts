@@ -46,7 +46,7 @@ export class ChatBot implements Events {
 
         ChatBot.registerEvents(this.client, this);
 
-        Message.capture(SendChatMessageCommand, this, this.handlerSendChatMessageCommand);
+        Message.capture(SendChatMessageCommand, this.handlerSendChatMessageCommand.bind(this));
     }
 
     /**

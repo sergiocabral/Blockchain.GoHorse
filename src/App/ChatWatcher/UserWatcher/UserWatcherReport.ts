@@ -24,8 +24,8 @@ export class UserWatcherReport {
         private outputFile: string,
         private userTagsList: UserTagsList) {
 
-        Message.capture(ClockEvent, this, this.handlerClockEvent);
-        Message.capture(ReportUpdated, this, this.handlerReportUpdated);
+        Message.capture(ClockEvent, this.handlerClockEvent.bind(this));
+        Message.capture(ReportUpdated, this.handlerReportUpdated.bind(this));
     }
 
     /**

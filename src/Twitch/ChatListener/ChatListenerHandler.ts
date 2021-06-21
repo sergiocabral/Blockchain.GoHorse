@@ -18,7 +18,7 @@ export class ChatListenerHandler {
         private readonly channels: string[],
         ...listeners: ChatListener[]) {
         this.instances = listeners;
-        Message.capture(ChatMessageEvent, this, this.handlerChatMessageEvent);
+        Message.capture(ChatMessageEvent, this.handlerChatMessageEvent.bind(this));
     }
 
     /**

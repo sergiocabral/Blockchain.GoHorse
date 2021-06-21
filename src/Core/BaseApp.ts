@@ -26,7 +26,7 @@ export abstract class BaseApp {
      */
     protected constructor(applicationName: keyof ApplicationEnvironment, environment: any) {
         this.environment = new Environment(applicationName, environment);
-        Message.capture(EnvironmentQuery, this, this.handlerEnvironmentQuery);
+        Message.capture(EnvironmentQuery, this.handlerEnvironmentQuery.bind(this));
         Logger.initialize(this.environment.applicationName, this.environment.log);
         this.loadLocaleData();
         this.clockStart();

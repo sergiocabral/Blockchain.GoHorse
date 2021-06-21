@@ -26,12 +26,11 @@ export abstract class Message {
     /**
      * Se registrar para capturar uma mensagem.
      * @param message Mensagem.
-     * @param thisRef Instância usada para bind.
      * @param listener Função chamada ao captura.
      * @returns Informações de captura.
      */
-    public static capture(message: any, thisRef: any, listener: Function): MessageCapture {
-        const capture = new MessageCapture(message, thisRef, listener);
+    public static capture(message: any, listener: Function): MessageCapture {
+        const capture = new MessageCapture(message, listener);
         if (this.captures.filter(v => v.equals(capture)).length)
             throw new InvalidExecutionError("Duplicate Message.capture().");
         this.captures.push(capture);
