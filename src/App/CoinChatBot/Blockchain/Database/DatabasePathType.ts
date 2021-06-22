@@ -1,4 +1,4 @@
-export type DatabasePath =
+export type DatabasePathType =
     "/wallet/{wallet-id}" |
 
     "/whois/twitch/id/{twitch-user-id}" |

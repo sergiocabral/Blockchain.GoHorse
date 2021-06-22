@@ -1,4 +1,4 @@
-export type TemplateFiles =
+export type TemplateFileType =
     "Wallet" |
 
     "HumanProblem" |

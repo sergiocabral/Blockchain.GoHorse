@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import {KeyValue} from "../../../../Helper/Types/KeyValue";
 import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
-import {TemplateFiles} from "./TemplateFiles";
+import {TemplateFileType} from "./TemplateFileType";
 import {TemplateKey} from "./TemplateKey";
 
 /**
@@ -14,7 +14,7 @@ export abstract class Template {
      * Contrutor.
      * @param templateName
      */
-    protected constructor(public readonly templateName: TemplateFiles) {
+    protected constructor(public readonly templateName: TemplateFileType) {
     }
 
     /**
@@ -51,7 +51,7 @@ export abstract class Template {
      * Conteúdo do template
      * @param templateName Nome do template.
      */
-    public static templateContent(templateName: TemplateFiles): string {
+    public static templateContent(templateName: TemplateFileType): string {
         if (!this.templateContentValues[templateName]) {
             const filePath = path.resolve(__dirname, `${templateName}Template.${Template.extension}`);
             this.templateContentValues[templateName] = Buffer.from(fs.readFileSync(filePath)).toString();

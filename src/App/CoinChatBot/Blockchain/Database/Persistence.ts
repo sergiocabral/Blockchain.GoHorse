@@ -1,7 +1,7 @@
 import path from "path";
 import {IO} from "../../../../Helper/IO";
 import {Definition} from "../Definition";
-import {DatabasePath} from "./DatabasePath";
+import {DatabasePathType} from "./DatabasePathType";
 import fs from "fs";
 import {ShouldNeverHappen} from "../../../../Errors/ShouldNeverHappen";
 
@@ -38,7 +38,7 @@ export class Persistence {
      * @param overwrite Sobreescreve o arquivo.
      * @private
      */
-    public write(file: DatabasePath, fileReplacement: any = undefined, content: string, overwrite: boolean = false): boolean {
+    public write(file: DatabasePathType, fileReplacement: any = undefined, content: string, overwrite: boolean = false): boolean {
         const realpath = this.ensurePath(file, fileReplacement);
         if (overwrite || !fs.existsSync(realpath)) {
             fs.writeFileSync(realpath, content);
@@ -55,7 +55,7 @@ export class Persistence {
      * @param autoCreate Cria o arquivo se não existir.
      * @private
      */
-    public read(file: DatabasePath, fileReplacement: any = undefined, fallback?: (() => string) | string, autoCreate?: boolean): string | null {
+    public read(file: DatabasePathType, fileReplacement: any = undefined, fallback?: (() => string) | string, autoCreate?: boolean): string | null {
         const realpath = this.ensurePath(file, fileReplacement);
         let content: string | null = null;
         if (fs.existsSync(realpath)) {
