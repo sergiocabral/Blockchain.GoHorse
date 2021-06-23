@@ -42,6 +42,7 @@ export class ChatListenerHandler {
 
         const userMatch = (
             chatListener.listenFromUsers.includes(UserFilter.ALL_USERS) ||
+            (chatListener.listenFromUsers.includes(UserFilter.OWNER_CHANNEL) && chatMessageEvent.chatMessage.user.name.toLowerCase() === chatMessageEvent.chatMessage.channel.name.toLowerCase()) ||
             chatListener.listenFromUsers.findIndex(user => user.toLowerCase() === chatMessageEvent.chatMessage.user.name.toLowerCase()) >= 0
         );
         if (!userMatch) return false;

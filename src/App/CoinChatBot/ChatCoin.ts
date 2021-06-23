@@ -19,7 +19,8 @@ export class ChatCoin {
         Message.capture(RedeemEvent, this.handlerRedeemEvent.bind(this));
 
         this.chatListenerHandler = new ChatListenerHandler(coin.channels,
-            new HelloWorldChatListener());
+            new HelloWorldChatListener(),
+            ...this.coinCommandQueue.getChatCommands());
     }
 
     /**

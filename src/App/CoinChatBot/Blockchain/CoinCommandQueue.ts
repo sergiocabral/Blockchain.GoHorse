@@ -3,6 +3,9 @@ import {Database} from "./Database/Database";
 import {Miner} from "./Miner/Miner";
 import {InvalidExecutionError} from "../../../Errors/InvalidExecutionError";
 import {Definition} from "./Definition";
+import {ChatListener} from "../../../Twitch/ChatListener/ChatListener";
+import {WalletMyChatCommand} from "../ChatCommand/WalletMyChatCommand";
+import {HelpChatCommand} from "../ChatCommand/HelpChatCommand";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -44,5 +47,15 @@ export class CoinCommandQueue {
                 "Directories and files structure updated for version: {0}.{1}."
                     .querystring([Definition.MajorVersion, newVersion]));
         }
+    }
+
+    /**
+     * Retorna a lista de comandos para operar a blockchain.
+     */
+    public getChatCommands(): ChatListener[] {
+        return [
+            new HelpChatCommand(this.coin),
+            new WalletMyChatCommand(this.coin)
+        ];
     }
 }

@@ -7,6 +7,7 @@ import {WalletModel} from "./Model/WalletModel";
 import {VersionSection} from "./Section/VersionSection";
 import {WalletSection} from "./Section/WalletSection";
 
+
 /**
  * Banco de dados com as informações da moeda.
  */
