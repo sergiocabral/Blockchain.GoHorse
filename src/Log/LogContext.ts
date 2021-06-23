@@ -51,4 +51,14 @@ export class LogContext {
      * Blockchain
      */
     public static readonly BlockchainMiner: string = 'BlockchainMiner';
+
+    /**
+     * ChatListenerHandler
+     */
+    public static readonly ChatListenerHandler: string = 'ChatListenerHandler';
+
+    /**
+     * ReplyMessageChatListener
+     */
+    public static readonly ReplyMessageChatListener: string = 'ReplyMessageChatListener';
 }

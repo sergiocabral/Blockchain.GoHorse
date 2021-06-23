@@ -3,6 +3,9 @@ import {ChatListener} from "./ChatListener";
 import {ReplyMessageCountMode} from "./ReplyMessageCountMode";
 import {KeyValue} from "../../Helper/Types/KeyValue";
 import {ShouldNeverHappen} from "../../Errors/ShouldNeverHappen";
+import {Logger} from "../../Log/Logger";
+import {LogLevel} from "../../Log/LogLevel";
+import {LogContext} from "../../Log/LogContext";
 
 /**
  * Resposta a primeira mensagem do usuário.
@@ -54,6 +57,11 @@ export class ReplyMessageChatListener extends ChatListener {
             default:
                 throw new ShouldNeverHappen();
         }
+        Logger.post("Message count cleared with mode {messageCountMode}. Username: {username}. Channel: {channel}", {
+            messageCountMode: ReplyMessageCountMode[this.messageCountMode],
+            username,
+            channel
+        }, LogLevel.Verbose, LogContext.ReplyMessageChatListener);
     }
 
     /**
@@ -100,12 +108,17 @@ export class ReplyMessageChatListener extends ChatListener {
      * @private
      */
     private isMatchForClearCache(message: ChatMessageModel): boolean {
-        return (
+        const isMatch = (
             this.commandToClearMessageCount !== null &&
             message.channel.name.toLowerCase() === message.user.name.toLowerCase() &&
             message.isCommand &&
             message.command === this.commandToClearMessageCount.toLowerCase()
         );
+        Logger.post("Checking command to clear ({commandClear}): {isMatch}", {
+            commandClear: this.commandToClearMessageCount ?? "no command was defined",
+            isMatch
+        }, LogLevel.Verbose, LogContext.ReplyMessageChatListener)
+        return isMatch;
     }
 
     /**

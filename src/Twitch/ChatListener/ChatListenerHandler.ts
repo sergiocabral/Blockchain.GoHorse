@@ -4,6 +4,10 @@ import {ChatMessageEvent} from "../MessageEvent/ChatMessageEvent";
 import {SendChatMessageCommand} from "../MessageCommand/SendChatMessageCommand";
 import {ChannelFilter} from "./ChannelFilter";
 import {UserFilter} from "./UserFilter";
+import {Logger} from "../../Log/Logger";
+import {Text} from "../../Helper/Text";
+import {LogLevel} from "../../Log/LogLevel";
+import {LogContext} from "../../Log/LogContext";
 
 /**
  * Gerenciador de captura de comandos do chat.
@@ -47,7 +51,14 @@ export class ChatListenerHandler {
         );
         if (!userMatch) return false;
 
-        return chatListener.isMatch(chatMessageEvent.chatMessage);
+        const isMatch =  chatListener.isMatch(chatMessageEvent.chatMessage);
+
+        Logger.post("Check if matching message {message}: {isMatch}", {
+            message: Text.getObjectName(chatMessageEvent.chatMessage),
+            isMatch
+        }, LogLevel.Verbose, LogContext.ChatListenerHandler);
+
+        return isMatch;
     }
 
     /**
