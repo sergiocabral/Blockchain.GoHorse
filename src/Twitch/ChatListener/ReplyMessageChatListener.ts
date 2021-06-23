@@ -47,21 +47,28 @@ export class ReplyMessageChatListener extends ChatListener {
         const username = message.user.name;
         switch (this.messageCountMode) {
             case ReplyMessageCountMode.PerChannel:
-                if (this.messageCountForUserAtChannel[username]) {
-                    delete this.messageCountForUserAtChannel[username][channel];
+                for (const cachedUsername in this.messageCountForUserAtChannel) {
+                    if (this.messageCountForUserAtChannel.hasOwnProperty(cachedUsername)) {
+                        delete this.messageCountForUserAtChannel[cachedUsername][channel];
+                        Logger.post("Message count cleared with mode {messageCountMode}. Username: {username}. Channel: {channel}", {
+                            messageCountMode: ReplyMessageCountMode[this.messageCountMode],
+                            username: cachedUsername,
+                            channel
+                        }, LogLevel.Verbose, LogContext.ReplyMessageChatListener);
+                    }
                 }
                 break;
             case ReplyMessageCountMode.Global:
                 delete this.messageCountForUserAtChannel[username];
+                Logger.post("Message count cleared with mode {messageCountMode}. Username: {username}. Channel: {channel}", {
+                    messageCountMode: ReplyMessageCountMode[this.messageCountMode],
+                    username,
+                    channel
+                }, LogLevel.Verbose, LogContext.ReplyMessageChatListener);
                 break;
             default:
                 throw new ShouldNeverHappen();
         }
-        Logger.post("Message count cleared with mode {messageCountMode}. Username: {username}. Channel: {channel}", {
-            messageCountMode: ReplyMessageCountMode[this.messageCountMode],
-            username,
-            channel
-        }, LogLevel.Verbose, LogContext.ReplyMessageChatListener);
     }
 
     /**
