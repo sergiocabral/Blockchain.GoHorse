@@ -9,7 +9,7 @@ export class WalletMyChatCommand extends BaseChatCommand {
     /**
      * Nome do comando.
      */
-    protected subCommands: string[] = [ "wallet", "my" ];
+    protected subCommands: (string | RegExp)[] = [ "wallet", "my", /^(|[a-fA-F0-9]{8})$/ ];
 
     /**
      * Execução do comando.
@@ -17,6 +17,7 @@ export class WalletMyChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[]): string | string[] {
+        //TODO: Implementar
         return "You wallet is " + Text.random(undefined, 40);
     }
 }

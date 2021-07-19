@@ -47,10 +47,19 @@ export abstract class BaseChatCommand extends ChatListener {
         const subCommands = Array.isArray(this.subCommands) ? this.subCommands : [this.subCommands];
         const argsOnlyWithSubCommands = args.slice(1);
 
-        if (argsOnlyWithSubCommands.length !== subCommands.length) return false;
+        if (argsOnlyWithSubCommands.length > subCommands.length) return false;
 
-        for (let i = 1; i < argsOnlyWithSubCommands.length && i < subCommands.length; i++) {
-            if (!new RegExp(subCommands[i], 'i').test(argsOnlyWithSubCommands[i])) return false;
+        const complementaryEmptyArray = new Array(subCommands.length - argsOnlyWithSubCommands.length).fill('');
+        argsOnlyWithSubCommands.push(...complementaryEmptyArray);
+
+        for (let i = 0; i < argsOnlyWithSubCommands.length && i < subCommands.length; i++) {
+            const expression = subCommands[i];
+            const argument = argsOnlyWithSubCommands[i];
+            if (expression instanceof RegExp) {
+                if (!new RegExp(expression, 'i').test(argument)) return false;
+            } else {
+                if (expression.toLowerCase() !== argument.toLowerCase()) return false;
+            }
         }
 
         return true;
