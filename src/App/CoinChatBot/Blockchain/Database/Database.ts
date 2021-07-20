@@ -6,6 +6,7 @@ import {Git} from "../../../../Process/Git";
 import {WalletModel} from "./Model/WalletModel";
 import {VersionSection} from "./Section/VersionSection";
 import {WalletSection} from "./Section/WalletSection";
+import {HelpSection} from "./Section/HelpSection";
 
 
 /**
@@ -13,7 +14,11 @@ import {WalletSection} from "./Section/WalletSection";
  */
 export class Database {
     /**
-     * Extensão padrão dos arquivos.
+     * Versão atual do banco de dados.
+     * ATENÇÃO!
+     * Como a estrutura do banco de dados é definido pelo código-fonte
+     * O número da versão é hard-coded pelo código-fonte
+     * NÃO ESQUEÇA DE MUDAR A VERSÃO DO BANCO DE DADOS PARA QUE ISSO SEJA GRAVADO NA BLOCKCHAIN.
      * @private
      */
     public readonly version: number = 1;
@@ -55,6 +60,11 @@ export class Database {
         version: new VersionSection(this),
 
         /**
+         * Ajuda sobre os comandos, etc.
+         */
+        help: new HelpSection(this),
+
+        /**
          * Carteiras
          */
         wallet: new WalletSection(this)
@@ -64,6 +74,7 @@ export class Database {
      * Cria a estrutura inicial
      */
     public updateStructure(): number | boolean {
+        this.section.help.set();
         const structureVersion = this.section.version.get();
         const applicationVersion = this.version;
         const newVersion = this.patcher.updateStructure(structureVersion, applicationVersion);

@@ -16,7 +16,9 @@ export class HelpChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[]): string | string[] {
-        //TODO: Criar o help na blockchain.
-        return `Access help in this link {url}`.translate().querystring({ url: this.coin.repositoryUrl });
+        //TODO: Definir o caminho do arquivo usando as devidas variáveis
+        return `Access help in this link {url}`.translate().querystring({
+            url: `${this.coin.repositoryUrl}/blob/blockchain-cabr0n-dev/docs/help.txt`
+        });
     }
 }

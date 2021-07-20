@@ -1,4 +1,6 @@
 export type DatabasePathType =
+    "/docs/help" |
+
     "/wallet/{wallet-id}" |
 
     "/whois/twitch/id/{twitch-user-id}" |
