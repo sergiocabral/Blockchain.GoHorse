@@ -26,7 +26,7 @@ export abstract class BaseChatCommand extends ChatListener {
      * Comando para o funcionamento da blockchain.
      * @private
      */
-    private command: string = "cabr0n";
+    private possibleCommands: string[] = [ "cabr0n", "cabron" ];
 
     /**
      * Nome do comando.
@@ -49,7 +49,7 @@ export abstract class BaseChatCommand extends ChatListener {
 
         const args = message.getCommandArguments();
 
-        if (args.length < 1 || args[0].toLowerCase() !== this.command) return false;
+        if (args.length < 1 || !this.possibleCommands.includes(args[0].toLowerCase())) return false;
 
         const subCommands = Array.isArray(this.subCommands) ? this.subCommands : [this.subCommands];
         const argsOnlyWithSubCommands = args.slice(1);
