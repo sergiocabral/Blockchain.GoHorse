@@ -54,8 +54,8 @@ export class CoinCommandQueue {
      */
     public getChatCommands(): ChatListener[] {
         return [
-            new HelpChatCommand(this.coin),
-            new WalletMyChatCommand(this.coin)
+            new HelpChatCommand(this.coin, this.miner, this.database),
+            new WalletMyChatCommand(this.coin, this.miner, this.database)
         ];
     }
 }

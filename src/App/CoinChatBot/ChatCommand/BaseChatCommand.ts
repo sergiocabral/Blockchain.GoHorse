@@ -1,6 +1,8 @@
 import {ChatListener} from "../../../Twitch/ChatListener/ChatListener";
 import {ChatMessageModel} from "../../../Twitch/Model/ChatMessageModel";
 import {CoinModel} from "../Model/CoinModel";
+import {Database} from "../Blockchain/Database/Database";
+import {Miner} from "../Blockchain/Miner/Miner";
 
 /**
  * Classe base para comandos da blockchain.
@@ -10,8 +12,13 @@ export abstract class BaseChatCommand extends ChatListener {
     /**
      * Construtor.
      * @param coin Informações da moeda corrente.
+     * @param miner Minerador
+     * @param database Banco de dados
      */
-    public constructor(protected coin: CoinModel) {
+    public constructor(
+        protected coin: CoinModel,
+        protected miner: Miner,
+        protected database: Database) {
         super();
     }
 

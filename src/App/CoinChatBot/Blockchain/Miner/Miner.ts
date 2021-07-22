@@ -31,6 +31,8 @@ export class Miner {
         this.isProduction = new EnvironmentQuery().request().message.environment.isProduction;
 
         this.git = Miner.initializeRepository(coin);
+        this.branchName = this.git.getCurrentBranch();
+
         this.updateRepository();
 
         const firstBlock = this.git.getCommitContent(Definition.FirstBlock);
@@ -51,6 +53,11 @@ export class Miner {
      * @private
      */
     private readonly isProduction: boolean;
+
+    /**
+     * Nome do branch da blockchain.
+     */
+    public readonly branchName: string;
 
     /**
      * Diretório da blockchain.
@@ -368,7 +375,7 @@ export class Miner {
      * @private
      */
     private updateRepository() {
-        const branchName = this.git.getCurrentBranch();
+        const branchName = this.branchName;
         const check =
             this.git.reset() &&
             this.git.clean() &&
