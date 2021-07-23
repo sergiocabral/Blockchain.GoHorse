@@ -7,6 +7,7 @@ import {ChatListener} from "../../../Twitch/ChatListener/ChatListener";
 import {WalletMyChatCommand} from "../ChatCommand/WalletMyChatCommand";
 import {HelpChatCommand} from "../ChatCommand/HelpChatCommand";
 import {WalletNewByTwitchChatCommand} from "../ChatCommand/WalletNewChatCommand";
+import {ChatCommandConfiguration} from "../ChatCommand/ChatCommandConfiguration";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -57,10 +58,15 @@ export class CoinCommandQueue {
      * Retorna a lista de comandos para operar a blockchain.
      */
     public getChatCommands(): ChatListener[] {
+        const configuration: ChatCommandConfiguration = {
+            coin: this.coin,
+            miner: this.miner,
+            database: this.database
+        };
         return [
-            new HelpChatCommand(this.coin, this.miner, this.database),
-            new WalletMyChatCommand(this.coin, this.miner, this.database),
-            new WalletNewByTwitchChatCommand(this.coin, this.miner, this.database),
+            new HelpChatCommand(configuration),
+            new WalletMyChatCommand(configuration),
+            new WalletNewByTwitchChatCommand(configuration),
         ];
     }
 }
