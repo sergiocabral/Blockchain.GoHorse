@@ -7,7 +7,7 @@ import {Text} from "../../../Helper/Text";
  */
 export class WalletMyChatCommand extends BaseChatCommand {
     /**
-     * Nome do comando.
+     * Parâmetros do comandos.
      */
     protected subCommands: (string | RegExp)[] = [ "wallet", "my", /^(|[a-fA-F0-9]{8})$/ ];
 

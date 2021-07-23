@@ -10,7 +10,7 @@ export class Definition {
     /**
      * Dificuldade da mineração computacional.
      */
-    public static readonly ComputerMinerDifficult: number = 2;
+    public static readonly ComputerMinerDifficult: number = 0;
 
     /**
      * Nome do branch que aponta para o primeiro bloco.
@@ -31,6 +31,16 @@ export class Definition {
      * Extensão dos arquivos no repositório.
      */
     public static readonly FileExtension: string = "txt";
+
+    /**
+     * Idioma padrão.
+     */
+    public static readonly DefaultLanguage: string = "pt-BR";
+
+    /**
+     * Idioma padrão quando o idioma informado não for reconhecido.
+     */
+    public static readonly FallbackLanguage: string = "en-US";
 
     /**
      * Estampa.

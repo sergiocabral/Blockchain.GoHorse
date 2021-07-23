@@ -27,11 +27,13 @@ export class Database {
      * Construtor.
      * @param coin Moeda
      * @param firstBlock Informações do primeiro bloco.
+     * @param branchName Nome branch ativo.
      * @param directory Diretório do banco de dados.
      */
     public constructor(
         public readonly coin: CoinModel,
         public readonly firstBlock: CommitModel,
+        public readonly branchName: string,
         public readonly directory: string) {
         this.persistence = new Persistence(directory);
         this.patcher = new Patcher(this.persistence, firstBlock, coin);
@@ -74,7 +76,6 @@ export class Database {
      * Cria a estrutura inicial
      */
     public updateStructure(): number | boolean {
-        this.section.help.set();
         const structureVersion = this.section.version.get();
         const applicationVersion = this.version;
         const newVersion = this.patcher.updateStructure(structureVersion, applicationVersion);
@@ -87,5 +88,23 @@ export class Database {
         }
 
         return newVersion;
+    }
+
+    /**
+     * Atualiza os arquivos da documentação.
+     */
+    public updateDocumentation(): void {
+        this.section.help.set();
+    }
+
+    /**
+     * Obtem o link da ajuda.
+     * @param language Idioma.
+     */
+    public getHelpLink(language?: string): string {
+        const branchName = this.branchName;
+        const helpPath = this.section.help.getPath(language);
+        const repositoryUrl = `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
+        return `Access help in this link {repositoryUrl}`.translate().querystring({ repositoryUrl });
     }
 }

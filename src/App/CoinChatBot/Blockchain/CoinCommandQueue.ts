@@ -17,7 +17,7 @@ export class CoinCommandQueue {
      */
     public constructor(private coin: CoinModel) {
         this.miner = new Miner(coin, this.minerInitialized.bind(this));
-        this.database = new Database(coin, this.miner.firstBlock, this.miner.directory);
+        this.database = new Database(coin, this.miner.firstBlock, this.miner.branchName, this.miner.directory);
 
         //TODO: Receber comando para criação de carteira
     }
@@ -47,6 +47,9 @@ export class CoinCommandQueue {
                 "Directories and files structure updated for version: {0}.{1}."
                     .querystring([Definition.MajorVersion, newVersion]));
         }
+
+        this.database.updateDocumentation();
+        await this.miner.commit("Updated documentation files.");
     }
 
     /**

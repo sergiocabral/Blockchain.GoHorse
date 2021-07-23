@@ -41,7 +41,7 @@ export class Persistence {
     public write(file: DatabasePathType, fileReplacement: any = undefined, content: string, overwrite: boolean = false): boolean {
         const realpath = this.ensurePath(file, fileReplacement);
         if (overwrite || !fs.existsSync(realpath)) {
-            fs.writeFileSync(realpath, content);
+            fs.writeFileSync(realpath, content.replaceAll('\r', ''));
             return true;
         }
         return false;

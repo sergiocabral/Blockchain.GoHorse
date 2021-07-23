@@ -139,6 +139,17 @@ export class Git {
     }
 
     /**
+     * Verifica se o diretório do repositório está limpo, sem commits pendentes.
+     */
+    public isWorkingTreeClean() {
+        this.execute([
+            'status'
+        ],'Status verified');
+        const markToWorkingTreeClean = 'working tree clean';
+        return this.lastOutputValue.includes(markToWorkingTreeClean);
+    }
+
+    /**
      * git push
      * @param branch
      */

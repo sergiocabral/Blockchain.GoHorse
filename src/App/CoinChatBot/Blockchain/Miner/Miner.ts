@@ -161,9 +161,14 @@ export class Miner {
      * @private
      */
     public async commit(message: string): Promise<boolean> {
+        let success: boolean;
         this.commitInProgress();
-        this.git.add('--all');
-        const success = await this.queueToMiner(StaleAction.Stop, message);
+        if (this.git.isWorkingTreeClean()) {
+            success = true;
+        } else {
+            this.git.add('--all');
+            success = await this.queueToMiner(StaleAction.Stop, message);
+        }
         this.commitInProgress(false);
         return success;
     }

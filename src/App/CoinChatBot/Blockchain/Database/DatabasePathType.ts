@@ -1,5 +1,5 @@
 export type DatabasePathType =
-    "/docs/help" |
+    "/docs/{language}/help" |
 
     "/wallet/{wallet-id}" |
 

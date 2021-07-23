@@ -1,6 +1,4 @@
 import {BaseChatCommand} from "./BaseChatCommand";
-import {DatabasePathType} from "../Blockchain/Database/DatabasePathType";
-import {Definition} from "../Blockchain/Definition";
 
 /**
  * Ajuda para o uso da blockchain.
@@ -8,11 +6,9 @@ import {Definition} from "../Blockchain/Definition";
  */
 export class HelpChatCommand extends BaseChatCommand {
     /**
-     * Nome do comando.
+     * Parâmetros do comandos.
      */
-    protected subCommands: string = "help";
-
-    private  = '/d';
+    protected subCommands: (string|RegExp)[] = [ "help", /.*/ ];
 
     /**
      * Execução do comando.
@@ -20,11 +16,9 @@ export class HelpChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[]): string | string[] {
-        const branchName = this.miner.branchName;
-        const helpFile: DatabasePathType = '/docs/help';
-        const extension = Definition.FileExtension.length ? '.' + Definition.FileExtension : '';
-        return `Access help in this link {url}`.translate().querystring({
-            url: `${this.coin.repositoryUrl}/blob/${branchName}${helpFile}${extension}`
-        });
+        const argLanguageIndex = 2;
+        const language = args[argLanguageIndex] ?? undefined;
+        const helpLink = this.database.getHelpLink(language);
+        return `Access help in this link {helpLink}`.translate().querystring({ helpLink });
     }
 }

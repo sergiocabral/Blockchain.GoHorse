@@ -7,11 +7,11 @@ export class HelpTemplate extends Template {
     /**
      * Construtor.
      * @param coin Nome da moeda.
-     * @param version Versão do documento de ajuda.
+     * @param help Conteúdo da ajuda.
      */
     public constructor(
         public coin?: string,
-        public version?: string) {
+        public help?: string) {
         super('Help');
     }
 
@@ -20,7 +20,8 @@ export class HelpTemplate extends Template {
      */
     public get content(): string {
         return this.set({
-            "coin": this.coin ?? ''
+            "coin": this.coin ?? '',
+            "help": this.help ?? ''
         });
     }
 }
