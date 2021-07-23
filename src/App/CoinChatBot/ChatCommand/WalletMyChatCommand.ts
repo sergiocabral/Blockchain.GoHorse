@@ -9,7 +9,9 @@ export class WalletMyChatCommand extends BaseChatCommand {
     /**
      * Parâmetros do comandos.
      */
-    protected subCommands: (string | RegExp)[] = [ "wallet", "my", /^(|[a-fA-F0-9]{8})$/ ];
+    protected subCommands: (string | RegExp)[][] = [
+        ["wallet", "my", /^(|[a-fA-F0-9]{8})$/ ]
+    ];
 
     /**
      * Execução do comando.

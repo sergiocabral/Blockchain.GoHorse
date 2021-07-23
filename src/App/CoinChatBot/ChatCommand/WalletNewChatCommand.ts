@@ -9,7 +9,10 @@ export class WalletNewByTwitchChatCommand extends BaseChatCommand {
     /**
      * Parâmetros do comandos.
      */
-    protected subCommands: string[] = [ "wallet", "new" ];
+    protected subCommands: string[][] = [
+        [ "wallet", "new" ],
+        [ "wn" ]
+    ];
 
     /**
      * Execução do comando.

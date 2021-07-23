@@ -19,12 +19,12 @@ export abstract class BaseChatCommand extends ChatListener {
      * Comando para o funcionamento da blockchain.
      * @private
      */
-    private possibleCommands: string[] = [ "cabr0n", "cabron" ];
+    private possibleCommands: string[] = [ "cabr0n", "cabron", "cc" ];
 
     /**
      * Nome do comando.
      */
-    protected abstract subCommands: (string | RegExp) | (string | RegExp)[];
+    protected abstract subCommands: (string | RegExp)[][];
 
     /**
      * Execução do comando.
@@ -41,20 +41,32 @@ export abstract class BaseChatCommand extends ChatListener {
         if (!message.isCommand) return false;
 
         const args = message.getCommandArguments();
-
         if (args.length < 1 || !this.possibleCommands.includes(args[0].toLowerCase())) return false;
-
-        const subCommands = Array.isArray(this.subCommands) ? this.subCommands : [this.subCommands];
         const argsOnlyWithSubCommands = args.slice(1);
 
-        if (argsOnlyWithSubCommands.length > subCommands.length) return false;
+        for (const subCommands of this.subCommands) {
+            if (BaseChatCommand.commandsIsMatch(argsOnlyWithSubCommands, subCommands)) return true;
+        }
 
-        const complementaryEmptyArray = new Array(subCommands.length - argsOnlyWithSubCommands.length).fill('');
-        argsOnlyWithSubCommands.push(...complementaryEmptyArray);
+        return false;
+    }
 
-        for (let i = 0; i < argsOnlyWithSubCommands.length && i < subCommands.length; i++) {
-            const expression = subCommands[i];
-            const argument = argsOnlyWithSubCommands[i];
+    /**
+     * Verifica se os argumentos atendem uma sequência de comandos
+     * @param args Argumentos recebidos
+     * @param commands Comandos esperados.
+     * @private
+     */
+    private static commandsIsMatch(args: string[], commands: (string | RegExp)[]) {
+        if (args.length > commands.length) return false;
+
+        args = ([] as string[]).concat(args);
+        const complementaryEmptyArray = new Array(commands.length - args.length).fill('');
+        args.push(...complementaryEmptyArray);
+
+        for (let i = 0; i < args.length && i < commands.length; i++) {
+            const expression = commands[i];
+            const argument = args[i];
             if (expression instanceof RegExp) {
                 if (!new RegExp(expression, 'i').test(argument)) return false;
             } else {

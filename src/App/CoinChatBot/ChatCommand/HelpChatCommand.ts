@@ -8,7 +8,9 @@ export class HelpChatCommand extends BaseChatCommand {
     /**
      * Parâmetros do comandos.
      */
-    protected subCommands: (string|RegExp)[] = [ "help", /.*/ ];
+    protected subCommands: (string|RegExp)[][] = [
+        [ "help", /.*/ ]
+    ];
 
     /**
      * Execução do comando.
