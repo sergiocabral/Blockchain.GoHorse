@@ -2,7 +2,7 @@ import {BaseChatCommand} from "./BaseChatCommand";
 
 /**
  * Ajuda para o uso da blockchain.
- * Comando: !wallet my
+ * Comando: !cabr0n help [language]
  */
 export class HelpChatCommand extends BaseChatCommand {
     /**

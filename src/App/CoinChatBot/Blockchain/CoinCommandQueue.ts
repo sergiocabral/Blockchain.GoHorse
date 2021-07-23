@@ -6,6 +6,7 @@ import {Definition} from "./Definition";
 import {ChatListener} from "../../../Twitch/ChatListener/ChatListener";
 import {WalletMyChatCommand} from "../ChatCommand/WalletMyChatCommand";
 import {HelpChatCommand} from "../ChatCommand/HelpChatCommand";
+import {WalletNewByTwitchChatCommand} from "../ChatCommand/WalletNewChatCommand";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -58,7 +59,8 @@ export class CoinCommandQueue {
     public getChatCommands(): ChatListener[] {
         return [
             new HelpChatCommand(this.coin, this.miner, this.database),
-            new WalletMyChatCommand(this.coin, this.miner, this.database)
+            new WalletMyChatCommand(this.coin, this.miner, this.database),
+            new WalletNewByTwitchChatCommand(this.coin, this.miner, this.database),
         ];
     }
 }
