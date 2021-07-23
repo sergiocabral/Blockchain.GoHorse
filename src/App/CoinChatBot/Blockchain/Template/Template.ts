@@ -4,7 +4,6 @@ import {KeyValue} from "../../../../Helper/Types/KeyValue";
 import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
 import {TemplateFileType} from "./TemplateFileType";
 import {TemplateKey} from "./TemplateKey";
-import {Definition} from "../Definition";
 
 /**
  * Carrega um template de texto.
@@ -22,7 +21,7 @@ export abstract class Template {
      * Extensão padrão dos arquivos.
      * @private
      */
-    public static readonly extension: string = Definition.FileExtension;
+    private static readonly extension: string = "txt";
 
     /**
      * Captura a chave e comprimento.

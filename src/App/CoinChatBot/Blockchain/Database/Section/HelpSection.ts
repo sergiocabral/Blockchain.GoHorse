@@ -3,7 +3,6 @@ import {HelpTemplate} from "../../Template/HelpTemplate";
 import fs from "fs";
 import path from "path";
 import {InvalidExecutionError} from "../../../../../Errors/InvalidExecutionError";
-import {DatabasePathType} from "../DatabasePathType";
 import {Definition} from "../../Definition";
 
 /**
@@ -36,9 +35,7 @@ export class HelpSection extends BaseSection {
      */
     public getPath(language?: string): string {
         language = this.matchLanguage(language);
-        const fileExtension = Definition.FileExtension.length ? '.' + Definition.FileExtension : '';
-        const helpFileTemplate: DatabasePathType = '/docs/{language}/help';
-        return helpFileTemplate.querystring({language}) + fileExtension;
+        return this.database.persistence.path('/docs/{language}/help', {language});
     }
 
     /**

@@ -17,17 +17,37 @@ export class Persistence {
     }
 
     /**
-     * Monta a estrutura do diretório.
-     * @param filePath
-     * @param fileReplacement Valores para substituição.
+     * Separador de diretórios.
      * @private
      */
-    private ensurePath(filePath: string, fileReplacement?: any): string {
-        const parts = filePath.querystring(fileReplacement).split('/').filter(a => Boolean(a));
+    private directorySeparator = '/';
+
+    /**
+     * Monta a estrutura do diretório.
+     * @param file Arquivo.
+     * @param fileReplacement Parâmetros de substituição no file.
+     * @private
+     */
+    private ensurePath(file: DatabasePathType, fileReplacement: any = undefined): string {
+        const parts = this.path(file, fileReplacement).split(this.directorySeparator);
         const realpath = path.resolve(this.directory, ...parts);
         const dirname = path.dirname(realpath);
         IO.createDirectory(dirname);
         return `${realpath}.${Definition.FileExtension}`;
+    }
+
+    /**
+     * Converte um caminho em arquivo real.
+     * @param file Arquivo.
+     * @param fileReplacement Parâmetros de substituição no file.
+     */
+    public path(file: DatabasePathType, fileReplacement: any = undefined): string {
+        const extension = Definition.FileExtension ? '.' + Definition.FileExtension : '';
+        return file
+            .querystring(fileReplacement)
+            .split(this.directorySeparator)
+            .filter(a => Boolean(a))
+            .join(this.directorySeparator) + extension;
     }
 
     /**
