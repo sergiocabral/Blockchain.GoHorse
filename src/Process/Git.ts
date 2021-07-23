@@ -112,7 +112,7 @@ export class Git {
             branch
         ];
         if (remote) args.push(remote);
-        return this.execute(args,'Checkout (with creation) branch {1}: {0}', [branch]);
+        return this.execute(args,'Checkout (with creation) branch {branch}: {result}', {branch});
     }
 
     /**
@@ -124,7 +124,7 @@ export class Git {
             'fetch',
             'origin',
             branch
-        ],'Fetched branch {1}: {0}', [branch]);
+        ],'Fetched branch {branch}: {result}', {branch});
     }
 
     /**
@@ -135,7 +135,7 @@ export class Git {
         return this.execute([
             'add',
             file
-        ],'Added file "{1}" to staging: {0}', [file]);
+        ],'Added file "{file}" to staging: {result}', {file});
     }
 
     /**
@@ -193,7 +193,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const branch = this.regexGitError.test(this.lastOutputValue) ? '' : this.lastOutputValue;
-        Logger.post('Get current branch: {result}', branch, LogLevel.Debug, LogContext.Git);
+        Logger.post('Get current branch: {result}', {branch}, LogLevel.Debug, LogContext.Git);
         return branch;
     }
 
@@ -214,7 +214,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const hash = this.regexGitError.test(this.lastOutputValue) ? null : this.lastOutputValue;
-        Logger.post('Get commit hash for {hash}: {result}', {hash, position}, LogLevel.Debug, LogContext.Git);
+        Logger.post('Get commit hash for {hash}: {position}', {hash, position}, LogLevel.Debug, LogContext.Git);
         return hash;
     }
 
