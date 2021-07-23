@@ -17,7 +17,7 @@ export class HelpSection extends BaseSection {
     private regexExtractLanguage = /[\w\-]+(?=\.[^.]*$)/;
 
     /**
-     * Cria a estrutura inicial
+     * Atualiza a documentação de ajuda.
      */
     public set(): void {
         this.files.forEach(filePath => {
@@ -34,7 +34,7 @@ export class HelpSection extends BaseSection {
      * Retorna o caminho do arquivo de ajuda.
      * @param language
      */
-    public getPath(language?: string): string {
+    public get(language?: string): string {
         language = this.matchLanguage(language);
         return this.database.persistence.path('/docs/{language}/help', {language});
     }

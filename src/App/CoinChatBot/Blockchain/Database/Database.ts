@@ -103,7 +103,7 @@ export class Database {
      */
     public getHelpLink(language?: string): string {
         const branchName = this.branchName;
-        const helpPath = this.section.help.getPath(language);
+        const helpPath = this.section.help.get(language);
         return `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
     }
 }

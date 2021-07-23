@@ -9,7 +9,7 @@ import {EmptyValueError} from "../../../../../Errors/EmptyValueError";
  */
 export class VersionSection extends BaseSection {
     /**
-     * Cria a estrutura inicial
+     * Define a versão atual.
      */
     public set(applicationVersion: number): void {
         const versionTemplate = new VersionTemplate(this.database.coin.name, Definition.MajorVersion, applicationVersion);
