@@ -45,20 +45,21 @@ export class HelpSection extends BaseSection {
      */
     private matchLanguage(language?: string): string {
         language = language || Definition.DefaultLanguage;
-        const languageSlugify = language.slug();
 
         const languages4letters = this.languages;
         const languages4lettersSlugify = languages4letters.map(language4letters => language4letters.slug());
+        const language4lettersSlugify = language.slug();
 
         for (let i = 0; i < languages4lettersSlugify.length; i++) {
-            if (languages4lettersSlugify[i] === languageSlugify) return languages4letters[i];
+            if (languages4lettersSlugify[i] === language4lettersSlugify) return languages4letters[i];
         }
 
         const languages2letters = languages4letters.map(language4letters => language4letters.substr(0, 2));
         const languages2lettersSlugify = languages2letters.map(language4letters => language4letters.slug());
+        const language2lettersSlugify = language4lettersSlugify.substr(0, 2);
 
         for (let i = 0; i < languages2lettersSlugify.length; i++) {
-            if (languages2lettersSlugify[i] === languageSlugify) return languages4letters[i];
+            if (languages2lettersSlugify[i] === language2lettersSlugify) return languages4letters[i];
         }
 
         return Definition.FallbackLanguage;

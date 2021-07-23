@@ -104,7 +104,6 @@ export class Database {
     public getHelpLink(language?: string): string {
         const branchName = this.branchName;
         const helpPath = this.section.help.getPath(language);
-        const repositoryUrl = `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
-        return `Access help in this link {repositoryUrl}`.translate().querystring({ repositoryUrl });
+        return `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
     }
 }

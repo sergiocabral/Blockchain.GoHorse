@@ -19,6 +19,6 @@ export class HelpChatCommand extends BaseChatCommand {
         const argLanguageIndex = 2;
         const language = args[argLanguageIndex] ?? undefined;
         const helpLink = this.database.getHelpLink(language);
-        return `Access help in this link {helpLink}`.translate().querystring({ helpLink });
+        return `Access help in this link: {helpLink}`.translate().querystring({ helpLink });
     }
 }

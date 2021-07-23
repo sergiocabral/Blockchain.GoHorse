@@ -33,7 +33,7 @@ export class Persistence {
         const realpath = path.resolve(this.directory, ...parts);
         const dirname = path.dirname(realpath);
         IO.createDirectory(dirname);
-        return `${realpath}.${Definition.FileExtension}`;
+        return realpath;
     }
 
     /**
@@ -43,7 +43,7 @@ export class Persistence {
      */
     public path(file: DatabasePathType, fileReplacement: any = undefined): string {
         const extension = Definition.FileExtension ? '.' + Definition.FileExtension : '';
-        return file
+        return this.directorySeparator + file
             .querystring(fileReplacement)
             .split(this.directorySeparator)
             .filter(a => Boolean(a))

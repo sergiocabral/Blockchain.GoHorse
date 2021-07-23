@@ -4,7 +4,7 @@
   },
   "Applications": {
     "Blockchain": {
-      "Access help in this link {url}": "Veja a ajuda neste link {url}"
+      "Access help in this link: {helpLink}": "Veja a ajuda neste link: {helpLink}"
     },
     "Coin Chat Bot": {
       "Redeem Messages": {
