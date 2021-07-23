@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import {InvalidExecutionError} from "../../../../../Errors/InvalidExecutionError";
 import {Definition} from "../../Definition";
+import {EnvironmentQuery} from "../../../../../Core/MessageQuery/EnvironmentQuery";
 
 /**
  * Seção do banco de dados: Arquivo de ajuda.
@@ -44,7 +45,7 @@ export class HelpSection extends BaseSection {
      * @private
      */
     private matchLanguage(language?: string): string {
-        language = language || Definition.DefaultLanguage;
+        language = language || new EnvironmentQuery().request().message.environment.language;
 
         const languages4letters = this.languages;
         const languages4lettersSlugify = languages4letters.map(language4letters => language4letters.slug());
