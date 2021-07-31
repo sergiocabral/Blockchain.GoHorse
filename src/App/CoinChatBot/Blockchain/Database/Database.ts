@@ -1,3 +1,4 @@
+import sha1 from "sha1";
 import {CoinModel} from "../../Model/CoinModel";
 import {Patcher} from "./Patcher";
 import {Persistence} from "./Persistence";
@@ -7,6 +8,10 @@ import {WalletModel} from "./Model/WalletModel";
 import {VersionSection} from "./Section/VersionSection";
 import {WalletSection} from "./Section/WalletSection";
 import {HelpSection} from "./Section/HelpSection";
+import {Message} from "../../../../Bus/Message";
+import {HelpGetCommand} from "../Command/HelpGetCommand";
+import {TwitchWalletCreateCommand} from "../Command/TwitchWalletCreateCommand";
+import {TwitchWalletGetCommand} from "../Command/TwitchWalletGetCommand";
 
 
 /**
@@ -37,6 +42,10 @@ export class Database {
         public readonly directory: string) {
         this.persistence = new Persistence(directory);
         this.patcher = new Patcher(this.persistence, firstBlock, coin);
+
+        Message.capture(HelpGetCommand, this.handlerHelpGetCommand.bind(this));
+        Message.capture(TwitchWalletCreateCommand, this.handlerTwitchWalletCreateCommand.bind(this));
+        Message.capture(TwitchWalletGetCommand, this.handlerTwitchWalletGetCommand.bind(this));
     }
 
     /**
@@ -98,12 +107,38 @@ export class Database {
     }
 
     /**
-     * Obtem o link da ajuda.
-     * @param language Idioma.
+     * Captura de mensagem
+     * @param message HelpGetCommand
+     * @private
      */
-    public getHelpLink(language?: string): string {
+    private handlerHelpGetCommand(message: HelpGetCommand): void {
         const branchName = this.branchName;
-        const helpPath = this.section.help.get(language);
-        return `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
+        const helpPath = this.section.help.get(message.language);
+        const helpLink = `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
+        message.output.push(`Access help in this link: {helpLink}`.translate().querystring({ helpLink }));
+    }
+
+    /**
+     * Capturador de comando.
+     * @param message CreateWallet
+     * @private
+     */
+    private handlerTwitchWalletCreateCommand(message: TwitchWalletCreateCommand): void {
+        const walletId = sha1(`${JSON.stringify(message.twitchUser)}${new Date()}${Math.random()}`);
+        const wallet = new WalletModel(walletId, new Date());
+        this.section.wallet.set(wallet);
+        message.output.push(
+            "Your wallet will be created in the next mined block from the blockchain: {walletId}"
+                .translate()
+                .querystring({walletId: wallet.id}));
+    }
+
+    /**
+     * Capturador de comando.
+     * @param message CreateWallet
+     * @private
+     */
+    private handlerTwitchWalletGetCommand(message: TwitchWalletGetCommand): void {
+        message.output.push("TwitchWalletGetCommand");
     }
 }
