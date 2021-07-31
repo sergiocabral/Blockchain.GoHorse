@@ -19,6 +19,23 @@ export class UserModel implements IModel {
     }
 
     /**
+     * Cria um modelo para um usuário da Twitch.
+     * @param twitchName Twitch nome
+     * @param twitchGuid Twitch Guid
+     * @param twitchId Twitch Id
+     */
+    public static createTwitchUser(
+        twitchName?: string,
+        twitchGuid?: string,
+        twitchId?: string): UserModel {
+        return new UserModel({
+            "display-name": twitchName,
+            "user-id": twitchGuid,
+            "id": twitchId,
+        });
+    }
+
+    /**
      * Determina se o modelo está preenchido.
      */
     public isFilled(): boolean {

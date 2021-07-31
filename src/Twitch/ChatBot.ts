@@ -409,6 +409,7 @@ export class ChatBot implements Events {
         ChatBot.log('message', {channel, userstate, message, self});
 
         const chatMessage = new ChatMessageModel(channel, userstate, message, self, arguments);
+
         new ChatMessageEvent(chatMessage).send();
     }
 

@@ -12,7 +12,7 @@ import {Message} from "../../../../Bus/Message";
 import {HelpGetCommand} from "../Command/HelpGetCommand";
 import {TwitchWalletCreateCommand} from "../Command/TwitchWalletCreateCommand";
 import {TwitchWalletGetCommand} from "../Command/TwitchWalletGetCommand";
-
+import {WhoisTwitch} from "./Section/WhoisTwitch";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -78,7 +78,12 @@ export class Database {
         /**
          * Carteiras
          */
-        wallet: new WalletSection(this)
+        wallet: new WalletSection(this),
+
+        /**
+         * Usuário da twitch
+         */
+        whoisTwitch: new WhoisTwitch(this)
     }
 
     /**
@@ -127,6 +132,7 @@ export class Database {
         const walletId = sha1(`${JSON.stringify(message.twitchUser)}${new Date()}${Math.random()}`);
         const wallet = new WalletModel(walletId, new Date());
         this.section.wallet.set(wallet);
+        this.section.whoisTwitch.set(message.twitchUser);
         message.output.push(
             "Your wallet will be created in the next mined block from the blockchain: {walletId}"
                 .translate()

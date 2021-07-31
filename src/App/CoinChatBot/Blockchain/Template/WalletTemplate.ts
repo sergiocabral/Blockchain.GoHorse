@@ -1,7 +1,7 @@
 import {Template} from "./Template";
 
 /**
- * Template: Version
+ * Template: Wallet
  */
 export class WalletTemplate extends Template {
 
