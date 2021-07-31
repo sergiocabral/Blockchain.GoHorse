@@ -1,5 +1,6 @@
 import {BaseChatCommand} from "./BaseChatCommand";
-import {Text} from "../../../Helper/Text";
+import {TwitchWalletCreateCommand} from "../Blockchain/Command/TwitchWalletCreateCommand";
+import {ChatMessageModel} from "../../../Twitch/Model/ChatMessageModel";
 
 /**
  * Cria uma carteira com base no usuário da Twitch
@@ -17,10 +18,10 @@ export class WalletNewByTwitchChatCommand extends BaseChatCommand {
     /**
      * Execução do comando.
      * @param args Argumentos.
+     * @param message Mensagem original.
      * @protected
      */
-    protected run(args: string[]): string | string[] {
-        //TODO: Implementar
-        return "Your wallet was created " + Text.random(undefined, 40);
+    protected run(args: string[], message: ChatMessageModel): string | string[] {
+        return new TwitchWalletCreateCommand(message.user).request().message.output;
     }
 }

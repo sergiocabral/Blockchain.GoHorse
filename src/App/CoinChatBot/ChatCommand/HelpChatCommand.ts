@@ -1,4 +1,5 @@
 import {BaseChatCommand} from "./BaseChatCommand";
+import {HelpGetCommand} from "../Blockchain/Command/HelpGetCommand";
 
 /**
  * Ajuda para o uso da blockchain.
@@ -20,7 +21,6 @@ export class HelpChatCommand extends BaseChatCommand {
     protected run(args: string[]): string | string[] {
         const argLanguageIndex = 2;
         const language = args[argLanguageIndex] ?? undefined;
-        const helpLink = this.configuration.database.getHelpLink(language);
-        return `Access help in this link: {helpLink}`.translate().querystring({ helpLink });
+        return new HelpGetCommand(language).request().message.output;
     }
 }

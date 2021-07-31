@@ -5,11 +5,24 @@ import path from "path";
 import {InvalidExecutionError} from "../../../../../Errors/InvalidExecutionError";
 import {Definition} from "../../Definition";
 import {EnvironmentQuery} from "../../../../../Core/MessageQuery/EnvironmentQuery";
+import {Database} from "../Database";
+import {Message} from "../../../../../Bus/Message";
+import {HelpGetCommand} from "../../Command/HelpGetCommand";
 
 /**
  * Seção do banco de dados: Arquivo de ajuda.
  */
 export class HelpSection extends BaseSection {
+    /**
+     * Construtor.
+     * @param database Banco de dados.
+     * @protected
+     */
+    public constructor(protected database: Database) {
+        super(database);
+        Message.capture(HelpGetCommand, this.handlerHelpGetCommand.bind(this));
+    }
+
     /**
      * Expressão regular para extrair o nome do idioma do arquivo.
      * @private
@@ -99,5 +112,15 @@ export class HelpSection extends BaseSection {
             .files
             .map(filePath => (filePath.match(this.regexExtractLanguage) || [])[0])
             .filter(language => Boolean(language));
+    }
+
+    /**
+     * Captura de mensagem
+     * @param message HelpGetCommand
+     * @private
+     */
+    private handlerHelpGetCommand(message: HelpGetCommand): void {
+        const helpLink = this.database.getHelpLink(message.language);
+        message.output.push(`Access help in this link: {helpLink}`.translate().querystring({ helpLink }));
     }
 }
