@@ -1,4 +1,3 @@
-import sha1 from "sha1";
 import {CoinModel} from "../../Model/CoinModel";
 import {Patcher} from "./Patcher";
 import {Persistence} from "./Persistence";
@@ -13,6 +12,7 @@ import {HelpGetCommand} from "../Command/HelpGetCommand";
 import {TwitchWalletCreateCommand} from "../Command/TwitchWalletCreateCommand";
 import {TwitchWalletGetCommand} from "../Command/TwitchWalletGetCommand";
 import {WhoisTwitch} from "./Section/WhoisTwitch";
+import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -129,10 +129,10 @@ export class Database {
      * @private
      */
     private handlerTwitchWalletCreateCommand(message: TwitchWalletCreateCommand): void {
-        const walletId = sha1(sha1(message.twitchUser.id.toString()));
-        const wallet = new WalletModel(walletId, new Date());
-        this.section.wallet.set(wallet);
         this.section.whoisTwitch.set(message.twitchUser);
+        this.section.wallet.setByTwitchUser(message.twitchUser);
+        const wallet = this.section.wallet.getByTwitchUser(message.twitchUser);
+        if (!wallet) throw new InvalidExecutionError("Wallet was created, but not found.");
         message.output.push(
             "Your wallet will be created in the next mined block from the blockchain: {walletId}"
                 .translate()
