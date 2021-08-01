@@ -1,17 +1,18 @@
 import {BaseChatCommand} from "./BaseChatCommand";
+import {RegisterWallerForTwitchUserCommand} from "../Blockchain/Command/RegisterWallerForTwitchUserCommand";
 import {ChatMessageModel} from "../../../Twitch/Model/ChatMessageModel";
-import {TwitchProfileCreateCommand} from "../Blockchain/Command/TwitchProfileCreateCommand";
 
 /**
- * Cria o perfil na blockchain
- * Comando: !cabr0n profile set
+ * Cria uma carteira com base no usuário da Twitch
+ * Comando: !cabr0n wallet new
  */
-export class ProfileSetChatCommand extends BaseChatCommand {
+export class RegisterWalletChatCommand extends BaseChatCommand {
     /**
      * Parâmetros do comandos.
      */
     protected subCommands: (string | RegExp)[][] = [
-        [ "profile", "set" ]
+        [ "wallet", "new" ],
+        [ /^-?wn$/ ]
     ];
 
     /**
@@ -21,6 +22,6 @@ export class ProfileSetChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[], message: ChatMessageModel): string | string[] {
-        return new TwitchProfileCreateCommand(message.user).request().message.output;
+        return new RegisterWallerForTwitchUserCommand(message.user).request().message.output;
     }
 }

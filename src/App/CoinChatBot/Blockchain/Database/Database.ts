@@ -8,13 +8,12 @@ import {VersionSection} from "./Section/VersionSection";
 import {WalletSection} from "./Section/WalletSection";
 import {HelpSection} from "./Section/HelpSection";
 import {Message} from "../../../../Bus/Message";
-import {HelpGetCommand} from "../Command/HelpGetCommand";
-import {TwitchWalletCreateCommand} from "../Command/TwitchWalletCreateCommand";
-import {TwitchWalletGetCommand} from "../Command/TwitchWalletGetCommand";
+import {GetHelpCommand} from "../Command/GetHelpCommand";
+import {RegisterWallerForTwitchUserCommand} from "../Command/RegisterWallerForTwitchUserCommand";
 import {WhoisTwitch} from "./Section/WhoisTwitch";
 import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
 import {DatabaseUpdatedEvent} from "../Command/DatabaseUpdatedEvent";
-import {TwitchProfileCreateCommand} from "../Command/TwitchProfileCreateCommand";
+import {SetTwitchProfileCreateCommand} from "../Command/SetTwitchProfileCreateCommand";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -45,10 +44,9 @@ export class Database {
         this.persistence = new Persistence(directory);
         this.patcher = new Patcher(this.persistence, firstBlock, coin);
 
-        Message.capture(HelpGetCommand, this.handlerHelpGetCommand.bind(this));
-        Message.capture(TwitchProfileCreateCommand, this.handleTwitchProfileCreateCommand.bind(this));
-        Message.capture(TwitchWalletCreateCommand, this.handlerTwitchWalletCreateCommand.bind(this));
-        Message.capture(TwitchWalletGetCommand, this.handlerTwitchWalletGetCommand.bind(this));
+        Message.capture(GetHelpCommand, this.handlerGetHelpCommand.bind(this));
+        Message.capture(SetTwitchProfileCreateCommand, this.handleSetTwitchProfileCreateCommand.bind(this));
+        Message.capture(RegisterWallerForTwitchUserCommand, this.handlerRegisterWallerForTwitchUserCommand.bind(this));
     }
 
     /**
@@ -116,10 +114,10 @@ export class Database {
 
     /**
      * Captura de mensagem
-     * @param message HelpGetCommand
+     * @param message GetHelpCommand
      * @private
      */
-    private handlerHelpGetCommand(message: HelpGetCommand): void {
+    private handlerGetHelpCommand(message: GetHelpCommand): void {
         const branchName = this.branchName;
         const helpPath = this.section.help.get(message.language);
         const helpLink = `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
@@ -131,7 +129,7 @@ export class Database {
      * @param message TwitchProfileCreateCommand
      * @private
      */
-    private handleTwitchProfileCreateCommand(message: TwitchProfileCreateCommand): void {
+    private handleSetTwitchProfileCreateCommand(message: SetTwitchProfileCreateCommand): void {
         this.section.whoisTwitch.set(message.twitchUser);
         new DatabaseUpdatedEvent("Profile created.").send();
     }
@@ -141,22 +139,11 @@ export class Database {
      * @param message CreateWallet
      * @private
      */
-    private handlerTwitchWalletCreateCommand(message: TwitchWalletCreateCommand): void {
+    private handlerRegisterWallerForTwitchUserCommand(message: RegisterWallerForTwitchUserCommand): void {
         this.section.wallet.setByTwitchUser(message.twitchUser);
         const wallet = this.section.wallet.getByTwitchUser(message.twitchUser);
         if (!wallet) throw new InvalidExecutionError("Wallet was created, but not found.");
         message.output.push("Your wallet will be created in the next mined block.".translate());
         new DatabaseUpdatedEvent("Wallet creation.").send();
-    }
-
-    /**
-     * Capturador de comando.
-     * @param message CreateWallet
-     * @private
-     */
-    private handlerTwitchWalletGetCommand(message: TwitchWalletGetCommand): void {
-        //TODO: Precisa disso?
-        //TODO: Já pode iniciar mineração humana?
-        message.output.push("TwitchWalletGetCommand");
     }
 }

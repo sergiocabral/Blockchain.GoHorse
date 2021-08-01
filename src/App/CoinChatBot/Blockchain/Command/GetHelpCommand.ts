@@ -3,7 +3,7 @@ import {BaseBlockchainChatCommand} from "./BaseBlockchainChatCommand";
 /**
  * Cria um nova carteira
  */
-export class HelpGetCommand extends BaseBlockchainChatCommand {
+export class GetHelpCommand extends BaseBlockchainChatCommand {
     /**
      * Construtor.
      * @param language Idioma.

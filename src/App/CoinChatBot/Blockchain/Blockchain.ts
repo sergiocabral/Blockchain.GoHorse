@@ -4,18 +4,17 @@ import {Miner} from "./Miner/Miner";
 import {InvalidExecutionError} from "../../../Errors/InvalidExecutionError";
 import {Definition} from "./Definition";
 import {ChatListener} from "../../../Twitch/ChatListener/ChatListener";
-import {WalletMyChatCommand} from "../ChatCommand/WalletMyChatCommand";
 import {HelpChatCommand} from "../ChatCommand/HelpChatCommand";
-import {WalletNewByTwitchChatCommand} from "../ChatCommand/WalletNewChatCommand";
+import {RegisterWalletChatCommand} from "../ChatCommand/RegisterWalletChatCommand";
 import {ChatCommandConfiguration} from "../ChatCommand/ChatCommandConfiguration";
 import {DatabaseUpdatedEvent} from "./Command/DatabaseUpdatedEvent";
 import {Message} from "../../../Bus/Message";
-import {ProfileSetChatCommand} from "../ChatCommand/ProfileSetChatCommand";
+import {SetProfileStatusChatCommand} from "../ChatCommand/SetProfileStatusChatCommand";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
  */
-export class CoinCommandQueue {
+export class Blockchain {
     /**
      * Construtor.
      * @param coin Moeda.
@@ -77,9 +76,8 @@ export class CoinCommandQueue {
         };
         return [
             new HelpChatCommand(configuration),
-            new ProfileSetChatCommand(configuration),
-            new WalletMyChatCommand(configuration),
-            new WalletNewByTwitchChatCommand(configuration),
+            new SetProfileStatusChatCommand(configuration),
+            new RegisterWalletChatCommand(configuration),
         ];
     }
 }

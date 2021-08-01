@@ -1,17 +1,17 @@
 import {BaseChatCommand} from "./BaseChatCommand";
 import {ChatMessageModel} from "../../../Twitch/Model/ChatMessageModel";
-import {TwitchWalletGetCommand} from "../Blockchain/Command/TwitchWalletGetCommand";
+import {SetTwitchProfileCreateCommand} from "../Blockchain/Command/SetTwitchProfileCreateCommand";
 
 /**
- * Retorna a carteira do usuário.
- * Comando: !wallet my
+ * Cria o perfil na blockchain
+ * Comando: !cabr0n profile set
  */
-export class WalletMyChatCommand extends BaseChatCommand {
+export class SetProfileStatusChatCommand extends BaseChatCommand {
     /**
      * Parâmetros do comandos.
      */
     protected subCommands: (string | RegExp)[][] = [
-        ["wallet", "my", /^(|[a-fA-F0-9]{8})$/ ]
+        [ "profile", "set" ]
     ];
 
     /**
@@ -21,6 +21,6 @@ export class WalletMyChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[], message: ChatMessageModel): string | string[] {
-        return new TwitchWalletGetCommand(message.user).request().message.output;
+        return new SetTwitchProfileCreateCommand(message.user).request().message.output;
     }
 }

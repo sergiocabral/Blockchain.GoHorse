@@ -4,7 +4,7 @@ import {BaseBlockchainChatCommand} from "./BaseBlockchainChatCommand";
 /**
  * Cria o perfil do usuário Twitch na blockchain
  */
-export class TwitchProfileCreateCommand extends BaseBlockchainChatCommand {
+export class SetTwitchProfileCreateCommand extends BaseBlockchainChatCommand {
     /**
      * Construtor.
      * @param twitchUser Usuário da twitch

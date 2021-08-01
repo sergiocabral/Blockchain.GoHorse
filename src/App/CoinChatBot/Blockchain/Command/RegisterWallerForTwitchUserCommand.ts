@@ -4,7 +4,7 @@ import {BaseBlockchainChatCommand} from "./BaseBlockchainChatCommand";
 /**
  * Cria um nova carteira
  */
-export class TwitchWalletGetCommand extends BaseBlockchainChatCommand {
+export class RegisterWallerForTwitchUserCommand extends BaseBlockchainChatCommand {
     /**
      * Construtor.
      * @param twitchUser Usuário da twitch
