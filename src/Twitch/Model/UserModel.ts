@@ -10,7 +10,6 @@ export class UserModel implements IModel {
      */
     public constructor(data: any) {
         this.id = (data && data["user-id"]) ?? null;
-        this.guid = (data && data["id"]) ?? '';
         this.name = (data && data["display-name"]) ?? '';
         this.isSubscriber = (data && data["subscriber"]) ?? null;
 
@@ -21,18 +20,9 @@ export class UserModel implements IModel {
     /**
      * Cria um modelo para um usuário da Twitch.
      * @param twitchName Twitch nome
-     * @param twitchGuid Twitch Guid
-     * @param twitchId Twitch Id
      */
-    public static createTwitchUser(
-        twitchName?: string,
-        twitchGuid?: string,
-        twitchId?: string): UserModel {
-        return new UserModel({
-            "display-name": twitchName,
-            "user-id": twitchGuid,
-            "id": twitchId,
-        });
+    public static createTwitchUser(twitchName?: string): UserModel {
+        return new UserModel({ "display-name": twitchName });
     }
 
     /**
@@ -41,7 +31,6 @@ export class UserModel implements IModel {
     public isFilled(): boolean {
         return (
             Number.isFinite(this.id) &&
-            Boolean(this.guid) &&
             Boolean(this.name) &&
             this.isSubscriber !== null
         );
@@ -51,11 +40,6 @@ export class UserModel implements IModel {
      * Id do usuário
      */
     public id: number;
-
-    /**
-     * Id do usuário (guid)
-     */
-    public guid: string;
 
     /**
      * Nome de usuário.

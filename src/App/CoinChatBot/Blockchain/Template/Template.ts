@@ -90,7 +90,11 @@ export abstract class Template {
      * @param content Conteúdo do arquivo.
      */
     public get(content: string): KeyValue {
-        return Template.get(this.templateContent, content);
+        const values = Template.get(this.templateContent, content);
+        for (const property of Object.keys(values)) {
+            (this as any)[property] = values[property];
+        }
+        return values;
     }
 
     /**

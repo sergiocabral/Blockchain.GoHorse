@@ -2,6 +2,7 @@ import {BaseSection} from "./BaseSection";
 import {DatabasePathType} from "../DatabasePathType";
 import {UserModel} from "../../../../../Twitch/Model/UserModel";
 import {WhoisTwitchTemplate} from "../../Template/WhoisTwitchTemplate";
+import sha1 from "sha1";
 
 /**
  * Seção do banco de dados: WhoisTwitch
@@ -12,53 +13,54 @@ export class WhoisTwitch extends BaseSection {
      * @param twitchUser Usuário da twitch.
      */
     public set(twitchUser: UserModel) {
-        const template = new WhoisTwitchTemplate(twitchUser.name, twitchUser.guid, twitchUser.id.toString());
-        this.database.persistence.write('/whois/twitch/name/{twitch-user-name}', {"twitch-user-name": template.twitchName}, template.content, true);
-        this.database.persistence.write('/whois/twitch/guid/{twitch-user-guid}', {"twitch-user-guid": template.twitchGuid}, template.content, true);
-        this.database.persistence.write('/whois/twitch/id/{twitch-user-id}', {"twitch-user-id": template.twitchId}, template.content, true);
-    }
+        const userHashId = sha1(twitchUser.id.toString());
 
-    /**
-     * Criar um modelo para usuário.
-     * @param content Conteúdo.
-     * @private
-     */
-    private static createUserModel(content: string | null): UserModel | null {
-        if (!content) return null;
-        const values = new WhoisTwitchTemplate().get(content);
-        return UserModel.createTwitchUser(
-            values["twitch-name"],
-            values["twitch-guid"],
-            values["twitch-id"]);
-    }
+        const whoisTwitchDatabasePath: DatabasePathType  = '/whois/twitch/{twitch-user-name}';
+        const whoisTwitchOutdatedDatabasePath: DatabasePathType  = '/whois/twitch/outdated/{twitch-user-name}-{index}';
 
-    /**
-     * Obtem os dados do usuário.
-     * @param twitchId Id do usuário na Twitch.
-     */
-    public getByTwitchId(twitchId: string): UserModel | null {
-        const databasePath: DatabasePathType = '/whois/twitch/id/{twitch-user-id}';
-        const content = this.database.persistence.read(databasePath, { "twitch-user-id": twitchId });
-        return WhoisTwitch.createUserModel(content);
-    }
+        const currentDateAsText = this.database.persistence.convertDateToText(new Date());
 
-    /**
-     * Obtem os dados do usuário.
-     * @param twitchGuid Guid do usuário na Twitch.
-     */
-    public getByTwitchGuid(twitchGuid: string): UserModel | null {
-        const databasePath: DatabasePathType = '/whois/twitch/guid/{twitch-user-guid}';
-        const content = this.database.persistence.read(databasePath, { "twitch-user-guid": twitchGuid });
-        return WhoisTwitch.createUserModel(content);
+        let content = this.database.persistence.read(whoisTwitchDatabasePath, {"twitch-user-name": twitchUser.name});
+
+        let template: WhoisTwitchTemplate;
+        if (content) {
+            template = new WhoisTwitchTemplate();
+            const values = template.get(content);
+            const userUpToDate = values["id"] === userHashId;
+
+            if (userUpToDate) return;
+
+            let index = 1;
+            while (this.database.persistence.read(whoisTwitchOutdatedDatabasePath, {
+                "twitch-user-name": twitchUser.name,
+                "index": (index).toString()
+            })) {
+                index++;
+            }
+            template.status = `Deactivated on ${currentDateAsText}`;
+            this.database.persistence.write(whoisTwitchOutdatedDatabasePath, {
+                "twitch-user-name": twitchUser.name,
+                "index": (index).toString()
+            }, template.content);
+        }
+
+        template = new WhoisTwitchTemplate(
+            twitchUser.name,
+            userHashId,
+            currentDateAsText,
+            "Active");
+        this.database.persistence.write(whoisTwitchDatabasePath, {"twitch-user-name": template.name}, template.content, true);
     }
 
     /**
      * Obtem os dados do usuário.
      * @param twitchName Nome do usuário na Twitch.
      */
-    public getByTwitchName(twitchName: string): UserModel | null {
-        const databasePath: DatabasePathType = '/whois/twitch/name/{twitch-user-name}';
+    public get(twitchName: string): UserModel | null {
+        const databasePath: DatabasePathType = '/whois/twitch/{twitch-user-name}';
         const content = this.database.persistence.read(databasePath, { "twitch-user-name": twitchName });
-        return WhoisTwitch.createUserModel(content);
+        if (!content) return null;
+        const values = new WhoisTwitchTemplate().get(content);
+        return UserModel.createTwitchUser(values["name"]);
     }
 }
