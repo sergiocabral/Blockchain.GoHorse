@@ -5,7 +5,7 @@
   "Applications": {
     "Blockchain": {
       "Access help in this link: {helpLink}": "Veja a ajuda neste link: {helpLink}",
-      "Your wallet will be created in the next mined block from the blockchain: {walletId}": "Sua carteira será criada no próximo bloco minerado da blockchain: {walletId}"
+      "Your wallet will be created in the next mined block from the blockchain.": "Sua carteira será criada no próximo bloco minerado da blockchain."
     },
     "Coin Chat Bot": {
       "Redeem Messages": {

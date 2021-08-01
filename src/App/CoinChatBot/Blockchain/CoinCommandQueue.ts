@@ -8,6 +8,9 @@ import {WalletMyChatCommand} from "../ChatCommand/WalletMyChatCommand";
 import {HelpChatCommand} from "../ChatCommand/HelpChatCommand";
 import {WalletNewByTwitchChatCommand} from "../ChatCommand/WalletNewChatCommand";
 import {ChatCommandConfiguration} from "../ChatCommand/ChatCommandConfiguration";
+import {DatabaseUpdatedEvent} from "./Command/DatabaseUpdatedEvent";
+import {Message} from "../../../Bus/Message";
+import {ProfileSetChatCommand} from "../ChatCommand/ProfileSetChatCommand";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -21,7 +24,16 @@ export class CoinCommandQueue {
         this.miner = new Miner(coin, this.minerInitialized.bind(this));
         this.database = new Database(coin, this.miner.firstBlock, this.miner.branchName, this.miner.directory);
 
-        //TODO: Receber comando para criação de carteira
+        Message.capture(DatabaseUpdatedEvent, this.handleDatabaseUpdatedEvent.bind(this));
+    }
+
+    /**
+     *
+     * @param message
+     * @private
+     */
+    private handleDatabaseUpdatedEvent(message: DatabaseUpdatedEvent) {
+        this.miner.commit(message.description);
     }
 
     /**
@@ -65,6 +77,7 @@ export class CoinCommandQueue {
         };
         return [
             new HelpChatCommand(configuration),
+            new ProfileSetChatCommand(configuration),
             new WalletMyChatCommand(configuration),
             new WalletNewByTwitchChatCommand(configuration),
         ];

@@ -13,6 +13,8 @@ import {TwitchWalletCreateCommand} from "../Command/TwitchWalletCreateCommand";
 import {TwitchWalletGetCommand} from "../Command/TwitchWalletGetCommand";
 import {WhoisTwitch} from "./Section/WhoisTwitch";
 import {InvalidExecutionError} from "../../../../Errors/InvalidExecutionError";
+import {DatabaseUpdatedEvent} from "../Command/DatabaseUpdatedEvent";
+import {TwitchProfileCreateCommand} from "../Command/TwitchProfileCreateCommand";
 
 /**
  * Banco de dados com as informações da moeda.
@@ -44,6 +46,7 @@ export class Database {
         this.patcher = new Patcher(this.persistence, firstBlock, coin);
 
         Message.capture(HelpGetCommand, this.handlerHelpGetCommand.bind(this));
+        Message.capture(TwitchProfileCreateCommand, this.handleTwitchProfileCreateCommand.bind(this));
         Message.capture(TwitchWalletCreateCommand, this.handlerTwitchWalletCreateCommand.bind(this));
         Message.capture(TwitchWalletGetCommand, this.handlerTwitchWalletGetCommand.bind(this));
     }
@@ -125,18 +128,25 @@ export class Database {
 
     /**
      * Capturador de comando.
+     * @param message TwitchProfileCreateCommand
+     * @private
+     */
+    private handleTwitchProfileCreateCommand(message: TwitchProfileCreateCommand): void {
+        this.section.whoisTwitch.set(message.twitchUser);
+        new DatabaseUpdatedEvent("Profile created.").send();
+    }
+
+    /**
+     * Capturador de comando.
      * @param message CreateWallet
      * @private
      */
     private handlerTwitchWalletCreateCommand(message: TwitchWalletCreateCommand): void {
-        this.section.whoisTwitch.set(message.twitchUser);
         this.section.wallet.setByTwitchUser(message.twitchUser);
         const wallet = this.section.wallet.getByTwitchUser(message.twitchUser);
         if (!wallet) throw new InvalidExecutionError("Wallet was created, but not found.");
-        message.output.push(
-            "Your wallet will be created in the next mined block from the blockchain: {walletId}"
-                .translate()
-                .querystring({walletId: wallet.id}));
+        message.output.push("Your wallet will be created in the next mined block.".translate());
+        new DatabaseUpdatedEvent("Wallet creation.").send();
     }
 
     /**
@@ -145,6 +155,8 @@ export class Database {
      * @private
      */
     private handlerTwitchWalletGetCommand(message: TwitchWalletGetCommand): void {
+        //TODO: Precisa disso?
+        //TODO: Já pode iniciar mineração humana?
         message.output.push("TwitchWalletGetCommand");
     }
 }
