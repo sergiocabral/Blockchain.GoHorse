@@ -9,47 +9,58 @@ import sha1 from "sha1";
  */
 export class WhoisTwitch extends BaseSection {
     /**
+     * Caminho do banco de dados para informações do usuário na Twitch.
+     * @private
+     */
+    private static readonly whoisTwitchDatabasePath: DatabasePathType  = '/whois/twitch/{twitch-user-name}';
+
+    /**
+     * Caminho do banco de dados para informações do usuário na Twitch que ficaram defasados.
+     * @private
+     */
+    private static readonly whoisTwitchOutdatedDatabasePath: DatabasePathType  = '/whois/twitch/outdated/{twitch-user-name}-{index}';
+
+    /**
+     * Mensagem de status: ativo.
+     * @private
+     */
+    private static readonly statusActive = "Active";
+
+    /**
+     * Mensagem de status: inativo.
+     * @private
+     */
+    private static readonly statusInactive = "Replaced on {0}";
+
+    /**
      * Registra um usuário da Twitch.
      * @param twitchUser Usuário da twitch.
      */
     public set(twitchUser: UserModel) {
         const userHashId = sha1(twitchUser.id.toString());
-
-        const whoisTwitchDatabasePath: DatabasePathType  = '/whois/twitch/{twitch-user-name}';
-        const whoisTwitchOutdatedDatabasePath: DatabasePathType  = '/whois/twitch/outdated/{twitch-user-name}-{index}';
-
         const currentDateAsText = this.database.persistence.convertDateToText(new Date());
 
-        let content = this.database.persistence.read(whoisTwitchDatabasePath, {"twitch-user-name": twitchUser.name});
+        let content = this.database.persistence.read(WhoisTwitch.whoisTwitchDatabasePath, {"twitch-user-name": twitchUser.name});
 
         let template: WhoisTwitchTemplate;
         if (content) {
             template = new WhoisTwitchTemplate();
             const values = template.get(content);
-            const userUpToDate = values["id"] === userHashId;
 
+            const userUpToDate = values["id"] === userHashId;
             if (userUpToDate) return;
 
-            let index = 1;
-            while (this.database.persistence.read(whoisTwitchOutdatedDatabasePath, {
+            template.status = WhoisTwitch.statusInactive.querystring(currentDateAsText);
+
+            let index = 0;
+            while (!this.database.persistence.write(WhoisTwitch.whoisTwitchOutdatedDatabasePath, {
                 "twitch-user-name": twitchUser.name,
-                "index": (index).toString()
-            })) {
-                index++;
-            }
-            template.status = `Deactivated on ${currentDateAsText}`;
-            this.database.persistence.write(whoisTwitchOutdatedDatabasePath, {
-                "twitch-user-name": twitchUser.name,
-                "index": (index).toString()
-            }, template.content);
+                "index": (++index).toString()
+            }, template.content)) { }
         }
 
-        template = new WhoisTwitchTemplate(
-            twitchUser.name,
-            userHashId,
-            currentDateAsText,
-            "Active");
-        this.database.persistence.write(whoisTwitchDatabasePath, {"twitch-user-name": template.name}, template.content, true);
+        template = new WhoisTwitchTemplate(twitchUser.name, userHashId, currentDateAsText, WhoisTwitch.statusActive);
+        this.database.persistence.write(WhoisTwitch.whoisTwitchDatabasePath, {"twitch-user-name": template.name}, template.content, true);
     }
 
     /**

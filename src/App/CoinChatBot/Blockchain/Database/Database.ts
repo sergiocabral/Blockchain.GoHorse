@@ -129,7 +129,7 @@ export class Database {
      * @private
      */
     private handlerTwitchWalletCreateCommand(message: TwitchWalletCreateCommand): void {
-        const walletId = sha1(`${JSON.stringify(message.twitchUser)}${new Date()}${Math.random()}`);
+        const walletId = sha1(sha1(message.twitchUser.id.toString()));
         const wallet = new WalletModel(walletId, new Date());
         this.section.wallet.set(wallet);
         this.section.whoisTwitch.set(message.twitchUser);
