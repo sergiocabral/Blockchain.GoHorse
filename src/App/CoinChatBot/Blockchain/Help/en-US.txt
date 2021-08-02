@@ -1,32 +1,29 @@
 Chat commands should always start with one of the options below. Use what more like:
 
-  !cc
-  !cabron
-  !cabroncoin
-  !cabr0ncoin
-  !cabronc0in
-  !cabr0nc0in
+> !cc
+> !cabron
+> !cabroncoin
+> !cabr0ncoin
+> !cabronc0in
+> !cabr0nc0in
 
 Here are the features and their possible commands:
 
 # Help
+  Display the link to access this help file.
 
-Display the link to access this help file.
-
-  ?
-  -h
-  --help
+> !cc ?
+> !cc -h
+> !cc --help
 
 # Wallet
+  Register the wallet on the blockchain.
 
-Register the wallet on the blockchain.
-
-  -wn
-  --wallet --new
+> !cc -wn
+> !cc --wallet --new
 
 # User profile
+  Register a status phrase for the blockchain user profile.
 
-Register a status phrase for the blockchain user profile.
-
-  -p "<status-message>"
-  -profile "<status-message>"
+> !cc -p "<status-message>"
+> !cc --profile "<status-message>"

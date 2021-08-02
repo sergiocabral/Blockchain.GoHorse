@@ -1,32 +1,29 @@
 Os comandos do chat sempre deve começar com uma das opções abaixo. Use a que mais gostar:
 
-  !cc
-  !cabron
-  !cabroncoin
-  !cabr0ncoin
-  !cabronc0in
-  !cabr0nc0in
+> !cc
+> !cabron
+> !cabroncoin
+> !cabr0ncoin
+> !cabronc0in
+> !cabr0nc0in
 
-Seguem as funcionalidades e seus comandos possíveis:
+Seguem as funcionalidades e os seus comandos possíveis:
 
-## Ajuda
+# Ajuda
+  Exibe o link para acessar este arquivo de ajuda.
 
-Exibe o link para acessar este arquivo de ajuda.
-
-  ?
-  -h
-  --help
+> !cc ?
+> !cc -h
+> !cc --help
 
 # Carteira
+  Registrar a carteira na blockchain.
 
-Registrar a carteira na blockchain.
-
-  -wn
-  --wallet --new
+> !cc -wn
+> !cc --wallet --new
 
 # Perfil do usuário
+  Registrar uma frase de status para o perfil do usuário na blockchain.
 
-Registrar uma frase de status para o perfil do usuário na blockchain.
-
-  -p "<status-message>"
-  -profile "<status-message>"
+> !cc -p "<mensagem-de-status>"
+> !cc --profile "<mensagem-de-status>"
