@@ -10,6 +10,8 @@ import {ChatCommandConfiguration} from "../ChatCommand/ChatCommandConfiguration"
 import {DatabaseUpdatedEvent} from "./Command/DatabaseUpdatedEvent";
 import {Message} from "../../../Bus/Message";
 import {SetProfileStatusChatCommand} from "../ChatCommand/SetProfileStatusChatCommand";
+import Timeout = NodeJS.Timeout;
+import {List} from "../../../Helper/List";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -27,12 +29,39 @@ export class Blockchain {
     }
 
     /**
+     * Timeout para bounce da gravação do banco de dados.
+     * @private
+     */
+    private mineTimeout: Timeout = 0 as any;
+
+    /**
+     * Lista de mensagens para gravação.
+     * @private
+     */
+    private mineMessages: string[] = [];
+
+    /**
+     * Grava o banco de dados na blockchain.
+     * @param message Mensagem na blockchain.
+     * @private
+     */
+    private mine(message: string): void {
+        clearTimeout(this.mineTimeout);
+        this.mineMessages.push(message);
+        this.mineTimeout = setTimeout(() => {
+            const message = List.unique(this.mineMessages).join(' / ');
+            this.mineMessages.length = 0;
+            this.miner.commit(message);
+        }, Definition.WaitSecondsBeforeMiner * 1000);
+    }
+
+    /**
      *
      * @param message
      * @private
      */
     private handleDatabaseUpdatedEvent(message: DatabaseUpdatedEvent) {
-        this.miner.commit(message.description);
+        this.mine(message.description);
         message.output.push('Changes will be available in the next mined block.'.translate());
     }
 

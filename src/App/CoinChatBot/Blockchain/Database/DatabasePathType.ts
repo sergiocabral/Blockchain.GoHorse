@@ -6,9 +6,8 @@ export type DatabasePathType =
     "/whois/twitch/{twitch-user-name}" |
     "/whois/twitch/outdated/{twitch-user-name}-{index}" |
 
-    "/quote/wallet/{wallet-id}" |
-    "/quote/history" |
-    "/quote/last" |
+    "/quote/current" |
+    "/quote/pack-{index}" |
 
     "/broker/{coin-main}/buy/{coin-pair}/wallet/{wallet-id}}" |
     "/broker/{coin-main}/buy/{coin-pair}/book" |
