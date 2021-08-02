@@ -8,7 +8,8 @@
       "Changes will be available in the next mined block.": "Alterações ficarão disponíveis no próximo bloco minerado.",
       "Wallet created for @{username}.": "Carteira criada para @{username}.",
       "Profile updated for @{username}: {url}": "Perfil atualizado para @{username}: {url}",
-      "{coinName} is the future!": "{coinName} é o futuro!"
+      "{coinName} is the future!": "{coinName} é o futuro!",
+      "@{username}, Invalid parameters for {coinName}. For help type: !{coinCommand} --help": "@{username}, parâmetros inválidos para {coinName}. Para obter ajuda digite: !{coinCommand} --help"
     },
     "Coin Chat Bot": {
       "Redeem Messages": {

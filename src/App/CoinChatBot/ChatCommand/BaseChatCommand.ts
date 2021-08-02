@@ -16,10 +16,20 @@ export abstract class BaseChatCommand extends ChatListener {
     }
 
     /**
+     * Sinaliza que o comando atual não foi processado por ninguém e é inválido.
+     */
+    public static invalidCommand: boolean = false;
+
+    /**
+     * Classe que vai capturar os comandos inválidos.
+     */
+    public static invalidCommandCatcher?: ChatListener;
+
+    /**
      * Comando para o funcionamento da blockchain.
      * @private
      */
-    private possibleCommands: string[] = [
+    protected possibleCommands: string[] = [
         "cabr0n",
         "cabron",
         "cabr0ncoin",
@@ -32,7 +42,7 @@ export abstract class BaseChatCommand extends ChatListener {
     /**
      * Nome do comando.
      */
-    protected abstract subCommands: (string | RegExp)[][];
+    protected abstract subCommands?: (string | RegExp)[][];
 
     /**
      * Execução do comando.
@@ -46,11 +56,15 @@ export abstract class BaseChatCommand extends ChatListener {
      * Valida se uma mensagem deve ser capturada.
      */
     public isMatch(message: ChatMessageModel): boolean {
+        BaseChatCommand.invalidCommand = true;
+
         if (!message.isCommand) return false;
 
         const args = message.getCommandArguments();
         if (args.length < 1 || !this.possibleCommands.includes(args[0].toLowerCase())) return false;
         const argsOnlyWithSubCommands = args.slice(1);
+
+        if (!this.subCommands) return true;
 
         for (const subCommands of this.subCommands) {
             if (BaseChatCommand.commandsIsMatch(argsOnlyWithSubCommands, subCommands)) return true;
@@ -91,6 +105,12 @@ export abstract class BaseChatCommand extends ChatListener {
      * @return Texto de resposta.
      */
     public response(message: ChatMessageModel): string[] | string {
+        if (this !== BaseChatCommand.invalidCommandCatcher) {
+            BaseChatCommand.invalidCommand = false;
+        } else if (!BaseChatCommand.invalidCommand) {
+            return '';
+        }
+
         let output = this.run(message.getCommandArguments(), message);
         if (Array.isArray(output)) {
             output = output.join(' ');

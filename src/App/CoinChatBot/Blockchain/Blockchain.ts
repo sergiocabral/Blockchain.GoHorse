@@ -12,6 +12,7 @@ import {Message} from "../../../Bus/Message";
 import {SetProfileStatusChatCommand} from "../ChatCommand/SetProfileStatusChatCommand";
 import Timeout = NodeJS.Timeout;
 import {List} from "../../../Helper/List";
+import {InvalidChatCommand} from "../ChatCommand/InvalidChatCommand";
 
 /**
  * Responsável por enfileirar comandos para operar a moeda.
@@ -108,6 +109,7 @@ export class Blockchain {
             new HelpChatCommand(configuration),
             new SetProfileStatusChatCommand(configuration),
             new RegisterWalletChatCommand(configuration),
+            new InvalidChatCommand(configuration),
         ];
     }
 }

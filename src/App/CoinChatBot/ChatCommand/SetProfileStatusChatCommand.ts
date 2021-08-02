@@ -4,7 +4,7 @@ import {SetTwitchProfileCreateCommand} from "../Blockchain/Command/SetTwitchProf
 
 /**
  * Cria o perfil na blockchain
- * Comando: !cabr0n profile set
+ * Comando: !cabr0n profile "[message]"
  */
 export class SetProfileStatusChatCommand extends BaseChatCommand {
     /**
