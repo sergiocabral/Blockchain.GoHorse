@@ -1,2 +1,32 @@
-Ajuda aqui...
-Ops!
+Os comandos do chat sempre deve começar com uma das opções abaixo. Use a que mais gostar:
+
+  !cc
+  !cabron
+  !cabroncoin
+  !cabr0ncoin
+  !cabronc0in
+  !cabr0nc0in
+
+Seguem as funcionalidades e seus comandos possíveis:
+
+## Ajuda
+
+Exibe o link para acessar este arquivo de ajuda.
+
+  ?
+  -h
+  --help
+
+# Carteira
+
+Registrar a carteira na blockchain.
+
+  -wn
+  --wallet --new
+
+# Perfil do usuário
+
+Registrar uma frase de status para o perfil do usuário na blockchain.
+
+  -p "<status-message>"
+  -profile "<status-message>"
