@@ -93,8 +93,8 @@ export class Persistence {
      * Converte um formato texto para data.
      * @param date
      */
-    public convertTextToDate(date: string): Date {
-        const regexDateParts = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3})/;
+    public static textToDate(date: string): Date {
+        const regexDateParts = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.(\d{3}) UTC/;
         const dateParts = date.match(regexDateParts);
         if (!dateParts) throw new ShouldNeverHappen();
         return new Date(Date.UTC(
@@ -111,7 +111,7 @@ export class Persistence {
      * Converte data para um formato texto.
      * @param date
      */
-    public convertDateToText(date: Date): string {
-        return date.format({ mask: "y-M-d h:m:s.z", useUTC: true });
+    public static dateToText(date: Date): string {
+        return date.format({ mask: "y-M-d h:m:s.z", useUTC: true }) + ' UTC';
     }
 }

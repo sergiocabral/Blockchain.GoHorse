@@ -1,4 +1,5 @@
 import {Template} from "./Template";
+import {KeyValue} from "../../../../Helper/Types/KeyValue";
 
 /**
  * Template: Version
@@ -29,6 +30,21 @@ export class VersionTemplate extends Template {
                 ? `${this.majorVersion}.${this.minorVersion}`
                 : ''
         });
+    }
+
+    /**
+     * Lê os parâmetros do conteúdo.
+     * @param content Conteúdo do arquivo.
+     * @param writeValues Escreve os valores lidos na instâncias
+     */
+    public override get(content: string, writeValues: boolean = false): KeyValue {
+        const result = super.get(content, writeValues);
+        if (writeValues) {
+            const version = result["version"];
+            this.majorVersion = parseInt(version.replace(/\..*/, ''));
+            this.minorVersion = parseInt(version.replace(/.*\./, ''));
+        }
+        return result;
     }
 
 }

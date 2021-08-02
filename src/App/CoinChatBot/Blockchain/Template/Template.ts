@@ -87,12 +87,15 @@ export abstract class Template {
 
     /**
      * Lê os parâmetros do conteúdo.
-     * @param content Conteúdo do arquivo.
+     * @param content Conteúdo.
+     * @param writeValues Escreve os valores lidos na instâncias
      */
-    public get(content: string): KeyValue {
+    public get(content: string, writeValues: boolean = false): KeyValue {
         const values = Template.get(this.templateContent, content);
-        for (const property of Object.keys(values)) {
-            (this as any)[property] = values[property];
+        if (writeValues) {
+            for (const property of Object.keys(values)) {
+                (this as any)[property] = values[property];
+            }
         }
         return values;
     }

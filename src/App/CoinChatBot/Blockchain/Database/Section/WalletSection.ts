@@ -16,7 +16,7 @@ export class WalletSection extends BaseSection {
      */
     public set(wallet: WalletModel): boolean {
         const databasePath: DatabasePathType = '/wallet/{wallet-id}';
-        const mainWalletContent = new WalletTemplate(wallet.id, this.database.persistence.convertDateToText(wallet.creation));
+        const mainWalletContent = new WalletTemplate(wallet.id, wallet.creation);
         return this.database.persistence.write(databasePath, { "wallet-id": wallet.id }, mainWalletContent.content);
     }
 
@@ -28,10 +28,11 @@ export class WalletSection extends BaseSection {
         const databasePath: DatabasePathType = '/wallet/{wallet-id}';
         const content = this.database.persistence.read(databasePath, { "wallet-id": walletId });
         if (!content) return null;
-        const values = new WalletTemplate().get(content);
+        const walletTemplate = new WalletTemplate();
+        walletTemplate.get(content, true);
         return new WalletModel(
-            values["wallet-id"],
-            this.database.persistence.convertTextToDate(values["date-utc"]),
+            walletTemplate.walletId as string,
+            walletTemplate.date as Date,
         );
     }
 
