@@ -34,4 +34,4 @@ Values containing spaces must be enclosed in double quotation marks.
 > !cc -p "[status-message]"
 > !cc --profile "[status-message]"
 
-  [status-message] : If not informed, use the standard blockchain phrase.
+  [status-message] : If not informed, it will use the standard blockchain phrase.

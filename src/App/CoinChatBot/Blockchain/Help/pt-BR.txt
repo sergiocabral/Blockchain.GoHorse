@@ -34,4 +34,4 @@ Valores contendo espaços devem ser contidos entre aspas duplas.
 > !cc -p "[mensagem-de-status]"
 > !cc --profile "[mensagem-de-status]"
 
-  [mensagem-de-status] : Se não for informada utiliza a frase padrão da blockchain.
+  [mensagem-de-status] : Se não for informada será utiliza a frase padrão da blockchain.
