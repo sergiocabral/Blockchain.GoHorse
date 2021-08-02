@@ -10,14 +10,16 @@ export class WhoisTwitchTemplate extends Template {
     /**
      * Construtor.
      * @param name Nome do usuário Twitch
+     * @param quote Mensagem de status
      * @param id Id do usuário Twitch
-     * @param joined Criação do arquivo (ingresso do usuário na blockchain)
+     * @param created Criação do arquivo (ingresso do usuário na blockchain)
      * @param status Qualquer mensagem de status
      */
     public constructor(
         public name?: string,
+        public quote?: string,
         public id?: string,
-        public joined?: string,
+        public created?: string,
         public status?: string) {
         super('WhoisTwitch');
     }
@@ -33,7 +35,8 @@ export class WhoisTwitchTemplate extends Template {
         let indexPosition = 0;
         return this.set({
             "name": this.name ?? '',
-            "joined": this.joined ?? '',
+            "quote": this.quote ?? '',
+            "created": this.created ?? '',
             "status": this.status ?? '',
             "hash-part-01-length-05": hashId.substring(indexPosition, indexPosition += 5) ?? '',
             "hash-part-02-length-03": hashId.substring(indexPosition, indexPosition += 3) ?? '',

@@ -113,14 +113,22 @@ export class Database {
     }
 
     /**
+     * Retorna a url para um arquivo no repositório
+     * @param path Caminho do arquivo.
+     * @private
+     */
+    private getRepositoryUrl(path: string): string {
+        return `${this.coin.repositoryUrl}/blob/${this.branchName}${path}`;
+    }
+
+    /**
      * Captura de mensagem
      * @param message GetHelpCommand
      * @private
      */
     private handlerGetHelpCommand(message: GetHelpCommand): void {
-        const branchName = this.branchName;
-        const helpPath = this.section.help.get(message.language);
-        const helpLink = `${this.coin.repositoryUrl}/blob/${branchName}${helpPath}`;
+        const helpPath = this.section.help.getPath(message.language);
+        const helpLink = this.getRepositoryUrl(helpPath);
         message.output.push(`Access help in this link: {helpLink}`.translate().querystring({ helpLink }));
     }
 
@@ -130,8 +138,15 @@ export class Database {
      * @private
      */
     private handleSetTwitchProfileCreateCommand(message: SetTwitchProfileCreateCommand): void {
-        this.section.whoisTwitch.set(message.twitchUser);
-        new DatabaseUpdatedEvent("Profile created.").send();
+        const defaultQuote = "{coinName} is the future!".translate().querystring({coinName: this.coin.name});
+        this.section.whoisTwitch.set(message.twitchUser, message.quote ?? defaultQuote);
+        const path = this.section.whoisTwitch.getPath(message.twitchUser.name);
+        const url = this.getRepositoryUrl(path);
+        message.output.push('Profile updated for @{username}: {url}'.translate().querystring({
+            url,
+            username: message.twitchUser.name
+        }));
+        message.output.push(...new DatabaseUpdatedEvent("Twitch user profile updated.").request().message.output);
     }
 
     /**
@@ -143,7 +158,9 @@ export class Database {
         this.section.wallet.setByTwitchUser(message.twitchUser);
         const wallet = this.section.wallet.getByTwitchUser(message.twitchUser);
         if (!wallet) throw new InvalidExecutionError("Wallet was created, but not found.");
-        message.output.push("Your wallet will be created in the next mined block.".translate());
-        new DatabaseUpdatedEvent("Wallet creation.").send();
+        message.output.push("Wallet created for @{username}.".translate().querystring({
+            username: message.twitchUser.name
+        }));
+        message.output.push(...new DatabaseUpdatedEvent("Wallet created.").request().message.output);
     }
 }

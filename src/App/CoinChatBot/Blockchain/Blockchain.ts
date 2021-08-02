@@ -33,6 +33,7 @@ export class Blockchain {
      */
     private handleDatabaseUpdatedEvent(message: DatabaseUpdatedEvent) {
         this.miner.commit(message.description);
+        message.output.push('Changes will be available in the next mined block.'.translate());
     }
 
     /**

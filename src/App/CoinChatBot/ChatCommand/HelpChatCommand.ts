@@ -10,7 +10,7 @@ export class HelpChatCommand extends BaseChatCommand {
      * Parâmetros do comandos.
      */
     protected subCommands: (string|RegExp)[][] = [
-        [ "help", /.*/ ]
+        [ /^-{0,2}help$/, /.*/ ]
     ];
 
     /**

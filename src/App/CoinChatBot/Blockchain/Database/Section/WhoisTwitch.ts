@@ -35,8 +35,9 @@ export class WhoisTwitch extends BaseSection {
     /**
      * Registra um usuário da Twitch.
      * @param twitchUser Usuário da twitch.
+     * @param quote Mensagem de status
      */
-    public set(twitchUser: UserModel) {
+    public set(twitchUser: UserModel, quote: string) {
         const userHashId = sha1(twitchUser.id.toString());
         const currentDateAsText = this.database.persistence.convertDateToText(new Date());
 
@@ -45,21 +46,22 @@ export class WhoisTwitch extends BaseSection {
         let template: WhoisTwitchTemplate;
         if (content) {
             template = new WhoisTwitchTemplate();
-            const values = template.get(content);
+            template.get(content);
 
-            const userUpToDate = values["id"] === userHashId;
-            if (userUpToDate) return;
+            const userOutdated = template.id !== userHashId;
+            if (userOutdated) {
+                template.status = WhoisTwitch.statusInactive.querystring(currentDateAsText);
 
-            template.status = WhoisTwitch.statusInactive.querystring(currentDateAsText);
-
-            let index = 0;
-            while (!this.database.persistence.write(WhoisTwitch.whoisTwitchOutdatedDatabasePath, {
-                "twitch-user-name": twitchUser.name,
-                "index": (++index).toString()
-            }, template.content)) { }
+                let index = 0;
+                while (!this.database.persistence.write(WhoisTwitch.whoisTwitchOutdatedDatabasePath, {
+                    "twitch-user-name": twitchUser.name,
+                    "index": (++index).toString()
+                }, template.content)) {
+                }
+            }
         }
 
-        template = new WhoisTwitchTemplate(twitchUser.name, userHashId, currentDateAsText, WhoisTwitch.statusActive);
+        template = new WhoisTwitchTemplate(twitchUser.name, quote, userHashId, currentDateAsText, WhoisTwitch.statusActive);
         this.database.persistence.write(WhoisTwitch.whoisTwitchDatabasePath, {"twitch-user-name": template.name}, template.content, true);
     }
 
@@ -68,10 +70,17 @@ export class WhoisTwitch extends BaseSection {
      * @param twitchName Nome do usuário na Twitch.
      */
     public get(twitchName: string): UserModel | null {
-        const databasePath: DatabasePathType = '/whois/twitch/{twitch-user-name}';
-        const content = this.database.persistence.read(databasePath, { "twitch-user-name": twitchName });
+        const content = this.database.persistence.read(WhoisTwitch.whoisTwitchDatabasePath, { "twitch-user-name": twitchName });
         if (!content) return null;
         const values = new WhoisTwitchTemplate().get(content);
         return UserModel.createTwitchUser(values["name"]);
+    }
+
+    /**
+     * Obtem a url do repositório.
+     * @param twitchName Nome do usuário na Twitch.
+     */
+    public getPath(twitchName: string): string {
+        return this.database.persistence.path(WhoisTwitch.whoisTwitchDatabasePath, { "twitch-user-name": twitchName });
     }
 }

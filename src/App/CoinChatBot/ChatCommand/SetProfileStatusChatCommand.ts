@@ -11,7 +11,8 @@ export class SetProfileStatusChatCommand extends BaseChatCommand {
      * Parâmetros do comandos.
      */
     protected subCommands: (string | RegExp)[][] = [
-        [ "profile", "set" ]
+        [ /^-{0,2}profile$/, /^(|.*)$/ ],
+        [ /^-{0,2}p$/, /^(|.*)$/ ]
     ];
 
     /**
@@ -21,6 +22,6 @@ export class SetProfileStatusChatCommand extends BaseChatCommand {
      * @protected
      */
     protected run(args: string[], message: ChatMessageModel): string | string[] {
-        return new SetTwitchProfileCreateCommand(message.user).request().message.output;
+        return new SetTwitchProfileCreateCommand(message.user, args[2]).request().message.output;
     }
 }

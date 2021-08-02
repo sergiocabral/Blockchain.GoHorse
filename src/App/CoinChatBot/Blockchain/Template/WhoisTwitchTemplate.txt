@@ -1,12 +1,13 @@
 {name}
+ -> {quote}
 
-Joined: {joined}
-Status: {status}
+Created: {created}
+ Status: {status}
 
-  _____       _ _       _ {hash-part-01-length-05}
- |_   _|_ _ _|_| |_ ___| |_ {hash-part-02-length-03}
-   | | | | | | |  _|  _|   | {hash-part-03-length-02}
-   |_| |_____|_|_| |___|_|_| {hash-part-04-length-02}
-   |  |  |___ ___ ___ {hash-part-05-length-09}
-   |  |  |_ -| -_|  _| {hash-part-06-length-08}
-   |_____|___|___|_|{hash-part-07-length-11}
+   _____       _ _       _ {hash-part-01-length-05}
+  |_   _|_ _ _|_| |_ ___| |_ {hash-part-02-length-03}
+    | | | | | | |  _|  _|   | {hash-part-03-length-02}
+    |_| |_____|_|_| |___|_|_| {hash-part-04-length-02}
+    |  |  |___ ___ ___ {hash-part-05-length-09}
+    |  |  |_ -| -_|  _| {hash-part-06-length-08}
+    |_____|___|___|_|{hash-part-07-length-11}

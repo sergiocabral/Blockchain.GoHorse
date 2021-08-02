@@ -8,8 +8,11 @@ export class SetTwitchProfileCreateCommand extends BaseBlockchainChatCommand {
     /**
      * Construtor.
      * @param twitchUser Usuário da twitch
+     * @param quote Mensagem do status
      */
-    public constructor(public readonly twitchUser: UserModel) {
+    public constructor(
+        public readonly twitchUser: UserModel,
+        public readonly quote: string) {
         super();
     }
 }

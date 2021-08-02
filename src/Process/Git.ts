@@ -193,7 +193,7 @@ export class Git {
 
         this.lastOutputValue = this.gitCommandLine.execute().join('\n');
         const branch = this.regexGitError.test(this.lastOutputValue) ? '' : this.lastOutputValue;
-        Logger.post('Get current branch: {result}', {branch}, LogLevel.Debug, LogContext.Git);
+        Logger.post('Get current branch {branch}: {result}', {branch}, LogLevel.Debug, LogContext.Git);
         return branch;
     }
 

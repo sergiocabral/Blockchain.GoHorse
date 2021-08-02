@@ -11,8 +11,8 @@ export class RegisterWalletChatCommand extends BaseChatCommand {
      * Parâmetros do comandos.
      */
     protected subCommands: (string | RegExp)[][] = [
-        [ "wallet", "new" ],
-        [ /^-?wn$/ ]
+        [ /^-{0,2}wallet$/, /^-{0,2}new$/ ],
+        [ /^-{0,2}wn$/ ]
     ];
 
     /**

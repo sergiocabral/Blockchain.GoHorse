@@ -34,7 +34,7 @@ export class HelpSection extends BaseSection {
      * Retorna o caminho do arquivo de ajuda.
      * @param language
      */
-    public get(language?: string): string {
+    public getPath(language?: string): string {
         language = this.matchLanguage(language);
         return this.database.persistence.path('/docs/{language}/help', {language});
     }
