@@ -7,17 +7,23 @@ Os comandos do chat sempre deve começar com uma das opções abaixo. Use a que 
 > !cabronc0in
 > !cabr0nc0in
 
-Seguem as funcionalidades e os seus comandos possíveis:
+Seguem as funcionalidades e os seus comandos possíveis.
+Menor que e maior que < > indicam parâmetro obrigatório.
+Colchetes [ ] indicam parâmetro opcional.
+Valores contendo espaços devem ser contidos entre aspas duplas.
 
 # Ajuda
   Exibe o link para acessar este arquivo de ajuda.
 
-> !cc ?
-> !cc -h
-> !cc --help
+> !cc ? "[idioma]"
+> !cc -h "[idioma]"
+> !cc --help "[idioma]"
+
+  [idioma] : Atualmente disponíveis "pt-BR" e "en-US", que podem ser referenciado apenas como "pt" e "en", respectivamente.
 
 # Carteira
   Registrar a carteira na blockchain.
+  Carteiras são criadas automaticamente quando necessário. Logo, este comando não tem tanta utilidade assim.
 
 > !cc -wn
 > !cc --wallet --new
@@ -25,5 +31,7 @@ Seguem as funcionalidades e os seus comandos possíveis:
 # Perfil do usuário
   Registrar uma frase de status para o perfil do usuário na blockchain.
 
-> !cc -p "<mensagem-de-status>"
-> !cc --profile "<mensagem-de-status>"
+> !cc -p "[mensagem-de-status]"
+> !cc --profile "[mensagem-de-status]"
+
+  [mensagem-de-status] : Se não for informada utiliza a frase padrão da blockchain.

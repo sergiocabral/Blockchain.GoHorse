@@ -7,17 +7,23 @@ Chat commands should always start with one of the options below. Use what more l
 > !cabronc0in
 > !cabr0nc0in
 
-Here are the features and their possible commands:
+Here are the features and their possible commands.
+Less than and greater than < > indicate mandatory parameter.
+Brackets [ ] indicate optional parameter.
+Values containing spaces must be enclosed in double quotation marks.
 
 # Help
   Display the link to access this help file.
 
-> !cc ?
-> !cc -h
-> !cc --help
+> !cc ? "[language]"
+> !cc -h "[language]"
+> !cc --help "[language]"
+
+  [language] : Currently available "pt-BR" and "en-US", which can be referenced just as "pt" and "en", respectively.
 
 # Wallet
   Register the wallet on the blockchain.
+  Wallets are automatically created when needed. So, this command is not that useful.
 
 > !cc -wn
 > !cc --wallet --new
@@ -25,5 +31,7 @@ Here are the features and their possible commands:
 # User profile
   Register a status phrase for the blockchain user profile.
 
-> !cc -p "<status-message>"
-> !cc --profile "<status-message>"
+> !cc -p "[status-message]"
+> !cc --profile "[status-message]"
+
+  [status-message] : If not informed, use the standard blockchain phrase.
