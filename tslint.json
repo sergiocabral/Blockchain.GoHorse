@@ -9,7 +9,9 @@
         "file-name-casing": [false, "camel-case"],
         "no-unnecessary-class": false,
         "typedef": false,
-        "prefer-function-over-method": false
+        "prefer-function-over-method": false,
+        "no-implicit-dependencies": false,
+        "no-parameter-properties": false
     },
     "rulesDirectory": []
 }
