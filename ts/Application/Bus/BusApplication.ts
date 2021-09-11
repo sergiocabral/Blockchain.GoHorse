@@ -7,11 +7,6 @@ import { IApplication } from "../../Core/IApplication";
  */
 export class BusApplication implements IApplication {
   /**
-   * Nome da aplicação.
-   */
-  public readonly name = "bus";
-
-  /**
    * Executa a aplicação.
    */
   public run(): void {

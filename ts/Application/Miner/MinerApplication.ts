@@ -7,11 +7,6 @@ import { IApplication } from "../../Core/IApplication";
  */
 export class MinerApplication implements IApplication {
   /**
-   * Nome da aplicação.
-   */
-  public readonly name = "miner";
-
-  /**
    * Executa a aplicação.
    */
   public run(): void {

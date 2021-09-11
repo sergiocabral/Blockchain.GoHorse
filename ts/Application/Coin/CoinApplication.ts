@@ -7,11 +7,6 @@ import { IApplication } from "../../Core/IApplication";
  */
 export class CoinApplication implements IApplication {
   /**
-   * Nome da aplicação.
-   */
-  public readonly name = "coin";
-
-  /**
    * Executa a aplicação.
    */
   public run(): void {

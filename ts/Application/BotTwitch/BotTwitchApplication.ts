@@ -7,11 +7,6 @@ import { IApplication } from "../../Core/IApplication";
  */
 export class BotTwitchApplication implements IApplication {
   /**
-   * Nome da aplicação.
-   */
-  public readonly name = "twitch";
-
-  /**
    * Executa a aplicação.
    */
   public run(): void {

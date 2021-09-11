@@ -7,11 +7,6 @@ import { IApplication } from "../../Core/IApplication";
  */
 export class DatabaseApplication implements IApplication {
   /**
-   * Nome da aplicação.
-   */
-  public readonly name = "database";
-
-  /**
    * Executa a aplicação.
    */
   public run(): void {

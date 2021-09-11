@@ -17,16 +17,16 @@ export class Main {
    * Instância da aplicação que será executada.
    */
   public static get application(): IApplication {
-    const selectedApplication = Main.getSelectedApplication();
+    const application = Main.createApplication();
 
-    if (selectedApplication === undefined) {
+    if (application === undefined) {
       throw new InvalidArgumentError(
         'Invalid application name "{invalidApplicationName}". Enter a name from the list: {applicationsNames}".'.querystring(
           {
             applicationsNames: Main.applications
-              .map((application) => application.name)
+              .map((applicationConstructor) => applicationConstructor.name)
               .join(", "),
-            invalidApplicationName: Main.getSelectedApplicationName(),
+            invalidApplicationName: Main.getApplicationName(),
           }
         )
       );
@@ -35,25 +35,25 @@ export class Main {
     Logger.post(
       "Selected application to run: {applicationName}",
       {
-        applicationName: selectedApplication.name,
+        applicationName: application.constructor.name,
       },
       LogLevel.Information,
       Main.loggerSection
     );
 
-    return selectedApplication;
+    return application;
   }
 
   /**
    * Lista de aplicações disponíveis.
    */
-  private static readonly applications: IApplication[] = [
-    new BotTwitchApplication(),
-    new BusApplication(),
-    new CoinApplication(),
-    new DatabaseApplication(),
-    new MinerApplication(),
-    new PusherApplication(),
+  private static readonly applications: Array<new() => IApplication> = [
+    BotTwitchApplication,
+    BusApplication,
+    CoinApplication,
+    DatabaseApplication,
+    MinerApplication,
+    PusherApplication,
   ];
 
   /**
@@ -64,18 +64,22 @@ export class Main {
   /**
    * Aplicação selecionada para execução.
    */
-  private static getSelectedApplication(): IApplication | undefined {
-    const applicationName = Main.getSelectedApplicationName();
+  private static createApplication(): IApplication | undefined {
+    const applicationName = Main.getApplicationName();
 
-    return Main.applications.find(
+    const applicationConstructor = Main.applications.find(
       (application) => application.name === applicationName
     );
+
+    return applicationConstructor !== undefined
+      ? new applicationConstructor()
+      : undefined;
   }
 
   /**
    * Nome da aplicação selecionada para execução.
    */
-  private static getSelectedApplicationName(): string {
+  private static getApplicationName(): string {
     const applicationNameArgumentIndex = 2;
 
     return (process.argv[applicationNameArgumentIndex] ?? "").trim();
