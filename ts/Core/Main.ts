@@ -1,6 +1,7 @@
 import { InvalidArgumentError, Logger, LogLevel } from "@sergiocabral/helper";
 
 import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
+import { BusApplication } from "../Application/Bus/BusApplication";
 import { CoinApplication } from "../Application/Coin/CoinApplication";
 import { DatabaseApplication } from "../Application/Database/DatabaseApplication";
 import { MinerApplication } from "../Application/Miner/MinerApplication";
@@ -48,6 +49,7 @@ export class Main {
    */
   private static readonly applications: IApplication[] = [
     new BotTwitchApplication(),
+    new BusApplication(),
     new CoinApplication(),
     new DatabaseApplication(),
     new MinerApplication(),
