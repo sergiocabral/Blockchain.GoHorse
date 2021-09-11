@@ -1,9 +1,15 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+        "tslint:all",
+        "tslint-config-prettier"
     ],
     "jsRules": {},
-    "rules": {},
+    "rules": {
+        "file-name-casing": [false, "camel-case"],
+        "no-unnecessary-class": false,
+        "typedef": false,
+        "prefer-function-over-method": false
+    },
     "rulesDirectory": []
 }
