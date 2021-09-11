@@ -1,0 +1,10 @@
+# NodeJS
+node_modules
+package-lock.json
+
+# Compilados
+/js
+
+# Ferramentas
+.idea
+.vscode
