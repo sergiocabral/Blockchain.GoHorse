@@ -9,9 +9,7 @@ export class CoinApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "coin";
-  }
+  public readonly name = "coin";
 
   /**
    * Executa a aplicação.

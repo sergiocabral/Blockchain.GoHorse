@@ -9,9 +9,7 @@ export class DatabaseApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "database";
-  }
+  public readonly name = "database";
 
   /**
    * Executa a aplicação.

@@ -9,9 +9,7 @@ export class MinerApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "miner";
-  }
+  public readonly name = "miner";
 
   /**
    * Executa a aplicação.

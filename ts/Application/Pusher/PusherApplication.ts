@@ -9,9 +9,7 @@ export class PusherApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "pusher";
-  }
+  public readonly name = "pusher";
 
   /**
    * Executa a aplicação.

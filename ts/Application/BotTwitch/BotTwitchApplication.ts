@@ -9,9 +9,7 @@ export class BotTwitchApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "twitch";
-  }
+  public readonly name = "twitch";
 
   /**
    * Executa a aplicação.

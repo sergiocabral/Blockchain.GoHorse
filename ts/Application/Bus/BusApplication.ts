@@ -9,9 +9,7 @@ export class BusApplication implements IApplication {
   /**
    * Nome da aplicação.
    */
-  public get name() {
-    return "bus";
-  }
+  public readonly name = "bus";
 
   /**
    * Executa a aplicação.
