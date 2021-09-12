@@ -15,15 +15,18 @@ export class WebserverConfiguration extends Configuration<WebserverConfiguration
    */
   public constructor(json?: unknown) {
     super(json);
+    this.load();
   }
 
   /**
-   * Verificar erros num JSON de configuração.
+   * Lista de erros presentes na configuração atual
    */
-  protected getErrors(json: Partial<WebserverConfiguration>): string[] {
-    const errors = Array<string>();
+  public errors(): string[] {
     const className = this.constructor.name;
 
+    const errors = Array<string>();
+
+    const json: Partial<WebserverConfiguration> = this;
     const property = "port";
     const value = json[property];
     if (
@@ -35,7 +38,7 @@ export class WebserverConfiguration extends Configuration<WebserverConfiguration
       )
     ) {
       errors.push(
-        `${className}.${property} must be a integer greater than zero.`
+        `${className}.${property} must be a integer greater than zero, but found: ${value}`
       );
     }
 

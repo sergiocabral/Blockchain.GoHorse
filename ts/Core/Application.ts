@@ -1,4 +1,9 @@
-import { IOError, Logger, LogLevel } from "@sergiocabral/helper";
+import {
+  InvalidArgumentError,
+  IOError,
+  Logger,
+  LogLevel,
+} from "@sergiocabral/helper";
 import fs from "fs";
 import path from "path";
 
@@ -71,8 +76,9 @@ export abstract class Application<
       }
 
       Logger.post(
-        "The configuration file does not exists. Created with default values: {environmentFilePath}",
+        "The configuration file does not exists for {applicationName}. Created with default values: {environmentFilePath}",
         {
+          applicationName: this.constructor.name,
           environmentFilePath,
         },
         LogLevel.Warning
@@ -93,10 +99,9 @@ export abstract class Application<
         );
       }
 
+      let environmentFileContentAsJson: unknown;
       try {
-        configuration = new this.configurationType(
-          JSON.parse(environmentFileContent)
-        );
+        environmentFileContentAsJson = JSON.parse(environmentFileContent);
       } catch (error: unknown) {
         throw new IOError(
           "Cannot parse configuration file: {environmentFilePath}".querystring({
@@ -105,6 +110,18 @@ export abstract class Application<
           error
         );
       }
+
+      configuration = new this.configurationType(environmentFileContentAsJson);
+    }
+
+    const errors = configuration.errors();
+    if (errors.length) {
+      throw new InvalidArgumentError(
+        "Invalid JSON for {className}:\n{errors}".querystring({
+          className: this.constructor.name,
+          errors: errors.map((error) => `- ${error}`).join("\n"),
+        })
+      );
     }
 
     return configuration;

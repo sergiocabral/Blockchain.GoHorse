@@ -10,13 +10,13 @@ export class PusherConfiguration extends Configuration<PusherConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    this.loadFromJson();
+    this.load();
   }
 
   /**
-   * Verificar erros num JSON de configuração.
+   * Lista de erros presentes na configuração atual
    */
-  protected getErrors(json: Partial<PusherConfiguration>): string[] {
+  public errors(): string[] {
     return [];
   }
 }

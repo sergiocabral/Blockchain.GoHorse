@@ -1,5 +1,3 @@
-import { InvalidArgumentError } from "@sergiocabral/helper";
-
 import { IConfiguration } from "./IConfiguration";
 
 /**
@@ -11,38 +9,22 @@ export abstract class Configuration<TJson extends {}>
   /**
    * Carrega as propriedades
    */
-  protected loadFromJson: () => void;
+  protected load: () => this;
+
   /**
    * Construtor.
    * @param json Dados de configuração como JSON
    */
   protected constructor(json?: unknown) {
-    const originalJson = (
-      typeof json === "object" && json !== null ? json : {}
-    ) as TJson;
-    this.loadFromJson = () => Object.assign(this, originalJson);
-
-    if (json !== undefined) {
-      const errors = this.getErrors(originalJson);
-      if (errors.length > 0) {
-        throw new InvalidArgumentError(
-          "Invalid configuration JSON:\n{errors}".querystring({
-            errors: errors.map((error) => `- ${error}`).join("\n"),
-          })
-        );
-      }
-    }
+    this.load = () =>
+      Object.assign(
+        this,
+        typeof json === "object" && json !== null ? json : {}
+      );
   }
 
   /**
    * Lista de erros presentes na configuração atual
    */
-  public errors(): string[] {
-    return [];
-  }
-
-  /**
-   * Verificar erros num JSON de configuração.
-   */
-  protected abstract getErrors(json: Partial<TJson>): string[];
+  public abstract errors(): string[];
 }

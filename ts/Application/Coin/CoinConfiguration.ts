@@ -10,13 +10,13 @@ export class CoinConfiguration extends Configuration<CoinConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    this.loadFromJson();
+    this.load();
   }
 
   /**
-   * Verificar erros num JSON de configuração.
+   * Lista de erros presentes na configuração atual
    */
-  protected getErrors(json: Partial<CoinConfiguration>): string[] {
+  public errors(): string[] {
     return [];
   }
 }

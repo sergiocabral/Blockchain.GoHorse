@@ -18,6 +18,6 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public run(): void {
     Logger.post(this.constructor.name);
-    Logger.post(String(this.configuration.port));
+    Logger.post(String(this.configuration.webserver.port));
   }
 }

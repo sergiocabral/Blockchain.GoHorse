@@ -10,13 +10,13 @@ export class MinerConfiguration extends Configuration<MinerConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    this.loadFromJson();
+    this.load();
   }
 
   /**
-   * Verificar erros num JSON de configuração.
+   * Lista de erros presentes na configuração atual
    */
-  protected getErrors(json: Partial<MinerConfiguration>): string[] {
+  public errors(): string[] {
     return [];
   }
 }

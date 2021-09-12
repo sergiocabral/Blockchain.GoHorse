@@ -1,13 +1,14 @@
 import { Configuration } from "../../Core/Configuration";
+import { WebserverConfiguration } from "../../Webserver/WebserverConfiguration";
 
 /**
  * Configurações do webserver.
  */
 export class BusConfiguration extends Configuration<BusConfiguration> {
   /**
-   * Porta do serviço
+   * Configurações do webserver.
    */
-  public port = 1235;
+  public webserver: WebserverConfiguration;
 
   /**
    * Construtor.
@@ -15,13 +16,22 @@ export class BusConfiguration extends Configuration<BusConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    this.loadFromJson();
+    const thisLoaded = this.load();
+    this.webserver = new WebserverConfiguration(thisLoaded.webserver);
   }
 
   /**
-   * Verificar erros num JSON de configuração.
+   * Lista de erros presentes na configuração atual
    */
-  protected getErrors(json: Partial<BusConfiguration>): string[] {
-    return [];
+  public errors(): string[] {
+    const className = this.constructor.name;
+
+    const errors = Array<string>();
+
+    errors.push(
+      ...this.webserver.errors().map((error) => `${className}.${error}`)
+    );
+
+    return errors;
   }
 }
