@@ -1,11 +1,9 @@
 import { NotImplementedError } from "@sergiocabral/helper";
 
-import { IConfiguration } from "./IConfiguration";
-
 /**
  * Conjunto de informações de configuração.
  */
-export abstract class Configuration implements IConfiguration {
+export abstract class Configuration {
   /**
    * Carrega as propriedades do JSON.
    */
