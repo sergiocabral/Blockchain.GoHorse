@@ -25,11 +25,6 @@ export class Webserver {
   }
 
   /**
-   * Dados de configuração.
-   */
-  private readonly configuration: WebserverConfiguration;
-
-  /**
    * Instância do servidor web.
    */
   private server?: Express;
@@ -38,9 +33,7 @@ export class Webserver {
    * Construtor.
    * @param configuration JSON de configuração.
    */
-  public constructor(configuration: unknown) {
-    this.configuration = new WebserverConfiguration(configuration);
-  }
+  public constructor(private readonly configuration: WebserverConfiguration) {}
 
   /**
    * Inicia o servidor.
