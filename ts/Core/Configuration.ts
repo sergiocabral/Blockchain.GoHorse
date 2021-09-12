@@ -9,27 +9,28 @@ export abstract class Configuration<TJson extends {}>
   implements IConfiguration
 {
   /**
-   * Dados de configuração como JSON (valor original)
-   * @protected
+   * Carrega as propriedades
    */
-  protected json: TJson;
-
+  protected loadFromJson: () => void;
   /**
    * Construtor.
    * @param json Dados de configuração como JSON
-   * @protected
    */
-  protected constructor(json: unknown) {
-    this.json = (
+  protected constructor(json?: unknown) {
+    const originalJson = (
       typeof json === "object" && json !== null ? json : {}
     ) as TJson;
-    const errors = this.getErrors(this.json);
-    if (errors.length) {
-      throw new InvalidArgumentError(
-        "Invalid configuration JSON:\n{errors}".querystring({
-          errors: errors.map(error => `- ${error}`).join("\n"),
-        })
-      );
+    this.loadFromJson = () => Object.assign(this, originalJson);
+
+    if (json !== undefined) {
+      const errors = this.getErrors(originalJson);
+      if (errors.length > 0) {
+        throw new InvalidArgumentError(
+          "Invalid configuration JSON:\n{errors}".querystring({
+            errors: errors.map((error) => `- ${error}`).join("\n"),
+          })
+        );
+      }
     }
   }
 

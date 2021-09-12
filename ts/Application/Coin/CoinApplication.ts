@@ -1,11 +1,18 @@
 import { Logger } from "@sergiocabral/helper";
 
-import { IApplication } from "../../Core/IApplication";
+import { Application } from "../../Core/Application";
+
+import { CoinConfiguration } from "./CoinConfiguration";
 
 /**
  * Manipulador da criptomoeda.
  */
-export class CoinApplication implements IApplication {
+export class CoinApplication extends Application<CoinConfiguration> {
+  /**
+   * Tipo da configuração;
+   */
+  protected readonly configurationType = CoinConfiguration;
+
   /**
    * Executa a aplicação.
    */

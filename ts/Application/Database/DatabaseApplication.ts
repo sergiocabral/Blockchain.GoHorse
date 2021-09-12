@@ -1,11 +1,18 @@
 import { Logger } from "@sergiocabral/helper";
 
-import { IApplication } from "../../Core/IApplication";
+import { Application } from "../../Core/Application";
+
+import { DatabaseConfiguration } from "./DatabaseConfiguration";
 
 /**
  * Manipulador do banco de dados.
  */
-export class DatabaseApplication implements IApplication {
+export class DatabaseApplication extends Application<DatabaseConfiguration> {
+  /**
+   * Tipo da configuração;
+   */
+  protected readonly configurationType = DatabaseConfiguration;
+
   /**
    * Executa a aplicação.
    */

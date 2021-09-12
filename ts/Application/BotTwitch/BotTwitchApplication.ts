@@ -1,11 +1,18 @@
 import { Logger } from "@sergiocabral/helper";
 
-import { IApplication } from "../../Core/IApplication";
+import { Application } from "../../Core/Application";
+
+import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
 /**
  * Bot que ouve comandos no chat da Twitch.
  */
-export class BotTwitchApplication implements IApplication {
+export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
+  /**
+   * Tipo da configuração;
+   */
+  protected readonly configurationType = BotTwitchConfiguration;
+
   /**
    * Executa a aplicação.
    */

@@ -1,5 +1,5 @@
 import { InvalidExecutionError } from "@sergiocabral/helper";
-import express, { NextFunction, Request, Response } from "express";
+import { default as express, NextFunction, Request, Response } from "express";
 import { Express } from "express-serve-static-core";
 
 import { WebRequest } from "./Message/WebRequest";
@@ -11,10 +11,9 @@ import { WebserverConfiguration } from "./WebserverConfiguration";
 export class Webserver {
   /**
    * Middleware para o express.
-   * @param request
-   * @param response
-   * @param next
-   * @private
+   * @param request Requisição.
+   * @param response Resposta
+   * @param next Próximo middleware
    */
   private static intercept(
     request: Request,
@@ -27,13 +26,11 @@ export class Webserver {
 
   /**
    * Dados de configuração.
-   * @private
    */
-  private configuration: WebserverConfiguration;
+  private readonly configuration: WebserverConfiguration;
 
   /**
    * Instância do servidor web.
-   * @private
    */
   private server?: Express;
 
@@ -54,7 +51,7 @@ export class Webserver {
     }
 
     this.server = express();
-    this.server.use("*", Webserver.intercept);
+    this.server.use("*", Webserver.intercept.bind(this));
     this.server.listen(this.configuration.port);
   }
 }

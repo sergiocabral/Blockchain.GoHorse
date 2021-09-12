@@ -35,7 +35,7 @@
     "tslint-config-prettier": "^1.18.0"
   },
   "dependencies": {
-    "@sergiocabral/helper": "^1.25.0",
+    "@sergiocabral/helper": "^1.26.1",
     "express": "^4.17.1",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1",

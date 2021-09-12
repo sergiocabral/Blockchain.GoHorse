@@ -1,11 +1,18 @@
 import { Logger } from "@sergiocabral/helper";
 
-import { IApplication } from "../../Core/IApplication";
+import { Application } from "../../Core/Application";
+
+import { PusherConfiguration } from "./PusherConfiguration";
 
 /**
  * Aquele que envia alterações pendentes para o repositório.
  */
-export class PusherApplication implements IApplication {
+export class PusherApplication extends Application<PusherConfiguration> {
+  /**
+   * Tipo da configuração;
+   */
+  protected readonly configurationType = PusherConfiguration;
+
   /**
    * Executa a aplicação.
    */

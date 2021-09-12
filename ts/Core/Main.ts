@@ -1,4 +1,9 @@
-import { InvalidArgumentError, Logger, LogLevel } from "@sergiocabral/helper";
+import {
+  InvalidArgumentError,
+  InvalidExecutionError,
+  Logger,
+  LogLevel,
+} from "@sergiocabral/helper";
 
 import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
 import { BusApplication } from "../Application/Bus/BusApplication";
@@ -7,6 +12,7 @@ import { DatabaseApplication } from "../Application/Database/DatabaseApplication
 import { MinerApplication } from "../Application/Miner/MinerApplication";
 import { PusherApplication } from "../Application/Pusher/PusherApplication";
 
+import { Argument } from "./Argument";
 import { IApplication } from "./IApplication";
 
 /**
@@ -14,40 +20,32 @@ import { IApplication } from "./IApplication";
  */
 export class Main {
   /**
-   * Instância da aplicação que será executada.
+   * Aplicação selecionada para execução.
    */
   public static get application(): IApplication {
-    const application = Main.createApplication();
-
-    if (application === undefined) {
-      throw new InvalidArgumentError(
-        'Invalid application name "{invalidApplicationName}". Enter a name from the list: {applicationsNames}".'.querystring(
-          {
-            applicationsNames: Main.applications
-              .map((applicationConstructor) => applicationConstructor.name)
-              .join(", "),
-            invalidApplicationName: Main.getApplicationName(),
-          }
-        )
+    if (Main.instance !== undefined) {
+      throw new InvalidExecutionError(
+        "Main cannot be instantiated more than once."
       );
     }
 
-    Logger.post(
-      "Selected application to run: {applicationName}",
-      {
-        applicationName: application.constructor.name,
-      },
-      LogLevel.Information,
-      Main.loggerSection
-    );
-
-    return application;
+    return (Main.instance = new Main()).application;
   }
+
+  /**
+   * Instância única da classe.
+   */
+  private static instance?: Main;
+
+  /**
+   * Nome da seção para o log.
+   */
+  private static readonly loggerSection = "Main";
 
   /**
    * Lista de aplicações disponíveis.
    */
-  private static readonly applications: Array<new() => IApplication> = [
+  private readonly applications: Array<new () => IApplication> = [
     BotTwitchApplication,
     BusApplication,
     CoinApplication,
@@ -57,31 +55,40 @@ export class Main {
   ];
 
   /**
-   * Nome da seção para o log.
+   * Construtor privado.
    */
-  private static readonly loggerSection = Main.name;
+  private constructor() {}
 
   /**
-   * Aplicação selecionada para execução.
+   * Instância da aplicação que será executada.
    */
-  private static createApplication(): IApplication | undefined {
-    const applicationName = Main.getApplicationName();
+  private get application(): IApplication {
+    const applicationName = Argument.getApplicationName();
 
-    const applicationConstructor = Main.applications.find(
+    const applicationConstructor = this.applications.find(
       (application) => application.name === applicationName
     );
 
-    return applicationConstructor !== undefined
-      ? new applicationConstructor()
-      : undefined;
-  }
+    if (applicationConstructor === undefined) {
+      throw new InvalidArgumentError(
+        'Invalid application name "{invalidApplicationName}". Enter a name from the list: {applicationsNames}".'.querystring(
+          {
+            applicationsNames: this.applications
+              .map((application) => application.name)
+              .join(", "),
+            invalidApplicationName: applicationName,
+          }
+        )
+      );
+    }
 
-  /**
-   * Nome da aplicação selecionada para execução.
-   */
-  private static getApplicationName(): string {
-    const applicationNameArgumentIndex = 2;
+    Logger.post(
+      "Selected application to run: {applicationName}",
+      { applicationName },
+      LogLevel.Information,
+      Main.loggerSection
+    );
 
-    return (process.argv[applicationNameArgumentIndex] ?? "").trim();
+    return new applicationConstructor();
   }
 }

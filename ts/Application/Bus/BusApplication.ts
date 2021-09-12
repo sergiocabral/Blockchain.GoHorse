@@ -1,41 +1,23 @@
-import { Logger, Message } from "@sergiocabral/helper";
+import { Logger } from "@sergiocabral/helper";
 
-import { IApplication } from "../../Core/IApplication";
-import { WebRequest } from "../../Webserver/Message/WebRequest";
-import { Webserver } from "../../Webserver/Webserver";
+import { Application } from "../../Core/Application";
+
+import { BusConfiguration } from "./BusConfiguration";
 
 /**
  * Barramento de mensagens para comunicação entre as aplicações.
  */
-export class BusApplication implements IApplication {
-
+export class BusApplication extends Application<BusConfiguration> {
   /**
-   * Mensagem: WebRequestMessage
+   * Tipo da configuração;
    */
-  private static handleWebRequestMessage(message: WebRequest): void {
-    if (message.path.includes('haha')) {
-      Logger.post('catched: {0}', message.path);
-    }
-  }
-  /**
-   * Servidor web.
-   */
-  private webserver: Webserver;
-
-  /**
-   * Construtor.
-   */
-  public constructor() {
-    // tslint:disable-next-line:no-magic-numbers
-    this.webserver = new Webserver({port: 3000});
-    Message.subscribe(WebRequest, BusApplication.handleWebRequestMessage.bind(this));
-  }
+  protected readonly configurationType = BusConfiguration;
 
   /**
    * Executa a aplicação.
    */
   public run(): void {
     Logger.post(this.constructor.name);
-    this.webserver.start();
+    Logger.post(String(this.configuration.port));
   }
 }

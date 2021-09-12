@@ -7,16 +7,14 @@ export class WebserverConfiguration extends Configuration<WebserverConfiguration
   /**
    * Porta de rede do serviço.
    */
-  public port: number;
+  public port = 3000;
 
   /**
    * Construtor.
    * @param json Dados de configuração.
    */
-  public constructor(json: unknown) {
+  public constructor(json?: unknown) {
     super(json);
-
-    this.port = this.json.port;
   }
 
   /**
