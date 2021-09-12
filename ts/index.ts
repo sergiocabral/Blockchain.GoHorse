@@ -5,9 +5,12 @@ import { Main } from "./Core/Main";
 try {
   Main.application.run();
 } catch (error: unknown) {
-  if (error instanceof GenericError) {
-    Logger.post(error.message, undefined, LogLevel.Fatal);
-  } else {
-    throw error;
+  while (error) {
+    if (error instanceof GenericError) {
+      Logger.post(error.message, undefined, LogLevel.Fatal);
+      error = error.innerError;
+    } else {
+      throw error;
+    }
   }
 }
