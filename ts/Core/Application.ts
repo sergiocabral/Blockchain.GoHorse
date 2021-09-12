@@ -14,9 +14,8 @@ import { IApplication } from "./IApplication";
 /**
  * Classe base para uma aplicação.
  */
-export abstract class Application<
-  TConfiguration extends Configuration<TConfiguration>
-> implements IApplication
+export abstract class Application<TConfiguration extends Configuration>
+  implements IApplication
 {
   /**
    * Configurações.

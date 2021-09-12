@@ -3,7 +3,7 @@ import { Configuration } from "../Core/Configuration";
 /**
  * Configurações do webserver.
  */
-export class WebserverConfiguration extends Configuration<WebserverConfiguration> {
+export class WebserverConfiguration extends Configuration {
   /**
    * Porta de rede do serviço.
    */

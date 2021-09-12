@@ -5,9 +5,7 @@ import { IConfiguration } from "./IConfiguration";
 /**
  * Conjunto de informações de configuração.
  */
-export abstract class Configuration<TJson extends {}>
-  implements IConfiguration
-{
+export abstract class Configuration implements IConfiguration {
   /**
    * Carrega as propriedades do JSON.
    */

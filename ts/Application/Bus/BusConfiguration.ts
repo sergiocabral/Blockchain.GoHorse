@@ -4,7 +4,7 @@ import { WebserverConfiguration } from "../../Webserver/WebserverConfiguration";
 /**
  * Configurações do webserver.
  */
-export class BusConfiguration extends Configuration<BusConfiguration> {
+export class BusConfiguration extends Configuration {
   /**
    * Configurações do webserver.
    */

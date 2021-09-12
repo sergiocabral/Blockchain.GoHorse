@@ -3,7 +3,7 @@ import { Configuration } from "../../Core/Configuration";
 /**
  * Configurações do webserver.
  */
-export class BotTwitchConfiguration extends Configuration<BotTwitchConfiguration> {
+export class BotTwitchConfiguration extends Configuration {
   /**
    * Construtor.
    * @param json Dados de configuração.

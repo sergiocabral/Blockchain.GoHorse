@@ -3,7 +3,7 @@ import { Configuration } from "../../Core/Configuration";
 /**
  * Configurações do webserver.
  */
-export class PusherConfiguration extends Configuration<PusherConfiguration> {
+export class PusherConfiguration extends Configuration {
   /**
    * Construtor.
    * @param json Dados de configuração.

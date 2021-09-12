@@ -3,7 +3,7 @@ import { Configuration } from "../../Core/Configuration";
 /**
  * Configurações do webserver.
  */
-export class DatabaseConfiguration extends Configuration<DatabaseConfiguration> {
+export class DatabaseConfiguration extends Configuration {
   /**
    * Construtor.
    * @param json Dados de configuração.
