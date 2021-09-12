@@ -8,3 +8,6 @@ package-lock.json
 # Ferramentas
 .idea
 .vscode
+
+# Arquivos de ambiente
+env.*
