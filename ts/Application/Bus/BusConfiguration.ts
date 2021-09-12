@@ -16,8 +16,8 @@ export class BusConfiguration extends Configuration<BusConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    const thisLoaded = this.load();
-    this.webserver = new WebserverConfiguration(thisLoaded.webserver);
+    const thisInitialized = this.initialize();
+    this.webserver = new WebserverConfiguration(thisInitialized.webserver);
   }
 
   /**

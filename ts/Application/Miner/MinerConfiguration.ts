@@ -10,7 +10,7 @@ export class MinerConfiguration extends Configuration<MinerConfiguration> {
    */
   public constructor(json?: unknown) {
     super(json);
-    this.load();
+    this.initialize();
   }
 
   /**

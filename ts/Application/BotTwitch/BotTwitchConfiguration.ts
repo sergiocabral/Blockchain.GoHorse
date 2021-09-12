@@ -10,7 +10,7 @@ export class BotTwitchConfiguration extends Configuration<BotTwitchConfiguration
    */
   public constructor(json?: unknown) {
     super(json);
-    this.load();
+    this.initialize();
   }
 
   /**

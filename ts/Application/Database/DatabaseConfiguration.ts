@@ -10,7 +10,7 @@ export class DatabaseConfiguration extends Configuration<DatabaseConfiguration> 
    */
   public constructor(json?: unknown) {
     super(json);
-    this.load();
+    this.initialize();
   }
 
   /**

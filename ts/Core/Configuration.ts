@@ -9,14 +9,14 @@ export abstract class Configuration<TJson extends {}>
   /**
    * Carrega as propriedades
    */
-  protected load: () => this;
+  protected initialize: () => this;
 
   /**
    * Construtor.
    * @param json Dados de configuração como JSON
    */
   protected constructor(json?: unknown) {
-    this.load = () =>
+    this.initialize = () =>
       Object.assign(
         this,
         typeof json === "object" && json !== null ? json : {}
