@@ -12,7 +12,8 @@
         "prefer-function-over-method": false,
         "no-implicit-dependencies": false,
         "no-parameter-properties": false,
-        "strict-boolean-expressions": false
+        "strict-boolean-expressions": false,
+        "no-this-assignment": false
     },
     "rulesDirectory": []
 }
