@@ -1,3 +1,5 @@
+import { NotImplementedError } from "@sergiocabral/helper";
+
 import { IConfiguration } from "./IConfiguration";
 
 /**
@@ -7,20 +9,35 @@ export abstract class Configuration<TJson extends {}>
   implements IConfiguration
 {
   /**
-   * Carrega as propriedades
+   * Carrega as propriedades do JSON.
    */
-  protected initialize: () => this;
+  public initialize: () => this;
 
   /**
    * Construtor.
    * @param json Dados de configuração como JSON
    */
-  protected constructor(json?: unknown) {
-    this.initialize = () =>
-      Object.assign(
+  public constructor(json?: unknown) {
+    let initialized = false;
+
+    setImmediate(() => {
+      if (!initialized) {
+        throw new NotImplementedError(
+          `${this.constructor.name} did not call initialize().`
+        );
+      }
+    });
+
+    this.initialize = () => {
+      this.initialize = () => this;
+
+      initialized = true;
+
+      return Object.assign(
         this,
         typeof json === "object" && json !== null ? json : {}
       );
+    };
   }
 
   /**
