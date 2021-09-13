@@ -1,4 +1,4 @@
-import { Configuration } from "../Core/Configuration";
+import { Configuration } from "@sergiocabral/helper";
 
 /**
  * Configurações do webserver.
@@ -41,6 +41,8 @@ export class WebserverConfiguration extends Configuration {
         `${className}.${property} must be a integer greater than zero, but found: ${value}`
       );
     }
+
+    errors.push(...super.errors());
 
     return errors;
   }

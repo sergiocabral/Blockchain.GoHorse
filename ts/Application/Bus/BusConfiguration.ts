@@ -1,14 +1,15 @@
-import { Configuration } from "../../Core/Configuration";
+import { Configuration } from "@sergiocabral/helper";
+
 import { WebserverConfiguration } from "../../Webserver/WebserverConfiguration";
 
 /**
- * Configurações do webserver.
+ * Configurações do ButApplication.
  */
 export class BusConfiguration extends Configuration {
   /**
    * Configurações do webserver.
    */
-  public webserver: WebserverConfiguration;
+  public webserver = new WebserverConfiguration();
 
   /**
    * Construtor.
@@ -16,22 +17,6 @@ export class BusConfiguration extends Configuration {
    */
   public constructor(json?: unknown) {
     super(json);
-    const thisInitialized = this.initialize();
-    this.webserver = new WebserverConfiguration(thisInitialized.webserver);
-  }
-
-  /**
-   * Lista de erros presentes na configuração atual
-   */
-  public errors(): string[] {
-    const className = this.constructor.name;
-
-    const errors = Array<string>();
-
-    errors.push(
-      ...this.webserver.errors().map((error) => `${className}.${error}`)
-    );
-
-    return errors;
+    this.initialize();
   }
 }

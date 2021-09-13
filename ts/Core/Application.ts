@@ -1,4 +1,5 @@
 import {
+  Configuration,
   InvalidArgumentError,
   IOError,
   Logger,
@@ -8,7 +9,6 @@ import fs from "fs";
 import path from "path";
 
 import { Argument } from "./Argument";
-import { Configuration } from "./Configuration";
 import { IApplication } from "./IApplication";
 
 /**

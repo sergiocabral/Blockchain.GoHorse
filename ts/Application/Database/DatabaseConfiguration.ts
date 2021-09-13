@@ -1,7 +1,7 @@
-import { Configuration } from "../../Core/Configuration";
+import { Configuration } from "@sergiocabral/helper";
 
 /**
- * Configurações do webserver.
+ * Configurações do DatabaseApplication
  */
 export class DatabaseConfiguration extends Configuration {
   /**
@@ -11,12 +11,5 @@ export class DatabaseConfiguration extends Configuration {
   public constructor(json?: unknown) {
     super(json);
     this.initialize();
-  }
-
-  /**
-   * Lista de erros presentes na configuração atual
-   */
-  public errors(): string[] {
-    return [];
   }
 }
