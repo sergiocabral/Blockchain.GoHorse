@@ -110,7 +110,9 @@ export abstract class Application<TConfiguration extends Configuration>
         );
       }
 
-      configuration = new this.configurationType(environmentFileContentAsJson);
+      configuration = new this.configurationType(
+        environmentFileContentAsJson
+      ).initialize();
     }
 
     const errors = configuration.errors();
