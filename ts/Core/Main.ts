@@ -10,7 +10,6 @@ import { BusApplication } from "../Application/Bus/BusApplication";
 import { CoinApplication } from "../Application/Coin/CoinApplication";
 import { DatabaseApplication } from "../Application/Database/DatabaseApplication";
 import { MinerApplication } from "../Application/Miner/MinerApplication";
-import { PusherApplication } from "../Application/Pusher/PusherApplication";
 
 import { Argument } from "./Argument";
 import { IApplication } from "./IApplication";
@@ -51,7 +50,6 @@ export class Main {
     CoinApplication,
     DatabaseApplication,
     MinerApplication,
-    PusherApplication,
   ];
 
   /**
