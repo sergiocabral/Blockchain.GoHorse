@@ -6,7 +6,7 @@
     ],
     "jsRules": {},
     "rules": {
-        "file-name-casing": [false, "camel-case"],
+        "file-name-casing": [true, "pascal-case"],
         "no-unnecessary-class": false,
         "typedef": false,
         "prefer-function-over-method": false,

@@ -1,9 +1,9 @@
 import { Configuration } from "@sergiocabral/helper";
 
 /**
- * Configurações do webserver.
+ * Configurações do servidor websocket.
  */
-export class WebserverConfiguration extends Configuration {
+export class WebSocketConfiguration extends Configuration {
   /**
    * Porta de rede do serviço.
    */
@@ -17,7 +17,7 @@ export class WebserverConfiguration extends Configuration {
 
     const errors = Array<string>();
 
-    const json: Partial<WebserverConfiguration> = this;
+    const json: Partial<WebSocketConfiguration> = this;
     const property = "port";
     const value = json[property];
     if (

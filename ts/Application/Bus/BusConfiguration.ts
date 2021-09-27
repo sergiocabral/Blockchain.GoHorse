@@ -1,13 +1,13 @@
 import { Configuration } from "@sergiocabral/helper";
 
-import { WebserverConfiguration } from "../../Webserver/WebserverConfiguration";
+import { WebSocketConfiguration } from "../../Server/WebSocketServer/WebSocketConfiguration";
 
 /**
  * Configurações do ButApplication.
  */
 export class BusConfiguration extends Configuration {
   /**
-   * Configurações do webserver.
+   * Configurações do servidor websocket.
    */
-  public webserver = new WebserverConfiguration();
+  public websocket = new WebSocketConfiguration();
 }
