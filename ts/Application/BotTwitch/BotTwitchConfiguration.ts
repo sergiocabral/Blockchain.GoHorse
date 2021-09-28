@@ -9,5 +9,5 @@ export class BotTwitchConfiguration extends Configuration {
   /**
    * Configurações para conectar ao servidor websocket.
    */
-  public webSocketClient = new WebSocketClientConfiguration();
+  public messageBusWebSocketServer = new WebSocketClientConfiguration();
 }

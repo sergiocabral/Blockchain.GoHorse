@@ -1,4 +1,4 @@
-import { Configuration } from "@sergiocabral/helper";
+import { Configuration, HelperObject } from "@sergiocabral/helper";
 
 /**
  * Configurações do servidor websocket.
@@ -19,7 +19,7 @@ export class WebSocketServerConfiguration extends Configuration {
 
     const json: Partial<WebSocketServerConfiguration> = this;
     const property = "port";
-    const value = json[property];
+    const value: unknown = HelperObject.getProperty(json, property);
     if (
       !(
         typeof value === "number" &&
@@ -29,7 +29,9 @@ export class WebSocketServerConfiguration extends Configuration {
       )
     ) {
       errors.push(
-        `${className}.${property} must be a integer greater than zero, but found: ${value}`
+        `${className}.${property} must be a integer greater than zero, but found: ${typeof value}, ${String(
+          value
+        )}`
       );
     }
 

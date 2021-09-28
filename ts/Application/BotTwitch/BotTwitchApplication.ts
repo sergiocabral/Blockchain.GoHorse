@@ -23,7 +23,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   public constructor() {
     super();
     this.webSocketClient = new WebSocketClient(
-      this.configuration.webSocketClient
+      this.configuration.messageBusWebSocketServer
     );
   }
 

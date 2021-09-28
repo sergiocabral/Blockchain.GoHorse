@@ -32,7 +32,7 @@ export class WebSocketClientConfiguration extends Configuration {
     let value: unknown = HelperObject.getProperty(json, property);
     if (!(typeof value === "string" && (value === "ws" || value === "wss"))) {
       errors.push(
-        `${className}.${property} must be "ws" or "wss", but found: ${String(
+        `${className}.${property} must be "ws" or "wss", but found: ${typeof value}, ${String(
           value
         )}`
       );
@@ -42,7 +42,7 @@ export class WebSocketClientConfiguration extends Configuration {
     value = HelperObject.getProperty(json, property);
     if (!(typeof value === "string" && value.length > 0)) {
       errors.push(
-        `${className}.${property} must be a not empty string, but found: ${String(
+        `${className}.${property} must be a not empty string, but found: ${typeof value}, ${String(
           value
         )}`
       );
@@ -59,7 +59,7 @@ export class WebSocketClientConfiguration extends Configuration {
       )
     ) {
       errors.push(
-        `${className}.${property} must be a integer greater than zero, but found: ${String(
+        `${className}.${property} must be a integer greater than zero, but found: ${typeof value}, ${String(
           value
         )}`
       );

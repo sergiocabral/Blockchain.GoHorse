@@ -1,6 +1,5 @@
-import { Logger } from "@sergiocabral/helper";
-
 import { Application } from "../../Core/Application";
+import { WebSocketClient } from "../../Server/WebSocket/Client/WebSocketClient";
 
 import { CoinConfiguration } from "./CoinConfiguration";
 
@@ -14,16 +13,31 @@ export class CoinApplication extends Application<CoinConfiguration> {
   protected readonly configurationType = CoinConfiguration;
 
   /**
+   * Cliente websocket.
+   */
+  private readonly webSocketClient: WebSocketClient;
+
+  /**
+   * Construtor.
+   */
+  public constructor() {
+    super();
+    this.webSocketClient = new WebSocketClient(
+      this.configuration.messageBusWebSocketServer
+    );
+  }
+
+  /**
    * Executa a aplicação.
    */
   public run(): void {
-    Logger.post(`START: ${this.constructor.name}`);
+    this.webSocketClient.start();
   }
 
   /**
    * Finaliza a aplicação.
    */
   public stop(): void {
-    Logger.post(`STOP: ${this.constructor.name}`);
+    this.webSocketClient.stop();
   }
 }
