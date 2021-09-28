@@ -9,5 +9,5 @@ export class BusConfiguration extends Configuration {
   /**
    * Configurações do servidor websocket.
    */
-  public websocket = new WebSocketServerConfiguration();
+  public webSocketServer = new WebSocketServerConfiguration();
 }

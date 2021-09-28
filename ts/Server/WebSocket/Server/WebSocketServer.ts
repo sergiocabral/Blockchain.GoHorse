@@ -8,9 +8,10 @@ import {
 import { IncomingMessage } from "http";
 import { Server, WebSocket } from "ws";
 
-import { WebSocketServerConnectionError } from "./Message/WebSocketServerConnectionError";
-import { WebSocketServerConnectionMessageReceived } from "./Message/WebSocketServerConnectionMessageReceived";
-import { WebSocketServerConnectionOpened } from "./Message/WebSocketServerConnectionOpened";
+import { WebSocketServerClosed } from "./Message/WebSocketServerClosed";
+import { WebSocketServerError } from "./Message/WebSocketServerError";
+import { WebSocketServerMessageReceived } from "./Message/WebSocketServerMessageReceived";
+import { WebSocketServerOpened } from "./Message/WebSocketServerOpened";
 import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
 import { WebSocketServerConnection } from "./WebSocketServerConnection";
 
@@ -42,7 +43,7 @@ export class WebSocketServer {
    */
   public start(): void {
     if (this.server !== undefined) {
-      throw new InvalidExecutionError("Websocket already started.");
+      throw new InvalidExecutionError("Websocket server already started.");
     }
 
     const serverOptions = {
@@ -53,7 +54,7 @@ export class WebSocketServer {
     this.server.on("connection", this.onConnection.bind(this));
 
     Logger.post(
-      "Server started on port {port}.",
+      "Websocket server started on port {port}.",
       serverOptions,
       LogLevel.Debug,
       WebSocketServer.name
@@ -65,13 +66,13 @@ export class WebSocketServer {
    */
   public stop(): void {
     if (this.server === undefined) {
-      throw new InvalidExecutionError("Websocket was not started.");
+      throw new InvalidExecutionError("Websocket server was not started.");
     }
 
     this.server.close();
 
     Logger.post(
-      "Server stopped.",
+      "Websocket server stopped.",
       undefined,
       LogLevel.Debug,
       WebSocketServer.name
@@ -79,15 +80,17 @@ export class WebSocketServer {
   }
 
   /**
-   * Handle: ao receber uma conexão.
-   * @param webSocket Conexão.
-   * @param incomingMessage Mensagem.
+   * Handle: ao iniciar a conexão.
    */
   private onConnection(
     webSocket: WebSocket,
     incomingMessage: IncomingMessage
   ): void {
-    const connection = new WebSocketServerConnection(this, webSocket);
+    const connection = new WebSocketServerConnection(
+      this,
+      webSocket,
+      incomingMessage
+    );
     HelperObject.setProperty(
       webSocket,
       WebSocketServerConnection.name,
@@ -100,13 +103,13 @@ export class WebSocketServer {
     webSocket.on("message", this.onConnectionMessage);
 
     Logger.post(
-      "Connection received.",
+      "Websocket server connection opened.",
       undefined,
       LogLevel.Debug,
       WebSocketServer.name
     );
 
-    void new WebSocketServerConnectionOpened(this, connection).sendAsync();
+    void new WebSocketServerOpened(connection).sendAsync();
   }
 
   /**
@@ -129,21 +132,22 @@ export class WebSocketServer {
     connection.server.connections.delete(connection);
 
     Logger.post(
-      'Connection closed. Code: {code}, Reason: "{reason}".',
+      'Websocket server connection closed. Code: {code}, Reason: "{reason}".',
       { code, reason },
       LogLevel.Debug,
       WebSocketServer.name
     );
 
-    void new WebSocketServerConnectionOpened(
-      connection.server,
-      connection
+    void new WebSocketServerClosed(
+      connection,
+      code,
+      reason.toString()
     ).sendAsync();
   }
 
   /**
-   * Handle: Erro na conexão
-   * @param error Error
+   * Handle: Erro na conexão.
+   * @param error Erro
    */
   private onConnectionError(this: WebSocket, error: Error): void {
     const connection = HelperObject.getProperty<WebSocketServerConnection>(
@@ -155,21 +159,17 @@ export class WebSocketServer {
     }
 
     Logger.post(
-      "Connection error: {error}",
+      "Websocket server connection error: {error}",
       { error },
       LogLevel.Debug,
       WebSocketServer.name
     );
 
-    void new WebSocketServerConnectionError(
-      connection.server,
-      connection,
-      error
-    ).sendAsync();
+    void new WebSocketServerError(connection, error).sendAsync();
   }
 
   /**
-   * Handle: Conexão finalizada.
+   * Handle: Mensagem recebida.
    * @param messages Mensagens.
    */
   private onConnectionMessage(this: WebSocket, ...messages: unknown[]): void {
@@ -183,16 +183,12 @@ export class WebSocketServer {
     }
 
     Logger.post(
-      "Connection received message: {message}",
+      "Websocket server connection received message: {message}",
       { message },
       LogLevel.Debug,
       WebSocketServer.name
     );
 
-    void new WebSocketServerConnectionMessageReceived(
-      connection.server,
-      connection,
-      message
-    ).sendAsync();
+    void new WebSocketServerMessageReceived(connection, message).sendAsync();
   }
 }

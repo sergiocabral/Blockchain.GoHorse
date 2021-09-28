@@ -22,7 +22,9 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public constructor() {
     super();
-    this.webSocketServer = new WebSocketServer(this.configuration.websocket);
+    this.webSocketServer = new WebSocketServer(
+      this.configuration.webSocketServer
+    );
   }
 
   /**
