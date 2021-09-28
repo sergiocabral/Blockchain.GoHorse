@@ -1,5 +1,5 @@
 import { Application } from "../../Core/Application";
-import { WebSocketServer } from "../../Server/WebSocketServer/WebSocketServer";
+import { WebSocketServer } from "../../Server/WebSocket/Server/WebSocketServer";
 
 import { BusConfiguration } from "./BusConfiguration";
 
