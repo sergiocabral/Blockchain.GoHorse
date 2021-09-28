@@ -1,5 +1,3 @@
-import { Logger } from "@sergiocabral/helper";
-
 import { Application } from "../../Core/Application";
 import { WebSocketServer } from "../../Server/WebSocket/Server/WebSocketServer";
 
@@ -31,7 +29,6 @@ export class BusApplication extends Application<BusConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    Logger.post(`START: ${this.constructor.name}`);
     this.webSocketServer.start();
   }
 
@@ -40,6 +37,5 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public stop(): void {
     this.webSocketServer.stop();
-    Logger.post(`STOP: ${this.constructor.name}`);
   }
 }

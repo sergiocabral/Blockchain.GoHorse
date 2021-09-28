@@ -14,9 +14,9 @@ export class WebSocketServerConnectionError extends Message {
    * @param error Erro.
    */
   public constructor(
-    server: WebSocketServer,
-    connection: WebSocketServerConnection,
-    error: Error
+    public readonly server: WebSocketServer,
+    public readonly connection: WebSocketServerConnection,
+    public readonly error: Error
   ) {
     super();
   }

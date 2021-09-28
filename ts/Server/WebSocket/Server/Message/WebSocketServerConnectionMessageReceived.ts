@@ -14,9 +14,9 @@ export class WebSocketServerConnectionMessageReceived extends Message {
    * @param message Mensagem.
    */
   public constructor(
-    server: WebSocketServer,
-    connection: WebSocketServerConnection,
-    message: string
+    public readonly server: WebSocketServer,
+    public readonly connection: WebSocketServerConnection,
+    public readonly message: string
   ) {
     super();
   }

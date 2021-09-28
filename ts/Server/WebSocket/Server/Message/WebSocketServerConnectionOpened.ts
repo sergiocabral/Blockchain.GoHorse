@@ -13,8 +13,8 @@ export class WebSocketServerConnectionOpened extends Message {
    * @param connection Conexão.
    */
   public constructor(
-    server: WebSocketServer,
-    connection: WebSocketServerConnection
+    public readonly server: WebSocketServer,
+    public readonly connection: WebSocketServerConnection
   ) {
     super();
   }

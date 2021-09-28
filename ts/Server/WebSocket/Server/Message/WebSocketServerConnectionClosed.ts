@@ -6,15 +6,15 @@ import { WebSocketServerConnection } from "../WebSocketServerConnection";
 /**
  * Websocket server recebeu uma finalização de conexão.
  */
-export class WebSocketServerConnectionMessage extends Message {
+export class WebSocketServerConnectionClosed extends Message {
   /**
    * Construtor.
    * @param server Servidor.
    * @param connection Conexão.
    */
   public constructor(
-    server: WebSocketServer,
-    connection: WebSocketServerConnection
+    public readonly server: WebSocketServer,
+    public readonly connection: WebSocketServerConnection
   ) {
     super();
   }
