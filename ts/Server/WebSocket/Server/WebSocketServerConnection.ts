@@ -25,4 +25,12 @@ export class WebSocketServerConnection {
   public close() {
     this.webSocket.close();
   }
+
+  /**
+   * Envia uma mensagem.
+   * @param message Texto.
+   */
+  public send(message: string): void {
+    this.webSocket.send(message);
+  }
 }

@@ -1,4 +1,10 @@
-import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
+import {
+  InvalidExecutionError,
+  Logger,
+  LogLevel,
+  Message,
+  NotReadyError,
+} from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
 import { BasicProtocol } from "../Protocol/BasicProtocol";
@@ -9,6 +15,7 @@ import { WebSocketClientClosed } from "./Message/WebSocketClientClosed";
 import { WebSocketClientError } from "./Message/WebSocketClientError";
 import { WebSocketClientMessageReceived } from "./Message/WebSocketClientMessageReceived";
 import { WebSocketClientOpened } from "./Message/WebSocketClientOpened";
+import { WebSocketClientSendMessage } from "./Message/WebSocketClientSendMessage";
 import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 
 /**
@@ -30,6 +37,10 @@ export class WebSocketClient extends WebSocketBase {
     protocol: new () => IProtocol = BasicProtocol
   ) {
     super(protocol);
+    Message.subscribe(
+      WebSocketClientSendMessage,
+      this.handleWebSocketClientSendMessage.bind(this)
+    );
   }
 
   /**
@@ -61,7 +72,7 @@ export class WebSocketClient extends WebSocketBase {
    */
   public stop(): void {
     if (this.client === undefined) {
-      throw new InvalidExecutionError("Websocket client was not started.");
+      throw new NotReadyError("Websocket client was not started.");
     }
 
     this.client.close();
@@ -72,6 +83,21 @@ export class WebSocketClient extends WebSocketBase {
       LogLevel.Debug,
       WebSocketClient.name
     );
+  }
+
+  /**
+   * Handle: WebSocketClientSendMessage
+   */
+  private handleWebSocketClientSendMessage(
+    message: WebSocketClientSendMessage
+  ): void {
+    if (message.instance !== this) {
+      return;
+    }
+    if (this.client === undefined) {
+      throw new NotReadyError("Websocket client was not started.");
+    }
+    this.client.send(message.message);
   }
 
   /**

@@ -1,4 +1,8 @@
+import { Message } from "@sergiocabral/helper";
+
 import { Application } from "../../Core/Application";
+import { WebSocketServerMessageReceived } from "../../Server/WebSocket/Server/Message/WebSocketServerMessageReceived";
+import { WebSocketServerSendMessage } from "../../Server/WebSocket/Server/Message/WebSocketServerSendMessage";
 import { WebSocketServer } from "../../Server/WebSocket/Server/WebSocketServer";
 
 import { BusConfiguration } from "./BusConfiguration";
@@ -25,6 +29,18 @@ export class BusApplication extends Application<BusConfiguration> {
     this.webSocketServer = new WebSocketServer(
       this.configuration.webSocketServer
     );
+    const interval = 1000;
+    Message.subscribe(WebSocketServerMessageReceived, (message) => {
+      setTimeout(
+        () =>
+          new WebSocketServerSendMessage(
+            this.webSocketServer,
+            `PONG`,
+            message.instance
+          ).sendAsync(),
+        interval
+      );
+    });
   }
 
   /**

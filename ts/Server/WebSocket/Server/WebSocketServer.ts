@@ -3,6 +3,8 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
+  Message,
+  NotReadyError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 import { IncomingMessage } from "http";
@@ -16,6 +18,7 @@ import { WebSocketServerClosed } from "./Message/WebSocketServerClosed";
 import { WebSocketServerError } from "./Message/WebSocketServerError";
 import { WebSocketServerMessageReceived } from "./Message/WebSocketServerMessageReceived";
 import { WebSocketServerOpened } from "./Message/WebSocketServerOpened";
+import { WebSocketServerSendMessage } from "./Message/WebSocketServerSendMessage";
 import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
 import { WebSocketServerConnection } from "./WebSocketServerConnection";
 
@@ -44,6 +47,10 @@ export class WebSocketServer extends WebSocketBase {
     protocol: new () => IProtocol = BasicProtocol
   ) {
     super(protocol);
+    Message.subscribe(
+      WebSocketServerSendMessage,
+      this.handleWebSocketServerSendMessage.bind(this)
+    );
   }
 
   /**
@@ -88,6 +95,27 @@ export class WebSocketServer extends WebSocketBase {
       LogLevel.Debug,
       WebSocketServer.name
     );
+  }
+
+  /**
+   * Handle: WebSocketServerSendMessage
+   */
+  private handleWebSocketServerSendMessage(
+    message: WebSocketServerSendMessage
+  ): void {
+    if (message.instance !== this) {
+      return;
+    }
+    if (this.server === undefined) {
+      throw new NotReadyError("Websocket server was not started.");
+    }
+    if (message.destination === undefined) {
+      this.connections.forEach((connection) =>
+        connection.send(message.message)
+      );
+    } else if (this.connections.has(message.destination)) {
+      message.destination.send(message.message);
+    }
   }
 
   /**
