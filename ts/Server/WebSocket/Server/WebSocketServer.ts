@@ -1,6 +1,5 @@
 import {
   HelperObject,
-  InvalidExecutionError,
   Logger,
   LogLevel,
   Message,
@@ -25,17 +24,12 @@ import { WebSocketServerConnection } from "./WebSocketServerConnection";
 /**
  * Inicia e gerencia um servidor websocket.
  */
-export class WebSocketServer extends WebSocketBase {
+export class WebSocketServer extends WebSocketBase<Server> {
   /**
    * Lista de conexões com sinalização de ativa ou não.
    */
   private readonly connections: Set<WebSocketServerConnection> =
     new Set<WebSocketServerConnection>();
-
-  /**
-   * Instância do servidor websocket.
-   */
-  private server?: Server;
 
   /**
    * Construtor.
@@ -57,16 +51,12 @@ export class WebSocketServer extends WebSocketBase {
    * Inicia o servidor.
    */
   public start(): void {
-    if (this.server !== undefined) {
-      throw new InvalidExecutionError("Websocket server already started.");
-    }
-
     const serverOptions = {
       port: this.configuration.port,
     };
-    this.server = new Server(serverOptions);
+    this.instance = new Server(serverOptions);
 
-    this.server.on("connection", this.onConnection.bind(this));
+    this.instance.on("connection", this.onConnection.bind(this));
 
     Logger.post(
       "Websocket server started on port {port}.",
@@ -80,14 +70,10 @@ export class WebSocketServer extends WebSocketBase {
    * Para o servidor.
    */
   public stop(): void {
-    if (this.server === undefined) {
-      throw new InvalidExecutionError("Websocket server was not started.");
-    }
-
+    this.instance.close();
     for (const connection of this.connections) {
       connection.close();
     }
-    this.server.close();
 
     Logger.post(
       "Websocket server stopped.",
@@ -106,7 +92,7 @@ export class WebSocketServer extends WebSocketBase {
     if (message.instance !== this) {
       return;
     }
-    if (this.server === undefined) {
+    if (this.instance === undefined) {
       throw new NotReadyError("Websocket server was not started.");
     }
     if (message.destination === undefined) {

@@ -17,7 +17,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
   /**
    * Controlador do temporizador.
-   * @private
    */
   private interval: NodeJS.Timer = 0 as unknown as NodeJS.Timer;
 

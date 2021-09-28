@@ -1,5 +1,4 @@
 import {
-  InvalidExecutionError,
   Logger,
   LogLevel,
   Message,
@@ -21,12 +20,7 @@ import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 /**
  * Inicia e gerencia uma conexão com um servidor websocket
  */
-export class WebSocketClient extends WebSocketBase {
-  /**
-   * Instância do cliente websocket.
-   */
-  private client?: WebSocket;
-
+export class WebSocketClient extends WebSocketBase<WebSocket> {
   /**
    * Construtor.
    * @param configuration JSON de configuração.
@@ -47,17 +41,13 @@ export class WebSocketClient extends WebSocketBase {
    * Inicia o servidor.
    */
   public start(): void {
-    if (this.client !== undefined) {
-      throw new InvalidExecutionError("Websocket client already started.");
-    }
-
     const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
-    this.client = new WebSocket(url);
+    this.instance = new WebSocket(url);
 
-    this.client.on("open", this.onConnection.bind(this));
-    this.client.on("error", this.onError.bind(this));
-    this.client.on("message", this.onMessage.bind(this));
-    this.client.on("close", this.onClose.bind(this));
+    this.instance.on("open", this.onConnection.bind(this));
+    this.instance.on("error", this.onError.bind(this));
+    this.instance.on("message", this.onMessage.bind(this));
+    this.instance.on("close", this.onClose.bind(this));
 
     Logger.post(
       "Websocket client connected to {url}.",
@@ -71,11 +61,7 @@ export class WebSocketClient extends WebSocketBase {
    * Para o servidor.
    */
   public stop(): void {
-    if (this.client === undefined) {
-      throw new NotReadyError("Websocket client was not started.");
-    }
-
-    this.client.close();
+    this.instance.close();
 
     Logger.post(
       "Websocket client stopped.",
@@ -94,10 +80,10 @@ export class WebSocketClient extends WebSocketBase {
     if (message.instance !== this) {
       return;
     }
-    if (this.client === undefined) {
+    if (this.instance === undefined) {
       throw new NotReadyError("Websocket client was not started.");
     }
-    this.client.send(message.message);
+    this.instance.send(message.message);
   }
 
   /**
