@@ -22,7 +22,7 @@ export abstract class WebSocketBase<TInstance> {
    */
   protected get instance(): TInstance {
     if (this.instanceValue === undefined) {
-      throw new NotReadyError("Websocket instance was not started.");
+      throw new NotReadyError("Websocket instance was not defined.");
     }
 
     return this.instanceValue;
@@ -31,15 +31,24 @@ export abstract class WebSocketBase<TInstance> {
    * Instância do websocket.
    */
   protected set instance(value: TInstance) {
-    if (this.instanceValue !== undefined) {
+    if (this.instanceValue !== null) {
       throw new InvalidExecutionError("Websocket instance already defined.");
     }
     this.instanceValue = value;
   }
 
   /**
-   * Limpa o valor da instância.
-   * @protected
+   * Inicia a instância para permitir conexões.
+   */
+  public abstract start(): void;
+
+  /**
+   * Finaliza a instância e encerrar conexões.
+   */
+  public abstract stop(): void;
+
+  /**
+   * Define o valor da instância do websocket para undefined.
    */
   protected resetInstance(): void {
     this.instanceValue = undefined;

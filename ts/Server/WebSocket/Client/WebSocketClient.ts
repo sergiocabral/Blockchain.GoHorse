@@ -1,9 +1,4 @@
-import {
-  Logger,
-  LogLevel,
-  Message,
-  NotReadyError,
-} from "@sergiocabral/helper";
+import { Logger, LogLevel, Message } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
 import { BasicProtocol } from "../Protocol/BasicProtocol";
@@ -38,7 +33,7 @@ export class WebSocketClient extends WebSocketBase<WebSocket> {
   }
 
   /**
-   * Inicia o servidor.
+   * Inicia a instância para permitir conexões.
    */
   public start(): void {
     const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
@@ -58,10 +53,11 @@ export class WebSocketClient extends WebSocketBase<WebSocket> {
   }
 
   /**
-   * Para o servidor.
+   * Finaliza a instância e encerrar conexões.
    */
   public stop(): void {
     this.instance.close();
+    this.resetInstance();
 
     Logger.post(
       "Websocket client stopped.",
@@ -77,13 +73,9 @@ export class WebSocketClient extends WebSocketBase<WebSocket> {
   private handleWebSocketClientSendMessage(
     message: WebSocketClientSendMessage
   ): void {
-    if (message.instance !== this) {
-      return;
+    if (Object.is(message.instance, this)) {
+      this.instance.send(message.message);
     }
-    if (this.instance === undefined) {
-      throw new NotReadyError("Websocket client was not started.");
-    }
-    this.instance.send(message.message);
   }
 
   /**

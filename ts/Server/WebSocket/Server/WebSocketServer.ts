@@ -3,7 +3,6 @@ import {
   Logger,
   LogLevel,
   Message,
-  NotReadyError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 import { IncomingMessage } from "http";
@@ -51,16 +50,15 @@ export class WebSocketServer extends WebSocketBase<Server> {
    * Inicia o servidor.
    */
   public start(): void {
-    const serverOptions = {
+    this.instance = new Server({
       port: this.configuration.port,
-    };
-    this.instance = new Server(serverOptions);
+    });
 
     this.instance.on("connection", this.onConnection.bind(this));
 
     Logger.post(
       "Websocket server started on port {port}.",
-      serverOptions,
+      { port: this.configuration.port },
       LogLevel.Debug,
       WebSocketServer.name
     );
@@ -71,6 +69,8 @@ export class WebSocketServer extends WebSocketBase<Server> {
    */
   public stop(): void {
     this.instance.close();
+    this.resetInstance();
+
     for (const connection of this.connections) {
       connection.close();
     }
@@ -89,18 +89,14 @@ export class WebSocketServer extends WebSocketBase<Server> {
   private handleWebSocketServerSendMessage(
     message: WebSocketServerSendMessage
   ): void {
-    if (message.instance !== this) {
-      return;
-    }
-    if (this.instance === undefined) {
-      throw new NotReadyError("Websocket server was not started.");
-    }
-    if (message.destination === undefined) {
-      this.connections.forEach((connection) =>
-        connection.send(message.message)
-      );
-    } else if (this.connections.has(message.destination)) {
-      message.destination.send(message.message);
+    if (Object.is(message.instance, this)) {
+      if (message.destination === undefined) {
+        this.connections.forEach((connection) =>
+          connection.send(message.message)
+        );
+      } else if (this.connections.has(message.destination)) {
+        message.destination.send(message.message);
+      }
     }
   }
 
