@@ -12,6 +12,7 @@ import { BusApplication } from "../Application/Bus/BusApplication";
 import { CoinApplication } from "../Application/Coin/CoinApplication";
 import { DatabaseApplication } from "../Application/Database/DatabaseApplication";
 import { MinerApplication } from "../Application/Miner/MinerApplication";
+import { Definition } from "../Definition";
 
 import { Argument } from "./Argument";
 import { IApplication } from "./IApplication";
@@ -41,7 +42,6 @@ export class Main {
     if (!Argument.hasStopArgument()) {
       application.run();
 
-      const killVerifyInterval = 10000;
       const killVerifyIntervalTimer = setInterval(() => {
         if (fs.existsSync(killFilename)) {
           fs.unlinkSync(killFilename);
@@ -57,7 +57,7 @@ export class Main {
 
           clearInterval(killVerifyIntervalTimer);
         }
-      }, killVerifyInterval);
+      }, Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE);
     } else {
       Logger.post(
         "Sending signal to terminate application.",
