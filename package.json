@@ -23,6 +23,7 @@
   ],
   "main": "./js/index.js",
   "scripts": {
+    "stop": "ts-node ./ts/index.ts --stop",
     "start": "ts-node ./ts/index.ts",
     "format": "prettier -w ./ts && tslint -p tsconfig.json",
     "build": "tsc"

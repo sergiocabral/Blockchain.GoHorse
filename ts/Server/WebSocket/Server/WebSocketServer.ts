@@ -61,6 +61,24 @@ export class WebSocketServer {
   }
 
   /**
+   * Para o servidor.
+   */
+  public stop(): void {
+    if (this.server === undefined) {
+      throw new InvalidExecutionError("Websocket was not started.");
+    }
+
+    this.server.close();
+
+    Logger.post(
+      "Server stopped.",
+      undefined,
+      LogLevel.Debug,
+      WebSocketServer.name
+    );
+  }
+
+  /**
    * Handle: ao receber uma conexão.
    * @param webSocket Conexão.
    * @param incomingMessage Mensagem.

@@ -17,6 +17,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    Logger.post(this.constructor.name);
+    Logger.post(`START: ${this.constructor.name}`);
+  }
+
+  /**
+   * Finaliza a aplicação.
+   */
+  public stop(): void {
+    Logger.post(`STOP: ${this.constructor.name}`);
   }
 }

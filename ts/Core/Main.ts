@@ -4,6 +4,8 @@ import {
   Logger,
   LogLevel,
 } from "@sergiocabral/helper";
+import fs from "fs";
+import { clearInterval } from "timers";
 
 import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
 import { BusApplication } from "../Application/Bus/BusApplication";
@@ -21,25 +23,57 @@ export class Main {
   /**
    * Aplicação selecionada para execução.
    */
-  public static get application(): IApplication {
+  public static start(): void {
     if (Main.instance !== undefined) {
       throw new InvalidExecutionError(
         "Main cannot be instantiated more than once."
       );
     }
 
-    return (Main.instance = new Main()).application;
+    const main = (Main.instance = new Main());
+    const application = main.getApplication();
+
+    const killFilename = `KILL.${Argument.getApplicationName()}`;
+    if (fs.existsSync(killFilename)) {
+      fs.unlinkSync(killFilename);
+    }
+
+    if (!Argument.hasStopArgument()) {
+      application.run();
+
+      const killVerifyInterval = 10000;
+      const killVerifyIntervalTimer = setInterval(() => {
+        if (fs.existsSync(killFilename)) {
+          fs.unlinkSync(killFilename);
+
+          Logger.post(
+            "Signal received to terminate application.",
+            undefined,
+            LogLevel.Information,
+            Main.name
+          );
+
+          application.stop();
+
+          clearInterval(killVerifyIntervalTimer);
+        }
+      }, killVerifyInterval);
+    } else {
+      Logger.post(
+        "Sending signal to terminate application.",
+        undefined,
+        LogLevel.Information,
+        Main.name
+      );
+
+      fs.writeFileSync(killFilename, "");
+    }
   }
 
   /**
    * Instância única da classe.
    */
   private static instance?: Main;
-
-  /**
-   * Nome da seção para o log.
-   */
-  private static readonly loggerSection = "Main";
 
   /**
    * Lista de aplicações disponíveis.
@@ -60,7 +94,7 @@ export class Main {
   /**
    * Instância da aplicação que será executada.
    */
-  private get application(): IApplication {
+  private getApplication(): IApplication {
     const applicationName = Argument.getApplicationName();
 
     const applicationConstructor = this.applications.find(
@@ -81,10 +115,10 @@ export class Main {
     }
 
     Logger.post(
-      "Selected application to run: {applicationName}",
+      "Selected application: {applicationName}",
       { applicationName },
       LogLevel.Information,
-      Main.loggerSection
+      Main.name
     );
 
     return new applicationConstructor();

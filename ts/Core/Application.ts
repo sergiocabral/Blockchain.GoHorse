@@ -45,6 +45,11 @@ export abstract class Application<TConfiguration extends Configuration>
   public abstract run(): void;
 
   /**
+   * Finaliza a aplicação.
+   */
+  public abstract stop(): void;
+
+  /**
    * Configurações JSON
    */
   private loadConfiguration(): TConfiguration {

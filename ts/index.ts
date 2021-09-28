@@ -3,7 +3,7 @@ import { GenericError, Logger, LogLevel } from "@sergiocabral/helper";
 import { Main } from "./Core/Main";
 
 try {
-  Main.application.run();
+  Main.start();
 } catch (error: unknown) {
   while (error) {
     if (error instanceof GenericError) {

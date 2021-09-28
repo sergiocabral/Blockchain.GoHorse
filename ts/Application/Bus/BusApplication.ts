@@ -1,3 +1,5 @@
+import { Logger } from "@sergiocabral/helper";
+
 import { Application } from "../../Core/Application";
 import { WebSocketServer } from "../../Server/WebSocket/Server/WebSocketServer";
 
@@ -13,16 +15,31 @@ export class BusApplication extends Application<BusConfiguration> {
   protected readonly configurationType = BusConfiguration;
 
   /**
+   * Servidor websocket.
+   */
+  private readonly webSocketServer: WebSocketServer;
+
+  /**
    * Construtor.
    */
   public constructor() {
     super();
+    this.webSocketServer = new WebSocketServer(this.configuration.websocket);
   }
 
   /**
    * Executa a aplicação.
    */
   public run(): void {
-    void new WebSocketServer(this.configuration.websocket).start();
+    Logger.post(`START: ${this.constructor.name}`);
+    this.webSocketServer.start();
+  }
+
+  /**
+   * Finaliza a aplicação.
+   */
+  public stop(): void {
+    this.webSocketServer.stop();
+    Logger.post(`STOP: ${this.constructor.name}`);
   }
 }

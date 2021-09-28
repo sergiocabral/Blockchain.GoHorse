@@ -6,25 +6,28 @@ export class Argument {
    * Nome da aplicação a ser executada.
    */
   public static getApplicationName(): string {
-    const argumentIndexForApplicationName = 2;
-
-    return Argument.getArgumentIndex(argumentIndexForApplicationName);
+    return Argument.getArgumentValue(/Application$/);
   }
 
   /**
    * Nome (caminho) do arquivo de configurações da aplicação.
    */
   public static getEnvironmentFile(): string {
-    const argumentIndexForEnvironmentFile = 3;
-
-    return Argument.getArgumentIndex(argumentIndexForEnvironmentFile);
+    return Argument.getArgumentValue(/\.json$/);
   }
 
   /**
-   * Retorna o o valor de um argumento.
-   * @param index Posição do parâmetro.
+   * Nome (caminho) do arquivo de configurações da aplicação.
    */
-  private static getArgumentIndex(index: number): string {
-    return (process.argv[index] ?? "").trim();
+  public static hasStopArgument(): boolean {
+    return Boolean(Argument.getArgumentValue(/^--stop$/));
+  }
+
+  /**
+   * Retorna o valor de um argumento.
+   * @param regex Retorna o valor que passar no teste da regex.
+   */
+  private static getArgumentValue(regex: RegExp): string {
+    return process.argv.find((arg) => regex.test(arg)) ?? "";
   }
 }
