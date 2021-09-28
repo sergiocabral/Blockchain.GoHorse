@@ -69,6 +69,9 @@ export class WebSocketServer {
       throw new InvalidExecutionError("Websocket server was not started.");
     }
 
+    for (const connection of this.connections) {
+      connection.close();
+    }
     this.server.close();
 
     Logger.post(

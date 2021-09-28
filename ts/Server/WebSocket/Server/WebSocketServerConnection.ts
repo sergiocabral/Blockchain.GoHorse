@@ -18,4 +18,11 @@ export class WebSocketServerConnection {
     private readonly webSocket: WebSocket,
     private readonly incomingMessage: IncomingMessage
   ) {}
+
+  /**
+   * Finaliza a conexão.
+   */
+  public close() {
+    this.webSocket.close();
+  }
 }
