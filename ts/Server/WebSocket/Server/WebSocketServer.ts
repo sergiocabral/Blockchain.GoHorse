@@ -8,6 +8,10 @@ import {
 import { IncomingMessage } from "http";
 import { Server, WebSocket } from "ws";
 
+import { BasicProtocol } from "../Protocol/BasicProtocol";
+import { IProtocol } from "../Protocol/IProtocol";
+import { WebSocketBase } from "../WebSocketBase";
+
 import { WebSocketServerClosed } from "./Message/WebSocketServerClosed";
 import { WebSocketServerError } from "./Message/WebSocketServerError";
 import { WebSocketServerMessageReceived } from "./Message/WebSocketServerMessageReceived";
@@ -18,7 +22,7 @@ import { WebSocketServerConnection } from "./WebSocketServerConnection";
 /**
  * Inicia e gerencia um servidor websocket.
  */
-export class WebSocketServer {
+export class WebSocketServer extends WebSocketBase {
   /**
    * Lista de conexões com sinalização de ativa ou não.
    */
@@ -33,10 +37,14 @@ export class WebSocketServer {
   /**
    * Construtor.
    * @param configuration JSON de configuração.
+   * @param protocol Protocolo de comunicação.
    */
   public constructor(
-    private readonly configuration: WebSocketServerConfiguration
-  ) {}
+    private readonly configuration: WebSocketServerConfiguration,
+    protocol: new () => IProtocol = BasicProtocol
+  ) {
+    super(protocol);
+  }
 
   /**
    * Inicia o servidor.

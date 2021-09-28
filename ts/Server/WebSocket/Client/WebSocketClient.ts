@@ -1,6 +1,10 @@
 import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
+import { BasicProtocol } from "../Protocol/BasicProtocol";
+import { IProtocol } from "../Protocol/IProtocol";
+import { WebSocketBase } from "../WebSocketBase";
+
 import { WebSocketClientClosed } from "./Message/WebSocketClientClosed";
 import { WebSocketClientError } from "./Message/WebSocketClientError";
 import { WebSocketClientMessageReceived } from "./Message/WebSocketClientMessageReceived";
@@ -10,7 +14,7 @@ import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 /**
  * Inicia e gerencia uma conexão com um servidor websocket
  */
-export class WebSocketClient {
+export class WebSocketClient extends WebSocketBase {
   /**
    * Instância do cliente websocket.
    */
@@ -19,10 +23,14 @@ export class WebSocketClient {
   /**
    * Construtor.
    * @param configuration JSON de configuração.
+   * @param protocol Protocolo de comunicação.
    */
   public constructor(
-    private readonly configuration: WebSocketClientConfiguration
-  ) {}
+    private readonly configuration: WebSocketClientConfiguration,
+    protocol: new () => IProtocol = BasicProtocol
+  ) {
+    super(protocol);
+  }
 
   /**
    * Inicia o servidor.
