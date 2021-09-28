@@ -163,7 +163,7 @@ export class WebSocketServer {
 
     Logger.post(
       "Websocket server connection error: {error}",
-      { error },
+      { error: error.message },
       LogLevel.Debug,
       WebSocketServer.name
     );

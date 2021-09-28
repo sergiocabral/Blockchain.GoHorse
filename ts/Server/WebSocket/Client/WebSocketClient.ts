@@ -103,7 +103,7 @@ export class WebSocketClient {
   private onError(error: Error): void {
     Logger.post(
       "Websocket client connection error: {error}",
-      { error },
+      { error: error.message },
       LogLevel.Debug,
       WebSocketClient.name
     );
