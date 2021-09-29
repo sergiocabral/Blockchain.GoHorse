@@ -1,11 +1,11 @@
-import { Configuration } from "@sergiocabral/helper";
+import { JsonLoader } from "@sergiocabral/helper";
 
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 /**
  * Configurações do MinerApplication
  */
-export class MinerConfiguration extends Configuration {
+export class MinerConfiguration extends JsonLoader {
   /**
    * Configurações para conectar ao servidor websocket.
    */

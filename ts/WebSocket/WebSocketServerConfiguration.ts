@@ -1,9 +1,9 @@
-import { Configuration, HelperObject } from "@sergiocabral/helper";
+import { HelperObject, JsonLoader } from "@sergiocabral/helper";
 
 /**
  * Configurações do servidor websocket.
  */
-export class WebSocketServerConfiguration extends Configuration {
+export class WebSocketServerConfiguration extends JsonLoader {
   /**
    * Porta de rede do serviço.
    */

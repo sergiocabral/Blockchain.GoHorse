@@ -1,7 +1,7 @@
 import {
-  Configuration,
   InvalidArgumentError,
   IOError,
+  JsonLoader,
   Logger,
   LogLevel,
 } from "@sergiocabral/helper";
@@ -14,7 +14,7 @@ import { IApplication } from "./IApplication";
 /**
  * Classe base para uma aplicação.
  */
-export abstract class Application<TConfiguration extends Configuration>
+export abstract class Application<TConfiguration extends JsonLoader>
   implements IApplication
 {
   /**
