@@ -1,8 +1,8 @@
 import { clearInterval } from "timers";
 
 import { Application } from "../../Core/Application";
-import { WebSocketClientSendMessage } from "../../Server/WebSocket/Client/Message/WebSocketClientSendMessage";
-import { WebSocketClient } from "../../Server/WebSocket/Client/WebSocketClient";
+import { WebSocketClientMessageSend } from "../../WebSocket/Message/WebSocketClientMessageSend";
+import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
@@ -43,7 +43,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     const interval = 5000;
     this.interval = setInterval(
       () =>
-        new WebSocketClientSendMessage(
+        new WebSocketClientMessageSend(
           this.webSocketClient,
           "PING: {0}".querystring(new Date().format())
         ).sendAsync(),
@@ -56,6 +56,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    */
   public stop(): void {
     clearInterval(this.interval);
-    this.webSocketClient.stop();
+    if (this.webSocketClient.started) {
+      this.webSocketClient.stop();
+    }
   }
 }

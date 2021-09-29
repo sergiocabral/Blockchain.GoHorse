@@ -1,6 +1,6 @@
 import { Configuration } from "@sergiocabral/helper";
 
-import { WebSocketClientConfiguration } from "../../Server/WebSocket/Client/WebSocketClientConfiguration";
+import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 /**
  * Configurações do BotTwitchApplication

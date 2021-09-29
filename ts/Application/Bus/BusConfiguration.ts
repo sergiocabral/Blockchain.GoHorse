@@ -1,6 +1,6 @@
 import { Configuration } from "@sergiocabral/helper";
 
-import { WebSocketServerConfiguration } from "../../Server/WebSocket/Server/WebSocketServerConfiguration";
+import { WebSocketServerConfiguration } from "../../WebSocket/WebSocketServerConfiguration";
 
 /**
  * Configurações do ButApplication.

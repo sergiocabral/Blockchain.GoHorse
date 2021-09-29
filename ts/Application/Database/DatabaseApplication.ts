@@ -1,5 +1,5 @@
 import { Application } from "../../Core/Application";
-import { WebSocketClient } from "../../Server/WebSocket/Client/WebSocketClient";
+import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
 import { DatabaseConfiguration } from "./DatabaseConfiguration";
 
@@ -38,6 +38,8 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
    * Finaliza a aplicação.
    */
   public stop(): void {
-    this.webSocketClient.stop();
+    if (this.webSocketClient.started) {
+      this.webSocketClient.stop();
+    }
   }
 }
