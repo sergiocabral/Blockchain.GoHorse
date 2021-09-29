@@ -1,8 +1,9 @@
-import { InvalidDataError, Logger, LogLevel } from "@sergiocabral/helper";
+import { Logger, LogLevel } from "@sergiocabral/helper";
 
 import { WebSocketClientMessageReceived } from "../Message/WebSocketClientMessageReceived";
 
 import { ProtocolBase } from "./ProtocolBase";
+import { ProtocolError } from "./ProtocolError";
 
 /**
  * Protocolo básico.
@@ -34,11 +35,15 @@ export class BasicProtocol extends ProtocolBase {
 
       void new WebSocketClientMessageReceived(this.client, message).sendAsync();
     } catch (error) {
-      this.client.stop();
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorCode = error instanceof ProtocolError ? error.code : -1;
+
+      this.client.stop(errorCode, errorMessage);
 
       Logger.post(
-        "Websocket client stopped the connection because an error: {0}",
-        error instanceof Error ? error.message : String(error),
+        "Websocket client stopped the connection because an error: {errorCode}, {errorMessage}",
+        { errorCode, errorMessage },
         LogLevel.Warning,
         this.client.constructor.name
       );
@@ -70,18 +75,18 @@ export class BasicProtocol extends ProtocolBase {
 
     const firstLine = lines[0];
     if (firstLine !== this.identifier) {
-      throw new InvalidDataError("Protocol not supported");
+      throw ProtocolError.create(ProtocolError.VERSION_NOT_SUPPORTED);
     }
 
     const message = lines[1];
-    if (message === undefined) {
-      throw new InvalidDataError("Blank message body");
+    if (!message) {
+      throw ProtocolError.create(ProtocolError.BLANK_MESSAGE_BODY);
     }
 
     try {
       return Buffer.from(message, "base64").toString();
     } catch (error) {
-      throw new InvalidDataError("Wrongly encoded message.");
+      throw ProtocolError.create(ProtocolError.WRONGLY_ENCODED_MESSAGE, error);
     }
   }
 

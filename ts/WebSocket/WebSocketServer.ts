@@ -79,15 +79,17 @@ export class WebSocketServer {
 
   /**
    * Encerrar.
+   * @param code Código do fechamento.
+   * @param reason Motivo do fechamento.
    */
-  public stop(): void {
+  public stop(code?: number, reason?: string): void {
     if (this.instance === undefined) {
       throw new InvalidExecutionError("Websocket server was not started.");
     }
 
     for (const client of this.clients) {
       if (client.started) {
-        client.stop();
+        client.stop(code, reason);
       }
     }
 

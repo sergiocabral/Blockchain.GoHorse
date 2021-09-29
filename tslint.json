@@ -12,7 +12,8 @@
     "strict-boolean-expressions": false,
     "no-this-assignment": false,
     "no-void-expression": false,
-    "no-unbound-method": false
+    "no-unbound-method": false,
+    "no-parameter-reassignment": false
   },
   "rulesDirectory": []
 }
