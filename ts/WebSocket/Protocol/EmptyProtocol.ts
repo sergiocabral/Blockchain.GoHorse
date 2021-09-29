@@ -5,14 +5,9 @@ import { WebSocketClientMessageReceived } from "../Message/WebSocketClientMessag
 import { ProtocolBase } from "./ProtocolBase";
 
 /**
- * Protocolo básico.
+ * Protocolo sem nenhuma ação.
  */
-export class BasicProtocol extends ProtocolBase {
-  /**
-   * Identificador do protocolo.
-   */
-  public readonly identifier = "BASIC";
-
+export class EmptyProtocol extends ProtocolBase {
   /**
    * Recebe uma mensagem.
    */

@@ -21,11 +21,6 @@ export abstract class ProtocolBase implements IProtocol {
   }
 
   /**
-   * Identificador do protocolo.
-   */
-  public abstract get identifier(): string;
-
-  /**
    * Recebe uma mensagem.
    */
   public abstract receive(message: string): void;
