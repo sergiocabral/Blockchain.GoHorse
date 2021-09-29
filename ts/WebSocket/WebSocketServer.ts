@@ -15,6 +15,7 @@ import { WebSocketServerOpened } from "./Message/WebSocketServerOpened";
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
 import { WebSocketClient } from "./WebSockerClient";
+import { WebSocketClientFromServer } from "./WebSocketClientFromServer";
 import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
 
 /**
@@ -154,7 +155,11 @@ export class WebSocketServer {
    * Handle: ao iniciar a conexão.
    */
   private onServerConnection(webSocket: WebSocket): void {
-    const client = new WebSocketClient(webSocket, this.protocol);
+    const client = new WebSocketClientFromServer(
+      this,
+      webSocket,
+      this.protocol
+    );
     this.clients.add(client);
 
     webSocket.on("close", () => this.clients.delete(client));
