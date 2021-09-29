@@ -1,8 +1,4 @@
-import {
-  InvalidExecutionError,
-  Logger,
-  LogLevel,
-} from "@sergiocabral/helper";
+import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
 import { WebSocketClientClosed } from "./Message/WebSocketClientClosed";
@@ -147,7 +143,7 @@ export class WebSocketClient {
    */
   private onClientMessage(...args: unknown[]): void {
     const message = String(args[0] ?? "");
-    this.protocol.messageReceived(message);
+    this.protocol.receive(message);
   }
 
   /**

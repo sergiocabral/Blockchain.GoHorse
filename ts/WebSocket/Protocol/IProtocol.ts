@@ -8,7 +8,7 @@ export interface IProtocol {
   get identifier(): string;
 
   /**
-   * Sinaliza uma mensagem recebida.
+   * Recebe uma mensagem.
    */
-  messageReceived(message: string): void;
+  receive(message: string): void;
 }

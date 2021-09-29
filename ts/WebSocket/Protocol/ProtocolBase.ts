@@ -1,6 +1,5 @@
-import { Logger, LogLevel, Message } from "@sergiocabral/helper";
+import { Message } from "@sergiocabral/helper";
 
-import { WebSocketClientMessageReceived } from "../Message/WebSocketClientMessageReceived";
 import { WebSocketClientMessageSend } from "../Message/WebSocketClientMessageSend";
 import { WebSocketClient } from "../WebSockerClient";
 
@@ -14,7 +13,7 @@ export abstract class ProtocolBase implements IProtocol {
    * Construtor.
    * @param client Cliente websocket.
    */
-  public constructor(private readonly client: WebSocketClient) {
+  public constructor(protected readonly client: WebSocketClient) {
     Message.subscribe(
       WebSocketClientMessageSend,
       this.handleWebSocketClientMessageSend.bind(this)
@@ -27,21 +26,17 @@ export abstract class ProtocolBase implements IProtocol {
   public abstract get identifier(): string;
 
   /**
-   * Sinaliza uma mensagem recebida.
+   * Recebe uma mensagem.
    */
-  public messageReceived(message: string): void {
-    Logger.post(
-      "Websocket client received message: {0}",
-      message,
-      LogLevel.Verbose,
-      this.client.constructor.name
-    );
-
-    void new WebSocketClientMessageReceived(this.client, message).sendAsync();
-  }
+  public abstract receive(message: string): void;
 
   /**
-   * subscribe: WebSocketClientMessageSend
+   * Transmite uma mensagem.
+   */
+  protected abstract transmit(message: string): void;
+
+  /**
+   * Subscribe: WebSocketClientMessageSend
    */
   private handleWebSocketClientMessageSend(
     message: WebSocketClientMessageSend
@@ -50,15 +45,8 @@ export abstract class ProtocolBase implements IProtocol {
       return;
     }
 
-    this.client.sendRawMessage(message.message);
+    this.transmit(message.message);
 
     message.delivered = true;
-
-    Logger.post(
-      "Websocket client sent a message: {0}",
-      message.message,
-      LogLevel.Verbose,
-      this.client.constructor.name
-    );
   }
 }
