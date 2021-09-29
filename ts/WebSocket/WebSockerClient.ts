@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { WebSocketClientClosed } from "./Message/WebSocketClientClosed";
 import { WebSocketClientError } from "./Message/WebSocketClientError";
 import { WebSocketClientOpened } from "./Message/WebSocketClientOpened";
-import { EmptyProtocol } from "./Protocol/EmptyProtocol";
+import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
 import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 
@@ -34,7 +34,7 @@ export class WebSocketClient {
    */
   public constructor(
     configuration: WebSocketClientConfiguration | WebSocket,
-    protocol: new (client: WebSocketClient) => IProtocol = EmptyProtocol
+    protocol: new (client: WebSocketClient) => IProtocol = BasicProtocol
   ) {
     this.protocol = new protocol(this);
     if (configuration instanceof WebSocket) {

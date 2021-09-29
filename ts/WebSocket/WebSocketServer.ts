@@ -12,7 +12,7 @@ import { WebSocketServerClosed } from "./Message/WebSocketServerClosed";
 import { WebSocketServerError } from "./Message/WebSocketServerError";
 import { WebSocketServerMessageSend } from "./Message/WebSocketServerMessageSend";
 import { WebSocketServerOpened } from "./Message/WebSocketServerOpened";
-import { EmptyProtocol } from "./Protocol/EmptyProtocol";
+import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
 import { WebSocketClient } from "./WebSockerClient";
 import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
@@ -40,7 +40,7 @@ export class WebSocketServer {
     private readonly configuration: WebSocketServerConfiguration,
     private readonly protocol: new (
       client: WebSocketClient
-    ) => IProtocol = EmptyProtocol
+    ) => IProtocol = BasicProtocol
   ) {
     Message.subscribe(
       WebSocketServerMessageSend,
