@@ -2,14 +2,11 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
-  Message,
 } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
 import { WebSocketClientClosed } from "./Message/WebSocketClientClosed";
 import { WebSocketClientError } from "./Message/WebSocketClientError";
-import { WebSocketClientMessageReceived } from "./Message/WebSocketClientMessageReceived";
-import { WebSocketClientMessageSend } from "./Message/WebSocketClientMessageSend";
 import { WebSocketClientOpened } from "./Message/WebSocketClientOpened";
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
@@ -41,9 +38,9 @@ export class WebSocketClient {
    */
   public constructor(
     configuration: WebSocketClientConfiguration | WebSocket,
-    protocol: IProtocol | (new () => IProtocol) = BasicProtocol
+    protocol: new (client: WebSocketClient) => IProtocol = BasicProtocol
   ) {
-    this.protocol = typeof protocol === "object" ? protocol : new protocol();
+    this.protocol = new protocol(this);
     if (configuration instanceof WebSocket) {
       this.configuration = new WebSocketClientConfiguration();
       this.instance = configuration;
@@ -51,10 +48,6 @@ export class WebSocketClient {
     } else {
       this.configuration = configuration;
     }
-    Message.subscribe(
-      WebSocketClientMessageSend,
-      this.handleWebSocketClientMessageSend.bind(this)
-    );
   }
 
   /**
@@ -62,6 +55,17 @@ export class WebSocketClient {
    */
   public get started(): boolean {
     return this.instance !== undefined;
+  }
+
+  /**
+   * Envia uma mensagem direta sem passar pelo protocolo.
+   */
+  public sendRawMessage(message: string): void {
+    if (this.instance === undefined) {
+      throw new InvalidExecutionError("Websocket client was not started.");
+    }
+
+    this.instance.send(message);
   }
 
   /**
@@ -109,28 +113,6 @@ export class WebSocketClient {
   }
 
   /**
-   * subscribe: WebSocketClientMessageSend
-   */
-  private handleWebSocketClientMessageSend(
-    message: WebSocketClientMessageSend
-  ): void {
-    if (!Object.is(this, message.instance) || !this.instance) {
-      return;
-    }
-
-    this.instance.send(message.message);
-
-    message.delivered = true;
-
-    Logger.post(
-      "Websocket client sent a message: {0}",
-      message.message,
-      LogLevel.Verbose,
-      WebSocketClient.name
-    );
-  }
-
-  /**
    * Handle: ao finalizar a conexão.
    */
   private onClientClose(): void {
@@ -165,15 +147,7 @@ export class WebSocketClient {
    */
   private onClientMessage(...args: unknown[]): void {
     const message = String(args[0] ?? "");
-
-    Logger.post(
-      "Websocket client received message: {0}",
-      message,
-      LogLevel.Verbose,
-      WebSocketClient.name
-    );
-
-    void new WebSocketClientMessageReceived(this, message).sendAsync();
+    this.protocol.messageReceived(message);
   }
 
   /**

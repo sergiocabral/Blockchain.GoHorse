@@ -32,20 +32,16 @@ export class WebSocketServer {
   private instance?: Server;
 
   /**
-   * Protocolo de comunicação sobre websocket.
-   */
-  private readonly protocol: IProtocol;
-
-  /**
    * Construtor.
    * @param configuration Configuração.
    * @param protocol Protocolo de comunicação sobre websocket.
    */
   public constructor(
     private readonly configuration: WebSocketServerConfiguration,
-    protocol: IProtocol | (new () => IProtocol) = BasicProtocol
+    private readonly protocol: new (
+      client: WebSocketClient
+    ) => IProtocol = BasicProtocol
   ) {
-    this.protocol = typeof protocol === "object" ? protocol : new protocol();
     Message.subscribe(
       WebSocketServerMessageSend,
       this.handleWebSocketServerMessageSend.bind(this)
