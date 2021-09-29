@@ -6,6 +6,7 @@ import {
 } from "@sergiocabral/helper";
 import { Server, WebSocket } from "ws";
 
+import { WebSocketClientMessageSend } from "./Message/WebSocketClientMessageSend";
 import { WebSocketClientOpened } from "./Message/WebSocketClientOpened";
 import { WebSocketServerClosed } from "./Message/WebSocketServerClosed";
 import { WebSocketServerError } from "./Message/WebSocketServerError";
@@ -23,10 +24,7 @@ export class WebSocketServer {
   /**
    * Lista de clientes conectados.
    */
-  private readonly clients: Map<WebSocketClient, WebSocket> = new Map<
-    WebSocketClient,
-    WebSocket
-  >();
+  private readonly clients: Set<WebSocketClient> = new Set<WebSocketClient>();
 
   /**
    * Servidor websocket.
@@ -91,7 +89,7 @@ export class WebSocketServer {
       throw new InvalidExecutionError("Websocket server was not started.");
     }
 
-    for (const client of this.clients.keys()) {
+    for (const client of this.clients) {
       if (client.started) {
         client.stop();
       }
@@ -124,19 +122,15 @@ export class WebSocketServer {
 
     message.clients = 0;
     for (const client of this.clients) {
-      const wrapper = client[0];
-      if (wrapper.started) {
-        const original = client[1];
-        original.send(message.message);
-        message.clients += 1;
-      }
+      void new WebSocketClientMessageSend(client, message.message).sendAsync();
+      message.clients += 1;
     }
 
     message.delivered = true;
 
     Logger.post(
-      "Websocket server send a broadcast message: {0}",
-      message.message,
+      "Websocket server sent a broadcast message to {clients} clients: {message}",
+      { clients: message.clients, message: message.message },
       LogLevel.Verbose,
       WebSocketServer.name
     );
@@ -163,7 +157,7 @@ export class WebSocketServer {
    */
   private onServerConnection(webSocket: WebSocket): void {
     const client = new WebSocketClient(webSocket, this.protocol);
-    this.clients.set(client, webSocket);
+    this.clients.add(client);
 
     webSocket.on("close", () => this.clients.delete(client));
 

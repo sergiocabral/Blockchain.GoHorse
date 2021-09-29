@@ -123,7 +123,7 @@ export class WebSocketClient {
     message.delivered = true;
 
     Logger.post(
-      "Websocket client send a message: {0}",
+      "Websocket client sent a message: {0}",
       message.message,
       LogLevel.Verbose,
       WebSocketClient.name
