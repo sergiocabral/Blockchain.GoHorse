@@ -1,8 +1,5 @@
-import { Message } from "@sergiocabral/helper";
-
+import { BusMessageRouter } from "../../Bus/BusMessageRouter";
 import { Application } from "../../Core/Application";
-import { WebSocketClientMessageReceived } from "../../WebSocket/Message/WebSocketClientMessageReceived";
-import { WebSocketClientMessageSend } from "../../WebSocket/Message/WebSocketClientMessageSend";
 import { WebSocketServer } from "../../WebSocket/WebSocketServer";
 
 import { BusConfiguration } from "./BusConfiguration";
@@ -17,6 +14,11 @@ export class BusApplication extends Application<BusConfiguration> {
   protected readonly configurationType = BusConfiguration;
 
   /**
+   * Roteador de mensagem via websocket.
+   */
+  private readonly busMessageRouter: BusMessageRouter;
+
+  /**
    * Servidor websocket.
    */
   private readonly webSocketServer: WebSocketServer;
@@ -29,14 +31,7 @@ export class BusApplication extends Application<BusConfiguration> {
     this.webSocketServer = new WebSocketServer(
       this.configuration.webSocketServer
     );
-    const interval = 1000;
-    Message.subscribe(WebSocketClientMessageReceived, (message) => {
-      setTimeout(
-        () =>
-          new WebSocketClientMessageSend(message.instance, `PONG`).sendAsync(),
-        interval
-      );
-    });
+    this.busMessageRouter = new BusMessageRouter(this.webSocketServer);
   }
 
   /**

@@ -1,3 +1,4 @@
+import { BusMessageSender } from "../../Bus/BusMessageSender";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
@@ -13,6 +14,11 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
   protected readonly configurationType = DatabaseConfiguration;
 
   /**
+   * Enviador de mensagem via websocket.
+   */
+  private readonly busMessageSender: BusMessageSender;
+
+  /**
    * Cliente websocket.
    */
   private readonly webSocketClient: WebSocketClient;
@@ -25,6 +31,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
+    this.busMessageSender = new BusMessageSender(this.webSocketClient);
   }
 
   /**
