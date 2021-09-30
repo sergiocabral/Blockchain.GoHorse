@@ -4,6 +4,8 @@ import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketCl
 import { WebSocketClientFromServer } from "../WebSocket/WebSocketClientFromServer";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
+import { BusMessageEncoder } from "./BusMessageEncoder";
+
 /**
  * Roteador de mensagem via websocket.
  */
@@ -31,6 +33,11 @@ export class BusMessageRouter {
         Object.is(this.webSocketServer, message.instance.server)
       )
     ) {
+      return;
+    }
+
+    const busMessage = BusMessageEncoder.decode(message.message);
+    if (busMessage === undefined) {
       return;
     }
   }

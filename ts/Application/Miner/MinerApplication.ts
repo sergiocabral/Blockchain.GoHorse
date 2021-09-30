@@ -1,4 +1,4 @@
-import { BusMessageSender } from "../../Bus/BusMessageSender";
+import { BusMessageClient } from "../../Bus/BusMessageClient";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
@@ -16,7 +16,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
   /**
    * Enviador de mensagem via websocket.
    */
-  private readonly busMessageSender: BusMessageSender;
+  private readonly busMessageSender: BusMessageClient;
 
   /**
    * Cliente websocket.
@@ -31,7 +31,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageSender = new BusMessageSender(this.webSocketClient);
+    this.busMessageSender = new BusMessageClient(this.webSocketClient, [], []);
   }
 
   /**
