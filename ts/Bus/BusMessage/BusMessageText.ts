@@ -1,4 +1,4 @@
-import { BusMessage } from "../BusMessage";
+import { BusBase } from "../BusBase";
 import { ListOfChannels } from "../ListOfChannels";
 
 import { BusMessageBase } from "./BusMessageBase";
@@ -14,7 +14,7 @@ export class BusMessageText extends BusMessageBase {
    */
   public constructor(
     public readonly text: string,
-    channels: ListOfChannels = BusMessage.ALL_CHANNELS
+    channels: ListOfChannels = BusBase.ALL_CHANNELS
   ) {
     super(channels);
   }

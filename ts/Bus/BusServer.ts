@@ -4,12 +4,12 @@ import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketCl
 import { WebSocketClientFromServer } from "../WebSocket/WebSocketClientFromServer";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
-import { BusMessage } from "./BusMessage";
+import { BusBase } from "./BusBase";
 
 /**
  * Roteador de mensagem via websocket.
  */
-export class BusMessageServer extends BusMessage {
+export class BusServer extends BusBase {
   /**
    * Construtor.
    * @param webSocketServer Servidor websocket.

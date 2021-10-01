@@ -1,9 +1,10 @@
 import { HelperObject, Logger, Message } from "@sergiocabral/helper";
 
+import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
-import { BusMessageClient } from "../../Bus/BusMessageClient";
-import { BusMessageReceived } from "../../Bus/Message/BusMessageReceived";
-import { BusMessageSend } from "../../Bus/Message/BusMessageSend";
+import { BusReceived } from "../../Bus/Message/BusReceived";
+import { BusSend } from "../../Bus/Message/BusSend";
+import { BusSubscribeChannels } from "../../Bus/Message/BusSubscribeChannels";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
@@ -21,7 +22,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Enviador de mensagem via websocket.
    */
-  private readonly busMessageClient: BusMessageClient;
+  private readonly busMessageClient: BusClient;
 
   /**
    * Cliente websocket.
@@ -36,13 +37,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageClient = new BusMessageClient(this.webSocketClient, [
-      "user-bot",
-    ]);
-    Message.subscribe(
-      BusMessageReceived,
-      this.handleBusMessageReceived.bind(this)
-    );
+    this.busMessageClient = new BusClient(this.webSocketClient);
+    Message.subscribe(BusReceived, this.handleBusMessageReceived.bind(this));
+
+    void new BusSubscribeChannels(
+      this.busMessageClient,
+      "user-bot"
+    ).sendAsync();
   }
 
   /**
@@ -53,7 +54,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
     const interval = 60000;
     setInterval(() => {
-      void new BusMessageSend(
+      void new BusSend(
         this.busMessageClient,
         new BusMessageText("Hello Coin", [
           "CoinApplication",
@@ -61,7 +62,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
           "Nothing",
         ])
       ).sendAsync();
-      void new BusMessageSend(
+      void new BusSend(
         this.busMessageClient,
         new BusMessageText("Hello World")
       ).sendAsync();
@@ -80,7 +81,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Mensagem: BusMessageReceived
    */
-  private handleBusMessageReceived(message: BusMessageReceived): void {
+  private handleBusMessageReceived(message: BusReceived): void {
     Logger.post(HelperObject.toText(message.busMessage));
   }
 }

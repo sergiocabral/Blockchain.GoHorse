@@ -1,4 +1,4 @@
-import { BusMessageServer } from "../../Bus/BusMessageServer";
+import { BusServer } from "../../Bus/BusServer";
 import { Application } from "../../Core/Application";
 import { WebSocketServer } from "../../WebSocket/WebSocketServer";
 
@@ -16,7 +16,7 @@ export class BusApplication extends Application<BusConfiguration> {
   /**
    * Roteador de mensagem via websocket.
    */
-  private readonly busMessageRouter: BusMessageServer;
+  private readonly busMessageRouter: BusServer;
 
   /**
    * Servidor websocket.
@@ -31,7 +31,7 @@ export class BusApplication extends Application<BusConfiguration> {
     this.webSocketServer = new WebSocketServer(
       this.configuration.webSocketServer
     );
-    this.busMessageRouter = new BusMessageServer(this.webSocketServer);
+    this.busMessageRouter = new BusServer(this.webSocketServer);
   }
 
   /**

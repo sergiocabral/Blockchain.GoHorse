@@ -1,19 +1,19 @@
 import { Message } from "@sergiocabral/helper";
 
+import { BusClient } from "../BusClient";
 import { IBusMessage } from "../BusMessage/IBusMessage";
-import { BusMessageClient } from "../BusMessageClient";
 
 /**
  * Envia uma mensagem através do Bus.
  */
-export class BusMessageSend extends Message {
+export class BusSend extends Message {
   /**
    * Construtor.
-   * @param busMessageClient Cliente de acesso ao Bus.
+   * @param instance Cliente de acesso ao Bus.
    * @param busMessage Mensagem para o Bus.
    */
   public constructor(
-    public readonly busMessageClient: BusMessageClient,
+    public readonly instance: BusClient,
     public readonly busMessage: IBusMessage
   ) {
     super();

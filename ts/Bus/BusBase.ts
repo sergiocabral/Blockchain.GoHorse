@@ -3,7 +3,7 @@ import { IBusMessage } from "./BusMessage/IBusMessage";
 /**
  * Classe base para Client e Server.
  */
-export abstract class BusMessage {
+export abstract class BusBase {
   /**
    * Regex para match com qualquer canal.
    */

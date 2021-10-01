@@ -1,4 +1,4 @@
-import { BusMessageClient } from "../../Bus/BusMessageClient";
+import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
@@ -16,7 +16,7 @@ export class CoinApplication extends Application<CoinConfiguration> {
   /**
    * Enviador de mensagem via websocket.
    */
-  private readonly busMessageSender: BusMessageClient;
+  private readonly busMessageSender: BusClient;
 
   /**
    * Cliente websocket.
@@ -31,7 +31,7 @@ export class CoinApplication extends Application<CoinConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageSender = new BusMessageClient(this.webSocketClient);
+    this.busMessageSender = new BusClient(this.webSocketClient);
   }
 
   /**
