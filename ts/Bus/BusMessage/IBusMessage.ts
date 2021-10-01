@@ -1,4 +1,4 @@
-import { AllChannels } from "../AllChannels";
+import { ListOfChannels } from "../ListOfChannels";
 
 /**
  * Representa uma mensagem trafegada pelo Bus
@@ -7,7 +7,7 @@ export interface IBusMessage {
   /**
    * Canais destinatários.
    */
-  get channels(): AllChannels | string[];
+  get channels(): ListOfChannels;
 
   /**
    * Identificador único.

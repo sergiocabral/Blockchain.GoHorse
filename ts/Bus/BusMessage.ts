@@ -1,13 +1,18 @@
 import { IBusMessage } from "./BusMessage/IBusMessage";
 
 /**
- * Responsável por codificar e decodificar uma mensagem.
+ * Classe base para Client e Server.
  */
-export class BusMessageEncoder {
+export abstract class BusMessage {
+  /**
+   * Regex para match com qualquer canal.
+   */
+  public static readonly ALL_CHANNELS = /.*/;
+
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
    */
-  public static decode(message: string): IBusMessage | undefined {
+  public decode(message: string): IBusMessage | undefined {
     try {
       // TODO: Garantir que o texto de entrada seja a classe de saída.
       return JSON.parse(message) as IBusMessage;
@@ -15,10 +20,11 @@ export class BusMessageEncoder {
       return undefined;
     }
   }
+
   /**
    * Codifica uma mensagem para ser enviada como string.
    */
-  public static encode(message: IBusMessage): string {
+  public encode(message: IBusMessage): string {
     return JSON.stringify(message);
   }
 }

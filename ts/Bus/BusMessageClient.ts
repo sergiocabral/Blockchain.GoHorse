@@ -4,15 +4,15 @@ import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketCl
 import { WebSocketClientMessageSend } from "../WebSocket/Message/WebSocketClientMessageSend";
 import { WebSocketClient } from "../WebSocket/WebSockerClient";
 
-import { AllChannels, ALL_CHANNELS } from "./AllChannels";
-import { BusMessageEncoder } from "./BusMessageEncoder";
+import { BusMessage } from "./BusMessage";
+import { ListOfChannels } from "./ListOfChannels";
 import { BusMessageReceived } from "./Message/BusMessageReceived";
 import { BusMessageSend } from "./Message/BusMessageSend";
 
 /**
  * Cliente de acesso ao Bus.
  */
-export class BusMessageClient {
+export class BusMessageClient extends BusMessage {
   /**
    * Construtor.
    * @param webSocketClient Cliente websocket.
@@ -20,8 +20,9 @@ export class BusMessageClient {
    */
   public constructor(
     private readonly webSocketClient: WebSocketClient,
-    public subscribeChannels: AllChannels | string[] = ALL_CHANNELS
+    public subscribeChannels: ListOfChannels = [/.*/]
   ) {
+    super();
     Message.subscribe(
       WebSocketClientMessageReceived,
       this.handleWebSocketClientMessageReceived.bind(this)
@@ -39,7 +40,7 @@ export class BusMessageClient {
 
     void new WebSocketClientMessageSend(
       this.webSocketClient,
-      BusMessageEncoder.encode(message.busMessage)
+      this.encode(message.busMessage)
     ).sendAsync();
   }
 
@@ -53,7 +54,7 @@ export class BusMessageClient {
       return;
     }
 
-    const busMessage = BusMessageEncoder.decode(message.message);
+    const busMessage = this.decode(message.message);
     if (busMessage === undefined) {
       return;
     }

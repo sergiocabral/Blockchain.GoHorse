@@ -1,6 +1,5 @@
 import { HelperObject, Logger, Message } from "@sergiocabral/helper";
 
-import { ALL_CHANNELS } from "../../Bus/AllChannels";
 import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
 import { BusMessageClient } from "../../Bus/BusMessageClient";
 import { BusMessageReceived } from "../../Bus/Message/BusMessageReceived";
@@ -56,14 +55,15 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     setInterval(() => {
       void new BusMessageSend(
         this.busMessageClient,
-        new BusMessageText(
-          ["CoinApplication", "MinerApplication", "Nothing"],
-          "Hello Coin"
-        )
+        new BusMessageText("Hello Coin", [
+          "CoinApplication",
+          "MinerApplication",
+          "Nothing",
+        ])
       ).sendAsync();
       void new BusMessageSend(
         this.busMessageClient,
-        new BusMessageText(ALL_CHANNELS, "Hello World")
+        new BusMessageText("Hello World")
       ).sendAsync();
     }, interval);
   }

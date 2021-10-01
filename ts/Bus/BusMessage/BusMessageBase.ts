@@ -1,6 +1,6 @@
 import md5 from "md5";
 
-import { AllChannels } from "../AllChannels";
+import { ListOfChannels } from "../ListOfChannels";
 
 import { IBusMessage } from "./IBusMessage";
 
@@ -12,7 +12,7 @@ export abstract class BusMessageBase implements IBusMessage {
    * Construtor.
    * @param channels Canais destinatários.
    */
-  public constructor(public readonly channels: AllChannels | string[]) {}
+  public constructor(public readonly channels: ListOfChannels) {}
 
   /**
    * Identificador único.

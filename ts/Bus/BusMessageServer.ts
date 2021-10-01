@@ -4,17 +4,18 @@ import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketCl
 import { WebSocketClientFromServer } from "../WebSocket/WebSocketClientFromServer";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
-import { BusMessageEncoder } from "./BusMessageEncoder";
+import { BusMessage } from "./BusMessage";
 
 /**
  * Roteador de mensagem via websocket.
  */
-export class BusMessageRouter {
+export class BusMessageServer extends BusMessage {
   /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
    */
   public constructor(private readonly webSocketServer: WebSocketServer) {
+    super();
     Message.subscribe(
       WebSocketClientMessageReceived,
       this.handleWebSocketClientMessageReceived.bind(this)
@@ -36,7 +37,7 @@ export class BusMessageRouter {
       return;
     }
 
-    const busMessage = BusMessageEncoder.decode(message.message);
+    const busMessage = this.decode(message.message);
     if (busMessage === undefined) {
       return;
     }
