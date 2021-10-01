@@ -31,7 +31,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageSender = new BusMessageClient(this.webSocketClient, [], []);
+    this.busMessageSender = new BusMessageClient(this.webSocketClient);
   }
 
   /**

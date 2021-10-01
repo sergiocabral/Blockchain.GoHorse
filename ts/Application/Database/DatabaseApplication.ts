@@ -31,7 +31,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageSender = new BusMessageClient(this.webSocketClient, [], []);
+    this.busMessageSender = new BusMessageClient(this.webSocketClient);
   }
 
   /**

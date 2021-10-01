@@ -39,7 +39,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.busMessageClient = new BusMessageClient(
       this.webSocketClient,
       ["user-bot"],
-      [this.busMessageHandler.bind(this)]
+      this.busMessageHandler.bind(this)
     );
   }
 

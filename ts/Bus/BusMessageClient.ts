@@ -4,7 +4,7 @@ import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketCl
 import { WebSocketClientMessageSend } from "../WebSocket/Message/WebSocketClientMessageSend";
 import { WebSocketClient } from "../WebSocket/WebSockerClient";
 
-import { AllChannels } from "./AllChannels";
+import { AllChannels, ALL_CHANNELS } from "./AllChannels";
 import { IBusMessage } from "./BusMessage/IBusMessage";
 import { BusMessageEncoder } from "./BusMessageEncoder";
 
@@ -13,6 +13,11 @@ import { BusMessageEncoder } from "./BusMessageEncoder";
  */
 export class BusMessageClient {
   /**
+   * Lista de handlers para mensagens recebidas.
+   */
+  public readonly messageHandlers: Array<(message: IBusMessage) => void>;
+
+  /**
    * Construtor.
    * @param webSocketClient Cliente websocket.
    * @param subscribeChannels Canais para se inscrever e receber mensagens.
@@ -20,9 +25,10 @@ export class BusMessageClient {
    */
   public constructor(
     private readonly webSocketClient: WebSocketClient,
-    public subscribeChannels: AllChannels | string[],
-    public readonly messageHandlers: Array<(message: IBusMessage) => void>
+    public subscribeChannels: AllChannels | string[] = ALL_CHANNELS,
+    ...messageHandlers: Array<(message: IBusMessage) => void>
   ) {
+    this.messageHandlers = messageHandlers;
     Message.subscribe(
       WebSocketClientMessageReceived,
       this.handleWebSocketClientMessageReceived.bind(this)
