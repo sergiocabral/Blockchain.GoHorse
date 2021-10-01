@@ -5,44 +5,41 @@ import { WebSocketClientMessageSend } from "../WebSocket/Message/WebSocketClient
 import { WebSocketClient } from "../WebSocket/WebSockerClient";
 
 import { AllChannels, ALL_CHANNELS } from "./AllChannels";
-import { IBusMessage } from "./BusMessage/IBusMessage";
 import { BusMessageEncoder } from "./BusMessageEncoder";
+import { BusMessageReceived } from "./Message/BusMessageReceived";
+import { BusMessageSend } from "./Message/BusMessageSend";
 
 /**
- * Enviador de mensagem via websocket.
+ * Cliente de acesso ao Bus.
  */
 export class BusMessageClient {
-  /**
-   * Lista de handlers para mensagens recebidas.
-   */
-  public readonly messageHandlers: Array<(message: IBusMessage) => void>;
-
   /**
    * Construtor.
    * @param webSocketClient Cliente websocket.
    * @param subscribeChannels Canais para se inscrever e receber mensagens.
-   * @param messageHandlers Lista de handlers para mensagens recebidas.
    */
   public constructor(
     private readonly webSocketClient: WebSocketClient,
-    public subscribeChannels: AllChannels | string[] = ALL_CHANNELS,
-    ...messageHandlers: Array<(message: IBusMessage) => void>
+    public subscribeChannels: AllChannels | string[] = ALL_CHANNELS
   ) {
-    this.messageHandlers = messageHandlers;
     Message.subscribe(
       WebSocketClientMessageReceived,
       this.handleWebSocketClientMessageReceived.bind(this)
     );
+    Message.subscribe(BusMessageSend, this.handleBusMessageSend.bind(this));
   }
 
   /**
-   * Envia uma mensagem
-   * @param busMessage Mensagem
+   * Mensagem: BusMessageSend
    */
-  public send(busMessage: IBusMessage) {
+  private handleBusMessageSend(message: BusMessageSend): void {
+    if (!Object.is(this, message.busMessageClient)) {
+      return;
+    }
+
     void new WebSocketClientMessageSend(
       this.webSocketClient,
-      BusMessageEncoder.encode(busMessage)
+      BusMessageEncoder.encode(message.busMessage)
     ).sendAsync();
   }
 
@@ -61,8 +58,6 @@ export class BusMessageClient {
       return;
     }
 
-    this.messageHandlers.forEach((messageHandler) =>
-      messageHandler(busMessage)
-    );
+    void new BusMessageReceived(this, busMessage).sendAsync();
   }
 }

@@ -1,9 +1,10 @@
-import { HelperObject, Logger } from "@sergiocabral/helper";
+import { HelperObject, Logger, Message } from "@sergiocabral/helper";
 
 import { ALL_CHANNELS } from "../../Bus/AllChannels";
 import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
-import { IBusMessage } from "../../Bus/BusMessage/IBusMessage";
 import { BusMessageClient } from "../../Bus/BusMessageClient";
+import { BusMessageReceived } from "../../Bus/Message/BusMessageReceived";
+import { BusMessageSend } from "../../Bus/Message/BusMessageSend";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSockerClient";
 
@@ -36,10 +37,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageClient = new BusMessageClient(
-      this.webSocketClient,
-      ["user-bot"],
-      this.busMessageHandler.bind(this)
+    this.busMessageClient = new BusMessageClient(this.webSocketClient, [
+      "user-bot",
+    ]);
+    Message.subscribe(
+      BusMessageReceived,
+      this.handleBusMessageReceived.bind(this)
     );
   }
 
@@ -51,15 +54,17 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
     const interval = 60000;
     setInterval(() => {
-      this.busMessageClient.send(
+      void new BusMessageSend(
+        this.busMessageClient,
         new BusMessageText(
           ["CoinApplication", "MinerApplication", "Nothing"],
           "Hello Coin"
         )
-      );
-      this.busMessageClient.send(
+      ).sendAsync();
+      void new BusMessageSend(
+        this.busMessageClient,
         new BusMessageText(ALL_CHANNELS, "Hello World")
-      );
+      ).sendAsync();
     }, interval);
   }
 
@@ -73,9 +78,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   }
 
   /**
-   * Ao receber uma mensagem do Bus.
+   * Mensagem: BusMessageReceived
    */
-  private busMessageHandler(busMessage: IBusMessage): void {
-    Logger.post(HelperObject.toText(busMessage));
+  private handleBusMessageReceived(message: BusMessageReceived): void {
+    Logger.post(HelperObject.toText(message.busMessage));
   }
 }
