@@ -1,6 +1,6 @@
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
-import { WebSocketClient } from "../../WebSocket/WebSockerClient";
+import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { MinerConfiguration } from "./MinerConfiguration";
 

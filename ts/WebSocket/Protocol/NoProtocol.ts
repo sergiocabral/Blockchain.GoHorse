@@ -1,32 +1,32 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
-import { WebSocketClientMessageReceived } from "../Message/WebSocketClientMessageReceived";
-
 import { ProtocolBase } from "./ProtocolBase";
 
 /**
  * Protocolo sem nenhuma ação.
  */
-export class EmptyProtocol extends ProtocolBase {
+export class NoProtocol extends ProtocolBase {
   /**
-   * Recebe uma mensagem.
+   * Recebe um pacote externo.
    */
-  public override receive(message: string): void {
+  public override receive(packet: string): void {
     Logger.post(
       "Websocket client received message: {0}",
-      message,
+      packet,
       LogLevel.Verbose,
       this.client.constructor.name
     );
 
-    void new WebSocketClientMessageReceived(this.client, message).sendAsync();
+    this.onMessageReceived.forEach((onMessageReceived) =>
+      onMessageReceived(packet)
+    );
   }
 
   /**
-   * Transmite uma mensagem.
+   * Transmite uma mensagem interna.
    */
-  protected override transmit(message: string): void {
-    this.client.sendRawMessage(message);
+  public override transmit(message: string): void {
+    this.client.send(message, "raw");
 
     Logger.post(
       "Websocket client sent a message: {0}",

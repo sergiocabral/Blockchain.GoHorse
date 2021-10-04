@@ -1,3 +1,6 @@
+import { clearInterval } from "timers";
+
+import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
 import { BusServer } from "../../Bus/BusServer";
 import { Application } from "../../Core/Application";
 import { WebSocketServer } from "../../WebSocket/WebSocketServer";
@@ -14,12 +17,17 @@ export class BusApplication extends Application<BusConfiguration> {
   protected readonly configurationType = BusConfiguration;
 
   /**
-   * Roteador de mensagem via websocket.
+   * Servidor do Bus.
    */
-  private readonly busMessageRouter: BusServer;
+  private readonly busServer: BusServer;
 
   /**
-   * Servidor websocket.
+   * Timer
+   */
+  private timer: NodeJS.Timer = 0 as unknown as NodeJS.Timer;
+
+  /**
+   * Servidor WebSocket.
    */
   private readonly webSocketServer: WebSocketServer;
 
@@ -31,7 +39,7 @@ export class BusApplication extends Application<BusConfiguration> {
     this.webSocketServer = new WebSocketServer(
       this.configuration.webSocketServer
     );
-    this.busMessageRouter = new BusServer(this.webSocketServer);
+    this.busServer = new BusServer(this.webSocketServer);
   }
 
   /**
@@ -39,6 +47,10 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public run(): void {
     this.webSocketServer.start();
+    const interval = 15000;
+    this.timer = setInterval(() => {
+      this.busServer.send(new BusMessageText("ALL"));
+    }, interval);
   }
 
   /**
@@ -48,5 +60,6 @@ export class BusApplication extends Application<BusConfiguration> {
     if (this.webSocketServer.started) {
       this.webSocketServer.stop();
     }
+    clearInterval(this.timer);
   }
 }

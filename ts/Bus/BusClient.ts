@@ -1,20 +1,20 @@
-import { Message } from "@sergiocabral/helper";
+import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
-import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketClientMessageReceived";
-import { WebSocketClientMessageSend } from "../WebSocket/Message/WebSocketClientMessageSend";
-import { WebSocketClientOpened } from "../WebSocket/Message/WebSocketClientOpened";
-import { WebSocketClient } from "../WebSocket/WebSockerClient";
-
-import { BusBase } from "./BusBase";
+import { Bus } from "./Bus";
+import { IBusMessage } from "./BusMessage/IBusMessage";
 import { ListOfChannels } from "./ListOfChannels";
-import { BusReceived } from "./Message/BusReceived";
-import { BusSend } from "./Message/BusSend";
-import { BusSubscribeChannels } from "./Message/BusSubscribeChannels";
 
 /**
  * Cliente de acesso ao Bus.
  */
-export class BusClient extends BusBase {
+export class BusClient extends Bus {
+  /**
+   * Evento: mensagem recebida.
+   */
+  public readonly onMessage: Set<
+    (message: IBusMessage, client: BusClient) => void
+  > = new Set<(message: IBusMessage, client: BusClient) => void>();
+
   /**
    * Seleção de canais inscritos.
    */
@@ -26,74 +26,48 @@ export class BusClient extends BusBase {
    */
   public constructor(private readonly webSocketClient: WebSocketClient) {
     super();
-    Message.subscribe(
-      WebSocketClientMessageReceived,
-      this.handleWebSocketClientMessageReceived.bind(this)
-    );
-    Message.subscribe(BusSend, this.handleBusMessageSend.bind(this));
-    Message.subscribe(
-      BusSubscribeChannels,
-      this.handleBusSubscribeChannels.bind(this)
-    );
 
-    Message.subscribe(WebSocketClientOpened, (message) =>
-      this.updateSubscribed(this.subscribeChannels)
-    );
+    webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
+    webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));
   }
 
   /**
-   * Mensagem: BusMessageSend
+   * Enviar uma mensagem.
+   * @param message Mensagem
    */
-  private handleBusMessageSend(message: BusSend): void {
-    if (!Object.is(this, message.instance)) {
-      return;
-    }
-
-    void new WebSocketClientMessageSend(
-      this.webSocketClient,
-      this.encode(message.busMessage)
-    ).sendAsync();
+  public send(message: IBusMessage): void {
+    const messageEncoded = this.encode(message);
+    this.webSocketClient.send(messageEncoded);
   }
 
   /**
-   * Message: BusSubscribeChannels
+   * Se inscreve em um ou mais canais para receber mensagens.
+   * @param channels Lista de canais.
    */
-  private handleBusSubscribeChannels(message: BusSubscribeChannels): void {
-    if (!Object.is(this, message.instance)) {
-      return;
-    }
+  public setChannels(channels: ListOfChannels): void {
+    this.subscribeChannels = Array.isArray(channels)
+      ? Array<string | RegExp>().concat(channels)
+      : channels;
 
-    this.subscribeChannels = Array.isArray(message.channels)
-      ? Array<string | RegExp>().concat(message.channels)
-      : message.channels;
+    // TODO: Comunicar ao server os novos canais.
   }
 
   /**
-   * Mensagem: WebSocketClientMessageReceived
+   * Handle: mensagem recebida pelo cliente websocket.
    */
-  private handleWebSocketClientMessageReceived(
-    message: WebSocketClientMessageReceived
-  ): void {
-    if (!Object.is(this.webSocketClient, message.instance)) {
-      return;
-    }
-
-    const busMessage = this.decode(message.message);
+  private handleWebSocketClientMessage(message: string): void {
+    const busMessage = this.decode(message);
     if (busMessage === undefined) {
       return;
     }
 
-    void new BusReceived(this, busMessage).sendAsync();
+    this.onMessage.forEach((onMessage) => onMessage(busMessage, this));
   }
 
   /**
-   * Comunicação ao servidor os canais que devem ser ouvidos.
+   * Handle: cliente websocket abriu a conexão.
    */
-  private updateSubscribed(channels: ListOfChannels): void {
-    if (!this.webSocketClient.started) {
-      return;
-    }
-
-    // TODO: Comunicar ao server os novos canais.
+  private handleWebSocketClientOpen() {
+    this.setChannels(this.subscribeChannels);
   }
 }

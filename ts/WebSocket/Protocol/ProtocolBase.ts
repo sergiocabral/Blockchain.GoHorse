@@ -1,7 +1,4 @@
-import { Message } from "@sergiocabral/helper";
-
-import { WebSocketClientMessageSend } from "../Message/WebSocketClientMessageSend";
-import { WebSocketClient } from "../WebSockerClient";
+import { WebSocketClient } from "../WebSocketClient";
 
 import { IProtocol } from "./IProtocol";
 
@@ -10,38 +7,23 @@ import { IProtocol } from "./IProtocol";
  */
 export abstract class ProtocolBase implements IProtocol {
   /**
+   * Evento: mensagem recebida do meio externo.
+   */
+  public readonly onMessageReceived: Array<(message: string) => void> = [];
+
+  /**
    * Construtor.
    * @param client Cliente websocket.
    */
-  public constructor(protected readonly client: WebSocketClient) {
-    Message.subscribe(
-      WebSocketClientMessageSend,
-      this.handleWebSocketClientMessageSend.bind(this)
-    );
-  }
+  public constructor(protected readonly client: WebSocketClient) {}
 
   /**
-   * Recebe uma mensagem.
+   * Recebe um pacote externo.
    */
-  public abstract receive(message: string): void;
+  public abstract receive(packet: string): void;
 
   /**
-   * Transmite uma mensagem.
+   * Transmite uma mensagem interna.
    */
-  protected abstract transmit(message: string): void;
-
-  /**
-   * Subscribe: WebSocketClientMessageSend
-   */
-  private handleWebSocketClientMessageSend(
-    message: WebSocketClientMessageSend
-  ): void {
-    if (!Object.is(this.client, message.instance) || !this.client.started) {
-      return;
-    }
-
-    this.transmit(message.message);
-
-    message.delivered = true;
-  }
+  public abstract transmit(message: string): void;
 }

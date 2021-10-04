@@ -1,45 +1,60 @@
-import { Message } from "@sergiocabral/helper";
-
-import { WebSocketClientMessageReceived } from "../WebSocket/Message/WebSocketClientMessageReceived";
-import { WebSocketClientFromServer } from "../WebSocket/WebSocketClientFromServer";
+import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
-import { BusBase } from "./BusBase";
+import { Bus } from "./Bus";
+import { IBusMessage } from "./BusMessage/IBusMessage";
 
 /**
- * Roteador de mensagem via websocket.
+ * Servidor do Bus.
  */
-export class BusServer extends BusBase {
+export class BusServer extends Bus {
   /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
    */
   public constructor(private readonly webSocketServer: WebSocketServer) {
     super();
-    Message.subscribe(
-      WebSocketClientMessageReceived,
-      this.handleWebSocketClientMessageReceived.bind(this)
+    webSocketServer.onConnection.add(
+      this.handleWebSocketServerConnection.bind(this)
+    );
+    webSocketServer.clients.forEach((client) =>
+      this.handleWebSocketServerConnection(client)
     );
   }
 
   /**
-   * Mensagem: WebSocketClientMessageReceived
+   * Envia uma mensagem broadcast para todos os clientes.
+   * @param message Mensagem
+   * @returns Total de clientes que receberam a mensagem
    */
-  private handleWebSocketClientMessageReceived(
-    message: WebSocketClientMessageReceived
-  ): void {
-    if (
-      !(
-        message.instance instanceof WebSocketClientFromServer &&
-        Object.is(this.webSocketServer, message.instance.server)
-      )
-    ) {
-      return;
+  public send(message: IBusMessage): number {
+    const messageEncoded = this.encode(message);
+
+    let clients = 0;
+    for (const client of this.webSocketServer.clients) {
+      client.send(messageEncoded);
+      clients += 1;
     }
 
-    const busMessage = this.decode(message.message);
+    return clients;
+  }
+
+  /**
+   * Handle: Mensagem recebida.
+   */
+  private handleWebSocketClientMessage(message: string): void {
+    const busMessage = this.decode(message);
     if (busMessage === undefined) {
       return;
     }
+
+    // TODO:
+  }
+
+  /**
+   * Handle: uma conexão de cliente foi recebida no servidor.
+   */
+  private handleWebSocketServerConnection(client: WebSocketClient): void {
+    client.onMessage.add(this.handleWebSocketClientMessage.bind(this));
   }
 }

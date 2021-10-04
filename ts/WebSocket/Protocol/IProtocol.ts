@@ -3,7 +3,17 @@
  */
 export interface IProtocol {
   /**
-   * Recebe uma mensagem.
+   * Evento: mensagem recebida do meio externo.
    */
-  receive(message: string): void;
+  onMessageReceived: Array<(message: string) => void>;
+
+  /**
+   * Recebe um pacote externo.
+   */
+  receive(packet: string): void;
+
+  /**
+   * Transmite uma mensagem interna.
+   */
+  transmit(message: string): void;
 }

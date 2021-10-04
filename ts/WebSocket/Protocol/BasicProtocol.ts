@@ -1,7 +1,5 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
-import { WebSocketClientMessageReceived } from "../Message/WebSocketClientMessageReceived";
-
 import { ProtocolBase } from "./ProtocolBase";
 import { ProtocolError } from "./ProtocolError";
 
@@ -20,11 +18,11 @@ export class BasicProtocol extends ProtocolBase {
   private readonly messages: string[] = [];
 
   /**
-   * Recebe uma mensagem.
+   * Recebe um pacote externo.
    */
-  public receive(messageRaw: string): void {
+  public override receive(packet: string): void {
     try {
-      const message = this.extractMessage(messageRaw);
+      const message = this.extractMessage(packet);
 
       Logger.post(
         "Websocket client received message: {0}",
@@ -33,7 +31,9 @@ export class BasicProtocol extends ProtocolBase {
         this.client.constructor.name
       );
 
-      void new WebSocketClientMessageReceived(this.client, message).sendAsync();
+      this.onMessageReceived.forEach((onMessageReceived) =>
+        onMessageReceived(message)
+      );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -51,9 +51,9 @@ export class BasicProtocol extends ProtocolBase {
   }
 
   /**
-   * Transmite uma mensagem.
+   * Transmite uma mensagem interna.
    */
-  protected override transmit(message: string): void {
+  public override transmit(message: string): void {
     this.messages.push(message);
     this.pooling();
   }
@@ -68,10 +68,10 @@ export class BasicProtocol extends ProtocolBase {
 
   /**
    * Valida se o protocolo é compatível.
-   * @param messageRaw Mensagem.
+   * @param packet Mensagem.
    */
-  private extractMessage(messageRaw: string): string {
-    const lines = messageRaw.split("\n");
+  private extractMessage(packet: string): string {
+    const lines = packet.split("\n");
 
     const firstLine = lines[0];
     if (firstLine !== this.identifier) {
@@ -98,7 +98,7 @@ export class BasicProtocol extends ProtocolBase {
 
     if (message !== undefined) {
       const messageRaw = this.encodeMessage(message);
-      this.client.sendRawMessage(messageRaw);
+      this.client.send(messageRaw, "raw");
 
       Logger.post(
         "Websocket client sent a message: {0}",

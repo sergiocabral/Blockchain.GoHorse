@@ -1,12 +1,11 @@
-import { HelperObject, Logger, Message } from "@sergiocabral/helper";
+import { HelperObject, Logger } from "@sergiocabral/helper";
+import { clearInterval } from "timers";
 
 import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
-import { BusReceived } from "../../Bus/Message/BusReceived";
-import { BusSend } from "../../Bus/Message/BusSend";
-import { BusSubscribeChannels } from "../../Bus/Message/BusSubscribeChannels";
+import { IBusMessage } from "../../Bus/BusMessage/IBusMessage";
 import { Application } from "../../Core/Application";
-import { WebSocketClient } from "../../WebSocket/WebSockerClient";
+import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
@@ -20,12 +19,17 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   protected readonly configurationType = BotTwitchConfiguration;
 
   /**
-   * Enviador de mensagem via websocket.
+   * Cliente de acesso ao Bus.
    */
-  private readonly busMessageClient: BusClient;
+  private readonly busClient: BusClient;
 
   /**
-   * Cliente websocket.
+   * Timer.
+   */
+  private timeout: NodeJS.Timer = 0 as unknown as NodeJS.Timer;
+
+  /**
+   * Cliente WebSocket.
    */
   private readonly webSocketClient: WebSocketClient;
 
@@ -37,13 +41,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busMessageClient = new BusClient(this.webSocketClient);
-    Message.subscribe(BusReceived, this.handleBusMessageReceived.bind(this));
-
-    void new BusSubscribeChannels(
-      this.busMessageClient,
-      "user-bot"
-    ).sendAsync();
+    this.busClient = new BusClient(this.webSocketClient);
+    this.busClient.onMessage.add(this.handleBusClientMessage.bind(this));
+    this.busClient.setChannels("user-bot");
   }
 
   /**
@@ -52,20 +52,16 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   public run(): void {
     this.webSocketClient.start();
 
-    const interval = 60000;
-    setInterval(() => {
-      void new BusSend(
-        this.busMessageClient,
+    const interval = 10000;
+    this.timeout = setInterval(() => {
+      this.busClient.send(
         new BusMessageText("Hello Coin", [
           "CoinApplication",
           "MinerApplication",
           "Nothing",
         ])
-      ).sendAsync();
-      void new BusSend(
-        this.busMessageClient,
-        new BusMessageText("Hello World")
-      ).sendAsync();
+      );
+      this.busClient.send(new BusMessageText("Hello World"));
     }, interval);
   }
 
@@ -76,12 +72,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     if (this.webSocketClient.started) {
       this.webSocketClient.stop();
     }
+    clearInterval(this.timeout);
   }
 
   /**
-   * Mensagem: BusMessageReceived
+   * Handle: mensagem recebida pelo cliente do Bus
    */
-  private handleBusMessageReceived(message: BusReceived): void {
-    Logger.post(HelperObject.toText(message.busMessage));
+  private handleBusClientMessage(message: IBusMessage): void {
+    Logger.post(HelperObject.toText(message));
   }
 }
