@@ -41,9 +41,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    this.busClient = new BusClient(this.webSocketClient);
+    this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
     this.busClient.onMessage.add(this.handleBusClientMessage.bind(this));
-    this.busClient.setChannels("user-bot");
   }
 
   /**

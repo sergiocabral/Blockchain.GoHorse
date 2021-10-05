@@ -1,8 +1,8 @@
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { Bus } from "./Bus";
+import { BusJoin } from "./BusMessage/BusJoin";
 import { IBusMessage } from "./BusMessage/IBusMessage";
-import { ListOfChannels } from "./ListOfChannels";
 
 /**
  * Cliente de acesso ao Bus.
@@ -16,16 +16,23 @@ export class BusClient extends Bus {
   > = new Set<(message: IBusMessage, client: BusClient) => void>();
 
   /**
-   * Seleção de canais inscritos.
+   * Identificador do cliente.
+   * @private
    */
-  private subscribeChannels: ListOfChannels = [/.*/];
+  private id: string;
 
   /**
    * Construtor.
    * @param webSocketClient Cliente websocket.
+   * @param channel Nome do canal.
    */
-  public constructor(private readonly webSocketClient: WebSocketClient) {
+  public constructor(
+    private readonly webSocketClient: WebSocketClient,
+    private readonly channel: string
+  ) {
     super();
+
+    this.id = Buffer.from(Math.random().toString()).toString("base64");
 
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));
@@ -38,18 +45,6 @@ export class BusClient extends Bus {
   public send(message: IBusMessage): void {
     const messageEncoded = this.encode(message);
     this.webSocketClient.send(messageEncoded);
-  }
-
-  /**
-   * Se inscreve em um ou mais canais para receber mensagens.
-   * @param channels Lista de canais.
-   */
-  public setChannels(channels: ListOfChannels): void {
-    this.subscribeChannels = Array.isArray(channels)
-      ? Array<string | RegExp>().concat(channels)
-      : channels;
-
-    // TODO: Comunicar ao server os novos canais.
   }
 
   /**
@@ -68,6 +63,9 @@ export class BusClient extends Bus {
    * Handle: cliente websocket abriu a conexão.
    */
   private handleWebSocketClientOpen() {
-    this.setChannels(this.subscribeChannels);
+    if (this.webSocketClient.started) {
+      const busMessage = new BusJoin(this.id, this.channel);
+      this.send(busMessage);
+    }
   }
 }

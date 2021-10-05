@@ -48,7 +48,7 @@ export class BusServer extends Bus {
       return;
     }
 
-    // TODO:
+    // TODO: Propagar mensagem para os clientes conectados.
   }
 
   /**

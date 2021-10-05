@@ -1,12 +1,12 @@
 import { Bus } from "../Bus";
 import { ListOfChannels } from "../ListOfChannels";
 
-import { BusMessageBase } from "./BusMessageBase";
+import { BusMessage } from "./BusMessage";
 
 /**
  * Envia uma string para o bus
  */
-export class BusMessageText extends BusMessageBase {
+export class BusMessageText extends BusMessage {
   /**
    * Construtor.
    * @param channels Canais destinatários
@@ -17,12 +17,6 @@ export class BusMessageText extends BusMessageBase {
     channels: ListOfChannels = Bus.ALL_CHANNELS
   ) {
     super(channels);
-  }
-
-  /**
-   * Identificador único.
-   */
-  public get id(): string {
-    return this.hash(`${this.type}+${this.text}`);
+    this.id = this.hash(`${this.type}+${this.text}`);
   }
 }
