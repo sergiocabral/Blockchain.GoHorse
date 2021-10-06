@@ -13,7 +13,8 @@
     "no-this-assignment": false,
     "no-void-expression": false,
     "no-unbound-method": false,
-    "no-parameter-reassignment": false
+    "no-parameter-reassignment": false,
+    "no-any": [true, {"ignore-rest-args": true}]
   },
   "rulesDirectory": []
 }

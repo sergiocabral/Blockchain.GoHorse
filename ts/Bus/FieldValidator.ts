@@ -40,7 +40,6 @@ export class FieldValidator {
    */
   public static type<T extends IBusMessage>(
     instance: unknown,
-    // tslint:disable-next-line:no-any
     type: new (...args: any[]) => T
   ): boolean {
     const fieldValue = FieldValidator.getField(instance, "type");
