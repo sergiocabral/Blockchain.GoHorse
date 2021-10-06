@@ -1,5 +1,6 @@
 import md5 from "md5";
 
+import { FieldValidator } from "../FieldValidator";
 import { ListOfChannels } from "../ListOfChannels";
 
 import { IBusMessage } from "./IBusMessage";
@@ -8,6 +9,16 @@ import { IBusMessage } from "./IBusMessage";
  * Estrutura comum das mensagens do Bus.
  */
 export abstract class BusMessage implements IBusMessage {
+  /**
+   * Analisa se uma instância corresponde ao tipo.
+   * @param instance Instância.
+   */
+  public static parse(instance: unknown): BusMessage | undefined {
+    return FieldValidator.id(instance) && FieldValidator.channels(instance)
+      ? (instance as BusMessage)
+      : undefined;
+  }
+
   /**
    * Identificador único.
    */

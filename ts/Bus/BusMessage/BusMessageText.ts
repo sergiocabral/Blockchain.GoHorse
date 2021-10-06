@@ -1,4 +1,5 @@
 import { Bus } from "../Bus";
+import { FieldValidator } from "../FieldValidator";
 import { ListOfChannels } from "../ListOfChannels";
 
 import { BusMessage } from "./BusMessage";
@@ -7,6 +8,17 @@ import { BusMessage } from "./BusMessage";
  * Envia uma string para o bus
  */
 export class BusMessageText extends BusMessage {
+  /**
+   * Analisa se uma instância corresponde ao tipo.
+   * @param instance Instância.
+   */
+  public static parse(instance: unknown): BusMessageText | undefined {
+    return BusMessage.parse(instance) &&
+      FieldValidator.type(instance, BusMessageText)
+      ? (instance as BusMessageText)
+      : undefined;
+  }
+
   /**
    * Construtor.
    * @param channels Canais destinatários
