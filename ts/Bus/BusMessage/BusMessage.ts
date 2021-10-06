@@ -22,7 +22,7 @@ export abstract class BusMessage implements IBusMessage {
    * Construtor.
    * @param channels Canais destinatários.
    */
-  public constructor(public readonly channels: ListOfChannels) {
+  protected constructor(public readonly channels: ListOfChannels) {
     this.id = this.hash(Math.random().toString());
     this.type = this.constructor.name;
   }

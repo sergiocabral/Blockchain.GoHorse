@@ -48,7 +48,12 @@ export class BusServer extends Bus {
       return;
     }
 
-    // TODO: Propagar mensagem para os clientes conectados.
+    // TODO: Validar a mensagem de Join
+    // TODO: Repassar a mensagem de acordo com os canais.
+
+    this.webSocketServer.clients.forEach((client) =>
+      client.send(this.encode(busMessage))
+    );
   }
 
   /**

@@ -14,7 +14,6 @@ export abstract class Bus {
    */
   public decode(message: string): IBusMessage | undefined {
     try {
-      // TODO: Garantir que o texto de entrada seja a classe de saída.
       return JSON.parse(message) as IBusMessage;
     } catch (error) {
       return undefined;

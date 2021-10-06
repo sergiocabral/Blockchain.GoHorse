@@ -48,6 +48,7 @@ export class BusApplication extends Application<BusConfiguration> {
   public run(): void {
     this.webSocketServer.start();
     const interval = 15000;
+    // TODO: Isso pode?
     this.timer = setInterval(() => {
       this.busServer.send(new BusMessageText("ALL"));
     }, interval);

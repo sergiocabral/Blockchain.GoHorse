@@ -7,15 +7,15 @@ export interface IBusMessage {
   /**
    * Canais destinatários.
    */
-  get channels(): ListOfChannels;
+  channels: ListOfChannels;
 
   /**
    * Identificador único.
    */
-  get id(): string;
+  id: string;
 
   /**
    * Tipo da mensagem.
    */
-  get type(): string;
+  type: string;
 }
