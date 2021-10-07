@@ -1,7 +1,7 @@
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { Bus } from "./Bus";
-import { BusJoin } from "./BusMessage/BusJoin";
+import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
 import { IBusMessage } from "./BusMessage/IBusMessage";
 
 /**
@@ -64,7 +64,7 @@ export class BusClient extends Bus {
    */
   private handleWebSocketClientOpen() {
     if (this.webSocketClient.started) {
-      const busMessage = new BusJoin(this.id, this.channel);
+      const busMessage = new BusMessageJoin(this.id, this.channel);
       this.send(busMessage);
     }
   }

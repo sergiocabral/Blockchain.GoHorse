@@ -13,9 +13,14 @@ export class BusMessageText extends BusMessage {
    * @param instance Instância.
    */
   public static parse(instance: unknown): BusMessageText | undefined {
-    return BusMessage.parse(instance) &&
+    const busMessage =
+      BusMessage.parse(instance) &&
       FieldValidator.type(instance, BusMessageText)
-      ? (instance as BusMessageText)
+        ? (instance as BusMessageText)
+        : undefined;
+
+    return busMessage !== undefined
+      ? Object.assign(new BusMessageText("", ""), busMessage)
       : undefined;
   }
 

@@ -2,12 +2,23 @@ import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
 import { Bus } from "./Bus";
+import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
+import { BusMessageText } from "./BusMessage/BusMessageText";
 import { IBusMessage } from "./BusMessage/IBusMessage";
+import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
 
 /**
  * Servidor do Bus.
  */
 export class BusServer extends Bus {
+  /**
+   * Lista de mensagens do Bus.
+   */
+  private readonly messages: IBusMessageParse[] = [
+    BusMessageJoin,
+    BusMessageText,
+  ];
+
   /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
@@ -49,6 +60,9 @@ export class BusServer extends Bus {
     }
 
     // TODO: Validar a mensagem de Join
+    // BusMessageJoin.parse(busMessage);
+    // BusMessageText.parse(busMessage);
+
     // TODO: Repassar a mensagem de acordo com os canais.
 
     this.webSocketServer.clients.forEach((client) =>
