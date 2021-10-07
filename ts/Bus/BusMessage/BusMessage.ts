@@ -1,3 +1,4 @@
+import { Message } from "@sergiocabral/helper";
 import md5 from "md5";
 
 import { FieldValidator } from "../FieldValidator";
@@ -8,7 +9,7 @@ import { IBusMessage } from "./IBusMessage";
 /**
  * Estrutura comum das mensagens do Bus.
  */
-export abstract class BusMessage implements IBusMessage {
+export abstract class BusMessage extends Message implements IBusMessage {
   /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.
@@ -34,6 +35,7 @@ export abstract class BusMessage implements IBusMessage {
    * @param channels Canais destinatários.
    */
   protected constructor(public readonly channels: ListOfChannels) {
+    super();
     this.id = this.hash(Math.random().toString());
     this.type = this.constructor.name;
   }
