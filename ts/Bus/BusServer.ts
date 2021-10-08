@@ -106,8 +106,6 @@ export class BusServer extends Bus {
    * Mensagem: BusMessageJoin
    */
   private handleBusMessageJoin(busMessage: BusMessageJoin): void {
-    const client = BusServer.getClient(busMessage);
-
     if (busMessage.clientId === undefined) {
       throw new ShouldNeverHappenError();
     }
@@ -145,6 +143,7 @@ export class BusServer extends Bus {
       return;
     }
 
+    const client = BusServer.getClient(busMessage);
     this.clientData.set(client, { channel, clientId: busMessage.clientId });
 
     Logger.post(
@@ -189,6 +188,8 @@ export class BusServer extends Bus {
     message: string,
     client: WebSocketClient
   ): void {
+    // TODO: Implementar banco de dados central
+
     const busMessage = this.decode(message);
     if (busMessage) {
       BusServer.setClient(busMessage, client);
