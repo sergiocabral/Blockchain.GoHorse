@@ -79,23 +79,6 @@ export class BusServer extends Bus {
   }
 
   /**
-   * Envia uma mensagem broadcast para todos os clientes.
-   * @param message Mensagem
-   * @returns Total de clientes que receberam a mensagem
-   */
-  public send(message: IBusMessage): number {
-    const messageEncoded = this.encode(message);
-
-    let clients = 0;
-    for (const client of this.webSocketServer.clients) {
-      client.send(messageEncoded);
-      clients += 1;
-    }
-
-    return clients;
-  }
-
-  /**
    * Obtem a lista de clientes com base numa lista de canais.
    */
   private getClients(message: IBusMessage): WebSocketClient[] {
