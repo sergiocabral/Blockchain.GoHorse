@@ -1,4 +1,7 @@
+import { Logger, Message } from "@sergiocabral/helper";
+
 import { BusClient } from "../../Bus/BusClient";
+import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
@@ -32,6 +35,7 @@ export class CoinApplication extends Application<CoinConfiguration> {
       this.configuration.messageBusWebSocketServer
     );
     this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
+    Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
 
   /**

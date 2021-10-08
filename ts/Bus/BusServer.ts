@@ -13,20 +13,12 @@ import { Bus } from "./Bus";
 import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
 import { BusMessageText } from "./BusMessage/BusMessageText";
 import { IBusMessage } from "./BusMessage/IBusMessage";
-import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
-import { FieldValidator } from "./FieldValidator";
 import { IClientData } from "./IClientData";
 
 /**
  * Servidor do Bus.
  */
 export class BusServer extends Bus {
-  /**
-   * Mensagem de erro quando mensagem é inválida.
-   */
-  private static readonly messageWhenInvalid =
-    'Message received of type {messageType} from "{clientId}" client is invalid: {error}';
-
   /**
    * Nome de propriedade para receber a referência do cliente.
    */
@@ -52,16 +44,14 @@ export class BusServer extends Bus {
    * Associa um cliente websocket a uma mensagem.
    */
   private static setClient(
-    busMessage: IBusMessage | undefined,
+    busMessage: IBusMessage,
     client: WebSocketClient
   ): void {
-    if (busMessage !== undefined) {
-      HelperObject.setProperty(
-        busMessage,
-        BusServer.propertyNameForClient,
-        client
-      );
-    }
+    HelperObject.setProperty(
+      busMessage,
+      BusServer.propertyNameForClient,
+      client
+    );
   }
 
   /**
@@ -71,14 +61,6 @@ export class BusServer extends Bus {
     WebSocketClient,
     IClientData
   >();
-
-  /**
-   * Lista de mensagens do Bus.
-   */
-  private readonly messages: IBusMessageParse[] = [
-    BusMessageJoin,
-    BusMessageText,
-  ];
 
   /**
    * Construtor.
@@ -149,15 +131,10 @@ export class BusServer extends Bus {
 
     if (busMessage.channels.length !== 1) {
       Logger.post(
-        BusServer.messageWhenInvalid,
+        'Message received of type {messageType} from "{clientId}" client is invalid. Expected a unique channel name, but found "{channel}".',
         {
+          channel: busMessage.channels.join(", "),
           clientId: busMessage.clientId,
-          error:
-            'expected a unique channel name, but found "{channel}".'.querystring(
-              {
-                channel: busMessage.channels.join(", "),
-              }
-            ),
           messageType: busMessage.type,
         },
         LogLevel.Error,
@@ -171,10 +148,10 @@ export class BusServer extends Bus {
     const channel = busMessage.channels[0];
     if (!regexValidChannel.test(channel)) {
       Logger.post(
-        BusServer.messageWhenInvalid,
+        'Message received of type {messageType} from "{clientId}" client is invalid. Invalid channel name "{channel}".',
         {
+          channel,
           clientId: busMessage.clientId,
-          error: 'invalid channel name "{channel}".'.querystring({ channel }),
           messageType: busMessage.type,
         },
         LogLevel.Error,
@@ -229,27 +206,10 @@ export class BusServer extends Bus {
     client: WebSocketClient
   ): void {
     const busMessage = this.decode(message);
-    BusServer.setClient(busMessage, client);
-    this.messages.forEach((messageType) => {
-      const busMessageParsed = messageType.parse(busMessage);
-
-      if (busMessageParsed) {
-        if (FieldValidator.clientId(busMessageParsed)) {
-          void busMessageParsed.sendAsync();
-        } else {
-          Logger.post(
-            BusServer.messageWhenInvalid,
-            {
-              clientId: busMessageParsed.clientId,
-              error: "invalid client id.",
-              messageType: busMessageParsed.type,
-            },
-            LogLevel.Error,
-            BusServer.name
-          );
-        }
-      }
-    });
+    if (busMessage) {
+      BusServer.setClient(busMessage, client);
+      this.dispatch(busMessage);
+    }
   }
 
   /**

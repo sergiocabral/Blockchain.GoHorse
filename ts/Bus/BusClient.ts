@@ -11,13 +11,6 @@ import { IBusMessage } from "./BusMessage/IBusMessage";
  */
 export class BusClient extends Bus {
   /**
-   * Evento: mensagem recebida.
-   */
-  public readonly onMessage: Set<
-    (message: IBusMessage, client: BusClient) => void
-  > = new Set<(message: IBusMessage, client: BusClient) => void>();
-
-  /**
    * Identificador do cliente.
    */
   private readonly id: string;
@@ -54,11 +47,9 @@ export class BusClient extends Bus {
    */
   private handleWebSocketClientMessage(message: string): void {
     const busMessage = this.decode(message);
-    if (busMessage === undefined) {
-      return;
+    if (busMessage !== undefined) {
+      this.dispatch(busMessage);
     }
-
-    this.onMessage.forEach((onMessage) => onMessage(busMessage, this));
   }
 
   /**
