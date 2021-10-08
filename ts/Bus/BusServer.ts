@@ -114,10 +114,11 @@ export class BusServer extends Bus {
 
     if (busMessage.channels.length !== 1) {
       Logger.post(
-        'Message received of type {messageType} from "{clientId}" client is invalid. Expected a unique channel name, but found "{channel}".',
+        'Received message {messageType}@{messageId} from client "{clientId}" is invalid. Expected a unique channel name, but found "{channel}".',
         {
           channel: busMessage.channels.join(", "),
           clientId: busMessage.clientId,
+          messageId: busMessage.id,
           messageType: busMessage.type,
         },
         LogLevel.Error,
@@ -131,7 +132,7 @@ export class BusServer extends Bus {
     const channel = busMessage.channels[0];
     if (!regexValidChannel.test(channel)) {
       Logger.post(
-        'Message received of type {messageType} from "{clientId}" client is invalid. Invalid channel name "{channel}".',
+        'Received message {messageType}@{messageId} from client "{clientId}" is invalid. Invalid channel name "{channel}".',
         {
           channel,
           clientId: busMessage.clientId,
@@ -147,8 +148,8 @@ export class BusServer extends Bus {
     this.clientData.set(client, { channel, clientId: busMessage.clientId });
 
     Logger.post(
-      'A "{client}" client has joined "{channel}" channel.',
-      { client: busMessage.clientId, channel: busMessage.channels },
+      'A "{clientId}" client has joined "{channel}" channel.',
+      { clientId: busMessage.clientId, channel: busMessage.channels },
       LogLevel.Debug,
       BusServer.name
     );
@@ -174,8 +175,8 @@ export class BusServer extends Bus {
     }
 
     Logger.post(
-      'A "{client}" client has left "{channel}" channel.',
-      { client: data.clientId, channel: data.channel },
+      'A "{clientId}" client has left "{channel}" channel.',
+      { clientId: data.clientId, channel: data.channel },
       LogLevel.Debug,
       BusServer.name
     );

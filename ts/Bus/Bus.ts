@@ -30,7 +30,7 @@ export abstract class Bus {
       instance = JSON.parse(message);
     } catch (error) {
       Logger.post(
-        "Error when Bus tried to decode the message: {error}",
+        "Error when decoding the message: {error}",
         { error },
         LogLevel.Error,
         Bus.name
@@ -59,11 +59,25 @@ export abstract class Bus {
       if (busMessageParsed) {
         if (FieldValidator.clientId(busMessageParsed)) {
           void busMessageParsed.sendAsync();
+          Logger.post(
+            'Received message {messageType}@{messageId} from client "{clientId}" to channels {channels}.',
+            () => ({
+              channels: busMessageParsed.channels
+                .map((channel) => `"${channel}"`)
+                .join(", "),
+              clientId: busMessageParsed.clientId,
+              messageId: busMessageParsed.id,
+              messageType: busMessageParsed.type,
+            }),
+            LogLevel.Verbose,
+            Bus.name
+          );
         } else {
           Logger.post(
-            'Message received of type {messageType} from "{clientId}" client is invalid. Invalid client id.',
+            'A {messageType}@{messageId} message cannot be processed because it has an invalid client id: "{clientId}"',
             {
               clientId: busMessageParsed.clientId,
+              messageId: busMessageParsed.id,
               messageType: busMessageParsed.type,
             },
             LogLevel.Error,

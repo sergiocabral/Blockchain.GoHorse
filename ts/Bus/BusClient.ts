@@ -1,3 +1,4 @@
+import { Logger, LogLevel } from "@sergiocabral/helper";
 import md5 from "md5";
 
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -30,6 +31,7 @@ export class BusClient extends Bus {
 
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));
+    this.handleWebSocketClientOpen();
   }
 
   /**
@@ -37,9 +39,32 @@ export class BusClient extends Bus {
    * @param message Mensagem
    */
   public send(message: IBusMessage): void {
+    if (!this.webSocketClient.started) {
+      Logger.post(
+        "Cannot send a message {messageType}@{messageId} because the websocket was closed.",
+        { messageId: message.id, messageType: message.type },
+        LogLevel.Error,
+        BusClient.name
+      );
+
+      return;
+    }
+
     message.clientId = this.id;
     const messageEncoded = this.encode(message);
     this.webSocketClient.send(messageEncoded);
+
+    Logger.post(
+      "Sent message {messageType}@{messageId} to channels {channels}.",
+      () => ({
+        channels: message.channels.map((channel) => `"${channel}"`).join(", "),
+        clientId: message.clientId,
+        messageId: message.id,
+        messageType: message.type,
+      }),
+      LogLevel.Verbose,
+      Bus.name
+    );
   }
 
   /**
@@ -59,6 +84,16 @@ export class BusClient extends Bus {
     if (this.webSocketClient.started) {
       const busMessage = new BusMessageJoin(this.id, this.channel);
       this.send(busMessage);
+
+      Logger.post(
+        'Join the server on "{channel}" channel with id "{clientId}".',
+        {
+          channel: this.channel,
+          clientId: this.id,
+        },
+        LogLevel.Verbose,
+        BusClient.name
+      );
     }
   }
 }
