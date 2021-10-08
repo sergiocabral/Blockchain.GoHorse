@@ -1,5 +1,3 @@
-import { ListOfChannels } from "../ListOfChannels";
-
 /**
  * Representa uma mensagem trafegada pelo Bus
  */
@@ -7,7 +5,12 @@ export interface IBusMessage {
   /**
    * Canais destinatários.
    */
-  channels: ListOfChannels;
+  channels: string[];
+
+  /**
+   * Identificador do cliente.
+   */
+  clientId?: string;
 
   /**
    * Identificador único.

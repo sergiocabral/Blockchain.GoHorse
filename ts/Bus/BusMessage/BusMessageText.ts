@@ -1,6 +1,5 @@
 import { Bus } from "../Bus";
 import { FieldValidator } from "../FieldValidator";
-import { ListOfChannels } from "../ListOfChannels";
 
 import { BusMessage } from "./BusMessage";
 
@@ -20,7 +19,7 @@ export class BusMessageText extends BusMessage {
         : undefined;
 
     return busMessage !== undefined
-      ? Object.assign(new BusMessageText("", ""), busMessage)
+      ? Object.assign(new BusMessageText("", []), busMessage)
       : undefined;
   }
 
@@ -31,7 +30,7 @@ export class BusMessageText extends BusMessage {
    */
   public constructor(
     public readonly text: string,
-    channels: ListOfChannels = Bus.ALL_CHANNELS
+    channels: string[] = [Bus.ALL_CHANNELS]
   ) {
     super(channels);
     this.id = this.hash(`${this.type}+${this.text}`);

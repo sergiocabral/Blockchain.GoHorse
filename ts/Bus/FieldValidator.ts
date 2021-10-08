@@ -12,13 +12,20 @@ export class FieldValidator {
     const fieldValue = FieldValidator.getField(instance, "channels");
 
     return (
-      typeof fieldValue === "string" ||
-      fieldValue instanceof RegExp ||
-      (Array.isArray(fieldValue) &&
-        fieldValue.findIndex(
-          (channel) =>
-            typeof channel !== "string" && !(channel instanceof RegExp)
-        ) < 0)
+      Array.isArray(fieldValue) &&
+      fieldValue.findIndex((channel) => typeof channel !== "string") < 0
+    );
+  }
+
+  /**
+   * Campo: clientId
+   * @param instance Instância.
+   */
+  public static clientId(instance: unknown): boolean {
+    const fieldValue = FieldValidator.getField(instance, "clientId");
+
+    return (
+      typeof fieldValue === "string" && FieldValidator.regexMd5.test(fieldValue)
     );
   }
 
@@ -28,9 +35,10 @@ export class FieldValidator {
    */
   public static id(instance: unknown): boolean {
     const fieldValue = FieldValidator.getField(instance, "id");
-    const regexMd5 = /^[0-9a-f]{32}$/;
 
-    return typeof fieldValue === "string" && regexMd5.test(fieldValue);
+    return (
+      typeof fieldValue === "string" && FieldValidator.regexMd5.test(fieldValue)
+    );
   }
 
   /**
@@ -48,10 +56,14 @@ export class FieldValidator {
   }
 
   /**
+   * Regex para validar um valor de hash MD5.
+   */
+  private static readonly regexMd5 = /^[0-9a-f]{32}$/;
+
+  /**
    * Retorna o valor de um atributo na instância, se existir.
    * @param instance Isntâncias.
    * @param field Nome do campo.
-   * @private
    */
   private static getField(
     instance: unknown,

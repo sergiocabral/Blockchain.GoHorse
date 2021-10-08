@@ -17,14 +17,7 @@ export class BusMessageJoin extends BusMessage {
         ? (instance as BusMessageJoin)
         : undefined;
 
-    if (
-      busMessage &&
-      (!Array.isArray(busMessage.channels) || busMessage.channels.length > 0)
-    ) {
-      return undefined;
-    }
-
-    return busMessage !== undefined
+    return busMessage?.channels.length === 1
       ? Object.assign(new BusMessageJoin("", ""), busMessage)
       : undefined;
   }
@@ -34,11 +27,8 @@ export class BusMessageJoin extends BusMessage {
    * @param client Identificador do cliente.
    * @param channel Nome do canal.
    */
-  public constructor(
-    public readonly client: string,
-    public readonly channel: string
-  ) {
-    super([]);
-    this.id = this.hash(this.client + this.channel);
+  public constructor(public readonly client: string, channel: string) {
+    super([channel]);
+    this.id = this.hash(`${this.client}${this.channels.toString()}`);
   }
 }

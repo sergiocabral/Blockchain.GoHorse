@@ -2,7 +2,6 @@ import { Message } from "@sergiocabral/helper";
 import md5 from "md5";
 
 import { FieldValidator } from "../FieldValidator";
-import { ListOfChannels } from "../ListOfChannels";
 
 import { IBusMessage } from "./IBusMessage";
 
@@ -15,10 +14,17 @@ export abstract class BusMessage extends Message implements IBusMessage {
    * @param instance Instância.
    */
   public static parse(instance: unknown): BusMessage | undefined {
-    return FieldValidator.id(instance) && FieldValidator.channels(instance)
+    return FieldValidator.id(instance) &&
+      FieldValidator.clientId(instance) &&
+      FieldValidator.channels(instance)
       ? (instance as BusMessage)
       : undefined;
   }
+
+  /**
+   * Identificador do client.
+   */
+  public clientId?: string;
 
   /**
    * Identificador único.
@@ -34,7 +40,7 @@ export abstract class BusMessage extends Message implements IBusMessage {
    * Construtor.
    * @param channels Canais destinatários.
    */
-  protected constructor(public readonly channels: ListOfChannels) {
+  protected constructor(public readonly channels: string[]) {
     super();
     this.id = this.hash(Math.random().toString());
     this.type = this.constructor.name;

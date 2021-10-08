@@ -1,3 +1,5 @@
+import md5 from "md5";
+
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { Bus } from "./Bus";
@@ -17,9 +19,8 @@ export class BusClient extends Bus {
 
   /**
    * Identificador do cliente.
-   * @private
    */
-  private id: string;
+  private readonly id: string;
 
   /**
    * Construtor.
@@ -32,7 +33,7 @@ export class BusClient extends Bus {
   ) {
     super();
 
-    this.id = Buffer.from(Math.random().toString()).toString("base64");
+    this.id = md5(Math.random().toString());
 
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));
@@ -43,6 +44,7 @@ export class BusClient extends Bus {
    * @param message Mensagem
    */
   public send(message: IBusMessage): void {
+    message.clientId = this.id;
     const messageEncoded = this.encode(message);
     this.webSocketClient.send(messageEncoded);
   }

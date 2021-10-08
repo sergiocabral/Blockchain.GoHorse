@@ -10,7 +10,7 @@ export abstract class Bus {
   /**
    * Regex para match com qualquer canal.
    */
-  public static readonly ALL_CHANNELS = /.*/;
+  public static readonly ALL_CHANNELS = "*";
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
