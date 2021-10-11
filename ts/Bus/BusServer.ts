@@ -3,6 +3,7 @@ import {
   Logger,
   LogLevel,
   Message,
+  NotReadyError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 
@@ -206,6 +207,10 @@ export class BusServer extends Bus {
    * Handle: uma conexão de cliente foi recebida no servidor.
    */
   private handleWebSocketServerConnection(client: WebSocketClient): void {
+    if (!this.databaseServer.opened) {
+      throw new NotReadyError("The database connection is not open.");
+    }
+
     client.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     client.onClose.add(this.handleWebSocketClientClose.bind(this));
   }

@@ -48,7 +48,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    this.webSocketClient.start();
+    this.webSocketClient.open();
 
     const interval = 10000;
     this.timeout = setInterval(() => {
@@ -64,7 +64,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    */
   public stop(): void {
     if (this.webSocketClient.opened) {
-      this.webSocketClient.stop();
+      this.webSocketClient.close();
     }
     clearInterval(this.timeout);
   }

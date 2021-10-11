@@ -104,22 +104,18 @@ export class WebSocketClient {
   }
 
   /**
-   * Envia uma mensagem
-   * @param message Mensagem.
-   * @param raw Envia uma mensagem direta sem passar pelo protocolo.
+   * Encerrar.
+   * @param code Código do fechamento.
+   * @param reason Motivo do fechamento.
    */
-  public send(message: string, raw?: "raw"): void {
-    if (raw) {
-      this.client.send(message);
-    } else {
-      this.protocol.transmit(message);
-    }
+  public close(code?: number, reason?: string): void {
+    this.client.close(code, reason);
   }
 
   /**
    * Iniciar.
    */
-  public start(): void {
+  public open(): void {
     const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
     this.client = new WebSocket(url);
 
@@ -134,12 +130,16 @@ export class WebSocketClient {
   }
 
   /**
-   * Encerrar.
-   * @param code Código do fechamento.
-   * @param reason Motivo do fechamento.
+   * Envia uma mensagem
+   * @param message Mensagem.
+   * @param raw Envia uma mensagem direta sem passar pelo protocolo.
    */
-  public stop(code?: number, reason?: string): void {
-    this.client.close(code, reason);
+  public send(message: string, raw?: "raw"): void {
+    if (raw) {
+      this.client.send(message);
+    } else {
+      this.protocol.transmit(message);
+    }
   }
 
   /**

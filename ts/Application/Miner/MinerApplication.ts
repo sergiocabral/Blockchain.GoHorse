@@ -42,7 +42,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    this.webSocketClient.start();
+    this.webSocketClient.open();
   }
 
   /**
@@ -50,7 +50,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
    */
   public stop(): void {
     if (this.webSocketClient.opened) {
-      this.webSocketClient.stop();
+      this.webSocketClient.close();
     }
   }
 }

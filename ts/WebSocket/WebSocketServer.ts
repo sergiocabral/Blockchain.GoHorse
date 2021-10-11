@@ -88,6 +88,39 @@ export class WebSocketServer {
   }
 
   /**
+   * Encerrar.
+   * @param code Código do fechamento.
+   * @param reason Motivo do fechamento.
+   */
+  public close(code?: number, reason?: string): void {
+    for (const client of this.clients) {
+      if (client.opened) {
+        client.close(code, reason);
+      }
+    }
+
+    this.server.close();
+  }
+
+  /**
+   * Iniciar.
+   */
+  public open(): void {
+    this.server = new Server({
+      port: this.configuration.port,
+    });
+
+    this.attachEvents(this.server);
+
+    Logger.post(
+      "Websocket server trying to start on port {port}.",
+      { port: this.configuration.port },
+      LogLevel.Debug,
+      WebSocketServer.name
+    );
+  }
+
+  /**
    * Envia uma mensagem broadcast para todos os clientes.
    * @param message Mensagem
    * @returns Total de clientes que receberam a mensagem
@@ -107,39 +140,6 @@ export class WebSocketServer {
     );
 
     return clients;
-  }
-
-  /**
-   * Iniciar.
-   */
-  public start(): void {
-    this.server = new Server({
-      port: this.configuration.port,
-    });
-
-    this.attachEvents(this.server);
-
-    Logger.post(
-      "Websocket server trying to start on port {port}.",
-      { port: this.configuration.port },
-      LogLevel.Debug,
-      WebSocketServer.name
-    );
-  }
-
-  /**
-   * Encerrar.
-   * @param code Código do fechamento.
-   * @param reason Motivo do fechamento.
-   */
-  public stop(code?: number, reason?: string): void {
-    for (const client of this.clients) {
-      if (client.opened) {
-        client.stop(code, reason);
-      }
-    }
-
-    this.server.close();
   }
 
   /**

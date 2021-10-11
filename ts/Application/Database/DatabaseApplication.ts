@@ -42,7 +42,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    this.webSocketClient.start();
+    this.webSocketClient.open();
   }
 
   /**
@@ -50,7 +50,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
    */
   public stop(): void {
     if (this.webSocketClient.opened) {
-      this.webSocketClient.stop();
+      this.webSocketClient.close();
     }
   }
 }

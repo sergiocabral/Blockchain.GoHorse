@@ -15,6 +15,11 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public constructor(private readonly configuration: TConfiguration) {}
 
   /**
+   * Sinaliza se a conexão foi iniciada.
+   */
+  public abstract get opened(): boolean;
+
+  /**
    * Fechar conexão.
    */
   public abstract close(): Promise<void>;

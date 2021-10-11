@@ -3,6 +3,11 @@
  */
 export interface IDatabase {
   /**
+   * Sinaliza se a conexão foi iniciada.
+   */
+  get opened(): boolean;
+
+  /**
    * Fechar conexão.
    */
   close(): Promise<void>;

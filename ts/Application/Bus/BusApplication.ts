@@ -48,7 +48,8 @@ export class BusApplication extends Application<BusConfiguration> {
    * Executa a aplicação.
    */
   public run(): void {
-    this.webSocketServer.start();
+    this.databaseServer.open();
+    this.webSocketServer.open();
   }
 
   /**
@@ -56,7 +57,10 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public stop(): void {
     if (this.webSocketServer.opened) {
-      this.webSocketServer.stop();
+      this.webSocketServer.close();
+    }
+    if (this.databaseServer.opened) {
+      this.databaseServer.close();
     }
   }
 }

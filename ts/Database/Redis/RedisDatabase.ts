@@ -7,6 +7,13 @@ import { RedisConfiguration } from "./RedisConfiguration";
  */
 export class RedisDatabase extends Database<RedisConfiguration> {
   /**
+   * Sinaliza se a conexão foi iniciada.
+   */
+  public get opened(): boolean {
+    return false;
+  }
+
+  /**
    * Fechar conexão.
    */
   public async close(): Promise<void> {
