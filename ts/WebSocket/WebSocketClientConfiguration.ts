@@ -5,7 +5,7 @@ import { HelperObject, JsonLoader } from "@sergiocabral/helper";
  */
 export class WebSocketClientConfiguration extends JsonLoader {
   /**
-   * Protocolo de conexão.
+   * Porta de conexão.
    */
   public port = 3000;
 
@@ -15,7 +15,7 @@ export class WebSocketClientConfiguration extends JsonLoader {
   public protocol = "ws";
 
   /**
-   * Protocolo de conexão.
+   * Endereço do servidor.
    */
   public server = "localhost";
 
