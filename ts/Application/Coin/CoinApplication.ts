@@ -49,7 +49,7 @@ export class CoinApplication extends Application<CoinConfiguration> {
    * Finaliza a aplicação.
    */
   public stop(): void {
-    if (this.webSocketClient.started) {
+    if (this.webSocketClient.opened) {
       this.webSocketClient.stop();
     }
   }

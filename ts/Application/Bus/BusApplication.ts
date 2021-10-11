@@ -55,7 +55,7 @@ export class BusApplication extends Application<BusConfiguration> {
    * Finaliza a aplicação.
    */
   public stop(): void {
-    if (this.webSocketServer.started) {
+    if (this.webSocketServer.opened) {
       this.webSocketServer.stop();
     }
   }

@@ -78,7 +78,7 @@ export class WebSocketClient {
   /**
    * Sinaliza se a instância foi iniciada.
    */
-  public get started(): boolean {
+  public get opened(): boolean {
     return this.clientValue !== undefined;
   }
 
@@ -87,7 +87,7 @@ export class WebSocketClient {
    */
   private get client(): WebSocket {
     if (this.clientValue === undefined) {
-      throw new InvalidExecutionError("Websocket client is not started.");
+      throw new InvalidExecutionError("Websocket client is not opened.");
     }
 
     return this.clientValue;
@@ -98,7 +98,7 @@ export class WebSocketClient {
    */
   private set client(value: WebSocket | undefined) {
     if (this.clientValue !== undefined && value !== undefined) {
-      throw new InvalidExecutionError("Websocket client already started.");
+      throw new InvalidExecutionError("Websocket client already opened.");
     }
     this.clientValue = value;
   }

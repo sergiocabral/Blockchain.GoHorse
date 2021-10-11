@@ -62,7 +62,7 @@ export class WebSocketServer {
   /**
    * Sinaliza se a instância foi iniciada.
    */
-  public get started(): boolean {
+  public get opened(): boolean {
     return this.serverValue !== undefined;
   }
 
@@ -71,7 +71,7 @@ export class WebSocketServer {
    */
   private get server(): Server {
     if (this.serverValue === undefined) {
-      throw new InvalidExecutionError("Websocket server is not started.");
+      throw new InvalidExecutionError("Websocket server is not opened.");
     }
 
     return this.serverValue;
@@ -82,7 +82,7 @@ export class WebSocketServer {
    */
   private set server(value: Server | undefined) {
     if (this.serverValue !== undefined && value !== undefined) {
-      throw new InvalidExecutionError("Websocket server already started.");
+      throw new InvalidExecutionError("Websocket server already opened.");
     }
     this.serverValue = value;
   }
@@ -134,7 +134,7 @@ export class WebSocketServer {
    */
   public stop(code?: number, reason?: string): void {
     for (const client of this.clients) {
-      if (client.started) {
+      if (client.opened) {
         client.stop(code, reason);
       }
     }

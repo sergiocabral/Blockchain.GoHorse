@@ -39,7 +39,7 @@ export class BusClient extends Bus {
    * @param message Mensagem
    */
   public send(message: IBusMessage): void {
-    if (!this.webSocketClient.started) {
+    if (!this.webSocketClient.opened) {
       Logger.post(
         "Cannot send a message {messageType}@{messageId} because the websocket was closed.",
         { messageId: message.id, messageType: message.type },
@@ -81,7 +81,7 @@ export class BusClient extends Bus {
    * Handle: cliente websocket abriu a conexão.
    */
   private handleWebSocketClientOpen() {
-    if (this.webSocketClient.started) {
+    if (this.webSocketClient.opened) {
       const busMessage = new BusMessageJoin(this.id, this.channel);
       this.send(busMessage);
 
