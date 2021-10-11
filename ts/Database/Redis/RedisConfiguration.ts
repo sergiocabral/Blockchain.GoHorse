@@ -7,6 +7,11 @@ import { JsonLoaderFieldErrors } from "../../Core/JsonLoaderFieldErrors";
  */
 export class RedisConfiguration extends JsonLoader {
   /**
+   * Número do banco de dados para conectar.
+   */
+  public databaseIndex = 0;
+
+  /**
    * Senha de conexão.
    */
   public password?: string | null;
@@ -26,6 +31,15 @@ export class RedisConfiguration extends JsonLoader {
    */
   public errors(): string[] {
     const errors = Array<string>();
+
+    const minDatabaseIndex = 0;
+    const maxDatabaseIndex = 15;
+    errors.push(
+      ...JsonLoaderFieldErrors.between(this, "databaseIndex", [
+        minDatabaseIndex,
+        maxDatabaseIndex,
+      ])
+    );
 
     errors.push(...JsonLoaderFieldErrors.password(this));
     errors.push(...JsonLoaderFieldErrors.server(this));

@@ -12,7 +12,7 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * Construtor.
    * @param configuration Configuração.
    */
-  public constructor(private readonly configuration: TConfiguration) {}
+  public constructor(protected readonly configuration: TConfiguration) {}
 
   /**
    * Sinaliza se a conexão foi iniciada.
