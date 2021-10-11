@@ -24,7 +24,7 @@ export class Main {
   /**
    * Aplicação selecionada para execução.
    */
-  public static start(): void {
+  public static async start(): Promise<void> {
     if (Main.instance !== undefined) {
       throw new InvalidExecutionError(
         "Main cannot be instantiated more than once."
@@ -40,9 +40,9 @@ export class Main {
     }
 
     if (!Argument.hasStopArgument()) {
-      application.run();
+      await application.run();
 
-      const killVerifyIntervalTimer = setInterval(() => {
+      const killVerifyIntervalTimer = setInterval(async () => {
         if (fs.existsSync(killFilename)) {
           fs.unlinkSync(killFilename);
 
@@ -53,7 +53,7 @@ export class Main {
             Main.name
           );
 
-          application.stop();
+          await application.stop();
 
           clearInterval(killVerifyIntervalTimer);
         }

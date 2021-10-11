@@ -42,12 +42,12 @@ export abstract class Application<TConfiguration extends JsonLoader>
   /**
    * Executa a aplicação.
    */
-  public abstract run(): void;
+  public abstract run(): Promise<void>;
 
   /**
    * Finaliza a aplicação.
    */
-  public abstract stop(): void;
+  public abstract stop(): Promise<void>;
 
   /**
    * Configurações JSON

@@ -47,20 +47,20 @@ export class BusApplication extends Application<BusConfiguration> {
   /**
    * Executa a aplicação.
    */
-  public run(): void {
-    this.databaseServer.open();
+  public async run(): Promise<void> {
+    await this.databaseServer.open();
     this.webSocketServer.open();
   }
 
   /**
    * Finaliza a aplicação.
    */
-  public stop(): void {
+  public async stop(): Promise<void> {
     if (this.webSocketServer.opened) {
       this.webSocketServer.close();
     }
     if (this.databaseServer.opened) {
-      this.databaseServer.close();
+      await this.databaseServer.close();
     }
   }
 }

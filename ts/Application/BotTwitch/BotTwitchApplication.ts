@@ -47,25 +47,33 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Executa a aplicação.
    */
-  public run(): void {
-    this.webSocketClient.open();
+  public async run(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.webSocketClient.open();
 
-    const interval = 10000;
-    this.timeout = setInterval(() => {
-      this.busClient.send(
-        new BusMessageText("Hello Coin", ["CoinApplication", "Nothing"])
-      );
-      this.busClient.send(new BusMessageText("Hello World"));
-    }, interval);
+      const interval = 10000;
+      this.timeout = setInterval(() => {
+        this.busClient.send(
+          new BusMessageText("Hello Coin", ["CoinApplication", "Nothing"])
+        );
+        this.busClient.send(new BusMessageText("Hello World"));
+      }, interval);
+
+      resolve();
+    });
   }
 
   /**
    * Finaliza a aplicação.
    */
-  public stop(): void {
-    if (this.webSocketClient.opened) {
-      this.webSocketClient.close();
-    }
-    clearInterval(this.timeout);
+  public async stop(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if (this.webSocketClient.opened) {
+        this.webSocketClient.close();
+      }
+      clearInterval(this.timeout);
+
+      resolve();
+    });
   }
 }

@@ -5,10 +5,10 @@ export interface IApplication {
   /**
    * Executa a aplicação.
    */
-  run(): void;
+  run(): Promise<void>;
 
   /**
    * Finaliza a aplicação.
    */
-  stop(): void;
+  stop(): Promise<void>;
 }

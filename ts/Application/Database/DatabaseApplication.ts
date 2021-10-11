@@ -41,16 +41,24 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
   /**
    * Executa a aplicação.
    */
-  public run(): void {
-    this.webSocketClient.open();
+  public async run(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.webSocketClient.open();
+
+      resolve();
+    });
   }
 
   /**
    * Finaliza a aplicação.
    */
-  public stop(): void {
-    if (this.webSocketClient.opened) {
-      this.webSocketClient.close();
-    }
+  public async stop(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if (this.webSocketClient.opened) {
+        this.webSocketClient.close();
+      }
+
+      resolve();
+    });
   }
 }
