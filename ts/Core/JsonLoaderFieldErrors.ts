@@ -5,6 +5,27 @@ import { HelperObject, JsonLoader } from "@sergiocabral/helper";
  */
 export class JsonLoaderFieldErrors {
   /**
+   * Verifica os erros em um campo tipo: lista estrita de valores texto.
+   */
+  public static listOfText(
+    instance: JsonLoader,
+    fieldName: string,
+    validValues: string[]
+  ): string[] {
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+    if (typeof value !== "string" || !validValues.includes(value)) {
+      errors.push(
+        `${instance.constructor.name}.${fieldName} must be ${validValues
+          .map((validValue) => `"${validValue}"`)
+          .join(" or ")}, but found: ${typeof value}, ${String(value)}`
+      );
+    }
+
+    return errors;
+  }
+
+  /**
    * Verifica os erros em um campo tipo: password.
    */
   public static password(

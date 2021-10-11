@@ -1,4 +1,6 @@
-import { HelperObject, JsonLoader } from "@sergiocabral/helper";
+import { JsonLoader } from "@sergiocabral/helper";
+
+import { JsonLoaderFieldErrors } from "../Core/JsonLoaderFieldErrors";
 
 /**
  * Configurações do cliente de conexão com servidor websocket.
@@ -23,48 +25,13 @@ export class WebSocketClientConfiguration extends JsonLoader {
    * Lista de erros presentes na configuração atual
    */
   public errors(): string[] {
-    const className = this.constructor.name;
-
     const errors = Array<string>();
 
-    const json: Partial<WebSocketClientConfiguration> = this;
-    let property = "protocol";
-    let value: unknown = HelperObject.getProperty(json, property);
-    if (!(typeof value === "string" && (value === "ws" || value === "wss"))) {
-      errors.push(
-        `${className}.${property} must be "ws" or "wss", but found: ${typeof value}, ${String(
-          value
-        )}`
-      );
-    }
-
-    property = "server";
-    value = HelperObject.getProperty(json, property);
-    if (!(typeof value === "string" && value.length > 0)) {
-      errors.push(
-        `${className}.${property} must be a not empty string, but found: ${typeof value}, ${String(
-          value
-        )}`
-      );
-    }
-
-    property = "port";
-    value = HelperObject.getProperty(json, property);
-    if (
-      !(
-        typeof value === "number" &&
-        Number.isFinite(value) &&
-        Math.floor(value) === value &&
-        value > 0
-      )
-    ) {
-      errors.push(
-        `${className}.${property} must be a integer greater than zero, but found: ${typeof value}, ${String(
-          value
-        )}`
-      );
-    }
-
+    errors.push(
+      ...JsonLoaderFieldErrors.listOfText(this, "protocol", ["ws", "wss"])
+    );
+    errors.push(...JsonLoaderFieldErrors.server(this));
+    errors.push(...JsonLoaderFieldErrors.port(this));
     errors.push(...super.errors());
 
     return errors;
