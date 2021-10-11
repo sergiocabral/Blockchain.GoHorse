@@ -101,7 +101,6 @@ export class BusServer extends Bus {
           message.channels.includes(Bus.ALL_CHANNELS))
       ) {
         clients.push(client);
-        break;
       }
     }
 

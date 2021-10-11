@@ -53,9 +53,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
       const interval = 10000;
       this.timeout = setInterval(() => {
+        Logger.post('Sending "Hello Coin" to CoinApplication.');
         this.busClient.send(
           new BusMessageText("Hello Coin", ["CoinApplication", "Nothing"])
         );
+
+        Logger.post('Sending "Hello World" to all applications.');
         this.busClient.send(new BusMessageText("Hello World"));
       }, interval);
 
