@@ -1,5 +1,7 @@
 import { BusServer } from "../../Bus/BusServer";
 import { Application } from "../../Core/Application";
+import { IDatabase } from "../../Database/IDatabase";
+import { RedisDatabase } from "../../Database/Redis/RedisDatabase";
 import { WebSocketServer } from "../../WebSocket/WebSocketServer";
 
 import { BusConfiguration } from "./BusConfiguration";
@@ -19,6 +21,11 @@ export class BusApplication extends Application<BusConfiguration> {
   private readonly busServer: BusServer;
 
   /**
+   * Conexão com um banco de dados Redis
+   */
+  private readonly databaseServer: IDatabase;
+
+  /**
    * Servidor WebSocket.
    */
   private readonly webSocketServer: WebSocketServer;
@@ -28,10 +35,13 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public constructor() {
     super();
+    this.databaseServer = new RedisDatabase(
+      this.configuration.databaseRedisServer
+    );
     this.webSocketServer = new WebSocketServer(
       this.configuration.webSocketServer
     );
-    this.busServer = new BusServer(this.webSocketServer);
+    this.busServer = new BusServer(this.webSocketServer, this.databaseServer);
   }
 
   /**

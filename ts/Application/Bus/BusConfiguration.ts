@@ -10,7 +10,7 @@ export class BusConfiguration extends JsonLoader {
   /**
    * Configuração para banco de dados redis.
    */
-  public redisServer = new RedisConfiguration();
+  public databaseRedisServer = new RedisConfiguration();
 
   /**
    * Configurações do servidor websocket.

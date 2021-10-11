@@ -6,6 +6,7 @@ import {
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 
+import { IDatabase } from "../Database/IDatabase";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
@@ -65,8 +66,12 @@ export class BusServer extends Bus {
   /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
+   * @param databaseServer Servidor do banco de dados.
    */
-  public constructor(private readonly webSocketServer: WebSocketServer) {
+  public constructor(
+    private readonly webSocketServer: WebSocketServer,
+    private readonly databaseServer: IDatabase
+  ) {
     super();
     webSocketServer.onConnection.add(
       this.handleWebSocketServerConnection.bind(this)

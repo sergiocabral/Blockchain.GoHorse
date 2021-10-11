@@ -10,13 +10,13 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * Fechar conexão.
    */
   public async close(): Promise<void> {
-    return new Promise<void>(resolve => resolve());
+    return new Promise<void>((resolve) => resolve());
   }
 
   /**
    * Abrir conexão.
    */
   public async open(): Promise<void> {
-    return new Promise<void>(resolve => resolve());
+    return new Promise<void>((resolve) => resolve());
   }
 }
