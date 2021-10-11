@@ -5,57 +5,11 @@ import { HelperObject, JsonLoader } from "@sergiocabral/helper";
  */
 export class JsonLoaderFieldErrors {
   /**
-   * Verifica os erros em um campo tipo: porta de hostname.
+   * Sem erros para: valor como string ou não informado
    */
-  public static between(
+  public static canEmptyString(
     instance: JsonLoader,
-    fieldName: string,
-    validValues: [number, number]
-  ): string[] {
-    const errors = Array<string>();
-    const value = HelperObject.getProperty(instance, fieldName);
-    const minValue = validValues[0];
-    const maxValue = validValues[1];
-    if (typeof value !== "number" || value < minValue || value > maxValue) {
-      errors.push(
-        `${
-          instance.constructor.name
-        }.${fieldName} must be a integer between ${minValue} and ${maxValue}, but found: ${typeof value}, ${String(
-          value
-        )}`
-      );
-    }
-
-    return errors;
-  }
-
-  /**
-   * Verifica os erros em um campo tipo: lista estrita de valores texto.
-   */
-  public static listOfText(
-    instance: JsonLoader,
-    fieldName: string,
-    validValues: string[]
-  ): string[] {
-    const errors = Array<string>();
-    const value = HelperObject.getProperty(instance, fieldName);
-    if (typeof value !== "string" || !validValues.includes(value)) {
-      errors.push(
-        `${instance.constructor.name}.${fieldName} must be ${validValues
-          .map((validValue) => `"${validValue}"`)
-          .join(" or ")}, but found: ${typeof value}, ${String(value)}`
-      );
-    }
-
-    return errors;
-  }
-
-  /**
-   * Verifica os erros em um campo tipo: password.
-   */
-  public static password(
-    instance: JsonLoader,
-    fieldName: string = "password"
+    fieldName: string
   ): string[] {
     const errors = Array<string>();
     const value = HelperObject.getProperty(instance, fieldName);
@@ -71,28 +25,28 @@ export class JsonLoaderFieldErrors {
 
     return errors;
   }
-
   /**
-   * Verifica os erros em um campo tipo: porta de hostname.
+   * Sem erros para: inteiro entre dois valores
    */
-  public static port(
+  public static integerBetween(
     instance: JsonLoader,
-    fieldName: string = "port"
+    fieldName: string,
+    validValues: [number, number]
   ): string[] {
     const errors = Array<string>();
     const value = HelperObject.getProperty(instance, fieldName);
+    const minValue = validValues[0];
+    const maxValue = validValues[1];
     if (
-      !(
-        typeof value === "number" &&
-        Number.isFinite(value) &&
-        Math.floor(value) === value &&
-        value > 0
-      )
+      typeof value !== "number" ||
+      value < minValue ||
+      value > maxValue ||
+      Math.floor(value) !== value
     ) {
       errors.push(
         `${
           instance.constructor.name
-        }.${fieldName} must be a integer greater than zero, but found: ${typeof value}, ${String(
+        }.${fieldName} must be a integer between ${minValue} and ${maxValue}, but found: ${typeof value}, ${String(
           value
         )}`
       );
@@ -102,11 +56,11 @@ export class JsonLoaderFieldErrors {
   }
 
   /**
-   * Verifica os erros em um campo tipo: endereço do servidor.
+   * Sem erros para: string não é vazia
    */
-  public static server(
+  public static notEmptyString(
     instance: JsonLoader,
-    fieldName: string = "server"
+    fieldName: string
   ): string[] {
     const errors = Array<string>();
     const value = HelperObject.getProperty(instance, fieldName);
@@ -117,6 +71,27 @@ export class JsonLoaderFieldErrors {
         }.${fieldName} must be a not empty string, but found: ${typeof value}, ${String(
           value
         )}`
+      );
+    }
+
+    return errors;
+  }
+
+  /**
+   * Sem erros para: valor presente na lista
+   */
+  public static onTheList(
+    instance: JsonLoader,
+    fieldName: string,
+    validValues: string[]
+  ): string[] {
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+    if (typeof value !== "string" || !validValues.includes(value)) {
+      errors.push(
+        `${instance.constructor.name}.${fieldName} must be ${validValues
+          .map((validValue) => `"${validValue}"`)
+          .join(" or ")}, but found: ${typeof value}, ${String(value)}`
       );
     }
 

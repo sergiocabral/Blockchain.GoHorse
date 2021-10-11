@@ -28,10 +28,15 @@ export class WebSocketClientConfiguration extends JsonLoader {
     const errors = Array<string>();
 
     errors.push(
-      ...JsonLoaderFieldErrors.listOfText(this, "protocol", ["ws", "wss"])
+      ...JsonLoaderFieldErrors.onTheList(this, "protocol", ["ws", "wss"])
     );
-    errors.push(...JsonLoaderFieldErrors.server(this));
-    errors.push(...JsonLoaderFieldErrors.port(this));
+    errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
+    errors.push(
+      ...JsonLoaderFieldErrors.integerBetween(this, "port", [
+        0,
+        Number.MAX_SAFE_INTEGER,
+      ])
+    );
     errors.push(...super.errors());
 
     return errors;
