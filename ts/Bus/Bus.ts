@@ -19,7 +19,7 @@ export abstract class Bus {
   /**
    * Lista de mensagens do Bus.
    */
-  protected readonly all: IBusMessageParse[] = [BusMessageJoin, BusMessageText];
+  protected readonly messagesTypes: IBusMessageParse[] = [BusMessageJoin, BusMessageText];
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
@@ -53,7 +53,7 @@ export abstract class Bus {
    * Despacha uma mensagem do bus.
    */
   protected dispatch(busMessage: IBusMessage): void {
-    this.all.forEach((messageType) => {
+    this.messagesTypes.forEach((messageType) => {
       const busMessageParsed = messageType.parse(busMessage);
 
       if (busMessageParsed) {
