@@ -4,8 +4,7 @@ import {
   LogLevel,
   RequestError,
 } from "@sergiocabral/helper";
-import md5 from "md5";
-import { createClient, RedisClient } from "redis";
+import { createClient, RedisClient, ServerInfo } from "redis";
 
 import { Database } from "../Database";
 
@@ -15,6 +14,30 @@ import { RedisConfiguration } from "./RedisConfiguration";
  * Conexão com um banco de dados Redis.
  */
 export class RedisDatabase extends Database<RedisConfiguration> {
+  /**
+   * Converte as informações do servidor em um hash object.
+   */
+  private static parseServerInfo(
+    serverInfo: ServerInfo
+  ): Record<string, string> {
+    return String(serverInfo)
+      .split("\n")
+      .map((entry) => entry.split(":"))
+      .reduce<Record<string, string>>((result, entry) => {
+        if (entry.length === 1) {
+          result.lastSection = entry[0].replace(/\W/g, "");
+          if (result.lastSection.length === 0) {
+            delete result.lastSection;
+          }
+        } else {
+          result[`${result.lastSection}.${entry[0].trim()}`] =
+            entry[1]?.trim() ?? "";
+        }
+
+        return result;
+      }, {});
+  }
+
   /**
    * Cliente de conexão com o Redis.
    */
@@ -63,14 +86,15 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async open(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       let finalized = false;
-      const finalize = (error?: string) => {
+      const finalize = (result: string | Error) => {
         finalized = true;
-        if (error === undefined) {
+        if (typeof result === "string") {
           Logger.post(
-            "Success in Redis connection to {server}:{port} server in database index {db}.",
+            "Success in Redis connection to {server}:{port} server in database index {db}. {result}",
             {
               db: this.configuration.databaseIndex,
               port: this.configuration.port,
+              result,
               server: this.configuration.server,
             },
             LogLevel.Debug,
@@ -78,7 +102,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           );
           resolve();
         } else {
-          reject(new RequestError(error));
+          reject(new RequestError(result.message));
           this.client?.end(false);
         }
       };
@@ -101,15 +125,17 @@ export class RedisDatabase extends Database<RedisConfiguration> {
             return;
           }
 
-          const randomKey = md5(Math.random().toString());
-          client.set(randomKey, randomKey);
-          client.del(randomKey, (error: Error | null) =>
+          client.info("all", (error, serverInfo) => {
+            const info = RedisDatabase.parseServerInfo(serverInfo);
+
             finalize(
               error
-                ? `Redis connected but failed while trying to write data: ${error.message}`
-                : undefined
-            )
-          );
+                ? `Redis connected but failed fetch server info: ${error.message}`
+                : `Server Version: {Server.redis_version}, Build Id: {Server.redis_build_id}, Mode: {Server.redis_mode}, Operational System: {Server.os} {Server.arch_bits} bits, TCP port: {Server.tcp_port}.`.querystring(
+                    info
+                  )
+            );
+          });
         });
 
         client.on("error", (error: Error) => {
