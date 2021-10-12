@@ -19,7 +19,10 @@ export abstract class Bus {
   /**
    * Lista de mensagens do Bus.
    */
-  protected readonly messagesTypes: IBusMessageParse[] = [BusMessageJoin, BusMessageText];
+  protected readonly messagesTypes: IBusMessageParse[] = [
+    BusMessageJoin,
+    BusMessageText,
+  ];
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage

@@ -5,7 +5,7 @@ import {
   NotReadyError,
   RequestError,
 } from "@sergiocabral/helper";
-import { createClient, RedisClient} from "redis";
+import { createClient, RedisClient } from "redis";
 
 import { Database } from "../Database";
 
