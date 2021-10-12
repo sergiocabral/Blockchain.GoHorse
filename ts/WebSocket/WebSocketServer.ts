@@ -92,14 +92,22 @@ export class WebSocketServer {
    * @param code Código do fechamento.
    * @param reason Motivo do fechamento.
    */
-  public close(code?: number, reason?: string): void {
-    for (const client of this.clients) {
-      if (client.opened) {
-        client.close(code, reason);
+  public async close(code?: number, reason?: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      for (const client of this.clients) {
+        if (client.opened) {
+          client.close(code, reason);
+        }
       }
-    }
 
-    this.server.close();
+      this.server.close((error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
   }
 
   /**

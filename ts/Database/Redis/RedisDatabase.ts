@@ -47,7 +47,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
       if (this.clientValue !== undefined) {
         this.clientValue.quit((error: Error | null) => {
           this.clientValue = undefined;
-          if (error === null) {
+          if (!error) {
             Logger.post(
               "The connection to Redis was successfully terminated.",
               undefined,
@@ -77,7 +77,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async del(tableName: string, id: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.client.del(this.formatKey(tableName, id), (error) => {
-        if (error === null) {
+        if (!error) {
           resolve();
         } else {
           reject(error);
@@ -93,7 +93,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async info(...section: string[]): Promise<Record<string, string>> {
     return new Promise<Record<string, string>>((resolve, reject) => {
       this.client.info(section, (error, serverInfo) => {
-        if (error === null) {
+        if (!error) {
           const info = String(serverInfo)
             .split("\n")
             .map((entry) => entry.split(":"))
@@ -210,7 +210,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         this.formatKey(tableName, id),
         JSON.stringify(value),
         (error) => {
-          if (error === null) {
+          if (!error) {
             resolve();
           } else {
             reject(error);

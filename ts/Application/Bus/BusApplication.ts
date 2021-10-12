@@ -57,10 +57,24 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public async stop(): Promise<void> {
     if (this.webSocketServer.opened) {
-      this.webSocketServer.close();
+      await this.webSocketServer.close();
     }
-    if (this.databaseServer.opened) {
-      await this.databaseServer.close();
-    }
+    await this.closeDatabase();
+  }
+
+  /**
+   * Finaliza a conexão com o banco de dados.
+   * @param waitFor Tempo de espera antes de iniciar o fechamento da conexão.
+   */
+  private async closeDatabase(waitFor = 1000): Promise<void> {
+    return new Promise<void>((resolve) => {
+      setTimeout(async () => {
+        if (this.databaseServer.opened) {
+          await this.databaseServer.close();
+        }
+
+        resolve();
+      }, waitFor);
+    });
   }
 }
