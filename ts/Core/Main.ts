@@ -40,6 +40,8 @@ export class Main {
     }
 
     if (!Argument.hasStopArgument()) {
+      application.onStop.add(() => clearInterval(killVerifyIntervalTimer));
+
       await application.run();
 
       const killVerifyIntervalTimer = setInterval(async () => {

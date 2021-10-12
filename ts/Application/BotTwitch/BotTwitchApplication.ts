@@ -13,6 +13,11 @@ import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
  */
 export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => void> = new Set<() => void>();
+
+  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = BotTwitchConfiguration;
@@ -40,7 +45,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(
       this.configuration.messageBusWebSocketServer
     );
-    // TODO: Finalização automática dos clientes não está funcionando.
     this.webSocketClient.onClose.add(this.stop.bind(this));
     this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
@@ -77,6 +81,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         this.webSocketClient.close();
       }
       clearInterval(this.timeout);
+
+      this.onStop.forEach((onStop) => onStop());
 
       resolve();
     });

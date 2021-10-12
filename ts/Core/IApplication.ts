@@ -3,6 +3,11 @@
  */
 export interface IApplication {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  get onStop(): Set<() => void>;
+
+  /**
    * Executa a aplicação.
    */
   run(): Promise<void>;

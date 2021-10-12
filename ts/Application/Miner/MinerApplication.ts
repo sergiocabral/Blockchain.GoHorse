@@ -12,6 +12,11 @@ import { MinerConfiguration } from "./MinerConfiguration";
  */
 export class MinerApplication extends Application<MinerConfiguration> {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => void> = new Set<() => void>();
+
+  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = MinerConfiguration;
@@ -58,6 +63,8 @@ export class MinerApplication extends Application<MinerConfiguration> {
       if (this.webSocketClient.opened) {
         this.webSocketClient.close();
       }
+
+      this.onStop.forEach((onStop) => onStop());
 
       resolve();
     });

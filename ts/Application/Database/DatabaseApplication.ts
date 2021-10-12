@@ -12,6 +12,11 @@ import { DatabaseConfiguration } from "./DatabaseConfiguration";
  */
 export class DatabaseApplication extends Application<DatabaseConfiguration> {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => void> = new Set<() => void>();
+
+  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = DatabaseConfiguration;
@@ -58,6 +63,8 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
       if (this.webSocketClient.opened) {
         this.webSocketClient.close();
       }
+
+      this.onStop.forEach((onStop) => onStop());
 
       resolve();
     });

@@ -11,6 +11,11 @@ import { BusConfiguration } from "./BusConfiguration";
  */
 export class BusApplication extends Application<BusConfiguration> {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => void> = new Set<() => void>();
+
+  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = BusConfiguration;
@@ -72,6 +77,8 @@ export class BusApplication extends Application<BusConfiguration> {
         if (this.databaseServer.opened) {
           await this.databaseServer.close();
         }
+
+        this.onStop.forEach((onStop) => onStop());
 
         resolve();
       }, waitFor);

@@ -12,6 +12,11 @@ import { CoinConfiguration } from "./CoinConfiguration";
  */
 export class CoinApplication extends Application<CoinConfiguration> {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => void> = new Set<() => void>();
+
+  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = CoinConfiguration;
@@ -58,6 +63,8 @@ export class CoinApplication extends Application<CoinConfiguration> {
       if (this.webSocketClient.opened) {
         this.webSocketClient.close();
       }
+
+      this.onStop.forEach((onStop) => onStop());
 
       resolve();
     });

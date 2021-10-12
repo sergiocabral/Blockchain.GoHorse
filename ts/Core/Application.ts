@@ -33,6 +33,11 @@ export abstract class Application<TConfiguration extends JsonLoader>
   }
 
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public abstract get onStop(): Set<() => void>;
+
+  /**
    * Tipo da configuração;
    */
   protected abstract get configurationType(): new (
