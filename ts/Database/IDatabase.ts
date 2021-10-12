@@ -33,6 +33,11 @@ export interface IDatabase {
   set(
     tableName: string,
     id: string,
-    value: Record<string, unknown>
+    value: unknown
   ): Promise<void>;
+
+  /**
+   * Retorna um identificador baseado no momento atual.
+   */
+  timeId(): Promise<string>;
 }

@@ -45,6 +45,11 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract set(
     tableName: string,
     id: string,
-    value: Record<string, unknown>
+    value: unknown
   ): Promise<void>;
+
+  /**
+   * Retorna um identificador baseado no momento atual.
+   */
+  public abstract timeId(): Promise<string>;
 }

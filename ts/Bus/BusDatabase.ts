@@ -1,11 +1,18 @@
-import { NotReadyError } from "@sergiocabral/helper";
+import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
 
 import { IDatabase } from "../Database/IDatabase";
+
+import { IBusMessage } from "./BusMessage/IBusMessage";
 
 /**
  * Database especializado para o Bus.
  */
 export class BusDatabase {
+  /**
+   * Valor incremental para compor identificadores baseados no tempo.
+   */
+  private static timeIdNonce = 0;
+
   /**
    * Definições da estrutura do banco de dados.
    */
@@ -13,6 +20,7 @@ export class BusDatabase {
     fieldChannelName: "channel",
     fieldClientId: "id",
     tableClient: "clients",
+    tableMessage: "messages",
   };
 
   /**
@@ -51,5 +59,18 @@ export class BusDatabase {
    */
   public async clientLeave(clientId: string): Promise<void> {
     await this.database.del(this.DEFINITION.tableClient, clientId);
+  }
+
+  /**
+   * Posta uma mensagem do Bus.
+   */
+  public async postMessage(message: IBusMessage): Promise<void> {
+    if (!message.clientId) {
+      throw new ShouldNeverHappenError();
+    }
+
+    const timeId = await this.database.timeId();
+    const id = `${timeId}:${message.clientId}:${BusDatabase.timeIdNonce += 1}`;
+    await this.database.set(this.DEFINITION.tableMessage, id, message);
   }
 }

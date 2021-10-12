@@ -130,8 +130,11 @@ export class BusServer extends Bus {
   /**
    * Mensagem: BusMessageText
    */
-  private handleBusMessageText(message: BusMessageText): void {
-    // TODO: Preciso enviar para o servidor a mensagem
+  private async handleBusMessageText(message: BusMessageText): Promise<void> {
+    await this.database.postMessage(message);
+
+    // TODO: Após enviar preciso receber de algum jeito as mensagens.
+
     // const clients = this.getClients(message);
     // clients.forEach((client) => client.send(this.encode(message)));
   }

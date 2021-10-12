@@ -203,7 +203,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async set(
     tableName: string,
     id: string,
-    value: Record<string, unknown>
+    value: unknown
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.client.set(
@@ -217,6 +217,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           }
         }
       );
+    });
+  }
+
+  /**
+   * Retorna um identificador baseado no momento atual.
+   */
+  public timeId(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.client.time((error, time) => {
+        if (!error) {
+          const timeId = `${time[0]}${time[1]}`;
+          resolve(timeId);
+        } else {
+          reject(error);
+        }
+      })
     });
   }
 
