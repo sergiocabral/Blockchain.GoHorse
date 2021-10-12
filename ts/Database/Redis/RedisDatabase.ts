@@ -1,4 +1,5 @@
 import {
+  InvalidArgumentError,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -74,18 +75,14 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param id Identificador.
    */
   public async del(tableName: string, id: string): Promise<void> {
-    return new Promise<void>((resolve) => {
-      // TODO: Apagar um registro.
-    });
-  }
-
-  /**
-   * Cria uma tabela se não existir
-   * @param tableName Nome da tabela.
-   */
-  public async ensureTable(tableName: string): Promise<void> {
-    return new Promise<void>((resolve) => {
-      // TODO: Criar tabela.
+    return new Promise<void>((resolve, reject) => {
+      this.client.del(this.formatKey(tableName, id), (error) => {
+        if (error === null) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
     });
   }
 
@@ -208,8 +205,34 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     id: string,
     value: Record<string, unknown>
   ): Promise<void> {
-    return new Promise<void>((resolve) => {
-      // TODO: Gravar registro.
+    return new Promise<void>((resolve, reject) => {
+      this.client.set(
+        this.formatKey(tableName, id),
+        JSON.stringify(value),
+        (error) => {
+          if (error === null) {
+            resolve();
+          } else {
+            reject(error);
+          }
+        }
+      );
     });
+  }
+
+  /**
+   * Formnata a chave para o Redis.
+   * @param parts Partes que compõe a chave.
+   */
+  private formatKey(...parts: string[]): string {
+    if (parts.length === 0) {
+      throw new InvalidArgumentError("Expected part of key");
+    }
+
+    if (this.configuration.namespace) {
+      parts.unshift(this.configuration.namespace);
+    }
+
+    return parts.join(":");
   }
 }

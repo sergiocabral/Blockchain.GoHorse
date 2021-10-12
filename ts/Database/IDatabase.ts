@@ -20,12 +20,6 @@ export interface IDatabase {
   del(tableName: string, id: string): Promise<void>;
 
   /**
-   * Cria uma tabela se não existir
-   * @param tableName Nome da tabela.
-   */
-  ensureTable(tableName: string): Promise<void>;
-
-  /**
    * Abrir conexão.
    */
   open(): Promise<void>;

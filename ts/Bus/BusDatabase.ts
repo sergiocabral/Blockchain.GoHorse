@@ -40,7 +40,6 @@ export class BusDatabase {
     value[this.DEFINITION.fieldClientId] = clientId;
     value[this.DEFINITION.fieldClientName] = clientName;
 
-    await this.database.ensureTable(this.DEFINITION.tableClient);
     await this.database.set(this.DEFINITION.tableClient, clientId, value);
   }
 
@@ -48,7 +47,6 @@ export class BusDatabase {
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<void> {
-    await this.database.ensureTable(this.DEFINITION.tableClient);
     await this.database.del(this.DEFINITION.tableClient, clientId);
   }
 }

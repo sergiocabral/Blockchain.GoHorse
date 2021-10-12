@@ -32,12 +32,6 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract del(tableName: string, id: string): Promise<void>;
 
   /**
-   * Cria uma tabela se não existir
-   * @param tableName Nome da tabela.
-   */
-  public abstract ensureTable(tableName: string): Promise<void>;
-
-  /**
    * Abrir conexão.
    */
   public abstract open(): Promise<void>;

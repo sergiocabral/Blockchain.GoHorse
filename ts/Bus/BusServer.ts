@@ -207,6 +207,7 @@ export class BusServer extends Bus {
     client: WebSocketClient
   ): void {
     // TODO: Implementar banco de dados central
+    // TODO: Desligar o BusServer está causando erro.
 
     const busMessage = this.decode(message);
     if (busMessage) {

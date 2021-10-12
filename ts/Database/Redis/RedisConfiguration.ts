@@ -12,6 +12,11 @@ export class RedisConfiguration extends JsonLoader {
   public databaseIndex = 0;
 
   /**
+   * Namespace para demais entradas de dados.
+   */
+  public namespace?: string | null;
+
+  /**
    * Senha de conexão.
    */
   public password?: string | null;
@@ -38,6 +43,7 @@ export class RedisConfiguration extends JsonLoader {
         Number.MAX_SAFE_INTEGER,
       ])
     );
+    errors.push(...JsonLoaderFieldErrors.canEmptyString(this, "namespace"));
     errors.push(...JsonLoaderFieldErrors.canEmptyString(this, "password"));
     errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
     errors.push(
