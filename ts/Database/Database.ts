@@ -25,7 +25,32 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract close(): Promise<void>;
 
   /**
+   * Apaga uma entrada na tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   */
+  public abstract del(tableName: string, id: string): Promise<void>;
+
+  /**
+   * Cria uma tabela se não existir
+   * @param tableName Nome da tabela.
+   */
+  public abstract ensureTable(tableName: string): Promise<void>;
+
+  /**
    * Abrir conexão.
    */
   public abstract open(): Promise<void>;
+
+  /**
+   * Grava uma entrada na tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   * @param value Valor.
+   */
+  public abstract set(
+    tableName: string,
+    id: string,
+    value: Record<string, unknown>
+  ): Promise<void>;
 }

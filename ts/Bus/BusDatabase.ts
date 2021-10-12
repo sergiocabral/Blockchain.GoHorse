@@ -7,6 +7,15 @@ import { IDatabase } from "../Database/IDatabase";
  */
 export class BusDatabase {
   /**
+   * Definições da estrutura do banco de dados.
+   */
+  private readonly DEFINITION = {
+    fieldClientId: "clientId",
+    fieldClientName: "clientName",
+    tableClient: "clients",
+  };
+
+  /**
    * Construtor.
    * @param databaseValue Banco de dados.
    */
@@ -21,5 +30,28 @@ export class BusDatabase {
     }
 
     return this.databaseValue;
+  }
+
+  /**
+   * Um cliente ingressou.
+   */
+  public async clientJoin(clientId: string, clientName: string): Promise<void> {
+    const value: Record<string, unknown> = {};
+    value[this.DEFINITION.fieldClientId] = clientId;
+    value[this.DEFINITION.fieldClientName] = clientName;
+
+    await this.database.ensureTable(this.DEFINITION.tableClient);
+    await this.database.set(this.DEFINITION.tableClient, clientId, value);
+  }
+
+  /**
+   * Um cliente sai.
+   */
+  public async clientLeave(
+    clientId: string,
+    clientName: string
+  ): Promise<void> {
+    await this.database.ensureTable(this.DEFINITION.tableClient);
+    await this.database.del(this.DEFINITION.tableClient, clientId);
   }
 }

@@ -69,6 +69,27 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Apaga uma entrada na tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   */
+  public async del(tableName: string, id: string): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // TODO: Apagar um registro.
+    });
+  }
+
+  /**
+   * Cria uma tabela se não existir
+   * @param tableName Nome da tabela.
+   */
+  public async ensureTable(tableName: string): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // TODO: Criar tabela.
+    });
+  }
+
+  /**
    * Retorna informações sobre o servidor.
    * @param section Seções
    */
@@ -173,6 +194,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
       } else {
         finalize(new Error("Redis client already opened."));
       }
+    });
+  }
+
+  /**
+   * Grava uma entrada na tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   * @param value Valor.
+   */
+  public async set(
+    tableName: string,
+    id: string,
+    value: Record<string, unknown>
+  ): Promise<void> {
+    return new Promise<void>((resolve) => {
+      // TODO: Gravar registro.
     });
   }
 }
