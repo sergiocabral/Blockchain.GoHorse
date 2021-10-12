@@ -116,7 +116,9 @@ export class BusServer extends Bus {
   /**
    * Mensagem: BusMessageJoin
    */
-  private handleBusMessageJoin(busMessage: BusMessageJoin): void {
+  private async handleBusMessageJoin(
+    busMessage: BusMessageJoin
+  ): Promise<void> {
     if (busMessage.clientId === undefined) {
       throw new ShouldNeverHappenError();
     }
@@ -156,6 +158,7 @@ export class BusServer extends Bus {
 
     const client = BusServer.getClient(busMessage);
     this.clientData.set(client, { channel, clientId: busMessage.clientId });
+    await this.database.clientJoin(busMessage.clientId, channel);
 
     Logger.post(
       'A "{clientId}" client has joined "{channel}" channel.',
@@ -176,13 +179,17 @@ export class BusServer extends Bus {
   /**
    * Handle: Cliente fechou.
    */
-  private handleWebSocketClientClose(client: WebSocketClient): void {
+  private async handleWebSocketClientClose(
+    client: WebSocketClient
+  ): Promise<void> {
     const data = this.clientData.get(client);
     this.clientData.delete(client);
 
     if (data === undefined) {
       throw new ShouldNeverHappenError();
     }
+
+    await this.database.clientLeave(data.clientId);
 
     Logger.post(
       'A "{clientId}" client has left "{channel}" channel.',

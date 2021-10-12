@@ -47,10 +47,7 @@ export class BusDatabase {
   /**
    * Um cliente sai.
    */
-  public async clientLeave(
-    clientId: string,
-    clientName: string
-  ): Promise<void> {
+  public async clientLeave(clientId: string): Promise<void> {
     await this.database.ensureTable(this.DEFINITION.tableClient);
     await this.database.del(this.DEFINITION.tableClient, clientId);
   }
