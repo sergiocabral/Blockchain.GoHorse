@@ -10,8 +10,8 @@ export class BusDatabase {
    * Definições da estrutura do banco de dados.
    */
   private readonly DEFINITION = {
-    fieldClientId: "clientId",
-    fieldClientName: "clientName",
+    fieldChannelName: "channel",
+    fieldClientId: "id",
     tableClient: "clients",
   };
 
@@ -35,10 +35,13 @@ export class BusDatabase {
   /**
    * Um cliente ingressou.
    */
-  public async clientJoin(clientId: string, clientName: string): Promise<void> {
+  public async clientJoin(
+    clientId: string,
+    channelName: string
+  ): Promise<void> {
     const value: Record<string, unknown> = {};
     value[this.DEFINITION.fieldClientId] = clientId;
-    value[this.DEFINITION.fieldClientName] = clientName;
+    value[this.DEFINITION.fieldChannelName] = channelName;
 
     await this.database.set(this.DEFINITION.tableClient, clientId, value);
   }

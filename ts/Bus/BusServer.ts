@@ -1,5 +1,4 @@
 import {
-  HelperObject,
   Logger,
   LogLevel,
   Message,
@@ -15,54 +14,16 @@ import { BusDatabase } from "./BusDatabase";
 import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
 import { BusMessageText } from "./BusMessage/BusMessageText";
 import { IBusMessage } from "./BusMessage/IBusMessage";
-import { IClientData } from "./IClientData";
 
 /**
  * Servidor do Bus.
  */
 export class BusServer extends Bus {
   /**
-   * Nome de propriedade para receber a referência do cliente.
-   */
-  private static readonly propertyNameForClient: symbol = Symbol();
-
-  /**
-   * Retorna o cliente websocket associado a uma mensagem.
-   */
-  private static getClient(busMessage: IBusMessage): WebSocketClient {
-    const client = HelperObject.getProperty(
-      busMessage,
-      BusServer.propertyNameForClient
-    );
-
-    if (client === undefined) {
-      throw new ShouldNeverHappenError();
-    }
-
-    return client as WebSocketClient;
-  }
-
-  /**
-   * Associa um cliente websocket a uma mensagem.
-   */
-  private static setClient(
-    busMessage: IBusMessage,
-    client: WebSocketClient
-  ): void {
-    HelperObject.setProperty(
-      busMessage,
-      BusServer.propertyNameForClient,
-      client
-    );
-  }
-
-  /**
    * Dados dos clientes.
    */
-  private readonly clientData: Map<WebSocketClient, IClientData> = new Map<
-    WebSocketClient,
-    IClientData
-  >();
+  private readonly clientsIds: Map<WebSocketClient, string | undefined> =
+    new Map<WebSocketClient, string | undefined>();
 
   /**
    * Database especializado para o Bus.
@@ -90,28 +51,28 @@ export class BusServer extends Bus {
     Message.subscribe(BusMessageText, this.handleBusMessageText.bind(this));
   }
 
-  /**
-   * Obtem a lista de clientes com base numa lista de canais.
-   */
-  private getClients(message: IBusMessage): WebSocketClient[] {
-    const self = BusServer.getClient(message);
-    const clients = Array<WebSocketClient>();
-
-    for (const entry of this.clientData.entries()) {
-      const client = entry[0];
-      const data = entry[1];
-
-      if (
-        !Object.is(client, self) &&
-        (message.channels.includes(data.channel) ||
-          message.channels.includes(Bus.ALL_CHANNELS))
-      ) {
-        clients.push(client);
-      }
-    }
-
-    return clients;
-  }
+  //  /**
+  //   * Obtem a lista de clientes com base numa lista de canais.
+  //   */
+  //  private getClients(message: IBusMessage): WebSocketClient[] {
+  //    const self = BusServer.getClient(message);
+  //    const clients = Array<WebSocketClient>();
+  //
+  //    for (const entry of this.clientData.entries()) {
+  //      const client = entry[0];
+  //      const data = entry[1];
+  //
+  //      if (
+  //        !Object.is(client, self) &&
+  //        (message.channels.includes(data.channel) ||
+  //          message.channels.includes(Bus.ALL_CHANNELS))
+  //      ) {
+  //        clients.push(client);
+  //      }
+  //    }
+  //
+  //    return clients;
+  //  }
 
   /**
    * Mensagem: BusMessageJoin
@@ -156,8 +117,6 @@ export class BusServer extends Bus {
       return;
     }
 
-    const client = BusServer.getClient(busMessage);
-    this.clientData.set(client, { channel, clientId: busMessage.clientId });
     await this.database.clientJoin(busMessage.clientId, channel);
 
     Logger.post(
@@ -172,8 +131,9 @@ export class BusServer extends Bus {
    * Mensagem: BusMessageText
    */
   private handleBusMessageText(message: BusMessageText): void {
-    const clients = this.getClients(message);
-    clients.forEach((client) => client.send(this.encode(message)));
+    // TODO: Preciso enviar para o servidor a mensagem
+    // const clients = this.getClients(message);
+    // clients.forEach((client) => client.send(this.encode(message)));
   }
 
   /**
@@ -182,18 +142,19 @@ export class BusServer extends Bus {
   private async handleWebSocketClientClose(
     client: WebSocketClient
   ): Promise<void> {
-    const data = this.clientData.get(client);
-    this.clientData.delete(client);
-
-    if (data === undefined) {
-      throw new ShouldNeverHappenError();
+    const clientId = this.clientsIds.get(client);
+    if (clientId !== undefined) {
+      await this.database.clientLeave(clientId);
     }
-
-    await this.database.clientLeave(data.clientId);
+    this.clientsIds.delete(client);
 
     Logger.post(
-      'A "{clientId}" client has left "{channel}" channel.',
-      { clientId: data.clientId, channel: data.channel },
+      "A client connection was closed. {clientId}",
+      {
+        clientId: clientId
+          ? `Client id "${clientId}".`
+          : "Client id unknown because no message was ever received.",
+      },
       LogLevel.Debug,
       BusServer.name
     );
@@ -206,12 +167,36 @@ export class BusServer extends Bus {
     message: string,
     client: WebSocketClient
   ): void {
-    // TODO: Implementar banco de dados central
-
     const busMessage = this.decode(message);
     if (busMessage) {
-      BusServer.setClient(busMessage, client);
-      this.dispatch(busMessage);
+      if (busMessage.clientId) {
+        let clientId = this.clientsIds.get(client);
+        if (clientId === undefined) {
+          clientId = busMessage.clientId;
+          this.clientsIds.set(client, clientId);
+        }
+
+        if (busMessage.clientId === clientId) {
+          this.dispatch(busMessage);
+        } else {
+          Logger.post(
+            "A message was ignored because the client id was changed from {previous} to {actual}.",
+            {
+              actual: busMessage.clientId,
+              previous: clientId,
+            },
+            LogLevel.Warning,
+            BusServer.name
+          );
+        }
+      } else {
+        Logger.post(
+          "A message was ignored because it has no client id.",
+          undefined,
+          LogLevel.Warning,
+          BusServer.name
+        );
+      }
     }
   }
 
@@ -219,6 +204,7 @@ export class BusServer extends Bus {
    * Handle: uma conexão de cliente foi recebida no servidor.
    */
   private handleWebSocketServerConnection(client: WebSocketClient): void {
+    this.clientsIds.set(client, undefined);
     client.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     client.onClose.add(this.handleWebSocketClientClose.bind(this));
   }
