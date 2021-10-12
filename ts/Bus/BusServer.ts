@@ -3,7 +3,6 @@ import {
   Logger,
   LogLevel,
   Message,
-  NotReadyError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 
@@ -12,6 +11,7 @@ import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
 import { Bus } from "./Bus";
+import { BusDatabase } from "./BusDatabase";
 import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
 import { BusMessageText } from "./BusMessage/BusMessageText";
 import { IBusMessage } from "./BusMessage/IBusMessage";
@@ -65,15 +65,21 @@ export class BusServer extends Bus {
   >();
 
   /**
+   * Database especializado para o Bus.
+   */
+  private readonly database: BusDatabase;
+
+  /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
    * @param databaseServer Servidor do banco de dados.
    */
   public constructor(
     private readonly webSocketServer: WebSocketServer,
-    private readonly databaseServer: IDatabase
+    databaseServer: IDatabase
   ) {
     super();
+    this.database = new BusDatabase(databaseServer);
     webSocketServer.onConnection.add(
       this.handleWebSocketServerConnection.bind(this)
     );
@@ -206,10 +212,6 @@ export class BusServer extends Bus {
    * Handle: uma conexão de cliente foi recebida no servidor.
    */
   private handleWebSocketServerConnection(client: WebSocketClient): void {
-    if (!this.databaseServer.opened) {
-      throw new NotReadyError("The database connection is not open.");
-    }
-
     client.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     client.onClose.add(this.handleWebSocketClientClose.bind(this));
   }
