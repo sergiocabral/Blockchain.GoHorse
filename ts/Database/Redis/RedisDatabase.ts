@@ -40,6 +40,33 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Grava uma entrada em uma tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   * @param value Valor.
+   */
+  public async addEntry(
+    tableName: string,
+    id: string,
+    value: unknown
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.client.hset(
+        this.formatKey(tableName),
+        id,
+        JSON.stringify(value),
+        (error) => {
+          if (!error) {
+            resolve();
+          } else {
+            reject(error);
+          }
+        }
+      );
+    });
+  }
+
+  /**
    * Fechar conexão.
    */
   public async close(): Promise<void> {
@@ -66,23 +93,6 @@ export class RedisDatabase extends Database<RedisConfiguration> {
       } else {
         reject(new InvalidExecutionError("Redis client is not opened."));
       }
-    });
-  }
-
-  /**
-   * Apaga uma entrada na tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
-   */
-  public async del(tableName: string, id: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.client.del(this.formatKey(tableName, id), (error) => {
-        if (!error) {
-          resolve();
-        } else {
-          reject(error);
-        }
-      });
     });
   }
 
@@ -195,49 +205,24 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
-   * Grava uma entrada na tabela.
+   * Apaga uma entrada em uma tabela.
    * @param tableName Nome da tabela.
    * @param id Identificador.
-   * @param value Valor.
    */
-  public async set(
-    tableName: string,
-    id: string,
-    value: unknown
-  ): Promise<void> {
+  public async removeEntry(tableName: string, id: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.client.set(
-        this.formatKey(tableName, id),
-        JSON.stringify(value),
-        (error) => {
-          if (!error) {
-            resolve();
-          } else {
-            reject(error);
-          }
-        }
-      );
-    });
-  }
-
-  /**
-   * Retorna um identificador baseado no momento atual.
-   */
-  public timeId(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      this.client.time((error, time) => {
+      this.client.hdel(this.formatKey(tableName), id, (error) => {
         if (!error) {
-          const timeId = `${time[0]}${time[1]}`;
-          resolve(timeId);
+          resolve();
         } else {
           reject(error);
         }
-      })
+      });
     });
   }
 
   /**
-   * Formnata a chave para o Redis.
+   * Formata a chave para o Redis.
    * @param parts Partes que compõe a chave.
    */
   private formatKey(...parts: string[]): string {

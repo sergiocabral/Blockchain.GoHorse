@@ -8,16 +8,17 @@ export interface IDatabase {
   get opened(): boolean;
 
   /**
+   * Grava uma entrada em uma tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   * @param value Valor.
+   */
+  addEntry(tableName: string, id: string, value: unknown): Promise<void>;
+
+  /**
    * Fechar conexão.
    */
   close(): Promise<void>;
-
-  /**
-   * Apaga uma entrada na tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
-   */
-  del(tableName: string, id: string): Promise<void>;
 
   /**
    * Abrir conexão.
@@ -25,19 +26,9 @@ export interface IDatabase {
   open(): Promise<void>;
 
   /**
-   * Grava uma entrada na tabela.
+   * Apaga uma entrada de uma tabela.
    * @param tableName Nome da tabela.
    * @param id Identificador.
-   * @param value Valor.
    */
-  set(
-    tableName: string,
-    id: string,
-    value: unknown
-  ): Promise<void>;
-
-  /**
-   * Retorna um identificador baseado no momento atual.
-   */
-  timeId(): Promise<string>;
+  removeEntry(tableName: string, id: string): Promise<void>;
 }

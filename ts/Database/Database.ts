@@ -18,6 +18,17 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * Sinaliza se a conexão foi iniciada.
    */
   public abstract get opened(): boolean;
+  /**
+   * Grava uma entrada em uma tabela.
+   * @param tableName Nome da tabela.
+   * @param id Identificador.
+   * @param value Valor.
+   */
+  public abstract addEntry(
+    tableName: string,
+    id: string,
+    value: unknown
+  ): Promise<void>;
 
   /**
    * Fechar conexão.
@@ -25,31 +36,14 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract close(): Promise<void>;
 
   /**
-   * Apaga uma entrada na tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
-   */
-  public abstract del(tableName: string, id: string): Promise<void>;
-
-  /**
    * Abrir conexão.
    */
   public abstract open(): Promise<void>;
 
   /**
-   * Grava uma entrada na tabela.
+   * Apaga uma entrada de uma tabela.
    * @param tableName Nome da tabela.
    * @param id Identificador.
-   * @param value Valor.
    */
-  public abstract set(
-    tableName: string,
-    id: string,
-    value: unknown
-  ): Promise<void>;
-
-  /**
-   * Retorna um identificador baseado no momento atual.
-   */
-  public abstract timeId(): Promise<string>;
+  public abstract removeEntry(tableName: string, id: string): Promise<void>;
 }

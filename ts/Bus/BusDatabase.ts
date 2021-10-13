@@ -9,14 +9,10 @@ import { IBusMessage } from "./BusMessage/IBusMessage";
  */
 export class BusDatabase {
   /**
-   * Valor incremental para compor identificadores baseados no tempo.
-   */
-  private static timeIdNonce = 0;
-
-  /**
    * Definições da estrutura do banco de dados.
    */
   private readonly DEFINITION = {
+    allChannelIdentifier: "_all",
     fieldChannelName: "channel",
     fieldClientId: "id",
     tableClient: "clients",
@@ -51,14 +47,14 @@ export class BusDatabase {
     value[this.DEFINITION.fieldClientId] = clientId;
     value[this.DEFINITION.fieldChannelName] = channelName;
 
-    await this.database.set(this.DEFINITION.tableClient, clientId, value);
+    await this.database.addEntry(this.DEFINITION.tableClient, clientId, value);
   }
 
   /**
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<void> {
-    await this.database.del(this.DEFINITION.tableClient, clientId);
+    await this.database.removeEntry(this.DEFINITION.tableClient, clientId);
   }
 
   /**
@@ -69,8 +65,12 @@ export class BusDatabase {
       throw new ShouldNeverHappenError();
     }
 
-    const timeId = await this.database.timeId();
-    const id = `${timeId}:${message.clientId}:${BusDatabase.timeIdNonce += 1}`;
-    await this.database.set(this.DEFINITION.tableMessage, id, message);
+    // TODO: Definir como entregar as mensagens.
+
+    await this.database.addEntry(
+      this.DEFINITION.tableMessage,
+      message.id,
+      message
+    );
   }
 }
