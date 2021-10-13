@@ -24,11 +24,14 @@ export class BusMessageJoin extends BusMessage {
 
   /**
    * Construtor.
-   * @param client Identificador do cliente.
+   * @param clientId Identificador do cliente.
    * @param channel Nome do canal.
    */
-  public constructor(public readonly client: string, channel: string) {
+  public constructor(
+    public override readonly clientId: string,
+    channel: string
+  ) {
     super([channel]);
-    this.id = this.hash(`${this.client}${this.channels.toString()}`);
+    this.id = this.hash(`${this.id}${this.clientId}`);
   }
 }

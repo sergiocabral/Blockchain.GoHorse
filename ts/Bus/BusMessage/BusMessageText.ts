@@ -33,6 +33,6 @@ export class BusMessageText extends BusMessage {
     channels: string[] = [Bus.ALL_CHANNELS]
   ) {
     super(channels);
-    this.id = this.hash(`${this.type}+${this.text}`);
+    this.id = this.hash(`${this.id}${this.text}`);
   }
 }

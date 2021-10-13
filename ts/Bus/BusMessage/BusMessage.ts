@@ -32,6 +32,11 @@ export abstract class BusMessage extends Message implements IBusMessage {
   public id: string;
 
   /**
+   * Timestamp.
+   */
+  public timestamp: number;
+
+  /**
    * Tipo da mensagem.
    */
   public type: string;
@@ -42,8 +47,11 @@ export abstract class BusMessage extends Message implements IBusMessage {
    */
   protected constructor(public readonly channels: string[]) {
     super();
-    this.id = this.hash(Math.random().toString());
     this.type = this.constructor.name;
+    this.timestamp = new Date().getTime();
+    this.id = this.hash(
+      `${this.type}${this.clientId}${this.channels.toString()}${this.timestamp}`
+    );
   }
 
   /**
