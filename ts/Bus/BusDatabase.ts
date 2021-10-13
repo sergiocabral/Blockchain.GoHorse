@@ -2,6 +2,7 @@ import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
 
 import { IDatabase } from "../Database/IDatabase";
 
+import { Bus } from "./Bus";
 import { IBusMessage } from "./BusMessage/IBusMessage";
 
 /**
@@ -12,10 +13,7 @@ export class BusDatabase {
    * Definições da estrutura do banco de dados.
    */
   private readonly DEFINITION = {
-    allChannelIdentifier: "_all",
-    fieldChannelName: "channel",
-    fieldClientId: "id",
-    tableClient: "clients",
+    tableChannel: "channels",
     tableMessage: "messages",
   };
 
@@ -43,18 +41,19 @@ export class BusDatabase {
     clientId: string,
     channelName: string
   ): Promise<void> {
-    const value: Record<string, unknown> = {};
-    value[this.DEFINITION.fieldClientId] = clientId;
-    value[this.DEFINITION.fieldChannelName] = channelName;
-
-    await this.database.addEntry(this.DEFINITION.tableClient, clientId, value);
+    await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
+      clientId,
+    ]);
   }
 
   /**
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<void> {
-    await this.database.removeEntry(this.DEFINITION.tableClient, clientId);
+    await this.database.removeValues(this.DEFINITION.tableChannel, undefined, [
+      clientId,
+    ]);
+    await this.database.removeValues(this.DEFINITION.tableMessage, [clientId]);
   }
 
   /**
@@ -65,12 +64,15 @@ export class BusDatabase {
       throw new ShouldNeverHappenError();
     }
 
-    // TODO: Definir como entregar as mensagens.
-
-    await this.database.addEntry(
-      this.DEFINITION.tableMessage,
-      message.id,
-      message
+    const clientsIds = await this.database.getValues(
+      this.DEFINITION.tableChannel,
+      message.channels.includes(Bus.ALL_CHANNELS) ? undefined : message.channels
     );
+
+    for (const clientId of clientsIds) {
+      await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
+        message,
+      ]);
+    }
   }
 }

@@ -18,16 +18,17 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * Sinaliza se a conexão foi iniciada.
    */
   public abstract get opened(): boolean;
+
   /**
-   * Grava uma entrada em uma tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
-   * @param value Valor.
+   * Adiciona um valor numa tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param values Valores.
    */
-  public abstract addEntry(
-    tableName: string,
-    id: string,
-    value: unknown
+  public abstract addValues(
+    table: string,
+    key: string,
+    values: string[]
   ): Promise<void>;
 
   /**
@@ -36,14 +37,32 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract close(): Promise<void>;
 
   /**
+   * Retorna a lista de chaves presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   */
+  public abstract getKeys(table: string): Promise<string[]>;
+
+  /**
+   * Retorna os valores presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param keys Chave. Não informado aplica-se a todos.
+   */
+  public abstract getValues(table: string, keys?: unknown[]): Promise<string[]>;
+
+  /**
    * Abrir conexão.
    */
   public abstract open(): Promise<void>;
 
   /**
-   * Apaga uma entrada de uma tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
+   * Remove um valor presente em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param keys Chave. Não informado aplica-se a todos.
+   * @param values Valor. Não informado aplica-se a todos.
    */
-  public abstract removeEntry(tableName: string, id: string): Promise<void>;
+  public abstract removeValues(
+    table: string,
+    keys?: string[],
+    values?: unknown[]
+  ): Promise<void>;
 }

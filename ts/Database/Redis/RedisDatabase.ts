@@ -10,6 +10,7 @@ import { createClient, RedisClient } from "redis";
 
 import { Database } from "../Database";
 
+import { HashValue } from "./HashValue";
 import { RedisConfiguration } from "./RedisConfiguration";
 
 /**
@@ -40,21 +41,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
-   * Grava uma entrada em uma tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
+   * Adiciona um valor numa tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
    * @param value Valor.
    */
-  public async addEntry(
-    tableName: string,
-    id: string,
+  public async addValue(
+    table: string,
+    key: string,
     value: unknown
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+      const hashValue = HashValue.format(value);
       this.client.hset(
-        this.formatKey(tableName),
-        id,
-        JSON.stringify(value),
+        this.formatKey(table, key),
+        hashValue.id,
+        hashValue.content,
         (error) => {
           if (!error) {
             resolve();
@@ -64,6 +66,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         }
       );
     });
+  }
+
+  /**
+   * Adiciona um valor numa tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param values Valores.
+   */
+  public async addValues(
+    table: string,
+    key: string,
+    values: unknown[]
+  ): Promise<void> {
+    for (const value of values) {
+      await this.addValue(table, key, value);
+    }
   }
 
   /**
@@ -92,6 +110,82 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         });
       } else {
         reject(new InvalidExecutionError("Redis client is not opened."));
+      }
+    });
+  }
+
+  /**
+   * Retorna a lista de chaves presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   */
+  public async getKeys(table: string): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+      const keyPrefix = this.formatKey(table);
+      this.client.keys(`${keyPrefix}*`, (error, keys) => {
+        if (!error) {
+          keys = keys.map((key) => key.substr(keyPrefix.length + 1));
+          resolve(keys);
+        } else {
+          reject();
+        }
+      });
+    });
+  }
+
+  /**
+   * Retorna os valores presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param keys Chave. Não informado aplica-se a todos.
+   */
+  public async getValues(table: string, keys?: string[]): Promise<string[]> {
+    const values = Array<string>();
+    keys = keys ?? (await this.getKeys(table));
+    for (const key of keys) {
+      values.push(...(await this.getValuesFromKey(table, key)));
+    }
+
+    return values;
+  }
+
+  /**
+   * Retorna o total de valores presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   */
+  public async getValuesCount(table: string, key: string): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.client.hlen(this.formatKey(table, key), (error, count) => {
+        if (!error) {
+          resolve(count);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Retorna os valores presentes em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   */
+  public async getValuesFromKey(table: string, key: string): Promise<string[]> {
+    return new Promise<string[]>(async (resolve, reject) => {
+      const count = (await this.getValuesCount(
+        table,
+        key
+      )) as unknown as string;
+      if (count) {
+        this.client.hvals(this.formatKey(table, key), (error, values) => {
+          if (!error) {
+            values = values.map((value) => HashValue.decode(value));
+            resolve(values);
+          } else {
+            reject(error);
+          }
+        });
+      } else {
+        resolve([]);
       }
     });
   }
@@ -205,25 +299,71 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
-   * Apaga uma entrada em uma tabela.
-   * @param tableName Nome da tabela.
-   * @param id Identificador.
+   * Remove uma chave presente em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
    */
-  public async removeEntry(tableName: string, id: string): Promise<void> {
+  public async removeKey(table: string, key: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.client.hdel(this.formatKey(tableName), id, (error) => {
+      this.client.del(this.formatKey(table, key), (error) => {
         if (!error) {
           resolve();
         } else {
-          reject(error);
+          reject();
         }
       });
     });
   }
 
   /**
+   * Remove um valor presente em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param value Valor.
+   */
+  public async removeValue(
+    table: string,
+    key: string,
+    value: unknown
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const hashValue = HashValue.format(value);
+      this.client.hdel(this.formatKey(table, key), hashValue.id, (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject();
+        }
+      });
+    });
+  }
+
+  /**
+   * Remove um valor presente em uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param keys Chave. Não informado aplica-se a todos.
+   * @param values Valor. Não informado aplica-se a todos.
+   */
+  public async removeValues(
+    table: string,
+    keys?: string[],
+    values?: unknown[]
+  ): Promise<void> {
+    keys = keys ?? (await this.getKeys(table));
+    for (const key of keys) {
+      if (values === undefined) {
+        await this.removeKey(table, key);
+      } else {
+        for (const value of values) {
+          await this.removeValue(table, key, value);
+        }
+      }
+    }
+  }
+
+  /**
    * Formata a chave para o Redis.
-   * @param parts Partes que compõe a chave.
+   * @param parts Partes que compõe a chave.¹
    */
   private formatKey(...parts: string[]): string {
     if (parts.length === 0) {
