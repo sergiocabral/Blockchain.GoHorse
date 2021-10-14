@@ -170,23 +170,15 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param key Chave.
    */
   public async getValuesFromKey(table: string, key: string): Promise<string[]> {
-    return new Promise<string[]>(async (resolve, reject) => {
-      const count = (await this.getValuesCount(
-        table,
-        key
-      )) as unknown as string;
-      if (count) {
-        this.client.hvals(this.formatKey(table, key), (error, values) => {
-          if (!error) {
-            values = values.map((value) => HashValue.decode(value));
-            resolve(values);
-          } else {
-            reject(error);
-          }
-        });
-      } else {
-        resolve([]);
-      }
+    return new Promise<string[]>((resolve, reject) => {
+      this.client.hvals(this.formatKey(table, key), (error, values) => {
+        if (!error) {
+          values = values.map((value) => HashValue.decode(value));
+          resolve(values);
+        } else {
+          reject(error);
+        }
+      });
     });
   }
 
