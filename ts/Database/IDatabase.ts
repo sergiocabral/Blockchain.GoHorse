@@ -18,7 +18,7 @@ export interface IDatabase {
    * @param key Chave.
    * @param values Valores.
    */
-  addValues(table: string, key: string, values: unknown[]): Promise<void>;
+  addValues(table: string, key: string, values: unknown[]): Promise<string[]>;
 
   /**
    * Fechar conexão.

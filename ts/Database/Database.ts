@@ -36,7 +36,7 @@ export abstract class Database<TConfiguration extends JsonLoader>
     table: string,
     key: string,
     values: string[]
-  ): Promise<void>;
+  ): Promise<string[]>;
 
   /**
    * Fechar conexão.

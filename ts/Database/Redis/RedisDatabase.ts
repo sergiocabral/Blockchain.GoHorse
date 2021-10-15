@@ -5,6 +5,7 @@ import {
   LogLevel,
   NotReadyError,
   RequestError,
+  ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 import { createClient, RedisClient } from "redis";
 
@@ -24,26 +25,67 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     new Set<(channel: string, message: string) => void>();
 
   /**
-   * Cliente de conexão com o Redis.
+   * Conexão primária para comandos.
    */
-  private clientValue?: RedisClient;
+  private primaryConnection?: RedisClient;
+
+  /**
+   * Descrição da conexão primária.
+   * @private
+   */
+  private readonly primaryConnectionDescription =
+    "primary connection for commands";
+
+  /**
+   * Conexão secundária para ouvir inscrições.
+   */
+  private secondaryConnection?: RedisClient;
+
+  /**
+   * Descrição da conexão primária.
+   * @private
+   */
+  private readonly secondaryConnectionDescription =
+    "secondary connection for subscriptions";
 
   /**
    * Sinaliza se a conexão foi iniciada.
    */
   public get opened(): boolean {
-    return this.clientValue?.connected === true;
+    return (
+      this.primaryConnection?.connected === true &&
+      this.secondaryConnection?.connected === true
+    );
   }
 
   /**
-   * Cliente de conexão com o Redis pronto para uso.
+   * Cliente de conexão com o Redis pronto para uso com comandos gerais.
    */
-  private get client(): RedisClient {
-    if (this.clientValue === undefined) {
-      throw new NotReadyError("Redis client is not ready.");
+  private get redis(): RedisClient {
+    if (this.primaryConnection === undefined) {
+      throw new NotReadyError(
+        "Redis client ({description}) is not ready.".querystring({
+          description: this.primaryConnectionDescription,
+        })
+      );
     }
 
-    return this.clientValue;
+    return this.primaryConnection;
+  }
+
+  /**
+   * Cliente de conexão com o Redis pronto para uso em inscrições.
+   */
+  private get subscriptions(): RedisClient {
+    if (this.secondaryConnection === undefined) {
+      throw new NotReadyError(
+        "Redis client ({description}) is not ready.".querystring({
+          description: this.secondaryConnectionDescription,
+        })
+      );
+    }
+
+    return this.secondaryConnection;
   }
 
   /**
@@ -56,16 +98,16 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     table: string,
     key: string,
     value: unknown
-  ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  ): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
       const hashValue = HashValue.format(value);
-      this.client.hset(
+      this.redis.hset(
         this.formatKey(table, key),
         hashValue.id,
         hashValue.content,
         (error) => {
           if (!error) {
-            resolve();
+            resolve(hashValue.id);
           } else {
             reject(error);
           }
@@ -84,40 +126,27 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     table: string,
     key: string,
     values: unknown[]
-  ): Promise<void> {
+  ): Promise<string[]> {
+    const ids = Array<string>();
     for (const value of values) {
-      await this.addValue(table, key, value);
+      ids.push(await this.addValue(table, key, value));
     }
+
+    return ids;
   }
 
   /**
    * Fechar conexão.
    */
   public async close(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.clientValue !== undefined) {
-        this.clientValue.quit((error: Error | null) => {
-          this.clientValue = undefined;
-          if (!error) {
-            Logger.post(
-              "The connection to Redis was successfully terminated.",
-              undefined,
-              LogLevel.Debug,
-              RedisDatabase.name
-            );
-            resolve();
-          } else {
-            reject(
-              new RequestError(
-                `Connection to Redis was not terminated successfully: ${error.message}`
-              )
-            );
-          }
-        });
-      } else {
-        reject(new InvalidExecutionError("Redis client is not opened."));
-      }
-    });
+    this.primaryConnection = await this.closeConnection(
+      this.primaryConnection,
+      this.primaryConnectionDescription
+    );
+    this.secondaryConnection = await this.closeConnection(
+      this.secondaryConnection,
+      this.secondaryConnectionDescription
+    );
   }
 
   /**
@@ -127,7 +156,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async getKeys(table: string): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
       const keyPrefix = this.formatKey(table);
-      this.client.keys(`${keyPrefix}*`, (error, keys) => {
+      this.redis.keys(`${keyPrefix}*`, (error, keys) => {
         if (!error) {
           keys = keys.map((key) => key.substr(keyPrefix.length + 1));
           resolve(keys);
@@ -160,7 +189,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async getValuesCount(table: string, key: string): Promise<number> {
     return new Promise<number>((resolve, reject) => {
-      this.client.hlen(this.formatKey(table, key), (error, count) => {
+      this.redis.hlen(this.formatKey(table, key), (error, count) => {
         if (!error) {
           resolve(count);
         } else {
@@ -177,7 +206,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async getValuesFromKey(table: string, key: string): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
-      this.client.hvals(this.formatKey(table, key), (error, values) => {
+      this.redis.hvals(this.formatKey(table, key), (error, values) => {
         if (!error) {
           values = values.map((value) => HashValue.decode(value));
           resolve(values);
@@ -194,7 +223,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async info(...section: string[]): Promise<Record<string, string>> {
     return new Promise<Record<string, string>>((resolve, reject) => {
-      this.client.info(section, (error, serverInfo) => {
+      this.redis.info(section, (error, serverInfo) => {
         if (!error) {
           const info = String(serverInfo)
             .split("\n")
@@ -228,7 +257,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async notify(channel: string, message: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.client.publish(channel, message, (error) => {
+      this.redis.publish(channel, message, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -242,77 +271,18 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * Abrir conexão.
    */
   public async open(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      let finalized = false;
-      const finalize = (result: string | Error) => {
-        finalized = true;
-        if (typeof result === "string") {
-          Logger.post(
-            "Success in Redis connection to {server}:{port} server in database index {db}. {result}",
-            {
-              db: this.configuration.databaseIndex,
-              port: this.configuration.port,
-              result,
-              server: this.configuration.server,
-            },
-            LogLevel.Debug,
-            RedisDatabase.name
-          );
-          resolve();
-        } else {
-          reject(new RequestError(result.message));
-          this.clientValue?.end(false);
-        }
-      };
+    this.primaryConnection = await this.openConnection(
+      this.primaryConnection,
+      this.primaryConnectionDescription,
+      (instance) => (this.primaryConnection = instance)
+    );
+    this.secondaryConnection = await this.openConnection(
+      this.secondaryConnection,
+      this.secondaryConnectionDescription,
+      (instance) => (this.secondaryConnection = instance)
+    );
 
-      if (this.clientValue === undefined) {
-        const client = (this.clientValue = createClient(
-          this.configuration.port,
-          this.configuration.server,
-          {
-            db: this.configuration.databaseIndex,
-          }
-        ));
-
-        if (typeof this.configuration.password === "string") {
-          client.auth(this.configuration.password);
-        }
-
-        client.on("ready", async () => {
-          if (finalized) {
-            return;
-          }
-
-          client.on("message", this.handleMessage.bind(this));
-
-          try {
-            finalize(
-              `Server Version: {Server.redis_version}, Build Id: {Server.redis_build_id}, Mode: {Server.redis_mode}, Operational System: {Server.os} {Server.arch_bits} bits, TCP port: {Server.tcp_port}.`.querystring(
-                await this.info("server")
-              )
-            );
-          } catch (error: unknown) {
-            finalize(
-              new Error(
-                `Redis connected but failed fetch server info: ${
-                  error instanceof Error ? error.message : String(error)
-                }`
-              )
-            );
-          }
-        });
-
-        client.on("error", (error: Error) => {
-          if (finalized) {
-            return;
-          }
-
-          finalize(new Error(`Connection to Redis failed: ${error?.message}`));
-        });
-      } else {
-        finalize(new Error("Redis client already opened."));
-      }
-    });
+    this.secondaryConnection.on("message", this.handleMessage.bind(this));
   }
 
   /**
@@ -322,7 +292,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async removeKey(table: string, key: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.client.del(this.formatKey(table, key), (error) => {
+      this.redis.del(this.formatKey(table, key), (error) => {
         if (!error) {
           resolve();
         } else {
@@ -345,7 +315,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const hashValue = HashValue.format(value);
-      this.client.hdel(this.formatKey(table, key), hashValue.id, (error) => {
+      this.redis.hdel(this.formatKey(table, key), hashValue.id, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -384,7 +354,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async subscribe(channel: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.client.subscribe(channel, (error) => {
+      this.subscriptions.subscribe(channel, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -400,13 +370,55 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async unsubscribe(channel: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.client.unsubscribe(channel, (error) => {
+      this.subscriptions.unsubscribe(channel, (error) => {
         if (!error) {
           resolve();
         } else {
           reject(error);
         }
       });
+    });
+  }
+
+  /**
+   * Finaliza uma conexão com o redis.
+   * @param connection Conexão.
+   * @param description Descrição da conexão.
+   */
+  private async closeConnection(
+    connection: RedisClient | undefined,
+    description: string
+  ): Promise<undefined> {
+    return new Promise<undefined>((resolve, reject) => {
+      if (connection !== undefined) {
+        connection.quit((error: Error | null) => {
+          if (!error) {
+            Logger.post(
+              "The connection to Redis ({description}) was successfully terminated.",
+              { description },
+              LogLevel.Debug,
+              RedisDatabase.name
+            );
+            resolve(undefined);
+          } else {
+            reject(
+              new RequestError(
+                `Connection to Redis ({description}) was not terminated successfully: ${error.message}`.querystring(
+                  { description }
+                )
+              )
+            );
+          }
+        });
+      } else {
+        reject(
+          new InvalidExecutionError(
+            "Redis client ({description}) is not opened.".querystring({
+              description,
+            })
+          )
+        );
+      }
     });
   }
 
@@ -433,5 +445,106 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   private handleMessage(channel: string, message: string): void {
     this.onMessage.forEach((onMessage) => onMessage(channel, message));
+  }
+
+  /**
+   * Abre uma conexão com o Redis.
+   * @param connection Conexão.
+   * @param description Descrição da conexão.
+   * @param setInstance Chamada para definir a instância.
+   */
+  private async openConnection(
+    connection: RedisClient | undefined,
+    description: string,
+    setInstance: (instance: RedisClient) => void
+  ): Promise<RedisClient> {
+    return new Promise<RedisClient>((resolve, reject) => {
+      let finalized = false;
+      const finalize = (result: string | Error) => {
+        finalized = true;
+        if (typeof result === "string") {
+          Logger.post(
+            "Success in Redis ({description}) to {server}:{port} server in database index {db}. {result}",
+            {
+              db: this.configuration.databaseIndex,
+              description,
+              port: this.configuration.port,
+              result,
+              server: this.configuration.server,
+            },
+            LogLevel.Debug,
+            RedisDatabase.name
+          );
+
+          if (!connection) {
+            throw new ShouldNeverHappenError();
+          }
+
+          resolve(connection);
+        } else {
+          reject(new RequestError(result.message));
+          connection?.end(false);
+        }
+      };
+
+      if (connection === undefined) {
+        const client = createClient(
+          this.configuration.port,
+          this.configuration.server,
+          {
+            db: this.configuration.databaseIndex,
+          }
+        );
+        setInstance((connection = client));
+
+        if (typeof this.configuration.password === "string") {
+          client.auth(this.configuration.password);
+        }
+
+        client.on("ready", async () => {
+          if (finalized) {
+            return;
+          }
+
+          try {
+            finalize(
+              `Server Version: {Server.redis_version}, Build Id: {Server.redis_build_id}, Mode: {Server.redis_mode}, Operational System: {Server.os} {Server.arch_bits} bits, TCP port: {Server.tcp_port}.`.querystring(
+                await this.info("server")
+              )
+            );
+          } catch (error: unknown) {
+            finalize(
+              new Error(
+                `Redis ({description}) connected but failed fetch server info: ${
+                  error instanceof Error ? error.message : String(error)
+                }`.querystring({ description })
+              )
+            );
+          }
+        });
+
+        client.on("error", (error: Error) => {
+          if (finalized) {
+            return;
+          }
+
+          finalize(
+            new Error(
+              `Connection to Redis ({description}) failed: ${error?.message}`.querystring(
+                { description }
+              )
+            )
+          );
+        });
+      } else {
+        finalize(
+          new Error(
+            "Redis client ({description}) already opened.".querystring({
+              description,
+            })
+          )
+        );
+      }
+    });
   }
 }

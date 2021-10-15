@@ -80,9 +80,15 @@ export class BusDatabase {
     );
 
     for (const clientId of clientsIds) {
-      await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
-        message,
-      ]);
+      const messageIds = await this.database.addValues(
+        this.DEFINITION.tableMessage,
+        clientId,
+        [message]
+      );
+
+      for (const messageId of messageIds) {
+        await this.database.notify(clientId, messageId);
+      }
     }
   }
 
