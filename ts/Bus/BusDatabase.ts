@@ -68,6 +68,23 @@ export class BusDatabase {
   }
 
   /**
+   * Retorna as mensagens pendentes para um cliente.
+   */
+  public async getMessages(clientId: string): Promise<string[]> {
+    const messages = await this.database.getValues(
+      this.DEFINITION.tableMessage,
+      [clientId]
+    );
+    await this.database.removeValues(
+      this.DEFINITION.tableMessage,
+      [clientId],
+      messages
+    );
+
+    return messages.map((message) => JSON.stringify(message));
+  }
+
+  /**
    * Posta uma mensagem do Bus.
    */
   public async postMessage(message: BusMessage): Promise<void> {
@@ -75,7 +92,7 @@ export class BusDatabase {
       throw new ShouldNeverHappenError();
     }
 
-    const clientsIds = await this.database.getValues(
+    const clientsIds = await this.database.getValues<string>(
       this.DEFINITION.tableChannel,
       message.channels.includes(Bus.ALL_CHANNELS) ? undefined : message.channels
     );

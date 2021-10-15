@@ -54,7 +54,10 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * @param table Nome da tabela.
    * @param keys Chave. Não informado aplica-se a todos.
    */
-  public abstract getValues(table: string, keys?: unknown[]): Promise<string[]>;
+  public abstract getValues<TResult = unknown>(
+    table: string,
+    keys?: unknown[]
+  ): Promise<TResult[]>;
 
   /**
    * Envia uma notificação

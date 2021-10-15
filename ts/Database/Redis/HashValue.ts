@@ -1,5 +1,7 @@
 import md5 from "md5";
 
+// TODO: Remover essa classe
+
 /**
  * Representa uma valor para gravação como hash.
  */

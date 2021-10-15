@@ -34,6 +34,16 @@ export class BusServer extends Bus {
   private readonly database: BusDatabase;
 
   /**
+   * Sinaliza que o polling de mensagens está em execução.
+   */
+  private dispatchPendingMessagesIsRunning = false;
+
+  /**
+   * Lista de clientes com mensagens pendentes.
+   */
+  private readonly pendingMessages: Array<[WebSocketClient, string]> = [];
+
+  /**
    * Construtor.
    * @param webSocketServer Servidor websocket.
    * @param databaseServer Servidor do banco de dados.
@@ -93,6 +103,34 @@ export class BusServer extends Bus {
   }
 
   /**
+   * Obtem e envia as mensagens pendentes.
+   */
+  private dispatchPendingMessages(): void {
+    const run = async () => {
+      const clientData = this.pendingMessages.shift();
+
+      if (!clientData) {
+        this.dispatchPendingMessagesIsRunning = false;
+
+        return;
+      }
+
+      const client = clientData[0];
+      const clientId = clientData[1];
+
+      const rawMessages = await this.database.getMessages(clientId);
+      rawMessages.forEach((rawMessage) => client.send(rawMessage));
+
+      setImmediate(run);
+    };
+
+    if (!this.dispatchPendingMessagesIsRunning) {
+      this.dispatchPendingMessagesIsRunning = true;
+      void run();
+    }
+  }
+
+  /**
    * Mensagem: BusMessageJoin
    */
   private async handleBusMessageJoin(
@@ -146,8 +184,29 @@ export class BusServer extends Bus {
    * @param clientId Cliente que recebeu mensagem.
    */
   private handleListenerNotifications(clientId: string): void {
-    // TODO: implementar.
-    Logger.post("notification for {0}".querystring(clientId));
+    const client = (Array.from(this.clientsIds.entries()).find(
+      (entry) => entry[1] === clientId
+    ) ?? [])[0];
+
+    if (!client) {
+      Logger.post(
+        'Received a notification for a non-existent "{clientId}" client.',
+        { clientId },
+        LogLevel.Warning,
+        BusServer.name
+      );
+
+      return;
+    }
+
+    const notIncluded =
+      this.pendingMessages.findIndex((clientData) =>
+        Object.is(clientData[0], client)
+      ) < 0;
+    if (notIncluded) {
+      this.pendingMessages.push([client, clientId]);
+      this.dispatchPendingMessages();
+    }
   }
 
   /**

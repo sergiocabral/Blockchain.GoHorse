@@ -31,7 +31,6 @@ export class RedisDatabase extends Database<RedisConfiguration> {
 
   /**
    * Descrição da conexão primária.
-   * @private
    */
   private readonly primaryConnectionDescription =
     "primary connection for commands";
@@ -43,7 +42,6 @@ export class RedisDatabase extends Database<RedisConfiguration> {
 
   /**
    * Descrição da conexão primária.
-   * @private
    */
   private readonly secondaryConnectionDescription =
     "secondary connection for subscriptions";
@@ -172,11 +170,14 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param table Nome da tabela.
    * @param keys Chave. Não informado aplica-se a todos.
    */
-  public async getValues(table: string, keys?: string[]): Promise<string[]> {
-    const values = Array<string>();
+  public async getValues<TResult = unknown>(
+    table: string,
+    keys?: string[]
+  ): Promise<TResult[]> {
+    const values = Array<TResult>();
     keys = keys ?? (await this.getKeys(table));
     for (const key of keys) {
-      values.push(...(await this.getValuesFromKey(table, key)));
+      values.push(...(await this.getValuesFromKey<TResult>(table, key)));
     }
 
     return values;
@@ -204,12 +205,17 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param table Nome da tabela.
    * @param key Chave.
    */
-  public async getValuesFromKey(table: string, key: string): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
+  public async getValuesFromKey<TResult = unknown>(
+    table: string,
+    key: string
+  ): Promise<TResult[]> {
+    return new Promise<TResult[]>((resolve, reject) => {
       this.redis.hvals(this.formatKey(table, key), (error, values) => {
         if (!error) {
-          values = values.map((value) => HashValue.decode(value));
-          resolve(values);
+          const valuesDecoded = values.map((value) =>
+            HashValue.decode<TResult>(value)
+          );
+          resolve(valuesDecoded);
         } else {
           reject(error);
         }

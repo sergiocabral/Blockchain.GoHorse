@@ -36,7 +36,10 @@ export interface IDatabase {
    * @param table Nome da tabela.
    * @param keys Chaves. Não informado aplica-se a todos.
    */
-  getValues(table: string, keys?: string[]): Promise<string[]>;
+  getValues<TResult = unknown>(
+    table: string,
+    keys?: string[]
+  ): Promise<TResult[]>;
 
   /**
    * Envia uma notificação
