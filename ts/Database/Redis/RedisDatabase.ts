@@ -18,6 +18,12 @@ import { RedisConfiguration } from "./RedisConfiguration";
  */
 export class RedisDatabase extends Database<RedisConfiguration> {
   /**
+   * Evento: quando uma mensagem é recebida via inscrição.
+   */
+  public readonly onMessage: Set<(channel: string, message: string) => void> =
+    new Set<(channel: string, message: string) => void>();
+
+  /**
    * Cliente de conexão com o Redis.
    */
   private clientValue?: RedisClient;
@@ -216,6 +222,23 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Envia uma notificação
+   * @param channel Canal.
+   * @param message Mensagem.
+   */
+  public async notify(channel: string, message: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.publish(channel, message, (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Abrir conexão.
    */
   public async open(): Promise<void> {
@@ -259,6 +282,8 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           if (finalized) {
             return;
           }
+
+          client.on("message", this.handleMessage.bind(this));
 
           try {
             finalize(
@@ -354,6 +379,38 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Se inscreve para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  public async subscribe(channel: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.subscribe(channel, (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Cancela a inscrição para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  public async unsubscribe(channel: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.unsubscribe(channel, (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Formata a chave para o Redis.
    * @param parts Partes que compõe a chave.¹
    */
@@ -367,5 +424,14 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     }
 
     return parts.join(":");
+  }
+
+  /**
+   * Quando recebe uma mensagem via inscrição.
+   * @param channel Canal.
+   * @param message Mensagem recebida.
+   */
+  private handleMessage(channel: string, message: string): void {
+    this.onMessage.forEach((onMessage) => onMessage(channel, message));
   }
 }

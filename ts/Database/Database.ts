@@ -15,6 +15,13 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public constructor(protected readonly configuration: TConfiguration) {}
 
   /**
+   * Evento: quando uma mensagem é recebida via inscrição.
+   */
+  public abstract get onMessage(): Set<
+    (channel: string, message: string) => void
+  >;
+
+  /**
    * Sinaliza se a conexão foi iniciada.
    */
   public abstract get opened(): boolean;
@@ -50,6 +57,13 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract getValues(table: string, keys?: unknown[]): Promise<string[]>;
 
   /**
+   * Envia uma notificação
+   * @param channel Canal.
+   * @param message Mensagem.
+   */
+  public abstract notify(channel: string, message: string): Promise<void>;
+
+  /**
    * Abrir conexão.
    */
   public abstract open(): Promise<void>;
@@ -65,4 +79,16 @@ export abstract class Database<TConfiguration extends JsonLoader>
     keys?: string[],
     values?: unknown[]
   ): Promise<void>;
+
+  /**
+   * Se inscreve para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  public abstract subscribe(channel: string): Promise<void>;
+
+  /**
+   * Cancela a inscrição para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  public abstract unsubscribe(channel: string): Promise<void>;
 }

@@ -10,6 +10,12 @@ import { BusMessage } from "./BusMessage/BusMessage";
  */
 export class BusDatabase {
   /**
+   * Evento: quando uma mensagem é recebida.
+   */
+  public readonly onMessageReceived: Set<(rawMessage: string) => void> =
+    new Set<(rawMessage: string) => void>();
+
+  /**
    * Definições da estrutura do banco de dados.
    */
   private readonly DEFINITION = {
@@ -21,7 +27,9 @@ export class BusDatabase {
    * Construtor.
    * @param databaseValue Banco de dados.
    */
-  public constructor(private readonly databaseValue: IDatabase) {}
+  public constructor(private readonly databaseValue: IDatabase) {
+    this.databaseValue.onMessage.add(this.handleMessage.bind(this));
+  }
 
   /**
    * Banco de dados com conexão pronta para uso.
@@ -44,12 +52,14 @@ export class BusDatabase {
     await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
       clientId,
     ]);
+    await this.database.subscribe(clientId);
   }
 
   /**
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<void> {
+    await this.database.unsubscribe(clientId);
     await this.database.removeValues(this.DEFINITION.tableChannel, undefined, [
       clientId,
     ]);
@@ -74,5 +84,16 @@ export class BusDatabase {
         message,
       ]);
     }
+  }
+
+  /**
+   * Handle: Mensagem recebida via notificação.
+   * @param channel Canal.
+   * @param message Mensagem.
+   */
+  private handleMessage(channel: string, message: string): void {
+    this.onMessageReceived.forEach((onMessageReceived) =>
+      onMessageReceived(message)
+    );
   }
 }

@@ -3,6 +3,11 @@
  */
 export interface IDatabase {
   /**
+   * Evento: quando uma mensagem é recebida via inscrição.
+   */
+  get onMessage(): Set<(channel: string, message: string) => void>;
+
+  /**
    * Sinaliza se a conexão foi iniciada.
    */
   get opened(): boolean;
@@ -34,6 +39,13 @@ export interface IDatabase {
   getValues(table: string, keys?: string[]): Promise<string[]>;
 
   /**
+   * Envia uma notificação
+   * @param channel Canal.
+   * @param message Mensagem.
+   */
+  notify(channel: string, message: string): Promise<void>;
+
+  /**
    * Abrir conexão.
    */
   open(): Promise<void>;
@@ -49,4 +61,16 @@ export interface IDatabase {
     keys?: string[],
     values?: unknown[]
   ): Promise<void>;
+
+  /**
+   * Se inscreve para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  subscribe(channel: string): Promise<void>;
+
+  /**
+   * Cancela a inscrição para receber notificações em um canal.
+   * @param channel Canal.
+   */
+  unsubscribe(channel: string): Promise<void>;
 }

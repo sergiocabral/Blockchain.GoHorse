@@ -43,13 +43,17 @@ export class BusServer extends Bus {
     databaseServer: IDatabase
   ) {
     super();
+
     this.database = new BusDatabase(databaseServer);
+    this.database.onMessageReceived.add(this.handleListenerNotifications.bind(this));
+
     webSocketServer.onConnection.add(
       this.handleWebSocketServerConnection.bind(this)
     );
     webSocketServer.clients.forEach((client) =>
       this.handleWebSocketServerConnection(client)
     );
+
     Message.subscribe(BusMessageJoin, this.handleBusMessageJoin.bind(this));
   }
 
@@ -133,6 +137,16 @@ export class BusServer extends Bus {
       LogLevel.Debug,
       BusServer.name
     );
+  }
+
+  /**
+   * Handle: Mensagem recebida do bus.
+   * @param rawMessage Mensagem do bus como texto.
+   */
+  private handleListenerNotifications(rawMessage: string): void {
+    // TODO: implementar.
+    const busMessage = this.decode(rawMessage);
+    Logger.post(`${busMessage?.type} : ${rawMessage}`);
   }
 
   /**
