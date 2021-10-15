@@ -139,7 +139,9 @@ export class BusServer extends Bus {
    * Handle: Cliente fechou.
    */
   private async handleWebSocketClientClose(
-    client: WebSocketClient
+    client: WebSocketClient,
+    code: number,
+    reason: string
   ): Promise<void> {
     const clientId = this.clientsIds.get(client);
     if (clientId !== undefined) {
@@ -148,11 +150,13 @@ export class BusServer extends Bus {
     this.clientsIds.delete(client);
 
     Logger.post(
-      "A client connection was closed. {clientId}",
+      "A client connection was closed. {clientId} Reason: {code}, {reason}",
       {
         clientId: clientId
           ? `Client id "${clientId}".`
           : "Client id unknown because no message was ever received.",
+        code,
+        reason,
       },
       LogLevel.Debug,
       BusServer.name

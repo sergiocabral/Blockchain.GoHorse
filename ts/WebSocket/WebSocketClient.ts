@@ -12,8 +12,10 @@ export class WebSocketClient {
   /**
    * Evento: o cliente fechou.
    */
-  public readonly onClose: Set<(client: WebSocketClient) => void> = new Set<
-    (client: WebSocketClient) => void
+  public readonly onClose: Set<
+    (client: WebSocketClient, code: number, reason: string) => void
+  > = new Set<
+    (client: WebSocketClient, code: number, reason: string) => void
   >();
 
   /**
@@ -156,17 +158,18 @@ export class WebSocketClient {
   /**
    * Handle: ao finalizar a conexão.
    */
-  private handleClientClose(): void {
+  private handleClientClose(code: number, reasonBuffer: Buffer): void {
     this.client = undefined;
+    const reason = reasonBuffer.toString();
 
     Logger.post(
-      "Websocket client connection closed.",
-      undefined,
+      'Websocket client connection closed with code "{code}" and reason "{reason}".',
+      { code, reason },
       LogLevel.Debug,
       WebSocketClient.name
     );
 
-    this.onClose.forEach((onClientClose) => onClientClose(this));
+    this.onClose.forEach((onClientClose) => onClientClose(this, code, reason));
   }
 
   /**
