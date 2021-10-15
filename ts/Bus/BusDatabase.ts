@@ -12,7 +12,9 @@ export class BusDatabase {
   /**
    * Evento: quando uma mensagem é recebida.
    */
-  public readonly onMessageReceived: Set<() => void> = new Set<() => void>();
+  public readonly onMessageReceived: Set<(clientId: string) => void> = new Set<
+    (clientId: string) => void
+  >();
 
   /**
    * Definições da estrutura do banco de dados.
@@ -93,8 +95,11 @@ export class BusDatabase {
 
   /**
    * Handle: Notificação recebida em um canal.
+   * @param channel Canal
    */
-  private handleMessage(): void {
-    this.onMessageReceived.forEach((onMessageReceived) => onMessageReceived());
+  private handleMessage(channel: string): void {
+    this.onMessageReceived.forEach((onMessageReceived) =>
+      onMessageReceived(channel)
+    );
   }
 }

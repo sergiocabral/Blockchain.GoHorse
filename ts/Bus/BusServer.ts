@@ -45,7 +45,9 @@ export class BusServer extends Bus {
     super();
 
     this.database = new BusDatabase(databaseServer);
-    this.database.onMessageReceived.add(this.handleListenerNotifications.bind(this));
+    this.database.onMessageReceived.add(
+      this.handleListenerNotifications.bind(this)
+    );
 
     webSocketServer.onConnection.add(
       this.handleWebSocketServerConnection.bind(this)
@@ -141,10 +143,11 @@ export class BusServer extends Bus {
 
   /**
    * Handle: Mensagem recebida do bus.
+   * @param clientId Cliente que recebeu mensagem.
    */
-  private handleListenerNotifications(): void {
+  private handleListenerNotifications(clientId: string): void {
     // TODO: implementar.
-    Logger.post('notification');
+    Logger.post("notification for {0}".querystring(clientId));
   }
 
   /**
@@ -162,7 +165,7 @@ export class BusServer extends Bus {
     this.clientsIds.delete(client);
 
     Logger.post(
-      "A client connection was closed. {clientId} Reason: {code}, {reason}",
+      'A client connection was closed. {clientId} Reason: {code}, "{reason}".',
       {
         clientId: clientId
           ? `Client id "${clientId}".`
