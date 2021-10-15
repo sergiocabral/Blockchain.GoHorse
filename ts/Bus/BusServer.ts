@@ -141,12 +141,10 @@ export class BusServer extends Bus {
 
   /**
    * Handle: Mensagem recebida do bus.
-   * @param rawMessage Mensagem do bus como texto.
    */
-  private handleListenerNotifications(rawMessage: string): void {
+  private handleListenerNotifications(): void {
     // TODO: implementar.
-    const busMessage = this.decode(rawMessage);
-    Logger.post(`${busMessage?.type} : ${rawMessage}`);
+    Logger.post('notification');
   }
 
   /**

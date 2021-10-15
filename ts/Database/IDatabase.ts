@@ -43,7 +43,7 @@ export interface IDatabase {
    * @param channel Canal.
    * @param message Mensagem.
    */
-  notify(channel: string, message: string): Promise<void>;
+  notify(channel: string, message?: string): Promise<void>;
 
   /**
    * Abrir conexão.

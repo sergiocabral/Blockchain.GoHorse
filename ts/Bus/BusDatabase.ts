@@ -12,8 +12,7 @@ export class BusDatabase {
   /**
    * Evento: quando uma mensagem é recebida.
    */
-  public readonly onMessageReceived: Set<(rawMessage: string) => void> =
-    new Set<(rawMessage: string) => void>();
+  public readonly onMessageReceived: Set<() => void> = new Set<() => void>();
 
   /**
    * Definições da estrutura do banco de dados.
@@ -80,26 +79,22 @@ export class BusDatabase {
     );
 
     for (const clientId of clientsIds) {
-      const messageIds = await this.database.addValues(
-        this.DEFINITION.tableMessage,
-        clientId,
-        [message]
-      );
-
-      for (const messageId of messageIds) {
-        await this.database.notify(clientId, messageId);
+      if (message.clientId === clientId) {
+        continue;
       }
+
+      await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
+        message,
+      ]);
+
+      await this.database.notify(clientId);
     }
   }
 
   /**
-   * Handle: Mensagem recebida via notificação.
-   * @param channel Canal.
-   * @param message Mensagem.
+   * Handle: Notificação recebida em um canal.
    */
-  private handleMessage(channel: string, message: string): void {
-    this.onMessageReceived.forEach((onMessageReceived) =>
-      onMessageReceived(message)
-    );
+  private handleMessage(): void {
+    this.onMessageReceived.forEach((onMessageReceived) => onMessageReceived());
   }
 }

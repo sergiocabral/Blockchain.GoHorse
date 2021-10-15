@@ -61,7 +61,7 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * @param channel Canal.
    * @param message Mensagem.
    */
-  public abstract notify(channel: string, message: string): Promise<void>;
+  public abstract notify(channel: string, message?: string): Promise<void>;
 
   /**
    * Abrir conexão.

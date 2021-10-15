@@ -255,9 +255,9 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param channel Canal.
    * @param message Mensagem.
    */
-  public async notify(channel: string, message: string): Promise<void> {
+  public async notify(channel: string, message?: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.redis.publish(channel, message, (error) => {
+      this.redis.publish(channel, message ?? "", (error) => {
         if (!error) {
           resolve();
         } else {
