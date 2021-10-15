@@ -72,6 +72,11 @@ export interface IDatabase {
   subscribe(channel: string): Promise<void>;
 
   /**
+   * Data e hora do servidor.
+   */
+  time(): Promise<Date>;
+
+  /**
    * Cancela a inscrição para receber notificações em um canal.
    * @param channel Canal.
    */

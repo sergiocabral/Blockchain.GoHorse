@@ -367,6 +367,26 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Data e hora do servidor.
+   */
+  public async time(): Promise<Date> {
+    return new Promise((resolve, reject) => {
+      this.redis.time((error, time) => {
+        if (!error) {
+          const shiftMilliseconds = 1000;
+          const unixTime = Number(time[0]);
+          const microseconds = Number(time[1]);
+          const date = new Date(unixTime * shiftMilliseconds);
+          date.setMilliseconds(microseconds);
+          resolve(date);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Cancela a inscrição para receber notificações em um canal.
    * @param channel Canal.
    */

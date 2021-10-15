@@ -92,6 +92,11 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract subscribe(channel: string): Promise<void>;
 
   /**
+   * Data e hora do servidor.
+   */
+  public abstract time(): Promise<Date>;
+
+  /**
    * Cancela a inscrição para receber notificações em um canal.
    * @param channel Canal.
    */
