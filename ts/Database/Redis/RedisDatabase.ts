@@ -10,8 +10,9 @@ import {
 import { createClient, RedisClient } from "redis";
 
 import { Database } from "../Database";
+import { IValue } from "../IValue";
+import { ValueId } from "../ValueId";
 
-import { HashValue } from "./HashValue";
 import { RedisConfiguration } from "./RedisConfiguration";
 
 /**
@@ -95,17 +96,16 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async addValue(
     table: string,
     key: string,
-    value: unknown
-  ): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const hashValue = HashValue.format(value);
+    value: IValue
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       this.redis.hset(
         this.formatKey(table, key),
-        hashValue.id,
-        hashValue.content,
+        value.id,
+        value.content ?? value.id,
         (error) => {
           if (!error) {
-            resolve(hashValue.id);
+            resolve();
           } else {
             reject(error);
           }
@@ -123,14 +123,11 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async addValues(
     table: string,
     key: string,
-    values: unknown[]
-  ): Promise<string[]> {
-    const ids = Array<string>();
+    values: IValue[]
+  ): Promise<void> {
     for (const value of values) {
-      ids.push(await this.addValue(table, key, value));
+      await this.addValue(table, key, value);
     }
-
-    return ids;
   }
 
   /**
@@ -173,11 +170,11 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public async getValues<TResult = unknown>(
     table: string,
     keys?: string[]
-  ): Promise<TResult[]> {
-    const values = Array<TResult>();
+  ): Promise<IValue[]> {
+    const values = Array<IValue>();
     keys = keys ?? (await this.getKeys(table));
     for (const key of keys) {
-      values.push(...(await this.getValuesFromKey<TResult>(table, key)));
+      values.push(...(await this.getValuesFromKey(table, key)));
     }
 
     return values;
@@ -205,17 +202,17 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param table Nome da tabela.
    * @param key Chave.
    */
-  public async getValuesFromKey<TResult = unknown>(
-    table: string,
-    key: string
-  ): Promise<TResult[]> {
-    return new Promise<TResult[]>((resolve, reject) => {
-      this.redis.hvals(this.formatKey(table, key), (error, values) => {
+  public async getValuesFromKey(table: string, key: string): Promise<IValue[]> {
+    return new Promise<IValue[]>((resolve, reject) => {
+      this.redis.hgetall(this.formatKey(table, key), (error, entries) => {
         if (!error) {
-          const valuesDecoded = values.map((value) =>
-            HashValue.decode<TResult>(value)
-          );
-          resolve(valuesDecoded);
+          const values: IValue[] = entries
+            ? Object.entries(entries).map((entry) => ({
+                content: entry[1],
+                id: entry[0],
+              }))
+            : [];
+          resolve(values);
         } else {
           reject(error);
         }
@@ -312,16 +309,15 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * Remove um valor presente em uma tabela de dados.
    * @param table Nome da tabela.
    * @param key Chave.
-   * @param value Valor.
+   * @param valueId Identificador do valor.
    */
   public async removeValue(
     table: string,
     key: string,
-    value: unknown
+    valueId: ValueId
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      const hashValue = HashValue.format(value);
-      this.redis.hdel(this.formatKey(table, key), hashValue.id, (error) => {
+      this.redis.hdel(this.formatKey(table, key), valueId, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -335,20 +331,20 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * Remove um valor presente em uma tabela de dados.
    * @param table Nome da tabela.
    * @param keys Chave. Não informado aplica-se a todos.
-   * @param values Valor. Não informado aplica-se a todos.
+   * @param valuesIds Identificadores dos valores. Não informado aplica-se a todos.
    */
   public async removeValues(
     table: string,
     keys?: string[],
-    values?: unknown[]
+    valuesIds?: ValueId[]
   ): Promise<void> {
     keys = keys ?? (await this.getKeys(table));
     for (const key of keys) {
-      if (values === undefined) {
+      if (valuesIds === undefined) {
         await this.removeKey(table, key);
       } else {
-        for (const value of values) {
-          await this.removeValue(table, key, value);
+        for (const valueId of valuesIds) {
+          await this.removeValue(table, key, valueId);
         }
       }
     }

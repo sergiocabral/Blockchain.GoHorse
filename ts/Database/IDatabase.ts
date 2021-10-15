@@ -1,3 +1,6 @@
+import { IValue } from "./IValue";
+import { ValueId } from "./ValueId";
+
 /**
  * Interface para um banco de dados usado pelo sistema.
  */
@@ -18,7 +21,7 @@ export interface IDatabase {
    * @param key Chave.
    * @param values Valores.
    */
-  addValues(table: string, key: string, values: unknown[]): Promise<string[]>;
+  addValues(table: string, key: string, values: IValue[]): Promise<void>;
 
   /**
    * Fechar conexão.
@@ -36,10 +39,7 @@ export interface IDatabase {
    * @param table Nome da tabela.
    * @param keys Chaves. Não informado aplica-se a todos.
    */
-  getValues<TResult = unknown>(
-    table: string,
-    keys?: string[]
-  ): Promise<TResult[]>;
+  getValues(table: string, keys?: string[]): Promise<IValue[]>;
 
   /**
    * Envia uma notificação
@@ -57,12 +57,12 @@ export interface IDatabase {
    * Remove um valor presente em uma tabela de dados.
    * @param table Nome da tabela.
    * @param keys Chave. Não informado aplica-se a todos.
-   * @param values Valor. Não informado aplica-se a todos.
+   * @param valuesIds Identificadores dos valores. Não informado aplica-se a todos.
    */
   removeValues(
     table: string,
     keys?: string[],
-    values?: unknown[]
+    valuesIds?: ValueId[]
   ): Promise<void>;
 
   /**

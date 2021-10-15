@@ -1,6 +1,8 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
 import { IDatabase } from "./IDatabase";
+import { IValue } from "./IValue";
+import { ValueId } from "./ValueId";
 
 /**
  * Classe base para banco de dados.
@@ -35,8 +37,8 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract addValues(
     table: string,
     key: string,
-    values: string[]
-  ): Promise<string[]>;
+    values: IValue[]
+  ): Promise<void>;
 
   /**
    * Fechar conexão.
@@ -57,7 +59,7 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract getValues<TResult = unknown>(
     table: string,
     keys?: unknown[]
-  ): Promise<TResult[]>;
+  ): Promise<IValue[]>;
 
   /**
    * Envia uma notificação
@@ -75,12 +77,12 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * Remove um valor presente em uma tabela de dados.
    * @param table Nome da tabela.
    * @param keys Chave. Não informado aplica-se a todos.
-   * @param values Valor. Não informado aplica-se a todos.
+   * @param valuesIds Identificadores dos valores. Não informado aplica-se a todos.
    */
   public abstract removeValues(
     table: string,
     keys?: string[],
-    values?: unknown[]
+    valuesIds?: ValueId[]
   ): Promise<void>;
 
   /**

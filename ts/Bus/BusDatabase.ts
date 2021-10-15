@@ -51,7 +51,7 @@ export class BusDatabase {
     channelName: string
   ): Promise<void> {
     await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
-      clientId,
+      { id: clientId },
     ]);
     await this.database.subscribe(clientId);
   }
@@ -78,7 +78,7 @@ export class BusDatabase {
     await this.database.removeValues(
       this.DEFINITION.tableMessage,
       [clientId],
-      messages
+      messages.map((message) => message.id)
     );
 
     return messages.map((message) => JSON.stringify(message));
@@ -92,10 +92,14 @@ export class BusDatabase {
       throw new ShouldNeverHappenError();
     }
 
-    const clientsIds = await this.database.getValues<string>(
-      this.DEFINITION.tableChannel,
-      message.channels.includes(Bus.ALL_CHANNELS) ? undefined : message.channels
-    );
+    const clientsIds = (
+      await this.database.getValues(
+        this.DEFINITION.tableChannel,
+        message.channels.includes(Bus.ALL_CHANNELS)
+          ? undefined
+          : message.channels
+      )
+    ).map((client) => client.id);
 
     for (const clientId of clientsIds) {
       if (message.clientId === clientId) {
