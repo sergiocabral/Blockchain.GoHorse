@@ -7,7 +7,7 @@ export interface IValue {
   /**
    * Conteúdo.
    */
-  content?: string;
+  content: string;
 
   /**
    * Identificador.

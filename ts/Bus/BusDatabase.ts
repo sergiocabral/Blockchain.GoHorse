@@ -51,7 +51,7 @@ export class BusDatabase {
     channelName: string
   ): Promise<void> {
     await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
-      { id: clientId },
+      { id: clientId, content: clientId },
     ]);
     await this.database.subscribe(clientId);
   }
@@ -81,7 +81,7 @@ export class BusDatabase {
       messages.map((message) => message.id)
     );
 
-    return messages.map((message) => JSON.stringify(message));
+    return messages.map((message) => message.content);
   }
 
   /**
@@ -107,7 +107,7 @@ export class BusDatabase {
       }
 
       await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
-        message,
+        { id: message.id, content: JSON.stringify(message) },
       ]);
 
       await this.database.notify(clientId);
