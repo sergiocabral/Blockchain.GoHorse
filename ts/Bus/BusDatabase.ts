@@ -3,7 +3,7 @@ import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
 import { IDatabase } from "../Database/IDatabase";
 
 import { Bus } from "./Bus";
-import { IBusMessage } from "./BusMessage/IBusMessage";
+import { BusMessage } from "./BusMessage/BusMessage";
 
 /**
  * Database especializado para o Bus.
@@ -59,7 +59,7 @@ export class BusDatabase {
   /**
    * Posta uma mensagem do Bus.
    */
-  public async postMessage(message: IBusMessage): Promise<void> {
+  public async postMessage(message: BusMessage): Promise<void> {
     if (!message.clientId) {
       throw new ShouldNeverHappenError();
     }

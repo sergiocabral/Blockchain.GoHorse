@@ -1,7 +1,7 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
 import { BusClient } from "../../Bus/BusClient";
-import { BusMessageText } from "../../Bus/BusMessage/BusMessageText";
+import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
 import { Application } from "../../Core/Application";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 

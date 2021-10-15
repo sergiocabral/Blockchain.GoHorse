@@ -10,6 +10,11 @@ export class ProtocolError extends GenericError {
   public static BLANK_MESSAGE_BODY = 4001;
 
   /**
+   * Erro na camada superior.
+   */
+  public static TOP_LAYER_ERROR = 4100;
+
+  /**
    * Erro desconhecido.
    */
   public static UNKNOWN_ERROR = 4000;

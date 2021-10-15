@@ -1,4 +1,4 @@
-import { IBusMessage } from "./BusMessage/IBusMessage";
+import { BusMessage } from "./BusMessage/BusMessage";
 
 /**
  * Valida o conteúdo de campos nas mensagens do Bus.
@@ -46,7 +46,7 @@ export class FieldValidator {
    * @param instance Instância.
    * @param type Tipo
    */
-  public static type<T extends IBusMessage>(
+  public static type<T extends BusMessage>(
     instance: unknown,
     type: new (...args: any[]) => T
   ): boolean {

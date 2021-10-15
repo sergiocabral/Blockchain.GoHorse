@@ -1,12 +1,12 @@
-import { Bus } from "../Bus";
-import { FieldValidator } from "../FieldValidator";
-
-import { BusMessage } from "./BusMessage";
+import { Bus } from "../../Bus";
+import { FieldValidator } from "../../FieldValidator";
+import { BusMessage } from "../BusMessage";
+import { BusMessageForCommunication } from "../BusMessageForCommunication";
 
 /**
  * Envia uma string para o bus
  */
-export class BusMessageText extends BusMessage {
+export class BusMessageText extends BusMessageForCommunication {
   /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.

@@ -4,8 +4,8 @@ import md5 from "md5";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { Bus } from "./Bus";
-import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
-import { IBusMessage } from "./BusMessage/IBusMessage";
+import { BusMessage } from "./BusMessage/BusMessage";
+import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
 
 /**
  * Cliente de acesso ao Bus.
@@ -38,7 +38,7 @@ export class BusClient extends Bus {
    * Enviar uma mensagem.
    * @param message Mensagem
    */
-  public send(message: IBusMessage): void {
+  public send(message: BusMessage): void {
     if (!this.webSocketClient.opened) {
       Logger.post(
         "Cannot send a message {messageType}@{messageId} because the websocket was closed.",
@@ -68,13 +68,13 @@ export class BusClient extends Bus {
   }
 
   /**
-   * Handle: mensagem recebida pelo cliente websocket.
+   * Handle: Mensagem do bus recebida
    */
-  private handleWebSocketClientMessage(message: string): void {
-    const busMessage = this.decode(message);
-    if (busMessage !== undefined) {
-      this.dispatch(busMessage);
-    }
+  protected override async handleBusMessage(
+    busMessage: BusMessage,
+    client: WebSocketClient
+  ): Promise<void> {
+    await busMessage.sendAsync();
   }
 
   /**

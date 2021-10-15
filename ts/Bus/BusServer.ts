@@ -2,6 +2,7 @@ import {
   Logger,
   LogLevel,
   Message,
+  NotImplementedError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 
@@ -11,9 +12,11 @@ import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
 import { Bus } from "./Bus";
 import { BusDatabase } from "./BusDatabase";
-import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
-import { BusMessageText } from "./BusMessage/BusMessageText";
-import { IBusMessage } from "./BusMessage/IBusMessage";
+import { BusMessage } from "./BusMessage/BusMessage";
+import { BusMessageForCommunication } from "./BusMessage/BusMessageForCommunication";
+import { BusMessageForNegotiation } from "./BusMessage/BusMessageForNegotiation";
+import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { BusNegotiationError } from "./Error/BusNegotiationError";
 
 /**
  * Servidor do Bus.
@@ -48,31 +51,40 @@ export class BusServer extends Bus {
       this.handleWebSocketServerConnection(client)
     );
     Message.subscribe(BusMessageJoin, this.handleBusMessageJoin.bind(this));
-    Message.subscribe(BusMessageText, this.handleBusMessageText.bind(this));
   }
 
-  //  /**
-  //   * Obtem a lista de clientes com base numa lista de canais.
-  //   */
-  //  private getClients(message: IBusMessage): WebSocketClient[] {
-  //    const self = BusServer.getClient(message);
-  //    const clients = Array<WebSocketClient>();
-  //
-  //    for (const entry of this.clientData.entries()) {
-  //      const client = entry[0];
-  //      const data = entry[1];
-  //
-  //      if (
-  //        !Object.is(client, self) &&
-  //        (message.channels.includes(data.channel) ||
-  //          message.channels.includes(Bus.ALL_CHANNELS))
-  //      ) {
-  //        clients.push(client);
-  //      }
-  //    }
-  //
-  //    return clients;
-  //  }
+  /**
+   * Handle: Mensagem do bus,
+   */
+  protected override async handleBusMessage(
+    busMessage: BusMessage,
+    client: WebSocketClient
+  ): Promise<void> {
+    if (!busMessage.clientId) {
+      throw new ShouldNeverHappenError();
+    }
+
+    const clientId = this.clientsIds.get(client);
+    const clientIdChanged =
+      clientId !== undefined && clientId !== busMessage.clientId;
+    if (clientIdChanged) {
+      throw new BusNegotiationError(
+        "Client id was changed from {previous} to {actual}.".querystring({
+          actual: busMessage.clientId,
+          previous: clientId,
+        })
+      );
+    }
+
+    if (busMessage instanceof BusMessageForNegotiation) {
+      busMessage.client = client;
+      await busMessage.sendAsync();
+    } else if (busMessage instanceof BusMessageForCommunication) {
+      await this.database.postMessage(busMessage);
+    } else {
+      throw new NotImplementedError("Unknown category of message bus.");
+    }
+  }
 
   /**
    * Mensagem: BusMessageJoin
@@ -80,44 +92,40 @@ export class BusServer extends Bus {
   private async handleBusMessageJoin(
     busMessage: BusMessageJoin
   ): Promise<void> {
-    if (busMessage.clientId === undefined) {
+    if (busMessage.channels.length !== 1) {
+      throw new BusNegotiationError(
+        `Expected a unique channel name, but found {channelCount}: {channelNames}`.querystring(
+          {
+            channelCount: busMessage.channels.length,
+            channelNames: busMessage.channels
+              .map((channel) => `"${channel}"`)
+              .join(", "),
+          }
+        )
+      );
+    }
+
+    const channelName = busMessage.channels[0];
+    const isValidChannel = /^\w+$/.test(channelName);
+    if (!isValidChannel) {
+      throw new BusNegotiationError(
+        'Invalid channel name "{channelName}".'.querystring({
+          channelName,
+        })
+      );
+    }
+
+    if (busMessage.client === undefined) {
       throw new ShouldNeverHappenError();
     }
 
-    if (busMessage.channels.length !== 1) {
-      Logger.post(
-        'Received message {messageType}@{messageId} from client "{clientId}" is invalid. Expected a unique channel name, but found "{channel}".',
-        {
-          channel: busMessage.channels.join(", "),
-          clientId: busMessage.clientId,
-          messageId: busMessage.id,
-          messageType: busMessage.type,
-        },
-        LogLevel.Error,
-        BusServer.name
-      );
-
-      return;
+    const alreadyJoined = this.clientsIds.get(busMessage.client) !== undefined;
+    if (alreadyJoined) {
+      throw new BusNegotiationError("The client has already joined.");
     }
 
-    const regexValidChannel = /^\w+$/;
-    const channel = busMessage.channels[0];
-    if (!regexValidChannel.test(channel)) {
-      Logger.post(
-        'Received message {messageType}@{messageId} from client "{clientId}" is invalid. Invalid channel name "{channel}".',
-        {
-          channel,
-          clientId: busMessage.clientId,
-          messageType: busMessage.type,
-        },
-        LogLevel.Error,
-        BusServer.name
-      );
-
-      return;
-    }
-
-    await this.database.clientJoin(busMessage.clientId, channel);
+    await this.database.clientJoin(busMessage.clientId, channelName);
+    this.clientsIds.set(busMessage.client, busMessage.clientId);
 
     Logger.post(
       'A "{clientId}" client has joined "{channel}" channel.',
@@ -125,18 +133,6 @@ export class BusServer extends Bus {
       LogLevel.Debug,
       BusServer.name
     );
-  }
-
-  /**
-   * Mensagem: BusMessageText
-   */
-  private async handleBusMessageText(message: BusMessageText): Promise<void> {
-    await this.database.postMessage(message);
-
-    // TODO: Após enviar preciso receber de algum jeito as mensagens.
-
-    // const clients = this.getClients(message);
-    // clients.forEach((client) => client.send(this.encode(message)));
   }
 
   /**
@@ -161,46 +157,6 @@ export class BusServer extends Bus {
       LogLevel.Debug,
       BusServer.name
     );
-  }
-
-  /**
-   * Handle: Mensagem recebida.
-   */
-  private handleWebSocketClientMessage(
-    message: string,
-    client: WebSocketClient
-  ): void {
-    const busMessage = this.decode(message);
-    if (busMessage) {
-      if (busMessage.clientId) {
-        let clientId = this.clientsIds.get(client);
-        if (clientId === undefined) {
-          clientId = busMessage.clientId;
-          this.clientsIds.set(client, clientId);
-        }
-
-        if (busMessage.clientId === clientId) {
-          this.dispatch(busMessage);
-        } else {
-          Logger.post(
-            "A message was ignored because the client id was changed from {previous} to {actual}.",
-            {
-              actual: busMessage.clientId,
-              previous: clientId,
-            },
-            LogLevel.Warning,
-            BusServer.name
-          );
-        }
-      } else {
-        Logger.post(
-          "A message was ignored because it has no client id.",
-          undefined,
-          LogLevel.Warning,
-          BusServer.name
-        );
-      }
-    }
   }
 
   /**

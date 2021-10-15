@@ -3,12 +3,10 @@ import md5 from "md5";
 
 import { FieldValidator } from "../FieldValidator";
 
-import { IBusMessage } from "./IBusMessage";
-
 /**
  * Estrutura comum das mensagens do Bus.
  */
-export abstract class BusMessage extends Message implements IBusMessage {
+export abstract class BusMessage extends Message {
   /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.

@@ -1,11 +1,11 @@
-import { FieldValidator } from "../FieldValidator";
-
-import { BusMessage } from "./BusMessage";
+import { FieldValidator } from "../../FieldValidator";
+import { BusMessage } from "../BusMessage";
+import { BusMessageForNegotiation } from "../BusMessageForNegotiation";
 
 /**
  * Faz o ingresso no Bus.
  */
-export class BusMessageJoin extends BusMessage {
+export class BusMessageJoin extends BusMessageForNegotiation {
   /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.

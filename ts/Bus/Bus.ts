@@ -1,11 +1,12 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
+import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
+import { WebSocketClient } from "../WebSocket/WebSocketClient";
+
 import { BusMessage } from "./BusMessage/BusMessage";
-import { BusMessageJoin } from "./BusMessage/BusMessageJoin";
-import { BusMessageText } from "./BusMessage/BusMessageText";
-import { IBusMessage } from "./BusMessage/IBusMessage";
+import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
 import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
-import { FieldValidator } from "./FieldValidator";
+import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
 
 /**
  * Classe base para Client e Server.
@@ -27,67 +28,79 @@ export abstract class Bus {
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
    */
-  public decode(message: string): IBusMessage | undefined {
-    let instance: unknown;
+  protected decode(message: string): BusMessage | undefined {
+    let busMessage: unknown;
     try {
-      instance = JSON.parse(message);
+      busMessage = JSON.parse(message);
     } catch (error) {
-      Logger.post(
-        "Error when decoding the message: {error}",
-        { error },
-        LogLevel.Error,
-        Bus.name
-      );
-
       return undefined;
     }
 
-    return BusMessage.parse(instance);
+    return this.messagesTypes.reduce<BusMessage | undefined>(
+      (instance, messageType) =>
+        instance ? instance : messageType.parse(busMessage),
+      undefined
+    );
   }
 
   /**
    * Codifica uma mensagem para ser enviada como string.
    */
-  public encode(message: IBusMessage): string {
+  protected encode(message: BusMessage): string {
     return JSON.stringify(message);
   }
 
   /**
-   * Despacha uma mensagem do bus.
+   * Handle: Mensagem do bus recebida
    */
-  protected dispatch(busMessage: IBusMessage): void {
-    this.messagesTypes.forEach((messageType) => {
-      const busMessageParsed = messageType.parse(busMessage);
+  protected abstract handleBusMessage(
+    busMessage: BusMessage,
+    client: WebSocketClient
+  ): Promise<void>;
 
-      if (busMessageParsed) {
-        if (FieldValidator.clientId(busMessageParsed)) {
-          void busMessageParsed.sendAsync();
-          Logger.post(
-            'Received message {messageType}@{messageId} from client "{clientId}" to channels {channels}.',
-            () => ({
-              channels: busMessageParsed.channels
-                .map((channel) => `"${channel}"`)
-                .join(", "),
-              clientId: busMessageParsed.clientId,
-              messageId: busMessageParsed.id,
-              messageType: busMessageParsed.type,
-            }),
-            LogLevel.Verbose,
-            Bus.name
-          );
-        } else {
-          Logger.post(
-            'A {messageType}@{messageId} message cannot be processed because it has an invalid client id: "{clientId}"',
-            {
-              clientId: busMessageParsed.clientId,
-              messageId: busMessageParsed.id,
-              messageType: busMessageParsed.type,
-            },
-            LogLevel.Error,
-            Bus.name
-          );
-        }
-      }
-    });
+  /**
+   * Handle: Mensagem pura recebida do websocket.
+   */
+  protected async handleWebSocketClientMessage(
+    message: string,
+    client: WebSocketClient
+  ): Promise<void> {
+    const busMessage = this.decode(message);
+
+    if (!busMessage) {
+      return;
+    }
+
+    Logger.post(
+      'The {messageType}@{messageId} message was received from "{clientId}" client.',
+      {
+        clientId: busMessage.clientId,
+        messageId: busMessage.id,
+        messageType: busMessage.type,
+      },
+      LogLevel.Verbose,
+      Bus.name
+    );
+
+    try {
+      await this.handleBusMessage(busMessage, client);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      Logger.post(
+        'The {messageType}@{messageId} message caused the "{clientId}" client to disconnect. {errorMessage}',
+        {
+          clientId: busMessage.clientId,
+          errorMessage,
+          messageId: busMessage.id,
+          messageType: busMessage.type,
+        },
+        LogLevel.Warning,
+        Bus.name
+      );
+
+      client.close(ProtocolError.TOP_LAYER_ERROR, errorMessage);
+    }
   }
 }
