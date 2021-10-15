@@ -12,6 +12,11 @@ export class RedisConfiguration extends JsonLoader {
   public databaseIndex = 0;
 
   /**
+   * Tempo padrão para que as chaves expirem.
+   */
+  public expireAfterSeconds?: number | null = 86400;
+
+  /**
    * Namespace para demais entradas de dados.
    */
   public namespace?: string | null;
@@ -52,6 +57,17 @@ export class RedisConfiguration extends JsonLoader {
         Number.MAX_SAFE_INTEGER,
       ])
     );
+    if (
+      this.expireAfterSeconds !== undefined &&
+      this.expireAfterSeconds !== null
+    ) {
+      errors.push(
+        ...JsonLoaderFieldErrors.integerBetween(this, "expireAfterSeconds", [
+          0,
+          Number.MAX_SAFE_INTEGER,
+        ])
+      );
+    }
     errors.push(...super.errors());
 
     return errors;

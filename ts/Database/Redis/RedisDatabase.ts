@@ -103,7 +103,12 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         this.formatKey(table, key),
         value.id,
         value.content ?? value.id,
-        (error) => {
+        async (error) => {
+          await this.setExpiration(
+            table,
+            key,
+            this.configuration.expireAfterSeconds
+          );
           if (!error) {
             resolve();
           } else {
@@ -203,7 +208,13 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param key Chave.
    */
   public async getValuesFromKey(table: string, key: string): Promise<IValue[]> {
-    return new Promise<IValue[]>((resolve, reject) => {
+    return new Promise<IValue[]>(async (resolve, reject) => {
+      await this.setExpiration(
+        table,
+        key,
+        this.configuration.expireAfterSeconds
+      );
+
       this.redis.hgetall(this.formatKey(table, key), (error, entries) => {
         if (!error) {
           const values: IValue[] = entries
@@ -445,6 +456,24 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Adiciona um valor numa tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param ttl Time to live, tempo de expiração.
+   */
+  private async expire(table: string, key: string, ttl: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.redis.expire(this.formatKey(table, key), ttl, (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Formata a chave para o Redis.
    * @param parts Partes que compõe a chave.¹
    */
@@ -568,5 +597,40 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         );
       }
     });
+  }
+
+  /**
+   * Adiciona um valor numa tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   */
+  private async persist(table: string, key: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.redis.persist(this.formatKey(table, key), (error) => {
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Define a expiração para um valor numa tabela.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param ttl Tempo de expiração. Se não informado mantém persistente.
+   */
+  private async setExpiration(
+    table: string,
+    key: string,
+    ttl?: number | null
+  ): Promise<void> {
+    if (ttl !== undefined && ttl !== null && ttl >= 0) {
+      await this.expire(table, key, ttl);
+    } else {
+      await this.persist(table, key);
+    }
   }
 }
