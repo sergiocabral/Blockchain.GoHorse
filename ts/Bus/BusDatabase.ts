@@ -47,6 +47,7 @@ export class BusDatabase {
    * Um cliente ingressou.
    */
   public async clientJoin(
+    serverId: string,
     clientId: string,
     channelName: string
   ): Promise<void> {
@@ -54,6 +55,8 @@ export class BusDatabase {
       {
         content: JSON.stringify(
           {
+            serverId,
+            // tslint:disable-next-line:object-literal-sort-keys
             clientId,
             joined: {
               datetime: (

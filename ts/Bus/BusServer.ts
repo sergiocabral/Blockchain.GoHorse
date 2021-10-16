@@ -5,6 +5,7 @@ import {
   NotImplementedError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
+import md5 from "md5";
 
 import { IDatabase } from "../Database/IDatabase";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -22,6 +23,11 @@ import { BusNegotiationError } from "./Error/BusNegotiationError";
  * Servidor do Bus.
  */
 export class BusServer extends Bus {
+  /**
+   * Identificador do servidor.
+   */
+  private static readonly serverId: string = md5(Math.random().toString());
+
   /**
    * Dados dos clientes.
    */
@@ -168,7 +174,11 @@ export class BusServer extends Bus {
       throw new BusNegotiationError("The client has already joined.");
     }
 
-    await this.database.clientJoin(busMessage.clientId, channelName);
+    await this.database.clientJoin(
+      BusServer.serverId,
+      busMessage.clientId,
+      channelName
+    );
     this.clientsIds.set(busMessage.client, busMessage.clientId);
 
     Logger.post(
