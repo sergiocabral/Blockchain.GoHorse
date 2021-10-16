@@ -7,6 +7,7 @@ import {
 import fs from "fs";
 import { clearInterval } from "timers";
 
+import { BlockchainApplication } from "../Application/Blockchain/BlockchainApplication";
 import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
 import { BusApplication } from "../Application/Bus/BusApplication";
 import { CoinApplication } from "../Application/Coin/CoinApplication";
@@ -81,6 +82,7 @@ export class Main {
    * Lista de aplicações disponíveis.
    */
   private readonly applications: Array<new () => IApplication> = [
+    BlockchainApplication,
     BotTwitchApplication,
     BusApplication,
     CoinApplication,
