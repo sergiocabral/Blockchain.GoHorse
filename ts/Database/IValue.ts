@@ -1,3 +1,4 @@
+import { ValueContent } from "./ValueContent";
 import { ValueId } from "./ValueId";
 
 /**
@@ -7,7 +8,7 @@ export interface IValue {
   /**
    * Conteúdo.
    */
-  content: string;
+  content: ValueContent;
 
   /**
    * Identificador.

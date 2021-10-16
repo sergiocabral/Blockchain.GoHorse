@@ -1,4 +1,5 @@
 import {
+  HelperObject,
   InvalidArgumentError,
   InvalidExecutionError,
   Logger,
@@ -11,6 +12,7 @@ import { createClient, RedisClient } from "redis";
 
 import { Database } from "../Database";
 import { IValue } from "../IValue";
+import { ValueContent } from "../ValueContent";
 import { ValueId } from "../ValueId";
 
 import { RedisConfiguration } from "./RedisConfiguration";
@@ -88,6 +90,43 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Adiciona como histórico baseado em data um valor associado a uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param value Valor.
+   */
+  public async addHistory(
+    table: string,
+    key: string,
+    value: ValueContent
+  ): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+      const time = await this.time();
+      const redisTime = HelperObject.getProperty<[number, number]>(
+        time,
+        "redisTime"
+      );
+      if (redisTime === undefined) {
+        throw new ShouldNeverHappenError();
+      }
+      const unixTime = redisTime[0];
+      const microseconds = redisTime[1];
+      const timeFormatted = `${unixTime}${microseconds}`;
+
+      const redisKey = this.formatKey(table, key, timeFormatted);
+      this.redis.set(redisKey, value, async (error) => {
+        await this.setExpiration(redisKey);
+
+        if (!error) {
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Adiciona um valor numa tabela de dados.
    * @param table Nome da tabela.
    * @param key Chave.
@@ -99,16 +138,15 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     value: IValue
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+      const redisKey = this.formatKey(table, key);
+
       this.redis.hset(
-        this.formatKey(table, key),
+        redisKey,
         value.id,
         value.content ?? value.id,
         async (error) => {
-          await this.setExpiration(
-            table,
-            key,
-            this.configuration.expireAfterSeconds
-          );
+          await this.setExpiration(redisKey);
+
           if (!error) {
             resolve();
           } else {
@@ -209,13 +247,11 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public async getValuesFromKey(table: string, key: string): Promise<IValue[]> {
     return new Promise<IValue[]>(async (resolve, reject) => {
-      await this.setExpiration(
-        table,
-        key,
-        this.configuration.expireAfterSeconds
-      );
+      const redisKey = this.formatKey(table, key);
 
-      this.redis.hgetall(this.formatKey(table, key), (error, entries) => {
+      await this.setExpiration(redisKey);
+
+      this.redis.hgetall(redisKey, (error, entries) => {
         if (!error) {
           const values: IValue[] = entries
             ? Object.entries(entries).map((entry) => ({
@@ -389,6 +425,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           const microseconds = Number(time[1]);
           const date = new Date(unixTime * shiftMilliseconds);
           date.setMilliseconds(microseconds);
+          HelperObject.setProperty(date, "redisTime", [unixTime, microseconds]);
           resolve(date);
         } else {
           reject(error);
@@ -457,13 +494,12 @@ export class RedisDatabase extends Database<RedisConfiguration> {
 
   /**
    * Adiciona um valor numa tabela de dados.
-   * @param table Nome da tabela.
-   * @param key Chave.
+   * @param redisKey Chave do redis.
    * @param ttl Time to live, tempo de expiração.
    */
-  private async expire(table: string, key: string, ttl: number): Promise<void> {
+  private async expire(redisKey: string, ttl: number): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.redis.expire(this.formatKey(table, key), ttl, (error) => {
+      this.redis.expire(redisKey, ttl, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -601,12 +637,11 @@ export class RedisDatabase extends Database<RedisConfiguration> {
 
   /**
    * Adiciona um valor numa tabela de dados.
-   * @param table Nome da tabela.
-   * @param key Chave.
+   * @param redisKey Chave do redis.
    */
-  private async persist(table: string, key: string): Promise<void> {
+  private async persist(redisKey: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.redis.persist(this.formatKey(table, key), (error) => {
+      this.redis.persist(redisKey, (error) => {
         if (!error) {
           resolve();
         } else {
@@ -618,19 +653,14 @@ export class RedisDatabase extends Database<RedisConfiguration> {
 
   /**
    * Define a expiração para um valor numa tabela.
-   * @param table Nome da tabela.
-   * @param key Chave.
-   * @param ttl Tempo de expiração. Se não informado mantém persistente.
+   * @param redisKey Chave do redis.
    */
-  private async setExpiration(
-    table: string,
-    key: string,
-    ttl?: number | null
-  ): Promise<void> {
+  private async setExpiration(redisKey: string): Promise<void> {
+    const ttl = this.configuration.expireAfterSeconds;
     if (ttl !== undefined && ttl !== null && ttl >= 0) {
-      await this.expire(table, key, ttl);
+      await this.expire(redisKey, ttl);
     } else {
-      await this.persist(table, key);
+      await this.persist(redisKey);
     }
   }
 }

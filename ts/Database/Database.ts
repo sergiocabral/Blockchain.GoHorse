@@ -2,6 +2,7 @@ import { JsonLoader } from "@sergiocabral/helper";
 
 import { IDatabase } from "./IDatabase";
 import { IValue } from "./IValue";
+import { ValueContent } from "./ValueContent";
 import { ValueId } from "./ValueId";
 
 /**
@@ -27,6 +28,18 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * Sinaliza se a conexão foi iniciada.
    */
   public abstract get opened(): boolean;
+
+  /**
+   * Adiciona como histórico baseado em data um valor associado a uma tabela de dados.
+   * @param table Nome da tabela.
+   * @param key Chave.
+   * @param value Valor.
+   */
+  public abstract addHistory(
+    table: string,
+    key: string,
+    value: ValueContent
+  ): Promise<void>;
 
   /**
    * Adiciona um valor numa tabela de dados.

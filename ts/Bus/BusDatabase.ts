@@ -21,7 +21,6 @@ export class BusDatabase {
    */
   private readonly DEFINITION = {
     tableChannel: "channels",
-    tableDispatched: "dispatched",
     tableMessage: "messages",
   };
 
@@ -83,21 +82,13 @@ export class BusDatabase {
       messages.map((message) => message.id)
     );
 
-    const serverTime = await this.database.time();
-    const serverTimeFormatted = serverTime.format({
-      mask: "universal",
-    });
-
-    await this.database.addValues(
-      this.DEFINITION.tableDispatched,
-      clientId,
-      messages.map((message, index) => ({
-        content: message.content,
-        id: `${serverTimeFormatted} #${index
-          .toString()
-          .padStart("000".length, "0")}`,
-      }))
-    );
+    for (const message of messages) {
+      await this.database.addHistory(
+        this.DEFINITION.tableMessage,
+        clientId,
+        message.content
+      );
+    }
 
     return messages.map((message) => message.content);
   }
