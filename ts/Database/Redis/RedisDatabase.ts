@@ -109,13 +109,14 @@ export class RedisDatabase extends Database<RedisConfiguration> {
       if (redisTime === undefined) {
         throw new ShouldNeverHappenError();
       }
-      const unixTime = redisTime[0];
       const microseconds = redisTime[1];
-      const timeFormatted = `${unixTime}${microseconds}`;
+      const timeFormatted = `${time.format({
+        mask: "y-M-d_h-m-s",
+      })}.${microseconds.toString().padStart("000000".length, "0")}`;
 
       const redisKey = this.formatKey(table, key, timeFormatted);
       this.redis.set(redisKey, value, async (error) => {
-        await this.setExpiration(redisKey);
+        await this.resetExpiration(redisKey);
 
         if (!error) {
           resolve();
@@ -145,7 +146,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         value.id,
         value.content ?? value.id,
         async (error) => {
-          await this.setExpiration(redisKey);
+          await this.resetExpiration(redisKey);
 
           if (!error) {
             resolve();
@@ -249,7 +250,10 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     return new Promise<IValue[]>(async (resolve, reject) => {
       const redisKey = this.formatKey(table, key);
 
-      await this.setExpiration(redisKey);
+      const ttl = await this.ttl(redisKey);
+      if (ttl >= 0) {
+        await this.resetExpiration(redisKey);
+      }
 
       this.redis.hgetall(redisKey, (error, entries) => {
         if (!error) {
@@ -427,6 +431,21 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           date.setMilliseconds(microseconds);
           HelperObject.setProperty(date, "redisTime", [unixTime, microseconds]);
           resolve(date);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Tempo de expiração de uma chave
+   */
+  public async ttl(redisKey: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.redis.ttl(redisKey, (error, ttl) => {
+        if (!error) {
+          resolve(ttl);
         } else {
           reject(error);
         }
@@ -655,7 +674,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * Define a expiração para um valor numa tabela.
    * @param redisKey Chave do redis.
    */
-  private async setExpiration(redisKey: string): Promise<void> {
+  private async resetExpiration(redisKey: string): Promise<void> {
     const ttl = this.configuration.expireAfterSeconds;
     if (ttl !== undefined && ttl !== null && ttl >= 0) {
       await this.expire(redisKey, ttl);
