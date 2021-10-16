@@ -55,7 +55,7 @@ export class BasicProtocol extends ProtocolBase {
    */
   public override transmit(message: string): void {
     this.messages.push(message);
-    this.pooling();
+    this.polling();
   }
 
   /**
@@ -93,7 +93,7 @@ export class BasicProtocol extends ProtocolBase {
   /**
    * Obtém a última mensagem
    */
-  private pooling(): void {
+  private polling(): void {
     const message = this.messages.shift();
 
     if (message !== undefined) {
@@ -107,7 +107,7 @@ export class BasicProtocol extends ProtocolBase {
         this.client.constructor.name
       );
 
-      setImmediate(() => this.pooling());
+      setImmediate(() => this.polling());
     }
   }
 }
