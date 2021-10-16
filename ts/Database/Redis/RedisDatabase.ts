@@ -11,9 +11,9 @@ import {
 import { createClient, RedisClient } from "redis";
 
 import { Database } from "../Database";
-import { IValue } from "../IValue";
-import { ValueContent } from "../ValueContent";
-import { ValueId } from "../ValueId";
+import { IValue } from "../Value/IValue";
+import { ValueContent } from "../Value/ValueContent";
+import { ValueId } from "../Value/ValueId";
 
 import { RedisConfiguration } from "./RedisConfiguration";
 

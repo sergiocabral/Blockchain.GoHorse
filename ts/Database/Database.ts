@@ -1,9 +1,9 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
 import { IDatabase } from "./IDatabase";
-import { IValue } from "./IValue";
-import { ValueContent } from "./ValueContent";
-import { ValueId } from "./ValueId";
+import { IValue } from "./Value/IValue";
+import { ValueContent } from "./Value/ValueContent";
+import { ValueId } from "./Value/ValueId";
 
 /**
  * Classe base para banco de dados.
