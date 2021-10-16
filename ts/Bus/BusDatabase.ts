@@ -51,7 +51,22 @@ export class BusDatabase {
     channelName: string
   ): Promise<void> {
     await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
-      { id: clientId, content: clientId },
+      {
+        content: JSON.stringify(
+          {
+            clientId,
+            joined: {
+              datetime: (
+                await this.database.time()
+              ).format({ mask: "universal" }),
+              timestamp: new Date().getTime(),
+            },
+          },
+          undefined,
+          " "
+        ),
+        id: clientId,
+      },
     ]);
     await this.database.subscribe(clientId);
   }

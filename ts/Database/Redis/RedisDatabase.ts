@@ -428,7 +428,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
           const unixTime = Number(time[0]);
           const microseconds = Number(time[1]);
           const date = new Date(unixTime * shiftMilliseconds);
-          date.setMilliseconds(microseconds);
+          date.setMilliseconds(Math.round(microseconds / shiftMilliseconds));
           HelperObject.setProperty(date, "redisTime", [unixTime, microseconds]);
           resolve(date);
         } else {
