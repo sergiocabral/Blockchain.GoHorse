@@ -1,9 +1,6 @@
-import { Logger, Message } from "@sergiocabral/helper";
-import { clearInterval } from "timers";
-
 import { BusClient } from "../../Bus/BusClient";
-import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
 import { Application } from "../../Core/Application";
+import { IrcChatClient } from "../../Twitch/IrcChat/IrcChatClient";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
@@ -28,9 +25,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly busClient: BusClient;
 
   /**
-   * Timer.
+   * Cliente do IRC Chat
    */
-  private timeout: NodeJS.Timer = 0 as unknown as NodeJS.Timer;
+  private readonly ircChatClient: IrcChatClient;
 
   /**
    * Cliente WebSocket.
@@ -47,26 +44,16 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     );
     this.webSocketClient.onClose.add(this.stop.bind(this));
     this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
-    Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
+    this.ircChatClient = new IrcChatClient(this.configuration.ircChatServer);
   }
 
   /**
    * Executa a aplicação.
    */
   public async run(): Promise<void> {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(async (resolve) => {
       this.webSocketClient.open();
-
-      const interval = 10000;
-      this.timeout = setInterval(() => {
-        Logger.post('Sending "Hello Coin" to CoinApplication.');
-        this.busClient.send(
-          new BusMessageText("Hello Coin", ["CoinApplication", "Nothing"])
-        );
-
-        Logger.post('Sending "Hello World" to all applications.');
-        this.busClient.send(new BusMessageText("Hello World"));
-      }, interval);
+      await this.ircChatClient.open();
 
       resolve();
     });
@@ -76,11 +63,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(async (resolve) => {
+      await this.ircChatClient.close();
+
       if (this.webSocketClient.opened) {
         this.webSocketClient.close();
       }
-      clearInterval(this.timeout);
 
       this.onStop.forEach((onStop) => onStop());
 

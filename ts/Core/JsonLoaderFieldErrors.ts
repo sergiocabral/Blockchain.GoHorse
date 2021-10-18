@@ -5,6 +5,25 @@ import { HelperObject, JsonLoader } from "@sergiocabral/helper";
  */
 export class JsonLoaderFieldErrors {
   /**
+   * Sem erros para: valor como boolean
+   */
+  public static boolean(instance: JsonLoader, fieldName: string): string[] {
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+    if (typeof value !== "boolean") {
+      errors.push(
+        `${
+          instance.constructor.name
+        }.${fieldName} must be a boolean, but found: ${typeof value}, ${String(
+          value
+        )}`
+      );
+    }
+
+    return errors;
+  }
+
+  /**
    * Sem erros para: valor como string ou não informado
    */
   public static canEmptyString(
@@ -25,6 +44,7 @@ export class JsonLoaderFieldErrors {
 
     return errors;
   }
+
   /**
    * Sem erros para: inteiro entre dois valores
    */

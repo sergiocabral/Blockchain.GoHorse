@@ -1,20 +1,26 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
 import { JsonLoaderFieldErrors } from "../../Core/JsonLoaderFieldErrors";
+import { TwitchAuthConfiguration } from "../TwitchAuthConfiguration";
 
 /**
  * Dados para conexão ao IRC Chat
  */
 export class IrcChatClientConfiguration extends JsonLoader {
   /**
+   * Informações de login na Twitch.
+   */
+  public authentication = new TwitchAuthConfiguration();
+
+  /**
    * Porta do servidor.
    */
   public port = 6667;
 
   /**
-   * Protocolo de comunicação.
+   * Habilita criptografia sobre o protocolo de comunicação.
    */
-  public protocol = "irc";
+  public secure = true;
 
   /**
    * Servidor IRC.
@@ -27,9 +33,7 @@ export class IrcChatClientConfiguration extends JsonLoader {
   public errors(): string[] {
     const errors = Array<string>();
 
-    errors.push(
-      ...JsonLoaderFieldErrors.onTheList(this, "protocol", ["ws", "wss", "irc"])
-    );
+    errors.push(...JsonLoaderFieldErrors.boolean(this, "secure"));
     errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
     errors.push(
       ...JsonLoaderFieldErrors.integerBetween(this, "port", [
