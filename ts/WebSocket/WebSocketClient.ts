@@ -1,8 +1,4 @@
-import {
-  InvalidExecutionError,
-  Logger,
-  LogLevel,
-} from "@sergiocabral/helper";
+import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";

@@ -8,12 +8,12 @@ import { WebSocketServerConfiguration } from "../../WebSocket/WebSocketServerCon
  */
 export class BusConfiguration extends JsonLoader {
   /**
-   * Configuração para banco de dados redis.
-   */
-  public databaseRedisServer = new RedisConfiguration();
-
-  /**
    * Configurações do servidor websocket.
    */
-  public webSocketServer = new WebSocketServerConfiguration();
+  public messageBus = new WebSocketServerConfiguration();
+
+  /**
+   * Configuração para banco de dados redis.
+   */
+  public redis = new RedisConfiguration();
 }

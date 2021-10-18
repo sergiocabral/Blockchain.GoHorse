@@ -1,7 +1,7 @@
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { IrcChatClient } from "../../Twitch/IrcChat/IrcChatClient";
+import { TwitchChatClient } from "../../Twitch/Chat/TwitchChatClient";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
@@ -26,14 +26,14 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly busClient: BusClient;
 
   /**
-   * Cliente do IRC Chat
-   */
-  private readonly ircChatClient: IrcChatClient;
-
-  /**
    * Sinaliza que a aplicação já foi parada.
    */
   private stopped = false;
+
+  /**
+   * Cliente do IRC Chat
+   */
+  private readonly twitchChatClient: TwitchChatClient;
 
   /**
    * Cliente WebSocket.
@@ -45,12 +45,10 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    */
   public constructor() {
     super();
-    this.webSocketClient = new WebSocketClient(
-      this.configuration.messageBusWebSocketServer
-    );
+    this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
     this.webSocketClient.onClose.add(this.stop.bind(this));
     this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
-    this.ircChatClient = new IrcChatClient(this.configuration.ircChatServer);
+    this.twitchChatClient = new TwitchChatClient(this.configuration.twitchChat);
   }
 
   /**
@@ -58,7 +56,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    */
   public async run(): Promise<void> {
     await this.webSocketClient.open();
-    await this.ircChatClient.open();
+    await this.twitchChatClient.open();
   }
 
   /**
@@ -70,8 +68,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     }
     this.stopped = true;
 
-    if (this.ircChatClient.state !== ConnectionState.Closed) {
-      await this.ircChatClient.close();
+    if (this.twitchChatClient.state !== ConnectionState.Closed) {
+      await this.twitchChatClient.close();
     }
 
     if (this.webSocketClient.state !== ConnectionState.Closed) {

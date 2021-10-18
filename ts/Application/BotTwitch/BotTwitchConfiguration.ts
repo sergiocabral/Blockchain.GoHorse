@@ -1,6 +1,6 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { IrcChatClientConfiguration } from "../../Twitch/IrcChat/IrcChatClientConfiguration";
+import { TwitchChatClientConfiguration } from "../../Twitch/Chat/TwitchChatClientConfiguration";
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 /**
@@ -8,12 +8,12 @@ import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientCon
  */
 export class BotTwitchConfiguration extends JsonLoader {
   /**
-   * Dados para conexão ao IRC Chat
-   */
-  public ircChatServer = new IrcChatClientConfiguration();
-
-  /**
    * Configurações para conectar ao servidor websocket.
    */
-  public messageBusWebSocketServer = new WebSocketClientConfiguration();
+  public messageBus = new WebSocketClientConfiguration();
+
+  /**
+   * Dados para conexão ao chat da Twitch
+   */
+  public twitchChat = new TwitchChatClientConfiguration();
 }

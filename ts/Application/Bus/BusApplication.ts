@@ -41,12 +41,8 @@ export class BusApplication extends Application<BusConfiguration> {
    */
   public constructor() {
     super();
-    this.databaseServer = new RedisDatabase(
-      this.configuration.databaseRedisServer
-    );
-    this.webSocketServer = new WebSocketServer(
-      this.configuration.webSocketServer
-    );
+    this.databaseServer = new RedisDatabase(this.configuration.redis);
+    this.webSocketServer = new WebSocketServer(this.configuration.messageBus);
     this.busServer = new BusServer(this.webSocketServer, this.databaseServer);
   }
 

@@ -9,5 +9,5 @@ export class MinerConfiguration extends JsonLoader {
   /**
    * Configurações para conectar ao servidor websocket.
    */
-  public messageBusWebSocketServer = new WebSocketClientConfiguration();
+  public messageBus = new WebSocketClientConfiguration();
 }

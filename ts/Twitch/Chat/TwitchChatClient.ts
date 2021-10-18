@@ -10,12 +10,12 @@ import { Client, Options } from "tmi.js";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IConnection } from "../../Core/Connection/IConnection";
 
-import { IrcChatClientConfiguration } from "./IrcChatClientConfiguration";
+import { TwitchChatClientConfiguration } from "./TwitchChatClientConfiguration";
 
 /**
  * Cliente IRC para o chat da Twitch.
  */
-export class IrcChatClient implements IConnection {
+export class TwitchChatClient implements IConnection {
   /**
    * Cliente IRC
    */
@@ -26,7 +26,7 @@ export class IrcChatClient implements IConnection {
    * @param configuration Configurações.
    */
   public constructor(
-    private readonly configuration: IrcChatClientConfiguration
+    private readonly configuration: TwitchChatClientConfiguration
   ) {}
 
   /**
@@ -101,7 +101,7 @@ export class IrcChatClient implements IConnection {
           server: result[0],
         },
         LogLevel.Information,
-        IrcChatClient.name
+        TwitchChatClient.name
       );
     } catch (error: unknown) {
       this.client = undefined;
@@ -132,15 +132,15 @@ export class IrcChatClient implements IConnection {
         maxReconnectAttempts: 2,
         maxReconnectInterval: 300000,
         port: this.configuration.port,
-        reconnect: this.configuration.reconnect,
+        reconnect: this.configuration.tryReconnectWhenDisconnect,
         reconnectDecay: 2,
         reconnectInterval: 500,
         secure: this.configuration.protocol === "wss",
         server: this.configuration.server,
       } as unknown as undefined,
       identity: {
-        password: this.configuration.authentication.token,
-        username: this.configuration.authentication.username,
+        password: this.configuration.twitchAuthentication.token,
+        username: this.configuration.twitchAuthentication.username,
       },
       logger: {
         debug: (message: string) => logger(message, LogLevel.Verbose),

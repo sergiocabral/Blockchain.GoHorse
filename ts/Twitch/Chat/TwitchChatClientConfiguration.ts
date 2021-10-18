@@ -6,12 +6,7 @@ import { TwitchAuthConfiguration } from "../TwitchAuthConfiguration";
 /**
  * Dados para conexão ao IRC Chat
  */
-export class IrcChatClientConfiguration extends JsonLoader {
-  /**
-   * Informações de login na Twitch.
-   */
-  public authentication = new TwitchAuthConfiguration();
-
+export class TwitchChatClientConfiguration extends JsonLoader {
   /**
    * Porta do servidor.
    */
@@ -23,14 +18,19 @@ export class IrcChatClientConfiguration extends JsonLoader {
   public protocol = "wss";
 
   /**
-   * Se desconectar tentar reconectar novamente.
-   */
-  public reconnect = true;
-
-  /**
    * Servidor IRC.
    */
   public server = "irc-ws.chat.twitch.tv";
+
+  /**
+   * Se desconectar tentar reconectar novamente.
+   */
+  public tryReconnectWhenDisconnect = true;
+
+  /**
+   * Informações de login na Twitch.
+   */
+  public twitchAuthentication = new TwitchAuthConfiguration();
 
   /**
    * Lista de erros presentes na configuração atual
@@ -48,7 +48,9 @@ export class IrcChatClientConfiguration extends JsonLoader {
         Number.MAX_SAFE_INTEGER,
       ])
     );
-    errors.push(...JsonLoaderFieldErrors.boolean(this, "reconnect"));
+    errors.push(
+      ...JsonLoaderFieldErrors.boolean(this, "tryReconnectWhenDisconnect")
+    );
     errors.push(...super.errors());
 
     return errors;
