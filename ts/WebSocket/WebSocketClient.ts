@@ -1,5 +1,4 @@
 import {
-  HelperObject,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -7,16 +6,16 @@ import {
 import { WebSocket } from "ws";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
-import { IConnection } from "../Core/Connection/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
+import { WebSocketBase } from "./WebSocketBase";
 import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 
 /**
  * Cliente WebSocket.
  */
-export class WebSocketClient implements IConnection {
+export class WebSocketClient extends WebSocketBase {
   /**
    * Evento: o cliente fechou.
    */
@@ -71,6 +70,8 @@ export class WebSocketClient implements IConnection {
     configuration: WebSocketClientConfiguration | WebSocket,
     protocol: new (client: WebSocketClient) => IProtocol = BasicProtocol
   ) {
+    super();
+
     this.protocol = new protocol(this);
     this.protocol.onMessageReceived.push(
       this.handleProtocolMessageReceived.bind(this)
@@ -127,24 +128,12 @@ export class WebSocketClient implements IConnection {
    * @param reason Motivo do fechamento.
    */
   public async close(code?: number, reason?: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let resolved = false;
-
+    return this.eventPromise((resolve, reject, pushError) => {
       this.client.on("error", (error) => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        reject(error);
+        pushError(error);
+        reject();
       });
-
-      this.client.on("close", () => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        resolve();
-      });
+      this.client.on("close", resolve);
 
       this.client.close(code, reason);
     });
@@ -154,40 +143,9 @@ export class WebSocketClient implements IConnection {
    * Iniciar.
    */
   public async open(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let resolved = false;
-      let errorAggregation: Error | undefined;
-
+    return this.eventPromise((resolve, reject, pushError) => {
       const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
       this.client = new WebSocket(url);
-
-      this.client.on("error", (error) => {
-        if (resolved) {
-          return;
-        }
-
-        if (errorAggregation) {
-          HelperObject.setProperty(error, "innerError", errorAggregation);
-        }
-        errorAggregation = error;
-      });
-
-      this.client.on("close", () => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        this.client = undefined;
-        reject(errorAggregation);
-      });
-
-      this.client.on("open", () => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        resolve();
-      });
 
       this.attachEvents(this.client);
 
@@ -197,6 +155,10 @@ export class WebSocketClient implements IConnection {
         LogLevel.Debug,
         WebSocketClient.name
       );
+
+      this.client.on("error", pushError);
+      this.client.on("close", () => reject(() => (this.client = undefined)));
+      this.client.on("open", resolve);
     });
   }
 

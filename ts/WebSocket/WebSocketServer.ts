@@ -1,5 +1,4 @@
 import {
-  HelperObject,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -7,17 +6,17 @@ import {
 import { Server, WebSocket } from "ws";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
-import { IConnection } from "../Core/Connection/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
+import { WebSocketBase } from "./WebSocketBase";
 import { WebSocketClient } from "./WebSocketClient";
 import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
 
 /**
  * Servidor WebSocket.
  */
-export class WebSocketServer implements IConnection {
+export class WebSocketServer extends WebSocketBase {
   /**
    * Lista de clientes conectados.
    */
@@ -65,7 +64,9 @@ export class WebSocketServer implements IConnection {
     private readonly protocol: new (
       client: WebSocketClient
     ) => IProtocol = BasicProtocol
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * Estado da conexão.
@@ -126,40 +127,9 @@ export class WebSocketServer implements IConnection {
    * Iniciar.
    */
   public async open(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let resolved = false;
-      let errorAggregation: Error | undefined;
-
+    return this.eventPromise((resolve, reject, pushError) => {
       this.server = new Server({
         port: this.configuration.port,
-      });
-
-      this.server.on("error", (error) => {
-        if (resolved) {
-          return;
-        }
-
-        if (errorAggregation) {
-          HelperObject.setProperty(error, "innerError", errorAggregation);
-        }
-        errorAggregation = error;
-      });
-
-      this.server.on("close", () => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        this.server = undefined;
-        reject(errorAggregation);
-      });
-
-      this.server.on("listening", () => {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        resolve();
       });
 
       this.attachEvents(this.server);
@@ -170,6 +140,10 @@ export class WebSocketServer implements IConnection {
         LogLevel.Debug,
         WebSocketServer.name
       );
+
+      this.server.on("error", pushError);
+      this.server.on("close", () => reject(() => (this.server = undefined)));
+      this.server.on("listening", resolve);
     });
   }
 
