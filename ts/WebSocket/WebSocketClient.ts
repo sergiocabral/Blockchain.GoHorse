@@ -92,6 +92,13 @@ export class WebSocketClient implements IConnection {
   }
 
   /**
+   * Sinaliza que a conexão está pronta para uso.
+   */
+  public get ready(): boolean {
+    return this.clientValue?.readyState === 1;
+  }
+
+  /**
    * Cliente websocket.
    */
   private get client(): WebSocket {

@@ -74,6 +74,13 @@ export class WebSocketServer implements IConnection {
   }
 
   /**
+   * Sinaliza que a conexão está pronta para uso.
+   */
+  public get ready(): boolean {
+    return this.serverValue !== undefined;
+  }
+
+  /**
    * Servidor websocket.
    */
   private get server(): Server {

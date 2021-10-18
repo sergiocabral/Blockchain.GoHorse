@@ -8,6 +8,11 @@ export interface IConnection {
   get opened(): boolean;
 
   /**
+   * Sinaliza que a conexão está pronta para uso.
+   */
+  get ready(): boolean;
+
+  /**
    * Fecha a conexão.
    */
   close(): Promise<void>;

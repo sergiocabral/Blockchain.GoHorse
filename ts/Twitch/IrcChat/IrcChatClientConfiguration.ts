@@ -15,7 +15,12 @@ export class IrcChatClientConfiguration extends JsonLoader {
   /**
    * Porta do servidor.
    */
-  public port = 6667;
+  public port = 443;
+
+  /**
+   * Protocolo de conexão.
+   */
+  public protocol = "wss";
 
   /**
    * Se desconectar tentar reconectar novamente.
@@ -23,14 +28,9 @@ export class IrcChatClientConfiguration extends JsonLoader {
   public reconnect = true;
 
   /**
-   * Habilita criptografia sobre o protocolo de comunicação.
-   */
-  public secure = true;
-
-  /**
    * Servidor IRC.
    */
-  public server = "irc.chat.twitch.tv";
+  public server = "irc-ws.chat.twitch.tv";
 
   /**
    * Lista de erros presentes na configuração atual
@@ -38,7 +38,9 @@ export class IrcChatClientConfiguration extends JsonLoader {
   public errors(): string[] {
     const errors = Array<string>();
 
-    errors.push(...JsonLoaderFieldErrors.boolean(this, "secure"));
+    errors.push(
+      ...JsonLoaderFieldErrors.onTheList(this, "protocol", ["ws", "wss"])
+    );
     errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
     errors.push(
       ...JsonLoaderFieldErrors.integerBetween(this, "port", [
@@ -46,6 +48,7 @@ export class IrcChatClientConfiguration extends JsonLoader {
         Number.MAX_SAFE_INTEGER,
       ])
     );
+    errors.push(...JsonLoaderFieldErrors.boolean(this, "reconnect"));
     errors.push(...super.errors());
 
     return errors;

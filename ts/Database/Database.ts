@@ -30,6 +30,11 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract get opened(): boolean;
 
   /**
+   * Sinaliza se a conexão está pronta para uso.
+   */
+  public abstract get ready(): boolean;
+
+  /**
    * Adiciona como histórico baseado em data um valor associado a uma tabela de dados.
    * @param table Nome da tabela.
    * @param key Chave.

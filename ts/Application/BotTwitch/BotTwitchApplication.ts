@@ -30,6 +30,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly ircChatClient: IrcChatClient;
 
   /**
+   * Sinaliza que a aplicação já foi parada.
+   * @private
+   */
+  private stopped = false;
+
+  /**
    * Cliente WebSocket.
    */
   private readonly webSocketClient: WebSocketClient;
@@ -59,6 +65,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
+    if (this.stopped) {
+      return;
+    }
+    this.stopped = true;
+
     if (this.ircChatClient.opened) {
       await this.ircChatClient.close();
     }

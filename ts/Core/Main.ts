@@ -40,10 +40,17 @@ export class Main {
     }
 
     if (!Argument.hasStopArgument()) {
-      await application.run();
+      try {
+        await application.run();
+      } catch (error: unknown) {
+        await application.stop();
+        throw error;
+      }
 
       const killVerifyIntervalTimer = setInterval(async () => {
         if (fs.existsSync(killFilename)) {
+          clearInterval(killVerifyIntervalTimer);
+
           fs.unlinkSync(killFilename);
 
           Logger.post(
@@ -54,8 +61,6 @@ export class Main {
           );
 
           await application.stop();
-
-          clearInterval(killVerifyIntervalTimer);
         }
       }, Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE);
 

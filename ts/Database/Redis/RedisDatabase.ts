@@ -54,6 +54,16 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    */
   public get opened(): boolean {
     return (
+      this.primaryConnection !== undefined &&
+      this.secondaryConnection !== undefined
+    );
+  }
+
+  /**
+   * Sinaliza se a conexão está pronta para uso.
+   */
+  public get ready(): boolean {
+    return (
       this.primaryConnection?.connected === true &&
       this.secondaryConnection?.connected === true
     );
