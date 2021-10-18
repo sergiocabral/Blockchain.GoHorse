@@ -56,7 +56,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   public get state(): ConnectionState {
     if (
       this.primaryConnection?.connected === true &&
-      this.secondaryConnection?.connected
+      this.secondaryConnection?.connected === true
     ) {
       return ConnectionState.Ready;
     }

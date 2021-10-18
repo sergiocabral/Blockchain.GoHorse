@@ -33,7 +33,7 @@ export class IrcChatClient implements IConnection {
    * Estado da conexão.
    */
   public get state(): ConnectionState {
-    if (this.clientValue?.readyState() === "CLOSED") {
+    if (this.clientValue?.readyState() === "OPEN") {
       return ConnectionState.Ready;
     }
 
