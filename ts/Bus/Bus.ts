@@ -100,7 +100,7 @@ export abstract class Bus {
         Bus.name
       );
 
-      client.close(ProtocolError.TOP_LAYER_ERROR, errorMessage);
+      await client.close(ProtocolError.TOP_LAYER_ERROR, errorMessage);
     }
   }
 }

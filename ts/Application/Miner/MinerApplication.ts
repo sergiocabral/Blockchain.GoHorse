@@ -48,25 +48,17 @@ export class MinerApplication extends Application<MinerConfiguration> {
    * Executa a aplicação.
    */
   public async run(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.webSocketClient.open();
-
-      resolve();
-    });
+    await this.webSocketClient.open();
   }
 
   /**
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
-    return new Promise<void>((resolve) => {
-      if (this.webSocketClient.opened) {
-        this.webSocketClient.close();
-      }
+    if (this.webSocketClient.opened) {
+      await this.webSocketClient.close();
+    }
 
-      this.onStop.forEach((onStop) => onStop());
-
-      resolve();
-    });
+    this.onStop.forEach((onStop) => onStop());
   }
 }

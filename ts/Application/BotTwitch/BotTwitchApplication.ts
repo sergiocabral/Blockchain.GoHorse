@@ -51,28 +51,22 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Executa a aplicação.
    */
   public async run(): Promise<void> {
-    return new Promise<void>(async (resolve) => {
-      this.webSocketClient.open();
-      await this.ircChatClient.open();
-
-      resolve();
-    });
+    await this.webSocketClient.open();
+    await this.ircChatClient.open();
   }
 
   /**
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
-    return new Promise<void>(async (resolve) => {
+    if (this.ircChatClient.opened) {
       await this.ircChatClient.close();
+    }
 
-      if (this.webSocketClient.opened) {
-        this.webSocketClient.close();
-      }
+    if (this.webSocketClient.opened) {
+      await this.webSocketClient.close();
+    }
 
-      this.onStop.forEach((onStop) => onStop());
-
-      resolve();
-    });
+    this.onStop.forEach((onStop) => onStop());
   }
 }

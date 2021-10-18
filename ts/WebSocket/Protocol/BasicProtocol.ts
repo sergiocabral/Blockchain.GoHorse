@@ -39,7 +39,7 @@ export class BasicProtocol extends ProtocolBase {
         error instanceof Error ? error.message : String(error);
       const errorCode = error instanceof ProtocolError ? error.code : -1;
 
-      this.client.close(errorCode, errorMessage);
+      void this.client.close(errorCode, errorMessage);
 
       Logger.post(
         "Websocket client stopped the connection because an error: {errorCode}, {errorMessage}",

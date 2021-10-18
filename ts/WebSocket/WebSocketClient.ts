@@ -1,5 +1,12 @@
-import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
+import {
+  HelperObject,
+  InvalidExecutionError,
+  Logger,
+  LogLevel,
+} from "@sergiocabral/helper";
 import { WebSocket } from "ws";
+
+import { IConnection } from "../Core/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
@@ -8,7 +15,7 @@ import { WebSocketClientConfiguration } from "./WebSocketClientConfiguration";
 /**
  * Cliente WebSocket.
  */
-export class WebSocketClient {
+export class WebSocketClient implements IConnection {
   /**
    * Evento: o cliente fechou.
    */
@@ -110,25 +117,78 @@ export class WebSocketClient {
    * @param code Código do fechamento.
    * @param reason Motivo do fechamento.
    */
-  public close(code?: number, reason?: string): void {
-    this.client.close(code, reason);
+  public async close(code?: number, reason?: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+
+      this.client.on("error", (error) => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        reject(error);
+      });
+
+      this.client.on("close", () => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        resolve();
+      });
+
+      this.client.close(code, reason);
+    });
   }
 
   /**
    * Iniciar.
    */
-  public open(): void {
-    const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
-    this.client = new WebSocket(url);
+  public async open(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      let errorAggregation: Error | undefined;
 
-    this.attachEvents(this.client);
+      const url = `${this.configuration.protocol}://${this.configuration.server}:${this.configuration.port}`;
+      this.client = new WebSocket(url);
 
-    Logger.post(
-      "Websocket client trying to connect to {url}.",
-      { url },
-      LogLevel.Debug,
-      WebSocketClient.name
-    );
+      this.client.on("error", (error) => {
+        if (resolved) {
+          return;
+        }
+
+        if (errorAggregation) {
+          HelperObject.setProperty(error, "innerError", errorAggregation);
+        }
+        errorAggregation = error;
+      });
+
+      this.client.on("close", () => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        this.client = undefined;
+        reject(errorAggregation);
+      });
+
+      this.client.on("open", () => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        resolve();
+      });
+
+      this.attachEvents(this.client);
+
+      Logger.post(
+        "Websocket client trying to connect to {url}.",
+        { url },
+        LogLevel.Debug,
+        WebSocketClient.name
+      );
+    });
   }
 
   /**

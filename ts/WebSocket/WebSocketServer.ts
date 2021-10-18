@@ -1,5 +1,12 @@
-import { InvalidExecutionError, Logger, LogLevel } from "@sergiocabral/helper";
+import {
+  HelperObject,
+  InvalidExecutionError,
+  Logger,
+  LogLevel,
+} from "@sergiocabral/helper";
 import { Server, WebSocket } from "ws";
+
+import { IConnection } from "../Core/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
@@ -9,7 +16,7 @@ import { WebSocketServerConfiguration } from "./WebSocketServerConfiguration";
 /**
  * Servidor WebSocket.
  */
-export class WebSocketServer {
+export class WebSocketServer implements IConnection {
   /**
    * Lista de clientes conectados.
    */
@@ -93,10 +100,10 @@ export class WebSocketServer {
    * @param reason Motivo do fechamento.
    */
   public async close(code?: number, reason?: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       for (const client of this.clients) {
         if (client.opened) {
-          client.close(code, reason);
+          await client.close(code, reason);
         }
       }
 
@@ -113,19 +120,52 @@ export class WebSocketServer {
   /**
    * Iniciar.
    */
-  public open(): void {
-    this.server = new Server({
-      port: this.configuration.port,
+  public async open(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      let errorAggregation: Error | undefined;
+
+      this.server = new Server({
+        port: this.configuration.port,
+      });
+
+      this.server.on("error", (error) => {
+        if (resolved) {
+          return;
+        }
+
+        if (errorAggregation) {
+          HelperObject.setProperty(error, "innerError", errorAggregation);
+        }
+        errorAggregation = error;
+      });
+
+      this.server.on("close", () => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        this.server = undefined;
+        reject(errorAggregation);
+      });
+
+      this.server.on("open", () => {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        resolve();
+      });
+
+      this.attachEvents(this.server);
+
+      Logger.post(
+        "Websocket server trying to start on port {port}.",
+        { port: this.configuration.port },
+        LogLevel.Debug,
+        WebSocketServer.name
+      );
     });
-
-    this.attachEvents(this.server);
-
-    Logger.post(
-      "Websocket server trying to start on port {port}.",
-      { port: this.configuration.port },
-      LogLevel.Debug,
-      WebSocketServer.name
-    );
   }
 
   /**

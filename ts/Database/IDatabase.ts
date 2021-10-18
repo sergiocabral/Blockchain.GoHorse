@@ -1,3 +1,5 @@
+import { IConnection } from "../Core/IConnection";
+
 import { IValue } from "./Value/IValue";
 import { ValueContent } from "./Value/ValueContent";
 import { ValueId } from "./Value/ValueId";
@@ -5,16 +7,11 @@ import { ValueId } from "./Value/ValueId";
 /**
  * Interface para um banco de dados usado pelo sistema.
  */
-export interface IDatabase {
+export interface IDatabase extends IConnection {
   /**
    * Evento: quando uma mensagem é recebida via inscrição.
    */
   get onMessage(): Set<(channel: string, message: string) => void>;
-
-  /**
-   * Sinaliza se a conexão foi iniciada.
-   */
-  get opened(): boolean;
 
   /**
    * Adiciona como histórico baseado em data um valor associado a uma tabela de dados.
@@ -31,11 +28,6 @@ export interface IDatabase {
    * @param values Valores.
    */
   addValues(table: string, key: string, values: IValue[]): Promise<void>;
-
-  /**
-   * Fechar conexão.
-   */
-  close(): Promise<void>;
 
   /**
    * Retorna a lista de chaves presentes em uma tabela de dados.
@@ -56,11 +48,6 @@ export interface IDatabase {
    * @param message Mensagem.
    */
   notify(channel: string, message?: string): Promise<void>;
-
-  /**
-   * Abrir conexão.
-   */
-  open(): Promise<void>;
 
   /**
    * Remove um valor presente em uma tabela de dados.
