@@ -5,7 +5,6 @@ import {
   LogLevel,
 } from "@sergiocabral/helper";
 import fs from "fs";
-import { clearInterval } from "timers";
 
 import { BlockchainApplication } from "../Application/Blockchain/BlockchainApplication";
 import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
@@ -41,8 +40,6 @@ export class Main {
     }
 
     if (!Argument.hasStopArgument()) {
-      application.onStop.add(() => clearInterval(killVerifyIntervalTimer));
-
       await application.run();
 
       const killVerifyIntervalTimer = setInterval(async () => {
@@ -61,6 +58,8 @@ export class Main {
           clearInterval(killVerifyIntervalTimer);
         }
       }, Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE);
+
+      application.onStop.add(() => clearInterval(killVerifyIntervalTimer));
     } else {
       Logger.post(
         "Sending signal to terminate application.",

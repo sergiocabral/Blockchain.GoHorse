@@ -1,3 +1,4 @@
+import { Logger, LogLevel } from "@sergiocabral/helper";
 import { Client } from "tmi.js";
 
 import { IrcChatClientConfiguration } from "./IrcChatClientConfiguration";
@@ -20,19 +21,29 @@ export class IrcChatClient {
   ) {
     this.ircClient = new Client({
       connection: {
-        maxReconnectAttempts: 10,
-        maxReconnectInverval: 60,
+        maxReconnectAttempts: Number.MAX_SAFE_INTEGER,
+        maxReconnectInterval: 300000,
         port: configuration.port,
-        reconnect: true,
-        reconnectDecay: 1.5,
-        reconnectInterval: 5,
+        reconnect: configuration.reconnect,
+        reconnectDecay: 2,
+        reconnectInterval: 500,
         secure: configuration.secure,
         server: configuration.server,
-      },
+      } as unknown as undefined,
       identity: {
         password: configuration.authentication.token,
-        username: configuration.authentication.user,
+        username: configuration.authentication.username,
       },
+      logger: {
+        debug: (message: string) =>
+          Logger.post(message, undefined, LogLevel.Verbose, "tmi.js"),
+        error: (message: string) =>
+          Logger.post(message, undefined, LogLevel.Error, "tmi.js"),
+        info: (message: string) =>
+          Logger.post(message, undefined, LogLevel.Debug, "tmi.js"),
+        warn: (message: string) =>
+          Logger.post(message, undefined, LogLevel.Warning, "tmi.js"),
+      } as unknown as undefined,
       options: {
         debug: true,
         messagesLogLevel: "debug",
@@ -47,13 +58,33 @@ export class IrcChatClient {
    * Finaliza a conexão com servidor IRC.
    */
   public async close(): Promise<void> {
-    return new Promise((resolve) => resolve());
+    await this.ircClient.disconnect();
   }
 
   /**
    * Estabelece a conexão conexão com servidor IRC.
    */
   public async open(): Promise<void> {
-    return new Promise((resolve) => resolve());
+    try {
+      const result = await this.ircClient.connect();
+      Logger.post(
+        'Established connection to IRC Chat with code {code} and status "{status}".',
+        {
+          code: result[1],
+          status: result[0],
+        },
+        LogLevel.Information,
+        IrcChatClient.name
+      );
+    } catch (error: unknown) {
+      Logger.post(
+        'Error while connecting to IRC Chat: {error}',
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+        LogLevel.Error,
+        IrcChatClient.name
+      );
+    }
   }
 }

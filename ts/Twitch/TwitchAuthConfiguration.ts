@@ -1,7 +1,5 @@
 import { HelperObject, JsonLoader } from "@sergiocabral/helper";
 
-import { JsonLoaderFieldErrors } from "../Core/JsonLoaderFieldErrors";
-
 /**
  * Informações de login na Twitch.
  */
@@ -14,7 +12,7 @@ export class TwitchAuthConfiguration extends JsonLoader {
   /**
    * Usuário da Twitch.
    */
-  public user = "twitch_user_name";
+  public username = "twitch_user_name";
 
   /**
    * Lista de erros presentes na configuração atual
@@ -22,20 +20,32 @@ export class TwitchAuthConfiguration extends JsonLoader {
   public errors(): string[] {
     const errors = Array<string>();
 
-    errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "user"));
-
-    const fieldName = "token";
+    let fieldName = "token";
+    let value = HelperObject.getProperty(this, fieldName);
     const regexValidToken = /^oauth:[a-z0-9]{30}$/;
-    const value = HelperObject.getProperty(this, fieldName);
     if (typeof value !== "string" || !regexValidToken.test(value)) {
       errors.push(
         `${
           this.constructor.name
-        }.${fieldName} must be a valid Twitch Token, for example "${
+        }.${fieldName} must be a valid Twitch token, for example "${
           new TwitchAuthConfiguration().token
         }", but found: ${typeof value}, ${String(value)}`
       );
     }
+
+    fieldName = "username";
+    value = HelperObject.getProperty(this, fieldName);
+    const regexValidUsername = /^\w+$/;
+    if (typeof value !== "string" || !regexValidUsername.test(value)) {
+      errors.push(
+        `${
+          this.constructor.name
+        }.${fieldName} must be a valid Twitch username with letters, numbers and underscore, but found: ${typeof value}, ${String(
+          value
+        )}`
+      );
+    }
+
     errors.push(...super.errors());
 
     return errors;

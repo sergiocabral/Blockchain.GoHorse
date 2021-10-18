@@ -18,6 +18,11 @@ export class IrcChatClientConfiguration extends JsonLoader {
   public port = 6667;
 
   /**
+   * Se desconectar tentar reconectar novamente.
+   */
+  public reconnect = true;
+
+  /**
    * Habilita criptografia sobre o protocolo de comunicação.
    */
   public secure = true;
