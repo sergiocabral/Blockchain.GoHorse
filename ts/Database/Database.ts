@@ -1,5 +1,7 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
+import { ConnectionState } from "../Core/Connection/ConnectionState";
+
 import { IDatabase } from "./IDatabase";
 import { IValue } from "./Value/IValue";
 import { ValueContent } from "./Value/ValueContent";
@@ -25,14 +27,9 @@ export abstract class Database<TConfiguration extends JsonLoader>
   >;
 
   /**
-   * Sinaliza se a conexão foi iniciada.
+   * Estado da conexão.
    */
-  public abstract get opened(): boolean;
-
-  /**
-   * Sinaliza se a conexão está pronta para uso.
-   */
-  public abstract get ready(): boolean;
+  public abstract get state(): ConnectionState;
 
   /**
    * Adiciona como histórico baseado em data um valor associado a uma tabela de dados.

@@ -1,5 +1,6 @@
 import { BusServer } from "../../Bus/BusServer";
 import { Application } from "../../Core/Application";
+import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../Database/IDatabase";
 import { RedisDatabase } from "../../Database/Redis/RedisDatabase";
 import { WebSocketServer } from "../../WebSocket/WebSocketServer";
@@ -61,7 +62,7 @@ export class BusApplication extends Application<BusConfiguration> {
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
-    if (this.webSocketServer.opened) {
+    if (this.webSocketServer.state !== ConnectionState.Closed) {
       await this.webSocketServer.close();
     }
     await this.closeDatabase();
@@ -74,7 +75,7 @@ export class BusApplication extends Application<BusConfiguration> {
   private async closeDatabase(waitFor = 1000): Promise<void> {
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
-        if (this.databaseServer.opened) {
+        if (this.databaseServer.state !== ConnectionState.Closed) {
           await this.databaseServer.close();
         }
 

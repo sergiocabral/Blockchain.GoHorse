@@ -1,5 +1,6 @@
 import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
 
+import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { IDatabase } from "../Database/IDatabase";
 
 import { Bus } from "./Bus";
@@ -36,7 +37,7 @@ export class BusDatabase {
    * Banco de dados com conexão pronta para uso.
    */
   private get database(): IDatabase {
-    if (!this.databaseValue.opened) {
+    if (this.databaseValue.state !== ConnectionState.Ready) {
       throw new NotReadyError("The database connection is not open.");
     }
 

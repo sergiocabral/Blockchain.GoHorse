@@ -6,7 +6,8 @@ import {
 } from "@sergiocabral/helper";
 import { Server, WebSocket } from "ws";
 
-import { IConnection } from "../Core/IConnection";
+import { ConnectionState } from "../Core/Connection/ConnectionState";
+import { IConnection } from "../Core/Connection/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
@@ -67,17 +68,14 @@ export class WebSocketServer implements IConnection {
   ) {}
 
   /**
-   * Sinaliza se a instância foi iniciada.
+   * Estado da conexão.
    */
-  public get opened(): boolean {
-    return this.serverValue !== undefined;
-  }
+  public get state(): ConnectionState {
+    if (this.serverValue) {
+      return ConnectionState.Ready;
+    }
 
-  /**
-   * Sinaliza que a conexão está pronta para uso.
-   */
-  public get ready(): boolean {
-    return this.serverValue !== undefined;
+    return ConnectionState.Closed;
   }
 
   /**
@@ -109,7 +107,7 @@ export class WebSocketServer implements IConnection {
   public async close(code?: number, reason?: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
       for (const client of this.clients) {
-        if (client.opened) {
+        if (client.state === ConnectionState.Ready) {
           await client.close(code, reason);
         }
       }
@@ -156,7 +154,7 @@ export class WebSocketServer implements IConnection {
         reject(errorAggregation);
       });
 
-      this.server.on("open", () => {
+      this.server.on("listening", () => {
         if (resolved) {
           return;
         }

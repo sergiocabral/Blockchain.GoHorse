@@ -1,4 +1,4 @@
-import { IConnection } from "../Core/IConnection";
+import { IConnection } from "../Core/Connection/IConnection";
 
 import { IValue } from "./Value/IValue";
 import { ValueContent } from "./Value/ValueContent";

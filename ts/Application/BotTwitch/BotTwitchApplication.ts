@@ -1,5 +1,6 @@
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
+import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IrcChatClient } from "../../Twitch/IrcChat/IrcChatClient";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
@@ -31,7 +32,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
   /**
    * Sinaliza que a aplicação já foi parada.
-   * @private
    */
   private stopped = false;
 
@@ -70,11 +70,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     }
     this.stopped = true;
 
-    if (this.ircChatClient.opened) {
+    if (this.ircChatClient.state !== ConnectionState.Closed) {
       await this.ircChatClient.close();
     }
 
-    if (this.webSocketClient.opened) {
+    if (this.webSocketClient.state !== ConnectionState.Closed) {
       await this.webSocketClient.close();
     }
 

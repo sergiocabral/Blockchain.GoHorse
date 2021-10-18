@@ -7,7 +7,8 @@ import {
 } from "@sergiocabral/helper";
 import { Client, Options } from "tmi.js";
 
-import { IConnection } from "../../Core/IConnection";
+import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { IConnection } from "../../Core/Connection/IConnection";
 
 import { IrcChatClientConfiguration } from "./IrcChatClientConfiguration";
 
@@ -29,17 +30,18 @@ export class IrcChatClient implements IConnection {
   ) {}
 
   /**
-   * Sinaliza que a conexão está aberta.
+   * Estado da conexão.
    */
-  public get opened(): boolean {
-    return this.clientValue !== undefined;
-  }
+  public get state(): ConnectionState {
+    if (this.clientValue?.readyState() === "CLOSED") {
+      return ConnectionState.Ready;
+    }
 
-  /**
-   * Sinaliza que a conexão está pronta para uso.
-   */
-  public get ready(): boolean {
-    return this.clientValue?.readyState() === "OPEN";
+    if (this.clientValue !== undefined) {
+      return ConnectionState.Connecting;
+    }
+
+    return ConnectionState.Closed;
   }
 
   /**

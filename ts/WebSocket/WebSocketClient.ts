@@ -6,7 +6,8 @@ import {
 } from "@sergiocabral/helper";
 import { WebSocket } from "ws";
 
-import { IConnection } from "../Core/IConnection";
+import { ConnectionState } from "../Core/Connection/ConnectionState";
+import { IConnection } from "../Core/Connection/IConnection";
 
 import { BasicProtocol } from "./Protocol/BasicProtocol";
 import { IProtocol } from "./Protocol/IProtocol";
@@ -85,17 +86,18 @@ export class WebSocketClient implements IConnection {
   }
 
   /**
-   * Sinaliza se a instância foi iniciada.
+   * Estado da conexão.
    */
-  public get opened(): boolean {
-    return this.clientValue !== undefined;
-  }
+  public get state(): ConnectionState {
+    if (this.clientValue?.readyState === 1) {
+      return ConnectionState.Ready;
+    }
 
-  /**
-   * Sinaliza que a conexão está pronta para uso.
-   */
-  public get ready(): boolean {
-    return this.clientValue?.readyState === 1;
+    if (this.clientValue !== undefined) {
+      return ConnectionState.Connecting;
+    }
+
+    return ConnectionState.Closed;
   }
 
   /**

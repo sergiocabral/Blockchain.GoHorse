@@ -3,6 +3,7 @@ import { Logger, Message } from "@sergiocabral/helper";
 import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
 import { Application } from "../../Core/Application";
+import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { DatabaseConfiguration } from "./DatabaseConfiguration";
@@ -55,7 +56,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
    * Finaliza a aplicação.
    */
   public async stop(): Promise<void> {
-    if (this.webSocketClient.opened) {
+    if (this.webSocketClient.state !== ConnectionState.Closed) {
       await this.webSocketClient.close();
     }
 

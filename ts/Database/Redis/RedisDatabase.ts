@@ -10,6 +10,7 @@ import {
 } from "@sergiocabral/helper";
 import { createClient, RedisClient } from "redis";
 
+import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { Database } from "../Database";
 import { IValue } from "../Value/IValue";
 import { ValueContent } from "../Value/ValueContent";
@@ -50,23 +51,24 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     "secondary connection for subscriptions";
 
   /**
-   * Sinaliza se a conexão foi iniciada.
+   * Estado da conexão.
    */
-  public get opened(): boolean {
-    return (
+  public get state(): ConnectionState {
+    if (
+      this.primaryConnection?.connected === true &&
+      this.secondaryConnection?.connected
+    ) {
+      return ConnectionState.Ready;
+    }
+
+    if (
       this.primaryConnection !== undefined &&
       this.secondaryConnection !== undefined
-    );
-  }
+    ) {
+      return ConnectionState.Connecting;
+    }
 
-  /**
-   * Sinaliza se a conexão está pronta para uso.
-   */
-  public get ready(): boolean {
-    return (
-      this.primaryConnection?.connected === true &&
-      this.secondaryConnection?.connected === true
-    );
+    return ConnectionState.Closed;
   }
 
   /**

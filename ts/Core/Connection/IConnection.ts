@@ -1,16 +1,13 @@
+import { ConnectionState } from "./ConnectionState";
+
 /**
  * Interface de classes que estabelecem conexão.
  */
 export interface IConnection {
   /**
-   * Sinaliza que a conexão está aberta.
+   * Estado da conexão.
    */
-  get opened(): boolean;
-
-  /**
-   * Sinaliza que a conexão está pronta para uso.
-   */
-  get ready(): boolean;
+  get state(): ConnectionState;
 
   /**
    * Fecha a conexão.

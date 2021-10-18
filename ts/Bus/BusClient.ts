@@ -1,6 +1,7 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 import md5 from "md5";
 
+import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { Bus } from "./Bus";
@@ -39,9 +40,9 @@ export class BusClient extends Bus {
    * @param message Mensagem
    */
   public send(message: BusMessage): void {
-    if (!this.webSocketClient.opened) {
+    if (this.webSocketClient.state !== ConnectionState.Ready) {
       Logger.post(
-        "Cannot send a message {messageType}@{messageId} because the websocket was closed.",
+        "Cannot send a message {messageType}@{messageId} because the websocket was not ready.",
         { messageId: message.id, messageType: message.type },
         LogLevel.Error,
         BusClient.name
@@ -81,7 +82,7 @@ export class BusClient extends Bus {
    * Handle: cliente websocket abriu a conexão.
    */
   private handleWebSocketClientOpen() {
-    if (this.webSocketClient.opened) {
+    if (this.webSocketClient.state === ConnectionState.Ready) {
       const busMessage = new BusMessageJoin(this.id, this.channel);
       this.send(busMessage);
 
