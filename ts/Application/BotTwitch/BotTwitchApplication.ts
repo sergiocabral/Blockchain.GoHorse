@@ -5,6 +5,7 @@ import { TwitchChatClient } from "../../Twitch/Chat/TwitchChatClient";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
+import { ChatCommandHandler } from "./Chat/ChatCommandHandler";
 
 /**
  * Bot que ouve comandos no chat da Twitch.
@@ -19,6 +20,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Cliente de acesso ao Bus.
    */
   private readonly busClient: BusClient;
+
+  /**
+   * Tratamento dos comandos recebidos pelo chat.
+   */
+  private readonly chatCommandHandler: ChatCommandHandler;
 
   /**
    * Sinaliza que a aplicação já foi parada.
@@ -50,6 +56,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
+    this.chatCommandHandler = new ChatCommandHandler();
   }
 
   /**
