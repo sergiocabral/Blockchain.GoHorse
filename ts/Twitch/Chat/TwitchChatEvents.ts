@@ -19,6 +19,8 @@ import {
   SubUserstate,
 } from "tmi.js";
 
+import { TwitchChatEvent } from "./Message/TwitchChatEvent";
+
 /**
  * Manipula o registro dos evento do chat da Twitch.
  */
@@ -102,13 +104,14 @@ export class TwitchChatEvents implements Events {
 
   /**
    * Registra um log genérico.
-   * @param description Descrição.
+   * @param event Descrição.
    * @param args Dados relacionados.
    */
-  private static log(description: string, args?: unknown): void {
-    const data = { event: description, ...(args as {}) };
+  private static handle(event: keyof Events, args?: unknown): void {
+    const data = { event, ...(args as {}) };
+
     Logger.post(
-      () => `${description}: {sourceAsText}`,
+      () => `${event}: {sourceAsText}`,
       () => ({
         sourceAsText: JSON.stringify(data),
         source: data,
@@ -116,6 +119,8 @@ export class TwitchChatEvents implements Events {
       LogLevel.Verbose,
       TwitchChatEvents.name
     );
+
+    new TwitchChatEvent(event, data).send();
   }
 
   /**
@@ -131,7 +136,7 @@ export class TwitchChatEvents implements Events {
     message: string,
     self: boolean
   ): void {
-    TwitchChatEvents.log("action", { channel, userstate, message, self });
+    TwitchChatEvents.handle("action", { channel, userstate, message, self });
   }
 
   /**
@@ -145,7 +150,7 @@ export class TwitchChatEvents implements Events {
     username: string,
     userstate: AnonSubGiftUpgradeUserstate
   ): void {
-    TwitchChatEvents.log("anongiftpaidupgrade", {
+    TwitchChatEvents.handle("anongiftpaidupgrade", {
       channel,
       username,
       userstate,
@@ -167,7 +172,7 @@ export class TwitchChatEvents implements Events {
     methods: SubMethods,
     userstate: AnonSubGiftUserstate
   ): void {
-    TwitchChatEvents.log("anonsubgift", {
+    TwitchChatEvents.handle("anonsubgift", {
       channel,
       streakMonths,
       recipient,
@@ -189,7 +194,7 @@ export class TwitchChatEvents implements Events {
     methods: SubMethods,
     userstate: AnonSubMysteryGiftUserstate
   ): void {
-    TwitchChatEvents.log("anonsubmysterygift", {
+    TwitchChatEvents.handle("anonsubmysterygift", {
       channel,
       numbOfSubs,
       methods,
@@ -208,7 +213,7 @@ export class TwitchChatEvents implements Events {
     msgID: "msg_rejected" | "msg_rejected_mandatory",
     message: string
   ): void {
-    TwitchChatEvents.log("automod", { channel, msgID, message });
+    TwitchChatEvents.handle("automod", { channel, msgID, message });
   }
 
   /**
@@ -218,7 +223,7 @@ export class TwitchChatEvents implements Events {
    * @param reason Deprecated, always null. See event description above
    */
   public ban(channel: string, username: string, reason: string): void {
-    TwitchChatEvents.log("ban", { channel, username, reason });
+    TwitchChatEvents.handle("ban", { channel, username, reason });
   }
 
   /**
@@ -234,7 +239,7 @@ export class TwitchChatEvents implements Events {
     message: string,
     self: boolean
   ): void {
-    TwitchChatEvents.log("chat", { channel, userstate, message, self });
+    TwitchChatEvents.handle("chat", { channel, userstate, message, self });
   }
 
   /**
@@ -248,7 +253,7 @@ export class TwitchChatEvents implements Events {
     userstate: ChatUserstate,
     message: string
   ): void {
-    TwitchChatEvents.log("cheer", { channel, userstate, message });
+    TwitchChatEvents.handle("cheer", { channel, userstate, message });
   }
 
   /**
@@ -256,7 +261,7 @@ export class TwitchChatEvents implements Events {
    * @param clearchat Channel name
    */
   public clearchat(clearchat: string): void {
-    TwitchChatEvents.log("clearchat", { clearchat });
+    TwitchChatEvents.handle("clearchat", { clearchat });
   }
 
   /**
@@ -265,7 +270,7 @@ export class TwitchChatEvents implements Events {
    * @param port Remote port
    */
   public connected(address: string, port: number): void {
-    TwitchChatEvents.log("connected", { address, port });
+    TwitchChatEvents.handle("connected", { address, port });
   }
 
   /**
@@ -274,7 +279,7 @@ export class TwitchChatEvents implements Events {
    * @param port Remote port
    */
   public connecting(address: string, port: number): void {
-    TwitchChatEvents.log("connecting", { address, port });
+    TwitchChatEvents.handle("connecting", { address, port });
   }
 
   /**
@@ -282,7 +287,7 @@ export class TwitchChatEvents implements Events {
    * @param reason Reason why you got disconnected
    */
   public disconnected(reason: string): void {
-    TwitchChatEvents.log("disconnected", { reason });
+    TwitchChatEvents.handle("disconnected", { reason });
   }
 
   /**
@@ -291,7 +296,7 @@ export class TwitchChatEvents implements Events {
    * @param enabled Returns true if mode is enabled or false if disabled
    */
   public emoteonly(channel: string, enabled: boolean): void {
-    TwitchChatEvents.log("emoteonly", { channel, enabled });
+    TwitchChatEvents.handle("emoteonly", { channel, enabled });
   }
 
   /**
@@ -300,7 +305,7 @@ export class TwitchChatEvents implements Events {
    * @param obj Your emote sets with IDs and codes received from the Twitch API
    */
   public emotesets(sets: string, obj: EmoteObj): void {
-    TwitchChatEvents.log("emotesets", { sets, obj });
+    TwitchChatEvents.handle("emotesets", { sets, obj });
   }
 
   /**
@@ -314,7 +319,7 @@ export class TwitchChatEvents implements Events {
     enabled: boolean,
     length: number
   ): void {
-    TwitchChatEvents.log("followersonly", { channel, enabled, length });
+    TwitchChatEvents.handle("followersonly", { channel, enabled, length });
   }
 
   /**
@@ -330,7 +335,7 @@ export class TwitchChatEvents implements Events {
     sender: string,
     userstate: SubGiftUpgradeUserstate
   ): void {
-    TwitchChatEvents.log("giftpaidupgrade", {
+    TwitchChatEvents.handle("giftpaidupgrade", {
       channel,
       username,
       sender,
@@ -351,7 +356,7 @@ export class TwitchChatEvents implements Events {
     viewers: number,
     autohost: boolean
   ): void {
-    TwitchChatEvents.log("hosted", { channel, username, viewers, autohost });
+    TwitchChatEvents.handle("hosted", { channel, username, viewers, autohost });
   }
 
   /**
@@ -361,7 +366,7 @@ export class TwitchChatEvents implements Events {
    * @param viewers Viewers count
    */
   public hosting(channel: string, target: string, viewers: number): void {
-    TwitchChatEvents.log("hosting", { channel, target, viewers });
+    TwitchChatEvents.handle("hosting", { channel, target, viewers });
   }
 
   /**
@@ -371,14 +376,14 @@ export class TwitchChatEvents implements Events {
    * @param self Client has joined the channel
    */
   public join(channel: string, username: string, self: boolean): void {
-    TwitchChatEvents.log("join", { channel, username, self });
+    TwitchChatEvents.handle("join", { channel, username, self });
   }
 
   /**
    * Connection established, sending informations to server
    */
   public logon(): void {
-    TwitchChatEvents.log("logon");
+    TwitchChatEvents.handle("logon");
   }
 
   /**
@@ -394,7 +399,7 @@ export class TwitchChatEvents implements Events {
     message: string,
     self: boolean
   ): void {
-    TwitchChatEvents.log("message", { channel, userstate, message, self });
+    TwitchChatEvents.handle("message", { channel, userstate, message, self });
   }
 
   /**
@@ -410,7 +415,7 @@ export class TwitchChatEvents implements Events {
     deletedMessage: string,
     userstate: DeleteUserstate
   ): void {
-    TwitchChatEvents.log("messagedeleted", {
+    TwitchChatEvents.handle("messagedeleted", {
       channel,
       username,
       deletedMessage,
@@ -424,7 +429,7 @@ export class TwitchChatEvents implements Events {
    * @param username Username
    */
   public mod(channel: string, username: string): void {
-    TwitchChatEvents.log("mod", { channel, username });
+    TwitchChatEvents.handle("mod", { channel, username });
   }
 
   /**
@@ -433,7 +438,7 @@ export class TwitchChatEvents implements Events {
    * @param mods Moderators of the channel
    */
   public mods(channel: string, mods: string[]): void {
-    TwitchChatEvents.log("mods", { channel, mods });
+    TwitchChatEvents.handle("mods", { channel, mods });
   }
 
   /**
@@ -527,7 +532,7 @@ export class TwitchChatEvents implements Events {
    * @param message Message received
    */
   public notice(channel: string, msgid: MsgID, message: string): void {
-    TwitchChatEvents.log("notice", { channel, msgid, message });
+    TwitchChatEvents.handle("notice", { channel, msgid, message });
   }
 
   /**
@@ -537,14 +542,14 @@ export class TwitchChatEvents implements Events {
    * @param self Client has left the channel
    */
   public part(channel: string, username: string, self: boolean): void {
-    TwitchChatEvents.log("part", { channel, username, self });
+    TwitchChatEvents.handle("part", { channel, username, self });
   }
 
   /**
    * Received PING from server
    */
   public ping(): void {
-    TwitchChatEvents.log("ping");
+    TwitchChatEvents.handle("ping");
   }
 
   /**
@@ -552,7 +557,7 @@ export class TwitchChatEvents implements Events {
    * @param latency Latency
    */
   public pong(latency: number): void {
-    TwitchChatEvents.log("pong", { latency });
+    TwitchChatEvents.handle("pong", { latency });
   }
 
   /**
@@ -568,7 +573,7 @@ export class TwitchChatEvents implements Events {
     methods: SubMethods,
     userstate: PrimeUpgradeUserstate
   ): void {
-    TwitchChatEvents.log("primepaidupgrade", {
+    TwitchChatEvents.handle("primepaidupgrade", {
       channel,
       username,
       methods,
@@ -582,7 +587,7 @@ export class TwitchChatEvents implements Events {
    * @param enabled Returns true if mode is enabled or false if disabled
    */
   public r9kbeta(channel: string, enabled: boolean): void {
-    TwitchChatEvents.log("r9kbeta", { channel, enabled });
+    TwitchChatEvents.handle("r9kbeta", { channel, enabled });
   }
 
   /**
@@ -592,7 +597,7 @@ export class TwitchChatEvents implements Events {
    * @param viewers Viewers count
    */
   public raided(channel: string, username: string, viewers: number): void {
-    TwitchChatEvents.log("raided", { channel, username, viewers });
+    TwitchChatEvents.handle("raided", { channel, username, viewers });
   }
 
   /**
@@ -604,14 +609,14 @@ export class TwitchChatEvents implements Events {
     messageCloned: { [p: string]: unknown },
     message: { [p: string]: unknown }
   ): void {
-    TwitchChatEvents.log("raw_message", { messageCloned, message });
+    TwitchChatEvents.handle("raw_message", { messageCloned, message });
   }
 
   /**
    * Trying to reconnect to server
    */
   public reconnect(): void {
-    TwitchChatEvents.log("reconnect");
+    TwitchChatEvents.handle("reconnect");
   }
 
   /**
@@ -629,7 +634,7 @@ export class TwitchChatEvents implements Events {
     tags: ChatUserstate,
     message: string = ""
   ): void {
-    TwitchChatEvents.log("redeem", {
+    TwitchChatEvents.handle("redeem", {
       channel,
       username,
       rewardType,
@@ -656,7 +661,7 @@ export class TwitchChatEvents implements Events {
     userstate: SubUserstate,
     methods: SubMethods
   ): void {
-    TwitchChatEvents.log("resub", {
+    TwitchChatEvents.handle("resub", {
       channel,
       username,
       months,
@@ -672,7 +677,7 @@ export class TwitchChatEvents implements Events {
    * @param state Current state of the channel
    */
   public roomstate(channel: string, state: RoomState): void {
-    TwitchChatEvents.log("roomstate", { channel, state });
+    TwitchChatEvents.handle("roomstate", { channel, state });
   }
 
   /**
@@ -680,7 +685,7 @@ export class TwitchChatEvents implements Events {
    * @param channel Channel name
    */
   public serverchange(channel: string): void {
-    TwitchChatEvents.log("serverchange", { channel });
+    TwitchChatEvents.handle("serverchange", { channel });
   }
 
   /**
@@ -690,7 +695,7 @@ export class TwitchChatEvents implements Events {
    * @param length Length
    */
   public slowmode(channel: string, enabled: boolean, length: number): void {
-    TwitchChatEvents.log("slowmode", { channel, enabled, length });
+    TwitchChatEvents.handle("slowmode", { channel, enabled, length });
   }
 
   /**
@@ -710,7 +715,7 @@ export class TwitchChatEvents implements Events {
     methods: SubMethods,
     userstate: SubGiftUserstate
   ): void {
-    TwitchChatEvents.log("subgift", {
+    TwitchChatEvents.handle("subgift", {
       channel,
       username,
       streakMonths,
@@ -735,7 +740,7 @@ export class TwitchChatEvents implements Events {
     methods: SubMethods,
     userstate: SubMysteryGiftUserstate
   ): void {
-    TwitchChatEvents.log("submysterygift", {
+    TwitchChatEvents.handle("submysterygift", {
       channel,
       username,
       numbOfSubs,
@@ -750,7 +755,7 @@ export class TwitchChatEvents implements Events {
    * @param enabled Returns true if mode is enabled or false if disabled
    */
   public subscribers(channel: string, enabled: boolean): void {
-    TwitchChatEvents.log("subscribers", { channel, enabled });
+    TwitchChatEvents.handle("subscribers", { channel, enabled });
   }
 
   /**
@@ -768,7 +773,7 @@ export class TwitchChatEvents implements Events {
     message: string,
     userstate: SubUserstate
   ): void {
-    TwitchChatEvents.log("subscription", {
+    TwitchChatEvents.handle("subscription", {
       channel,
       username,
       methods,
@@ -790,7 +795,7 @@ export class TwitchChatEvents implements Events {
     reason: string,
     duration: number
   ): void {
-    TwitchChatEvents.log("timeout", { channel, username, reason, duration });
+    TwitchChatEvents.handle("timeout", { channel, username, reason, duration });
   }
 
   /**
@@ -799,7 +804,7 @@ export class TwitchChatEvents implements Events {
    * @param viewers Viewer count
    */
   public unhost(channel: string, viewers: number): void {
-    TwitchChatEvents.log("unhost", { channel, viewers });
+    TwitchChatEvents.handle("unhost", { channel, viewers });
   }
 
   /**
@@ -809,7 +814,7 @@ export class TwitchChatEvents implements Events {
    * @param username Username
    */
   public unmod(channel: string, username: string): void {
-    TwitchChatEvents.log("unmod", { channel, username });
+    TwitchChatEvents.handle("unmod", { channel, username });
   }
 
   /**
@@ -818,7 +823,7 @@ export class TwitchChatEvents implements Events {
    * @param vips VIPs of the channel
    */
   public vips(channel: string, vips: string[]): void {
-    TwitchChatEvents.log("vips", { channel, vips });
+    TwitchChatEvents.handle("vips", { channel, vips });
   }
 
   /**
@@ -834,6 +839,6 @@ export class TwitchChatEvents implements Events {
     message: string,
     self: boolean
   ): void {
-    TwitchChatEvents.log("whisper", { from, userstate, message, self });
+    TwitchChatEvents.handle("whisper", { from, userstate, message, self });
   }
 }
