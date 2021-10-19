@@ -20,6 +20,8 @@ import {
 } from "tmi.js";
 
 import { TwitchChatEvent } from "./Message/TwitchChatEvent";
+import { TwitchChatMessage } from "./Message/TwitchChatMessage";
+import { TwitchChatRedeem } from "./Message/TwitchChatRedeem";
 
 /**
  * Manipula o registro dos evento do chat da Twitch.
@@ -240,6 +242,14 @@ export class TwitchChatEvents implements Events {
     self: boolean
   ): void {
     TwitchChatEvents.handle("chat", { channel, userstate, message, self });
+    if (userstate.username) {
+      new TwitchChatMessage(
+        message,
+        channel,
+        userstate.username,
+        userstate
+      ).send();
+    }
   }
 
   /**
@@ -641,6 +651,9 @@ export class TwitchChatEvents implements Events {
       tags,
       message,
     });
+    if (tags["display-name"]) {
+      new TwitchChatRedeem(rewardType, message, channel, username, tags).send();
+    }
   }
 
   /**
