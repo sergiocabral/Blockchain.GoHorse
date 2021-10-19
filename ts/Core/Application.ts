@@ -18,6 +18,13 @@ export abstract class Application<TConfiguration extends JsonLoader>
   implements IApplication
 {
   /**
+   * Evento quando a aplicação for finalizada.
+   */
+  public readonly onStop: Set<() => Promise<void>> = new Set<
+    () => Promise<void>
+  >();
+
+  /**
    * Configurações.
    */
   private configurationValue?: TConfiguration;
@@ -33,11 +40,6 @@ export abstract class Application<TConfiguration extends JsonLoader>
   }
 
   /**
-   * Evento quando a aplicação for finalizada.
-   */
-  public abstract get onStop(): Set<() => void>;
-
-  /**
    * Tipo da configuração;
    */
   protected abstract get configurationType(): new (
@@ -47,12 +49,30 @@ export abstract class Application<TConfiguration extends JsonLoader>
   /**
    * Executa a aplicação.
    */
-  public abstract run(): Promise<void>;
+  public async run(): Promise<void> {
+    await this.doRun();
+  }
 
   /**
    * Finaliza a aplicação.
    */
-  public abstract stop(): Promise<void>;
+  public async stop(): Promise<void> {
+    for (const onStop of this.onStop) {
+      await onStop();
+    }
+
+    await this.doStop();
+  }
+
+  /**
+   * Implementação da execução da aplicação.
+   */
+  protected abstract doRun(): Promise<void>;
+
+  /**
+   * Implementação da finalização da aplicação.
+   */
+  protected abstract doStop(): Promise<void>;
 
   /**
    * Configurações JSON

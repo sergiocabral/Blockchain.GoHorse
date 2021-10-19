@@ -13,11 +13,6 @@ import { MinerConfiguration } from "./MinerConfiguration";
  */
 export class MinerApplication extends Application<MinerConfiguration> {
   /**
-   * Evento quando a aplicação for finalizada.
-   */
-  public readonly onStop: Set<() => void> = new Set<() => void>();
-
-  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = MinerConfiguration;
@@ -44,20 +39,18 @@ export class MinerApplication extends Application<MinerConfiguration> {
   }
 
   /**
-   * Executa a aplicação.
+   * Implementação da execução da aplicação.
    */
-  public async run(): Promise<void> {
+  protected async doRun(): Promise<void> {
     await this.webSocketClient.open();
   }
 
   /**
-   * Finaliza a aplicação.
+   * Implementação da finalização da aplicação.
    */
-  public async stop(): Promise<void> {
+  protected async doStop(): Promise<void> {
     if (this.webSocketClient.state !== ConnectionState.Closed) {
       await this.webSocketClient.close();
     }
-
-    this.onStop.forEach((onStop) => onStop());
   }
 }

@@ -5,7 +5,7 @@ export interface IApplication {
   /**
    * Evento quando a aplicação for finalizada.
    */
-  get onStop(): Set<() => void>;
+  get onStop(): Set<(() => void) | (() => Promise<void>)>;
 
   /**
    * Executa a aplicação.

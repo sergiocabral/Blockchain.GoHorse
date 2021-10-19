@@ -12,11 +12,6 @@ import { BusConfiguration } from "./BusConfiguration";
  */
 export class BusApplication extends Application<BusConfiguration> {
   /**
-   * Evento quando a aplicação for finalizada.
-   */
-  public readonly onStop: Set<() => void> = new Set<() => void>();
-
-  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = BusConfiguration;
@@ -47,17 +42,17 @@ export class BusApplication extends Application<BusConfiguration> {
   }
 
   /**
-   * Executa a aplicação.
+   * Implementação da execução da aplicação..
    */
-  public async run(): Promise<void> {
+  protected async doRun(): Promise<void> {
     await this.databaseServer.open();
     await this.webSocketServer.open();
   }
 
   /**
-   * Finaliza a aplicação.
+   * Implementação da finalização da aplicação.
    */
-  public async stop(): Promise<void> {
+  protected async doStop(): Promise<void> {
     if (this.webSocketServer.state !== ConnectionState.Closed) {
       await this.webSocketServer.close();
     }
@@ -74,9 +69,6 @@ export class BusApplication extends Application<BusConfiguration> {
         if (this.databaseServer.state !== ConnectionState.Closed) {
           await this.databaseServer.close();
         }
-
-        this.onStop.forEach((onStop) => onStop());
-
         resolve();
       }, waitFor);
     });

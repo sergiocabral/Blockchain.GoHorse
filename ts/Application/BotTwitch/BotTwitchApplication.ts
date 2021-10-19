@@ -11,11 +11,6 @@ import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
  */
 export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
-   * Evento quando a aplicação for finalizada.
-   */
-  public readonly onStop: Set<() => void> = new Set<() => void>();
-
-  /**
    * Tipo da configuração;
    */
   protected readonly configurationType = BotTwitchConfiguration;
@@ -58,17 +53,17 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   }
 
   /**
-   * Executa a aplicação.
+   * Implementação da execução da aplicação..
    */
-  public async run(): Promise<void> {
+  protected async doRun(): Promise<void> {
     await this.webSocketClient.open();
     await this.twitchChatClient.open();
   }
 
   /**
-   * Finaliza a aplicação.
+   * Implementação da finalização da aplicação.
    */
-  public async stop(): Promise<void> {
+  protected async doStop(): Promise<void> {
     if (this.stopped) {
       return;
     }
@@ -81,7 +76,5 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     if (this.webSocketClient.state !== ConnectionState.Closed) {
       await this.webSocketClient.close();
     }
-
-    this.onStop.forEach((onStop) => onStop());
   }
 }
