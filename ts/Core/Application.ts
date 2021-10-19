@@ -123,6 +123,22 @@ export abstract class Application<TConfiguration extends JsonLoader>
       configuration = new this.configurationType(
         environmentFileContentAsJson
       ).initialize();
+
+      try {
+        fs.writeFileSync(
+          environmentFilePath,
+          JSON.stringify(configuration, undefined, "  ")
+        );
+      } catch (error: unknown) {
+        throw new IOError(
+          "Cannot update configuration file: {environmentFilePath}".querystring(
+            {
+              environmentFilePath,
+            }
+          ),
+          error
+        );
+      }
     }
 
     const errors = configuration.errors();
