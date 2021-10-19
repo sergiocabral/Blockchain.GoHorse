@@ -8,8 +8,8 @@ import {
 } from "@sergiocabral/helper";
 import { Client, Events, Options } from "tmi.js";
 
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { IConnection } from "../../Core/Connection/IConnection";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { IConnection } from "../../../Core/Connection/IConnection";
 
 import { TwitchChatClientConfiguration } from "./TwitchChatClientConfiguration";
 import { TwitchChatEvents } from "./TwitchChatEvents";

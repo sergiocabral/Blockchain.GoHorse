@@ -1,6 +1,6 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { TwitchChatClientConfiguration } from "../../Twitch/Chat/TwitchChatClientConfiguration";
+import { TwitchChatClientConfiguration } from "../../ExternalService/Twitch/Chat/TwitchChatClientConfiguration";
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 /**

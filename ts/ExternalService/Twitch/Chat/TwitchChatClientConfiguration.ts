@@ -1,6 +1,6 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { JsonLoaderFieldErrors } from "../../Core/JsonLoaderFieldErrors";
+import { JsonLoaderFieldErrors } from "../../../Core/JsonLoaderFieldErrors";
 import { TwitchAuthConfiguration } from "../TwitchAuthConfiguration";
 
 /**

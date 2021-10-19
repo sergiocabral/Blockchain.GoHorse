@@ -1,12 +1,12 @@
 import { Message } from "@sergiocabral/helper";
 
-import { TwitchChatMessage } from "../../../Twitch/Chat/Message/TwitchChatMessage";
-import { TwitchChatRedeem } from "../../../Twitch/Chat/Message/TwitchChatRedeem";
+import { TwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
+import { TwitchChatRedeem } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 
 /**
- * Tratamento dos comandos recebidos pelo chat.
+ * Gerenciador de captura de comandos do chat.
  */
-export class ChatCommandHandler {
+export class ChatListenerHandler {
   /**
    * Construtor.
    */

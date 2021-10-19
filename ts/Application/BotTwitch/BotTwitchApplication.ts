@@ -1,11 +1,11 @@
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { TwitchChatClient } from "../../Twitch/Chat/TwitchChatClient";
+import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
-import { ChatCommandHandler } from "./Chat/ChatCommandHandler";
+import { ChatListenerHandler } from "./Chat/ChatListenerHandler";
 
 /**
  * Bot que ouve comandos no chat da Twitch.
@@ -24,7 +24,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Tratamento dos comandos recebidos pelo chat.
    */
-  private readonly chatCommandHandler: ChatCommandHandler;
+  private readonly chatListenerHandler: ChatListenerHandler;
 
   /**
    * Sinaliza que a aplicação já foi parada.
@@ -56,7 +56,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.chatCommandHandler = new ChatCommandHandler();
+    this.chatListenerHandler = new ChatListenerHandler();
   }
 
   /**
