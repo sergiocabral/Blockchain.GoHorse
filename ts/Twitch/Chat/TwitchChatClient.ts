@@ -4,6 +4,7 @@ import {
   Logger,
   LogLevel,
   NetworkError,
+  ShouldNeverHappenError,
 } from "@sergiocabral/helper";
 import { Client, Options } from "tmi.js";
 
@@ -11,11 +12,17 @@ import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IConnection } from "../../Core/Connection/IConnection";
 
 import { TwitchChatClientConfiguration } from "./TwitchChatClientConfiguration";
+import { TwitchChatEvents } from "./TwitchChatEvents";
 
 /**
  * Cliente IRC para o chat da Twitch.
  */
 export class TwitchChatClient implements IConnection {
+  /**
+   * Lista de eventos associados ao cliente.
+   */
+  private clientEvents?: Map<string, boolean>;
+
   /**
    * Cliente IRC
    */
@@ -70,6 +77,12 @@ export class TwitchChatClient implements IConnection {
    */
   public async close(): Promise<void> {
     await this.client.disconnect();
+
+    if (this.clientEvents === undefined) {
+      throw new ShouldNeverHappenError();
+    }
+
+    this.clientEvents.clear();
   }
 
   /**
@@ -86,6 +99,11 @@ export class TwitchChatClient implements IConnection {
       HelperObject.setProperty(this.client, "reconnect", false);
 
       const result = await this.client.connect();
+
+      this.clientEvents = TwitchChatEvents.register(
+        this.client,
+        new TwitchChatEvents()
+      );
 
       HelperObject.setProperty(
         this.client,
@@ -128,6 +146,7 @@ export class TwitchChatClient implements IConnection {
     };
 
     return {
+      channels: ["sergiocabral_com"],
       connection: {
         maxReconnectAttempts: 2,
         maxReconnectInterval: 300000,
