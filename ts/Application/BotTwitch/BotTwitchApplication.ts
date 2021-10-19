@@ -48,7 +48,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
     this.webSocketClient.onClose.add(this.stop.bind(this));
     this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
-    this.twitchChatClient = new TwitchChatClient(this.configuration.twitchChat);
+    this.twitchChatClient = new TwitchChatClient(
+      this.configuration.twitchChat,
+      {
+        list: ["chat", "redeem"],
+        mode: "include",
+      }
+    );
   }
 
   /**

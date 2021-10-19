@@ -31,7 +31,7 @@ export class TwitchChatEvents implements Events {
   public static register(
     client: Client,
     eventHandler: Events
-  ): Map<string, boolean> {
+  ): Map<keyof Events, boolean> {
     const events: Array<keyof Events> = [
       "raw_message",
       "action",
@@ -85,7 +85,7 @@ export class TwitchChatEvents implements Events {
       () => void
     >;
 
-    const enabled = new Map<string, boolean>();
+    const enabled = new Map<keyof Events, boolean>();
     for (const event of events) {
       enabled.set(event, true);
       // tslint:disable-next-line:no-any only-arrow-functions

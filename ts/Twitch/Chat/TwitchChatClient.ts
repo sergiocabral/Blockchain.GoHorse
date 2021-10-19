@@ -6,7 +6,7 @@ import {
   NetworkError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
-import { Client, Options } from "tmi.js";
+import { Client, Events, Options } from "tmi.js";
 
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IConnection } from "../../Core/Connection/IConnection";
@@ -31,9 +31,21 @@ export class TwitchChatClient implements IConnection {
   /**
    * Construtor.
    * @param configuration Configurações.
+   * @param eventFilter Filtragem de eventos.
    */
   public constructor(
-    private readonly configuration: TwitchChatClientConfiguration
+    private readonly configuration: TwitchChatClientConfiguration,
+    private readonly eventFilter?: {
+      /**
+       * Lista de eventos.
+       */
+      list: Array<keyof Events>;
+
+      /**
+       * Filtragem de inclusão ou negação.
+       */
+      mode: "include" | "exclude";
+    }
   ) {}
 
   /**
@@ -100,10 +112,7 @@ export class TwitchChatClient implements IConnection {
 
       const result = await this.client.connect();
 
-      this.clientEvents = TwitchChatEvents.register(
-        this.client,
-        new TwitchChatEvents()
-      );
+      this.clientEvents = this.applyEventFilter(this.client);
 
       HelperObject.setProperty(
         this.client,
@@ -130,6 +139,27 @@ export class TwitchChatClient implements IConnection {
         error
       );
     }
+  }
+
+  /**
+   * Aplica o filtro na captura de eventos.
+   * @param client Cliente
+   */
+  private applyEventFilter(client: Client): Map<string, boolean> {
+    const events = TwitchChatEvents.register(client, new TwitchChatEvents());
+
+    if (this.eventFilter !== undefined) {
+      for (const entry of events) {
+        const event = entry[0];
+        const contaisInFilter = this.eventFilter.list.includes(event);
+        const enabled =
+          (this.eventFilter.mode === "include" && contaisInFilter) ||
+          (this.eventFilter.mode === "exclude" && !contaisInFilter);
+        events.set(event, enabled);
+      }
+    }
+
+    return events;
   }
 
   /**
