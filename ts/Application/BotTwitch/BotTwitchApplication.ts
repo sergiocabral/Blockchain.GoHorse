@@ -2,6 +2,7 @@ import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
+import { UserInteraction } from "../../UserInteraction/UserInteraction";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
@@ -37,6 +38,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly twitchChatClient: TwitchChatClient;
 
   /**
+   * Serviço de interação com o usuário.
+   */
+  private readonly userInteraction: UserInteraction;
+
+  /**
    * Cliente WebSocket.
    */
   private readonly webSocketClient: WebSocketClient;
@@ -57,6 +63,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       }
     );
     this.chatListenerHandler = new ChatListenerHandler();
+    this.userInteraction = new UserInteraction();
   }
 
   /**
