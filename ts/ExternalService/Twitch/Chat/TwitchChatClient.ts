@@ -15,7 +15,7 @@ import { TwitchChatClientConfiguration } from "./TwitchChatClientConfiguration";
 import { TwitchChatEvents } from "./TwitchChatEvents";
 
 /**
- * Cliente IRC para o chat da Twitch.
+ * Cliente para o chat da Twitch.
  */
 export class TwitchChatClient implements IConnection {
   /**
@@ -24,7 +24,7 @@ export class TwitchChatClient implements IConnection {
   private clientEvents?: Map<string, boolean>;
 
   /**
-   * Cliente IRC
+   * Cliente
    */
   private clientValue?: Client;
 
@@ -64,28 +64,28 @@ export class TwitchChatClient implements IConnection {
   }
 
   /**
-   * Cliente IRC.
+   * Cliente.
    */
   private get client(): Client {
     if (this.clientValue === undefined) {
-      throw new InvalidExecutionError("IRC client is not opened.");
+      throw new InvalidExecutionError("Client is not opened.");
     }
 
     return this.clientValue;
   }
 
   /**
-   * Cliente IRC.
+   * Cliente.
    */
   private set client(value: Client | undefined) {
     if (this.clientValue !== undefined && value !== undefined) {
-      throw new InvalidExecutionError("IRC client already opened.");
+      throw new InvalidExecutionError("Client already opened.");
     }
     this.clientValue = value;
   }
 
   /**
-   * Finaliza a conexão com servidor IRC.
+   * Finaliza a conexão com servidor.
    */
   public async close(): Promise<void> {
     await this.client.disconnect();
@@ -98,7 +98,7 @@ export class TwitchChatClient implements IConnection {
   }
 
   /**
-   * Estabelece a conexão conexão com servidor IRC.
+   * Estabelece a conexão conexão com servidor.
    */
   public async open(): Promise<void> {
     this.client = new Client(this.factoryClientOptions());
@@ -121,7 +121,7 @@ export class TwitchChatClient implements IConnection {
       );
 
       Logger.post(
-        "Established connection to IRC chat on server {protocol}://{server}:{port}",
+        "Established connection to chat on server {protocol}://{server}:{port}",
         {
           port: result[1],
           protocol: this.configuration.protocol,
@@ -133,7 +133,7 @@ export class TwitchChatClient implements IConnection {
     } catch (error: unknown) {
       this.client = undefined;
       throw new NetworkError(
-        "Error while connecting to IRC Chat: {0}".querystring(
+        "Error while connecting to chat: {0}".querystring(
           error instanceof Error ? error.message : String(error)
         ),
         error
