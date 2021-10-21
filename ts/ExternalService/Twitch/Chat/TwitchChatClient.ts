@@ -176,7 +176,7 @@ export class TwitchChatClient implements IConnection {
     };
 
     return {
-      channels: ["sergiocabral_com"],
+      channels: ["sergiocabral_com"], // TODO: Remover daqui
       connection: {
         maxReconnectAttempts: 2,
         maxReconnectInterval: 300000,

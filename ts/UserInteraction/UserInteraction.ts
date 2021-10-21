@@ -21,6 +21,10 @@ export class UserInteraction {
    */
   private handleUserMessageReceived(message: UserMessageReceived): void {
     // TODO: Implementar ChatListerHandle no namespace UserInteraction.
-    Logger.post(`From ${message.author.toString()}: ${message.message}`);
+    Logger.post(
+      `From ${message.author.toString()} (redeem: ${message.fromPlatform}): ${
+        message.message
+      }`
+    );
   }
 }

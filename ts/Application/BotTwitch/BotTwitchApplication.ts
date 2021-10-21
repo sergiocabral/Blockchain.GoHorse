@@ -1,17 +1,36 @@
+import { Message } from "@sergiocabral/helper";
+
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
+import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
+import { TwitchHelper } from "../../ExternalService/Twitch/TwitchHelper";
+import { UserMessageReceived } from "../../UserInteraction/Message/UserMessageReceived";
 import { UserInteraction } from "../../UserInteraction/UserInteraction";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
-import { ChatListenerHandler } from "./Chat/ChatListenerHandler";
 
 /**
  * Bot que ouve comandos no chat da Twitch.
  */
 export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
+  // TODO: Consumir Twitch via api (ao invés? ou adicionalmente?) de chat
+
+  /**
+   * Handle: TwitchChatMessage | TwitchChatRedeem
+   */
+  private static handleTwitchMessage(
+    message: TwitchChatMessage | TwitchChatRedeem
+  ): void {
+    // TODO: Resgate de Cabr0n Coin: 6960fa6f-e820-4b56-8ae0-83ba748fa7d8
+    const fromPlatform = message instanceof TwitchChatRedeem;
+    const user = TwitchHelper.createUserModel(message.userstate);
+    void new UserMessageReceived(message.message, user, fromPlatform).send();
+  }
+
   /**
    * Tipo da configuração;
    */
@@ -21,11 +40,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Cliente de acesso ao Bus.
    */
   private readonly busClient: BusClient;
-
-  /**
-   * Tratamento dos comandos recebidos pelo chat.
-   */
-  private readonly chatListenerHandler: ChatListenerHandler;
 
   /**
    * Sinaliza que a aplicação já foi parada.
@@ -38,7 +52,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly twitchChatClient: TwitchChatClient;
 
   /**
-   * Serviço de interação com o usuário.
+   * Tratamento da interação com o usuário.
    */
   private readonly userInteraction: UserInteraction;
 
@@ -62,8 +76,14 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.chatListenerHandler = new ChatListenerHandler();
     this.userInteraction = new UserInteraction();
+
+    Message.subscribe(TwitchChatMessage, (message) =>
+      BotTwitchApplication.handleTwitchMessage(message)
+    );
+    Message.subscribe(TwitchChatRedeem, (message) =>
+      BotTwitchApplication.handleTwitchMessage(message)
+    );
   }
 
   /**
