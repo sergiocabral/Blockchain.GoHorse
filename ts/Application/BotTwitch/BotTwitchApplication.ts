@@ -17,20 +17,6 @@ import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
  * Bot que ouve comandos no chat da Twitch.
  */
 export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
-  // TODO: Consumir Twitch via api (ao invés? ou adicionalmente?) de chat
-
-  /**
-   * Handle: TwitchChatMessage | TwitchChatRedeem
-   */
-  private static handleTwitchMessage(
-    message: TwitchChatMessage | TwitchChatRedeem
-  ): void {
-    // TODO: Resgate de Cabr0n Coin: 6960fa6f-e820-4b56-8ae0-83ba748fa7d8
-    const fromPlatform = message instanceof TwitchChatRedeem;
-    const user = TwitchHelper.createUserModel(message.userstate);
-    void new UserMessageReceived(message.message, user, fromPlatform).send();
-  }
-
   /**
    * Tipo da configuração;
    */
@@ -79,10 +65,10 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     this.userInteraction = new UserInteraction();
 
     Message.subscribe(TwitchChatMessage, (message) =>
-      BotTwitchApplication.handleTwitchMessage(message)
+      this.handleTwitchMessage(message)
     );
     Message.subscribe(TwitchChatRedeem, (message) =>
-      BotTwitchApplication.handleTwitchMessage(message)
+      this.handleTwitchMessage(message)
     );
   }
 
@@ -110,5 +96,41 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     if (this.webSocketClient.state !== ConnectionState.Closed) {
       await this.webSocketClient.close();
     }
+  }
+
+  /**
+   * Tenta extrair de uma mensagem um comando válido.
+   * @param message Mensagem original.
+   */
+  private extractPlatformCommand(
+    message: TwitchChatMessage | TwitchChatRedeem
+  ): string | undefined {
+    if (
+      message instanceof TwitchChatRedeem &&
+      message.rewardType ===
+        this.configuration.exchangeTwitchForCabr0nCoinRedeemId
+    ) {
+      const amount = this.configuration.exchangeTwitchForCabr0nCoinAmount;
+      const escapedMessage = JSON.stringify(message.message);
+
+      // TODO: Verificar como receber escapedMessage exatamente como foi enviado.
+      return `exchange --from Twitch --destination Cabr0nCoin --amount ${amount} --message ${escapedMessage}`;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Handle: TwitchChatMessage | TwitchChatRedeem
+   */
+  private handleTwitchMessage(
+    message: TwitchChatMessage | TwitchChatRedeem
+  ): void {
+    const platformCommand = this.extractPlatformCommand(message);
+    const fromPlatform = platformCommand !== undefined;
+    const userCommand = fromPlatform ? platformCommand : message.message;
+
+    const user = TwitchHelper.createUserModel(message.userstate);
+    void new UserMessageReceived(userCommand, user, fromPlatform).send();
   }
 }
