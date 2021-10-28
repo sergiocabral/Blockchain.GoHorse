@@ -8,6 +8,15 @@ import { TwitchAuthConfiguration } from "../TwitchAuthConfiguration";
  */
 export class TwitchChatClientConfiguration extends JsonLoader {
   /**
+   * Lista de canais para ingressar.
+   */
+  public channels: string[] = [
+    'sergiocabral_com',
+    'cabroncoin',
+    'cabr0ncoin',
+  ];
+
+  /**
    * Porta do servidor.
    */
   public port = 443;
