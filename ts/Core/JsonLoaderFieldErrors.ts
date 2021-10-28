@@ -117,4 +117,25 @@ export class JsonLoaderFieldErrors {
 
     return errors;
   }
+
+  /**
+   * Sem erros para: valor é um UUID válido.
+   */
+  public static uuid(instance: JsonLoader, fieldName: string): string[] {
+    const regexUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+    if (!(typeof value === "string" && regexUuid.test(value))) {
+      errors.push(
+        `${
+          instance.constructor.name
+        }.${fieldName} must be a valid UUID, but found: ${typeof value}, ${String(
+          value
+        )}`
+      );
+    }
+
+    return errors;
+  }
 }

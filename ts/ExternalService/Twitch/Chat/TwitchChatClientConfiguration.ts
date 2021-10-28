@@ -12,8 +12,8 @@ export class TwitchChatClientConfiguration extends JsonLoader {
    */
   public channels: string[] = [
     'sergiocabral_com',
-    'cabroncoin',
     'cabr0ncoin',
+    'cabroncoin',
   ];
 
   /**
