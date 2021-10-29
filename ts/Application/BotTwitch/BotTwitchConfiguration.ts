@@ -14,6 +14,11 @@ export class BotTwitchConfiguration extends JsonLoader {
   public exchangeTwitchForCabr0nCoinAmount = 1024;
 
   /**
+   * Conversão de pontos da Twitch para Cabr0n Coin. Preço da negociação.
+   */
+  public exchangeTwitchForCabr0nCoinPrice = 1;
+
+  /**
    * Conversão de pontos da Twitch para Cabr0n Coin. Código do resgate.
    */
   public exchangeTwitchForCabr0nCoinRedeemId =
@@ -38,6 +43,7 @@ export class BotTwitchConfiguration extends JsonLoader {
     errors.push(
       ...JsonLoaderFieldErrors.uuid(this, "exchangeTwitchForCabr0nCoinRedeemId")
     );
+    // TODO: Validar campo exchangeTwitchForCabr0nCoinPrice
     errors.push(
       ...JsonLoaderFieldErrors.integerBetween(
         this,

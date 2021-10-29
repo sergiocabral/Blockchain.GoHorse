@@ -110,11 +110,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       message.rewardType ===
         this.configuration.exchangeTwitchForCabr0nCoinRedeemId
     ) {
+      const price = this.configuration.exchangeTwitchForCabr0nCoinPrice;
       const amount = this.configuration.exchangeTwitchForCabr0nCoinAmount;
       const escapedMessage = JSON.stringify(message.message);
 
       // TODO: Verificar como receber escapedMessage exatamente como foi enviado.
-      return `exchange --from Twitch --destination Cabr0nCoin --amount ${amount} --message ${escapedMessage}`;
+      return `exchange --from Twitch --destination Cabr0nCoin --price ${price} --amount ${amount} --message ${escapedMessage}`;
     }
 
     return undefined;
