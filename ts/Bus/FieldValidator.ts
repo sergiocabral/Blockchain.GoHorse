@@ -25,7 +25,8 @@ export class FieldValidator {
     const fieldValue = FieldValidator.getField(instance, "clientId");
 
     return (
-      typeof fieldValue === "string" && FieldValidator.regexMd5.test(fieldValue)
+      typeof fieldValue === "string" &&
+      FieldValidator.regexSha1.test(fieldValue)
     );
   }
 
@@ -37,7 +38,8 @@ export class FieldValidator {
     const fieldValue = FieldValidator.getField(instance, "id");
 
     return (
-      typeof fieldValue === "string" && FieldValidator.regexMd5.test(fieldValue)
+      typeof fieldValue === "string" &&
+      FieldValidator.regexSha1.test(fieldValue)
     );
   }
 
@@ -56,9 +58,9 @@ export class FieldValidator {
   }
 
   /**
-   * Regex para validar um valor de hash MD5.
+   * Regex para validar um valor de hash SHA1.
    */
-  private static readonly regexMd5 = /^[0-9a-f]{32}$/;
+  private static readonly regexSha1 = /^[0-9a-f]{40}$/;
 
   /**
    * Retorna o valor de um atributo na instância, se existir.

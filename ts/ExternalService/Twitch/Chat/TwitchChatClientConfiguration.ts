@@ -10,11 +10,7 @@ export class TwitchChatClientConfiguration extends JsonLoader {
   /**
    * Lista de canais para ingressar.
    */
-  public channels: string[] = [
-    'sergiocabral_com',
-    'cabr0ncoin',
-    'cabroncoin',
-  ];
+  public channels: string[] = ["sergiocabral_com", "cabr0ncoin", "cabroncoin"];
 
   /**
    * Porta do servidor.

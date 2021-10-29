@@ -14,7 +14,8 @@
     "no-void-expression": false,
     "no-unbound-method": false,
     "no-parameter-reassignment": false,
-    "no-any": [true, {"ignore-rest-args": true}]
+    "no-any": [true, {"ignore-rest-args": true}],
+    "match-default-export-name": false
   },
   "rulesDirectory": []
 }

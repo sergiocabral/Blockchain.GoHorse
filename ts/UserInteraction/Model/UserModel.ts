@@ -1,5 +1,5 @@
 import { HelperObject } from "@sergiocabral/helper";
-import md5 from "md5";
+import sha1 from "sha1";
 
 import { OriginOfInteraction } from "../OriginOfInteraction";
 
@@ -19,7 +19,7 @@ export class UserModel {
     private readonly origin: OriginOfInteraction,
     private readonly data: Record<string, unknown>
   ) {
-    this.id = md5(`${origin}${HelperObject.toText(data, 0)}`);
+    this.id = sha1(`${origin}${HelperObject.toText(data, 0)}`);
   }
 
   /**

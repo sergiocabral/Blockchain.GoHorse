@@ -1,5 +1,5 @@
 import { Message } from "@sergiocabral/helper";
-import md5 from "md5";
+import sha1 from "sha1";
 
 import { FieldValidator } from "../FieldValidator";
 
@@ -56,6 +56,6 @@ export abstract class BusMessage extends Message {
    * Gerador de hash.
    */
   protected hash(input: unknown): string {
-    return md5(String(input));
+    return sha1(String(input));
   }
 }

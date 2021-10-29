@@ -1,5 +1,5 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
-import md5 from "md5";
+import sha1 from "sha1";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -28,7 +28,7 @@ export class BusClient extends Bus {
   ) {
     super();
 
-    this.id = md5(Math.random().toString());
+    this.id = sha1(Math.random().toString());
 
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));

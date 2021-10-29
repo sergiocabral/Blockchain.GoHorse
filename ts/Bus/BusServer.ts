@@ -5,7 +5,7 @@ import {
   NotImplementedError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
-import md5 from "md5";
+import sha1 from "sha1";
 
 import { IDatabase } from "../Database/IDatabase";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -26,7 +26,7 @@ export class BusServer extends Bus {
   /**
    * Identificador do servidor.
    */
-  private static readonly serverId: string = md5(Math.random().toString());
+  private static readonly serverId: string = sha1(Math.random().toString());
 
   /**
    * Dados dos clientes.
