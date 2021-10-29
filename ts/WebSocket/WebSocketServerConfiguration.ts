@@ -18,10 +18,12 @@ export class WebSocketServerConfiguration extends JsonLoader {
     const errors = Array<string>();
 
     errors.push(
-      ...JsonLoaderFieldErrors.integerBetween(this, "port", [
-        0,
-        Number.MAX_SAFE_INTEGER,
-      ])
+      ...JsonLoaderFieldErrors.numberBetween(
+        this,
+        "port",
+        [0, Number.MAX_SAFE_INTEGER],
+        "integer"
+      )
     );
     errors.push(...super.errors());
 

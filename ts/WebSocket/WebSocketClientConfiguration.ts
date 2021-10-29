@@ -32,10 +32,12 @@ export class WebSocketClientConfiguration extends JsonLoader {
     );
     errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
     errors.push(
-      ...JsonLoaderFieldErrors.integerBetween(this, "port", [
-        0,
-        Number.MAX_SAFE_INTEGER,
-      ])
+      ...JsonLoaderFieldErrors.numberBetween(
+        this,
+        "port",
+        [0, Number.MAX_SAFE_INTEGER],
+        "integer"
+      )
     );
     errors.push(...super.errors());
 

@@ -43,12 +43,20 @@ export class BotTwitchConfiguration extends JsonLoader {
     errors.push(
       ...JsonLoaderFieldErrors.uuid(this, "exchangeTwitchForCabr0nCoinRedeemId")
     );
-    // TODO: Validar campo exchangeTwitchForCabr0nCoinPrice
     errors.push(
-      ...JsonLoaderFieldErrors.integerBetween(
+      ...JsonLoaderFieldErrors.numberBetween(
+        this,
+        "exchangeTwitchForCabr0nCoinPrice",
+        [1, Number.MAX_SAFE_INTEGER],
+        "decimal"
+      )
+    );
+    errors.push(
+      ...JsonLoaderFieldErrors.numberBetween(
         this,
         "exchangeTwitchForCabr0nCoinAmount",
-        [1, Number.MAX_SAFE_INTEGER]
+        [1, Number.MAX_SAFE_INTEGER],
+        "integer"
       )
     );
     errors.push(...super.errors());

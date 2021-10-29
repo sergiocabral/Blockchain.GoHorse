@@ -43,29 +43,35 @@ export class RedisConfiguration extends JsonLoader {
     const errors = Array<string>();
 
     errors.push(
-      ...JsonLoaderFieldErrors.integerBetween(this, "databaseIndex", [
-        0,
-        Number.MAX_SAFE_INTEGER,
-      ])
+      ...JsonLoaderFieldErrors.numberBetween(
+        this,
+        "databaseIndex",
+        [0, Number.MAX_SAFE_INTEGER],
+        "integer"
+      )
     );
     errors.push(...JsonLoaderFieldErrors.canEmptyString(this, "namespace"));
     errors.push(...JsonLoaderFieldErrors.canEmptyString(this, "password"));
     errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "server"));
     errors.push(
-      ...JsonLoaderFieldErrors.integerBetween(this, "port", [
-        0,
-        Number.MAX_SAFE_INTEGER,
-      ])
+      ...JsonLoaderFieldErrors.numberBetween(
+        this,
+        "port",
+        [0, Number.MAX_SAFE_INTEGER],
+        "integer"
+      )
     );
     if (
       this.expireAfterSeconds !== undefined &&
       this.expireAfterSeconds !== null
     ) {
       errors.push(
-        ...JsonLoaderFieldErrors.integerBetween(this, "expireAfterSeconds", [
-          0,
-          Number.MAX_SAFE_INTEGER,
-        ])
+        ...JsonLoaderFieldErrors.numberBetween(
+          this,
+          "expireAfterSeconds",
+          [0, Number.MAX_SAFE_INTEGER],
+          "integer"
+        )
       );
     }
     errors.push(...super.errors());

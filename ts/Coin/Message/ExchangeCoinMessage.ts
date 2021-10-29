@@ -17,7 +17,7 @@ export class ExchangeCoinMessage extends Message {
     public readonly destination: string,
     public readonly price: number,
     public readonly amount: number,
-    public readonly message?: string,
+    public readonly message?: string
   ) {
     super();
   }
