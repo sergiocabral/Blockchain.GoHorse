@@ -2,7 +2,7 @@ import { Message } from "@sergiocabral/helper";
 
 import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
 
-import { CommandLineHelper } from "./CommandLine/CommandLineHelper";
+import { CommandLineParser } from "./CommandLine/CommandLineParser";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
 
 /**
@@ -13,8 +13,8 @@ export class UserInteraction {
    * Handle: UserMessageReceived
    */
   private static handleUserMessageReceived(message: UserMessageReceived): void {
-    const commandLineParsed = CommandLineHelper.parse(message.message);
-    switch (commandLineParsed.command) {
+    const commandLineParsed = CommandLineParser.parse(message.message);
+    switch (commandLineParsed?.command) {
       case "exchange":
         // TODO: Repassar os parâmetros do comando.
         new ExchangeCoinMessage("", "", 0, 0, "").sendAsync();
@@ -23,7 +23,7 @@ export class UserInteraction {
       // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
     }
   }
-  
+
   /**
    * Construtor.
    */
