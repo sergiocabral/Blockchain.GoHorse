@@ -8,14 +8,25 @@ export class CommandLineParser {
    * Avalia um comando de linha.
    */
   public static parse(commandLine: string): CommandLineParsed | undefined {
-    const commandName = CommandLineParser.getCommandName(commandLine);
+    const name = CommandLineParser.getCommandName(commandLine);
+    const args = CommandLineParser.getCommandArguments(commandLine);
 
-    // TODO: fazer o parse de fato.
-    return commandName ? new CommandLineParsed(commandName) : undefined;
+    return name !== undefined && args !== undefined
+      ? new CommandLineParsed(name, args)
+      : undefined;
   }
 
   /**
-   * Extrai o nome do comando.
+   * Extrai os argumentos da linha de comando.
+   */
+  private static getCommandArguments(commandLine: string) {
+    // TODO: fazer parse dos argumentos.
+
+    return [];
+  }
+
+  /**
+   * Extrai o nome do linha de comando.
    */
   private static getCommandName(commandLine: string): string | undefined {
     const regexCommandName = /^\s*[^\s]+\s*/;
