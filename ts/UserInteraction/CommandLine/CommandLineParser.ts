@@ -20,9 +20,33 @@ export class CommandLineParser {
    * Extrai os argumentos da linha de comando.
    */
   private static getCommandArguments(commandLine: string) {
-    // TODO: fazer parse dos argumentos.
+    let input = commandLine;
+    const regexWhiteSpace = /\s+/;
+    const quotes = ['"', "'", "`", "´"].join("");
+    const regexQuoted = new RegExp(`([${quotes}]).*?\\1`, "g"); // TODO: Original: /("'´`).*?\1/g;
+    const intoQuotes = input.match(regexQuoted);
+    if (intoQuotes) {
+      intoQuotes.forEach(
+        (match) =>
+          (input = input.replace(
+            match,
+            match.replace(/\s/g, String.fromCharCode(0))
+          ))
+      );
+    }
 
-    return [];
+    return input.split(regexWhiteSpace).map((argument) => {
+      const regexIsQuoted = new RegExp(`^([${quotes}]).*\\1$`);
+      const isQuoted = regexIsQuoted.test(argument);
+      if (isQuoted) {
+        const twoQuotesLength = 2;
+        argument = argument
+          .substr(1, argument.length - twoQuotesLength)
+          .replace(/\0/g, " ");
+      }
+
+      return argument;
+    });
   }
 
   /**

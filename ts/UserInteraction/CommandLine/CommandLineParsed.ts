@@ -5,8 +5,12 @@ export class CommandLineParsed {
   /**
    * ConstructorConstrutor.
    * @param command Comando.
+   * @param args Argumentos.
    */
-  public constructor(public readonly command: string) {}
+  public constructor(
+    public readonly command: string,
+    public readonly args: string[]
+  ) {}
 
-  // TODO: Implementar o restante das propriedades.
+  // TODO: Implementar captura de parâmetro por nome, por ex: --name ou --ammount etc.
 }
