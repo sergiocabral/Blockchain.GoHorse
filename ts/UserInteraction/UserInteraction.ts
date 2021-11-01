@@ -1,5 +1,8 @@
-import { Logger, Message } from "@sergiocabral/helper";
+import { Message } from "@sergiocabral/helper";
 
+import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
+
+import { CommandLineHelper } from "./CommandLine/CommandLineHelper";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
 
 /**
@@ -7,24 +10,27 @@ import { UserMessageReceived } from "./Message/UserMessageReceived";
  */
 export class UserInteraction {
   /**
+   * Handle: UserMessageReceived
+   */
+  private static handleUserMessageReceived(message: UserMessageReceived): void {
+    const commandLineParsed = CommandLineHelper.parse(message.message);
+    switch (commandLineParsed.command) {
+      case "exchange":
+        // TODO: Repassar os parâmetros do comando.
+        new ExchangeCoinMessage("", "", 0, 0, "").sendAsync();
+        break;
+      default:
+      // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
+    }
+  }
+  
+  /**
    * Construtor.
    */
   public constructor() {
     Message.subscribe(
       UserMessageReceived,
-      this.handleUserMessageReceived.bind(this)
-    );
-  }
-
-  /**
-   * Handle: UserMessageReceived
-   */
-  private handleUserMessageReceived(message: UserMessageReceived): void {
-    // TODO: Implementar ChatListerHandle no namespace UserInteraction.
-    Logger.post(
-      `From ${message.author.toString()} (redeem: ${message.fromPlatform}): ${
-        message.message
-      }`
+      UserInteraction.handleUserMessageReceived.bind(this)
     );
   }
 }
