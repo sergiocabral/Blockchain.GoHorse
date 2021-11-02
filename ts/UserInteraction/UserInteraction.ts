@@ -14,10 +14,11 @@ export class UserInteraction {
    */
   private static handleUserMessageReceived(message: UserMessageReceived): void {
     const commandLineParsed = CommandLineParser.parse(message.message);
+
     switch (commandLineParsed?.command) {
       case "exchange":
         // TODO: Repassar os parâmetros do comando.
-        new ExchangeCoinMessage("", "", 0, 0, "").sendAsync();
+        void new ExchangeCoinMessage("", "", 0, 0, "").sendAsync();
         break;
       default:
       // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.

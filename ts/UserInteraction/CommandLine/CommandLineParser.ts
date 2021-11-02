@@ -11,9 +11,7 @@ export class CommandLineParser {
     const name = CommandLineParser.getCommandName(commandLine);
     const args = CommandLineParser.getCommandArguments(commandLine);
 
-    return name !== undefined && args !== undefined
-      ? new CommandLineParsed(name, args)
-      : undefined;
+    return name !== undefined ? new CommandLineParsed(name, args) : undefined;
   }
 
   /**
@@ -22,7 +20,7 @@ export class CommandLineParser {
   private static getCommandArguments(commandLine: string) {
     let input = commandLine;
     const regexWhiteSpace = /\s+/;
-    const quotes = ['"', "'", "`", "´"].join("");
+    const quotes = "\"'`´";
     const regexQuoted = new RegExp(`([${quotes}]).*?\\1`, "g"); // TODO: Original: /("'´`).*?\1/g;
     const intoQuotes = input.match(regexQuoted);
     if (intoQuotes) {
@@ -43,6 +41,8 @@ export class CommandLineParser {
         argument = argument
           .substr(1, argument.length - twoQuotesLength)
           .replace(/\0/g, " ");
+      } else {
+        argument = argument.trim();
       }
 
       return argument;
@@ -55,6 +55,6 @@ export class CommandLineParser {
   private static getCommandName(commandLine: string): string | undefined {
     const regexCommandName = /^\s*[^\s]+\s*/;
 
-    return (regexCommandName.exec(commandLine) ?? [])[0];
+    return (regexCommandName.exec(commandLine) ?? [])[0]?.trim();
   }
 }
