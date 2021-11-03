@@ -1,9 +1,12 @@
-import { Message } from "@sergiocabral/helper";
+import { CoinApplication } from "../../Application/Coin/CoinApplication";
+import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
 
 /**
  * Realiza o câmbio de uma moeda para outra.
  */
-export class ExchangeCoinMessage extends Message {
+export class ExchangeCoinMessage extends BusMessageForCommunication {
+  // TODO: Implementar o parse para BusMessage
+
   /**
    * Constructor
    * @param from Moeda de origem
@@ -19,6 +22,6 @@ export class ExchangeCoinMessage extends Message {
     public readonly amount: number,
     public readonly message?: string
   ) {
-    super();
+    super([CoinApplication.name]);
   }
 }

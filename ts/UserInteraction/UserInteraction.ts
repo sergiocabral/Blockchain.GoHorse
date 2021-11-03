@@ -1,5 +1,8 @@
 import { Message } from "@sergiocabral/helper";
 
+import { BusClient } from "../Bus/BusClient";
+import { BusMessage } from "../Bus/BusMessage/BusMessage";
+
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
 import { CreateUserCommand } from "./CreateUserCommand";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
@@ -9,26 +12,34 @@ import { UserMessageReceived } from "./Message/UserMessageReceived";
  */
 export class UserInteraction {
   /**
-   * Handle: UserMessageReceived
+   * Construtor.
+   * @param busClient Cliente de acesso ao Bus
    */
-  private static handleUserMessageReceived(message: UserMessageReceived): void {
-    const commandLineParsed = CommandLineParser.parse(message.message);
-
-    switch (commandLineParsed?.command) {
-      case "exchange":
-        return void CreateUserCommand.exchange(commandLineParsed)?.sendAsync();
-      default:
-      // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
-    }
+  public constructor(private busClient: BusClient) {
+    Message.subscribe(
+      UserMessageReceived,
+      this.handleUserMessageReceived.bind(this)
+    );
   }
 
   /**
-   * Construtor.
+   * Handle: UserMessageReceived
    */
-  public constructor() {
-    Message.subscribe(
-      UserMessageReceived,
-      UserInteraction.handleUserMessageReceived.bind(this)
-    );
+  private handleUserMessageReceived(message: UserMessageReceived): void {
+    const commandLineParsed = CommandLineParser.parse(message.message);
+
+    let command: BusMessage | undefined;
+    switch (commandLineParsed?.command) {
+      case "exchange":
+        command = CreateUserCommand.exchange(commandLineParsed);
+        break;
+      default:
+      // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
+    }
+
+    if (command !== undefined) {
+      // TODO: Isso aqui ainda não funciona. Erro: Websocket client connection closed with code "4100" and reason "NotImplementedError: Unknown category of message bus.".
+      this.busClient.send(command);
+    }
   }
 }

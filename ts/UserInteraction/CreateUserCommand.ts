@@ -1,5 +1,4 @@
-import { Message } from "@sergiocabral/helper";
-
+import { BusMessage } from "../Bus/BusMessage/BusMessage";
 import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
 
 import { CommandLineParsed } from "./CommandLine/CommandLineParsed";
@@ -11,7 +10,7 @@ export class CreateUserCommand {
   /**
    * Comando: exchange
    */
-  public static exchange(command: CommandLineParsed): Message | undefined {
+  public static exchange(command: CommandLineParsed): BusMessage | undefined {
     // TODO: Ajustar getArgumentValue para aceitar uma lista de parâmetros (para aceitar não verbose)
 
     const from = command.getArgumentValue("from") ?? "";

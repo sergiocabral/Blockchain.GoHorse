@@ -62,7 +62,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.userInteraction = new UserInteraction();
+    this.userInteraction = new UserInteraction(this.busClient);
 
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)

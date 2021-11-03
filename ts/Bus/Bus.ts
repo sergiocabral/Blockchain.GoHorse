@@ -1,5 +1,6 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
+import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
@@ -23,6 +24,7 @@ export abstract class Bus {
   protected readonly messagesTypes: IBusMessageParse[] = [
     BusMessageJoin,
     BusMessageText,
+    ExchangeCoinMessage
   ];
 
   /**
