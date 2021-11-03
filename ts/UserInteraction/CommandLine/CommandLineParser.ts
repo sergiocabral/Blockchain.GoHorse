@@ -21,7 +21,7 @@ export class CommandLineParser {
     let input = commandLine;
     const regexWhiteSpace = /\s+/;
     const quotes = "\"'`´";
-    const regexQuoted = new RegExp(`([${quotes}]).*?\\1`, "g"); // TODO: Original: /("'´`).*?\1/g;
+    const regexQuoted = new RegExp(`([${quotes}]).*?\\1`, "g");
     const intoQuotes = input.match(regexQuoted);
     if (intoQuotes) {
       intoQuotes.forEach(

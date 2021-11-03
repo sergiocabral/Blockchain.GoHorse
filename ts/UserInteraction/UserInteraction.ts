@@ -1,8 +1,7 @@
 import { Message } from "@sergiocabral/helper";
 
-import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
-
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
+import { CreateUserCommand } from "./CreateUserCommand";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
 
 /**
@@ -17,9 +16,7 @@ export class UserInteraction {
 
     switch (commandLineParsed?.command) {
       case "exchange":
-        // TODO: Repassar os parâmetros do comando.
-        void new ExchangeCoinMessage("", "", 0, 0, "").sendAsync();
-        break;
+        return void CreateUserCommand.exchange(commandLineParsed)?.sendAsync();
       default:
       // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
     }
