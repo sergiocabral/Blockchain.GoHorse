@@ -38,7 +38,6 @@ export class UserInteraction {
     }
 
     if (command !== undefined) {
-      // TODO: Isso aqui ainda não funciona. Erro: Websocket client connection closed with code "4100" and reason "NotImplementedError: Unknown category of message bus.".
       this.busClient.send(command);
     }
   }
