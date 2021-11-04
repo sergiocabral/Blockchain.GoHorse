@@ -11,13 +11,11 @@ export class CreateUserCommand {
    * Comando: exchange
    */
   public static exchange(command: CommandLineParsed): BusMessage | undefined {
-    // TODO: Ajustar getArgumentValue para aceitar uma lista de parâmetros (para aceitar não verbose)
-
-    const from = command.getArgumentValue("from") ?? "";
-    const destination = command.getArgumentValue("destination") ?? "";
-    const price = Number(command.getArgumentValue("price"));
-    const amount = Number(command.getArgumentValue("amount"));
-    const message = command.getArgumentValue("message");
+    const from = command.getUniqueValueFromAnyArguments("from", "f") ?? "";
+    const destination = command.getUniqueValueFromAnyArguments("destination", "d") ?? "";
+    const price = Number(command.getUniqueValueFromAnyArguments("price", "p"));
+    const amount = Number(command.getUniqueValueFromAnyArguments("amount", "a"));
+    const message = command.getUniqueValueFromAnyArguments("message", "m");
 
     const isValid =
       from.length > 0 && destination.length > 0 && price > 0 && amount > 0;

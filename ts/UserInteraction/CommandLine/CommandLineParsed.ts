@@ -30,12 +30,38 @@ export class CommandLineParsed {
   /**
    * Retorna o valor de um argumento
    */
+  public getArgumentsValues(...argumentsNames: string[]): string[] {
+    const values = Array<string>();
+    for (const argumentName of argumentsNames) {
+      const value = this.getArgumentValue(argumentName);
+      if (value !== undefined) {
+        values.push(value);
+      }
+    }
+
+    return values;
+  }
+
+  /**
+   * Retorna o valor de um argumento
+   */
   public getArgumentValue(argumentName: string): string | undefined {
     const argIndex = this.args.findIndex((arg) =>
       CommandLineParsed.matchArgument(argumentName, arg)
     );
 
     return argIndex < 0 ? undefined : this.args[argIndex + 1];
+  }
+
+  /**
+   * Retorna um valor único para uma lista de argumentos.
+   */
+  public getUniqueValueFromAnyArguments(
+    ...argumentsNames: string[]
+  ): string | undefined {
+    const values = this.getArgumentsValues(...argumentsNames);
+
+    return values.length === 1 ? values[0] : undefined;
   }
 
   /**
