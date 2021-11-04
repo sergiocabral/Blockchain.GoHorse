@@ -54,7 +54,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     super();
     this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
     this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
+    this.busClient = new BusClient(this.webSocketClient, this.constructor.name); // TODO: Usar como nome de canal outra coisa que não seja o nome da classe para remover acoplamento.
     this.twitchChatClient = new TwitchChatClient(
       this.configuration.twitchChat,
       {

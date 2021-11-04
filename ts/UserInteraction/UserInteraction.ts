@@ -1,8 +1,9 @@
-import { Message } from "@sergiocabral/helper";
+import { Message, ShouldNeverHappenError } from "@sergiocabral/helper";
 
 import { BusClient } from "../Bus/BusClient";
 import { BusMessage } from "../Bus/BusMessage/BusMessage";
 
+import { CommandRejected } from "./BusMessage/CommandRejected";
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
 import { CreateUserCommand } from "./CreateUserCommand";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
@@ -28,17 +29,20 @@ export class UserInteraction {
   private handleUserMessageReceived(message: UserMessageReceived): void {
     const commandLineParsed = CommandLineParser.parse(message.message);
 
-    let command: BusMessage | undefined;
+    let busMessage: BusMessage | undefined;
     switch (commandLineParsed?.command) {
       case "exchange":
-        command = CreateUserCommand.exchange(commandLineParsed);
+        busMessage = CreateUserCommand.exchange(commandLineParsed);
         break;
       default:
-      // TODO: Rejeitar mensagem porque não é válida. Devolver a quem enviou.
+        // TODO: Continuar daqui. Falta testar o envio de volta para o emissor.
+        busMessage = new CommandRejected(message);
     }
 
-    if (command !== undefined) {
-      this.busClient.send(command);
+    if (!busMessage) {
+      throw new ShouldNeverHappenError();
     }
+
+    this.busClient.send(busMessage);
   }
 }

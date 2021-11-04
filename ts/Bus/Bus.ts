@@ -1,6 +1,7 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
 import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
+import { CommandRejected } from "../UserInteraction/BusMessage/CommandRejected";
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
@@ -24,8 +25,9 @@ export abstract class Bus {
   protected readonly messagesTypes: IBusMessageParse[] = [
     BusMessageJoin,
     BusMessageText,
-    ExchangeCoinMessage
-  ];
+    ExchangeCoinMessage,
+    CommandRejected
+  ]; // TODO: Remover esse acomplamento aqui, Bus conhece seus clientes.
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
