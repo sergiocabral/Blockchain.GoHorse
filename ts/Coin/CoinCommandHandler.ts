@@ -1,6 +1,6 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { ExchangeCoinMessage } from "./Message/ExchangeCoinMessage";
+import { ExchangeCoinMessage } from "./BusMessage/ExchangeCoinMessage";
 
 /**
  * Trata a captura de comandos relacionados a criptomoeda.

@@ -1,5 +1,5 @@
 import { BusMessage } from "../Bus/BusMessage/BusMessage";
-import { ExchangeCoinMessage } from "../Coin/Message/ExchangeCoinMessage";
+import { ExchangeCoinMessage } from "../Coin/BusMessage/ExchangeCoinMessage";
 
 import { CommandLineParsed } from "./CommandLine/CommandLineParsed";
 

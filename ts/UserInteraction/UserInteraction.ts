@@ -27,6 +27,8 @@ export class UserInteraction {
    * Handle: UserMessageReceived
    */
   private handleUserMessageReceived(message: UserMessageReceived): void {
+    // TODO: Não deve trafegar pelos bus o que não for comando da cabr0n coin
+
     const commandLineParsed = CommandLineParser.parse(message.message);
 
     let busMessage: BusMessage | undefined;
