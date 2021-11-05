@@ -26,7 +26,7 @@ export abstract class Bus {
     BusMessageJoin,
     BusMessageText,
     ExchangeCoinMessage,
-    CommandRejected
+    CommandRejected,
   ]; // TODO: Remover esse acomplamento aqui, Bus conhece seus clientes.
 
   /**

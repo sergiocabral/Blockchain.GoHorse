@@ -46,6 +46,33 @@ export class JsonLoaderFieldErrors {
   }
 
   /**
+   * Sem erros para: valor é uma lista (array) de determinado tipo.
+   */
+  public static list(
+    instance: JsonLoader,
+    fieldName: string,
+    typeOf?: string
+  ): string[] {
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+
+    const isValid =
+      Array.isArray(value) &&
+      (typeOf === undefined ||
+        value.findIndex((item) => typeof item !== typeOf) < 0);
+
+    if (!isValid) {
+      errors.push(
+        `${instance.constructor.name}.${fieldName} must be a array of ${
+          typeOf ?? "any"
+        }, but found: ${typeof value}, ${String(value)}`
+      );
+    }
+
+    return errors;
+  }
+
+  /**
    * Sem erros para: string não é vazia
    */
   public static notEmptyString(

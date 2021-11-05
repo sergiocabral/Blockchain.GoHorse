@@ -26,7 +26,7 @@ export class CoinApplication extends Application<CoinConfiguration> {
   /**
    * Trata a captura de comandos relacionados a criptomoeda
    */
-  private coinCommandHandler: CoinCommandHandler;
+  private readonly coinCommandHandler: CoinCommandHandler;
 
   /**
    * Cliente websocket.

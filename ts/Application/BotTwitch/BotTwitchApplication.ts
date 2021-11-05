@@ -114,8 +114,27 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       const amount = this.configuration.exchangeTwitchForCabr0nCoinAmount;
       const escapedMessage = JSON.stringify(message.message);
 
-      // TODO: Verificar como receber escapedMessage exatamente como foi enviado.
       return `exchange --from Twitch --destination Cabr0nCoin --price ${price} --amount ${amount} --message ${escapedMessage}`;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Tenta extrair um comando do usuário.
+   * @param message Mensagem original.
+   */
+  private extractUserCommand(
+    message: TwitchChatMessage | TwitchChatRedeem
+  ): string | undefined {
+    if (message instanceof TwitchChatMessage) {
+      const userMessage = message.message.toLowerCase().trim();
+      const commandPrefix = this.configuration.commandPrefix.find((prefix) =>
+        userMessage.startsWith(`${prefix} `.toLowerCase())
+      );
+      if (commandPrefix !== undefined) {
+        return message.message.substr(commandPrefix.length).trim();
+      }
     }
 
     return undefined;
@@ -129,9 +148,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   ): void {
     const platformCommand = this.extractPlatformCommand(message);
     const fromPlatform = platformCommand !== undefined;
-    const userCommand = fromPlatform ? platformCommand : message.message;
+    const userCommand = fromPlatform
+      ? platformCommand
+      : this.extractUserCommand(message);
 
-    const user = TwitchHelper.createUserModel(message.userstate);
-    void new UserMessageReceived(userCommand, user, fromPlatform).send();
+    if (userCommand !== undefined) {
+      const user = TwitchHelper.createUserModel(message.userstate);
+      void new UserMessageReceived(userCommand, user, fromPlatform).send();
+    }
   }
 }

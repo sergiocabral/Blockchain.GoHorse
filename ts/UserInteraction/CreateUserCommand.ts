@@ -12,9 +12,12 @@ export class CreateUserCommand {
    */
   public static exchange(command: CommandLineParsed): BusMessage | undefined {
     const from = command.getUniqueValueFromAnyArguments("from", "f") ?? "";
-    const destination = command.getUniqueValueFromAnyArguments("destination", "d") ?? "";
+    const destination =
+      command.getUniqueValueFromAnyArguments("destination", "d") ?? "";
     const price = Number(command.getUniqueValueFromAnyArguments("price", "p"));
-    const amount = Number(command.getUniqueValueFromAnyArguments("amount", "a"));
+    const amount = Number(
+      command.getUniqueValueFromAnyArguments("amount", "a")
+    );
     const message = command.getUniqueValueFromAnyArguments("message", "m");
 
     const isValid =

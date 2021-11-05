@@ -9,6 +9,17 @@ import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientCon
  */
 export class BotTwitchConfiguration extends JsonLoader {
   /**
+   * Prefixos obrigatórios na mensagem para ela ser trafegada pelo Bus.
+   */
+  public commandPrefix: string[] = [
+    "!cc",
+    "!cabr0n",
+    "!cabr0ncoin",
+    "!cabron",
+    "!cabroncoin",
+  ];
+
+  /**
    * Conversão de pontos da Twitch para Cabr0n Coin. Montante de Cabr0n Coins resgatados.
    */
   public exchangeTwitchForCabr0nCoinAmount = 1024;
@@ -40,6 +51,7 @@ export class BotTwitchConfiguration extends JsonLoader {
   public errors(): string[] {
     const errors = Array<string>();
 
+    errors.push(...JsonLoaderFieldErrors.list(this, "commandPrefix", "string"));
     errors.push(
       ...JsonLoaderFieldErrors.uuid(this, "exchangeTwitchForCabr0nCoinRedeemId")
     );
