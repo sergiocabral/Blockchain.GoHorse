@@ -130,10 +130,6 @@ export class BusDatabase {
     ).map((client) => client.id);
 
     for (const clientId of clientsIds) {
-      if (message.clientId === clientId) {
-        continue;
-      }
-
       await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
         { id: message.id, content: JSON.stringify(message, undefined, " ") },
       ]);
