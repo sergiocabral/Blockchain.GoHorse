@@ -7,6 +7,7 @@ import {
 } from "@sergiocabral/helper";
 import fs from "fs";
 import path from "path";
+import sha1 from "sha1";
 
 import { Argument } from "./Argument";
 import { IApplication } from "./IApplication";
@@ -23,6 +24,12 @@ export abstract class Application<TConfiguration extends JsonLoader>
   public readonly onStop: Set<() => Promise<void>> = new Set<
     () => Promise<void>
   >();
+
+  /**
+   * Identificador da aplicação por execução.
+   * @protected
+   */
+  protected readonly id: string = sha1(Math.random().toString());
 
   /**
    * Configurações.

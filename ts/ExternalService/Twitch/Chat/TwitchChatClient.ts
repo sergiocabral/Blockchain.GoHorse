@@ -3,6 +3,7 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
+  Message,
   NetworkError,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
@@ -11,6 +12,7 @@ import { Client, Events, Options } from "tmi.js";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { IConnection } from "../../../Core/Connection/IConnection";
 
+import { SendTwitchChatMessage } from "./Message/SendTwitchChatMessage";
 import { TwitchChatClientConfiguration } from "./TwitchChatClientConfiguration";
 import { TwitchChatEvents } from "./TwitchChatEvents";
 
@@ -46,7 +48,12 @@ export class TwitchChatClient implements IConnection {
        */
       mode: "include" | "exclude";
     }
-  ) {}
+  ) {
+    Message.subscribe(
+      SendTwitchChatMessage,
+      this.handleSendTwitchChatMessage.bind(this)
+    );
+  }
 
   /**
    * Estado da conexão.
@@ -205,5 +212,12 @@ export class TwitchChatClient implements IConnection {
         updateEmotesetsTimer: 0,
       },
     };
+  }
+
+  /**
+   * Handle: SendTwitchChatMessage
+   */
+  private handleSendTwitchChatMessage(message: SendTwitchChatMessage): void {
+    this.client.say(message.channel, message.message);
   }
 }

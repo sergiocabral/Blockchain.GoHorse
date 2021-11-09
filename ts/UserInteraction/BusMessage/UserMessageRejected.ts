@@ -6,18 +6,18 @@ import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCo
 import { FieldValidator } from "../../Bus/FieldValidator";
 
 /**
- * Sinaliza que o comando recebido do usuário foi rejeitado.
+ * Sinaliza que a mensagem recebida do usuário foi rejeitada.
  */
-export class CommandRejected extends BusMessageForCommunication {
+export class UserMessageRejected extends BusMessageForCommunication {
   /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.
    */
-  public static parse(instance: unknown): CommandRejected | undefined {
+  public static parse(instance: unknown): UserMessageRejected | undefined {
     const busMessage =
       BusMessage.parse(instance) &&
-      FieldValidator.type(instance, CommandRejected)
-        ? (instance as CommandRejected)
+      FieldValidator.type(instance, UserMessageRejected)
+        ? (instance as UserMessageRejected)
         : undefined;
 
     const isValid =
@@ -25,7 +25,7 @@ export class CommandRejected extends BusMessageForCommunication {
       busMessage?.message !== undefined;
 
     return busMessage !== undefined && isValid
-      ? Object.assign(new CommandRejected({} as unknown as Message), busMessage)
+      ? Object.assign(new UserMessageRejected({} as unknown as Message), busMessage)
       : undefined;
   }
 

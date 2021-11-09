@@ -1,7 +1,7 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
 import { ExchangeCoinMessage } from "../Coin/BusMessage/ExchangeCoinMessage";
-import { CommandRejected } from "../UserInteraction/BusMessage/CommandRejected";
+import { UserMessageRejected } from "../UserInteraction/BusMessage/UserMessageRejected";
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
@@ -26,7 +26,7 @@ export abstract class Bus {
     BusMessageJoin,
     BusMessageText,
     ExchangeCoinMessage,
-    CommandRejected,
+    UserMessageRejected,
   ]; // TODO: Remover esse acomplamento aqui, Bus conhece seus clientes.
 
   /**

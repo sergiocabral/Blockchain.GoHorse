@@ -8,14 +8,14 @@ export class TwitchChatMessage extends Message {
   /**
    * Construtor.
    * @param message Mensagem.
-   * @param username Usuário.
    * @param channel Canal.
+   * @param username Usuário.
    * @param userstate Dados do usuário.
    */
   public constructor(
     public readonly message: string,
-    public readonly username: string,
     public readonly channel: string,
+    public readonly username: string,
     public readonly userstate: ChatUserstate
   ) {
     super();

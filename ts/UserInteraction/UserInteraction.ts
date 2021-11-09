@@ -3,7 +3,7 @@ import { Message, ShouldNeverHappenError } from "@sergiocabral/helper";
 import { BusClient } from "../Bus/BusClient";
 import { BusMessage } from "../Bus/BusMessage/BusMessage";
 
-import { CommandRejected } from "./BusMessage/CommandRejected";
+import { UserMessageRejected } from "./BusMessage/UserMessageRejected";
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
 import { CreateUserCommand } from "./CreateUserCommand";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
@@ -27,8 +27,6 @@ export class UserInteraction {
    * Handle: UserMessageReceived
    */
   private handleUserMessageReceived(message: UserMessageReceived): void {
-    // TODO: Não deve trafegar pelos bus o que não for comando da cabr0n coin
-
     const commandLineParsed = CommandLineParser.parse(message.message);
 
     let busMessage: BusMessage | undefined;
@@ -37,14 +35,13 @@ export class UserInteraction {
         busMessage = CreateUserCommand.exchange(commandLineParsed);
         break;
       default:
-        // TODO: Continuar daqui. Falta testar o envio de volta para o emissor.
-        busMessage = new CommandRejected(message);
+        busMessage = new UserMessageRejected(message);
     }
 
     if (!busMessage) {
       throw new ShouldNeverHappenError();
     }
 
-    this.busClient.send(busMessage);
+    this.busClient.send(busMessage); // TODO: Desacomplar. Enviar talvez pelo bus interno. sendToBus()
   }
 }
