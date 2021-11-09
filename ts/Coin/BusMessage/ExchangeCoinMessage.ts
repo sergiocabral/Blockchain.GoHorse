@@ -15,7 +15,7 @@ export class ExchangeCoinMessage extends BusMessageForCommunication {
     const busMessage =
       BusMessage.parse(instance) &&
       FieldValidator.type(instance, ExchangeCoinMessage)
-        ? (instance as ExchangeCoinMessage)
+        ? (instance as Record<string, unknown>)
         : undefined;
 
     const isValid =
@@ -23,8 +23,8 @@ export class ExchangeCoinMessage extends BusMessageForCommunication {
       typeof busMessage?.destination === "string" &&
       typeof busMessage?.price === "number" &&
       typeof busMessage?.amount === "number" &&
-      (typeof busMessage.message === "string" ||
-        typeof busMessage.message === "undefined");
+      (typeof busMessage?.message === "string" ||
+        typeof busMessage?.message === "undefined");
 
     return busMessage !== undefined && isValid
       ? Object.assign(new ExchangeCoinMessage("", "", 0, 0), busMessage)

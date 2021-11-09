@@ -217,7 +217,9 @@ export class TwitchChatClient implements IConnection {
   /**
    * Handle: SendTwitchChatMessage
    */
-  private handleSendTwitchChatMessage(message: SendTwitchChatMessage): void {
-    this.client.say(message.channel, message.message);
+  private async handleSendTwitchChatMessage(
+    message: SendTwitchChatMessage
+  ): Promise<void> {
+    await this.client.say(message.channel, message.message);
   }
 }

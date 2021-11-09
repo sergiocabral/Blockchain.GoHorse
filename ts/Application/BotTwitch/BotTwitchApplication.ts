@@ -33,9 +33,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
   /**
    * Últimas mensagens recebidas da Twitch e enviadas ao Bus.
-   * @private
    */
-  private sentTwitchMessages: ITwitchMessageInfo[] = [];
+  private readonly sentTwitchMessages: ITwitchMessageInfo[] = [];
 
   /**
    * Sinaliza que a aplicação já foi parada.
@@ -207,7 +206,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       new SendTwitchChatMessage(
         originalMessage.channel,
         `@${originalMessage.username}, você enviou um comando inválido: ${originalMessage.message}`
-      ).sendAsync();
+      ).send();
     }
   }
 

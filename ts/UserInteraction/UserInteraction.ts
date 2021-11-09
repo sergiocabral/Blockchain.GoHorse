@@ -16,7 +16,7 @@ export class UserInteraction {
    * Construtor.
    * @param busClient Cliente de acesso ao Bus
    */
-  public constructor(private busClient: BusClient) {
+  public constructor(private readonly busClient: BusClient) {
     Message.subscribe(
       UserMessageReceived,
       this.handleUserMessageReceived.bind(this)

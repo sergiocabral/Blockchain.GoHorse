@@ -25,7 +25,10 @@ export class UserMessageRejected extends BusMessageForCommunication {
       busMessage?.message !== undefined;
 
     return busMessage !== undefined && isValid
-      ? Object.assign(new UserMessageRejected({} as unknown as Message), busMessage)
+      ? Object.assign(
+          new UserMessageRejected({} as unknown as Message),
+          busMessage
+        )
       : undefined;
   }
 

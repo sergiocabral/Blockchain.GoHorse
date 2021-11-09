@@ -27,7 +27,6 @@ export abstract class Application<TConfiguration extends JsonLoader>
 
   /**
    * Identificador da aplicação por execução.
-   * @protected
    */
   protected readonly id: string = sha1(Math.random().toString());
 
