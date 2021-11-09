@@ -1,4 +1,4 @@
-import { Message } from "@sergiocabral/helper";
+import { HelperObject, Message } from "@sergiocabral/helper";
 import sha1 from "sha1";
 
 import { BusClient } from "../../Bus/BusClient";
@@ -185,9 +185,10 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       const userMessageReceived = new UserMessageReceived(
         userCommand,
         user,
-        fromPlatform,
-        this.id
+        fromPlatform
       );
+      // TODO: Extrair registerSentTwitchMessages e getOriginalTwitchMessage para composição de objeto.
+      HelperObject.setProperty(userMessageReceived, "_id", this.id);
       userMessageReceived.send();
       this.registerSentTwitchMessages(message, userMessageReceived);
     }
