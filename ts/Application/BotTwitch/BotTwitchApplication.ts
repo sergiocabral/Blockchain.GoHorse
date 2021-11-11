@@ -1,9 +1,9 @@
 import { HelperObject, Message } from "@sergiocabral/helper";
-import sha1 from "sha1";
 
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { HashObject } from "../../Core/HashObject/HashObject";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
 import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
 import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
@@ -15,7 +15,6 @@ import { UserInteraction } from "../../UserInteraction/UserInteraction";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
-import { ITwitchMessageInfo } from "./ITwitchMessageInfo";
 
 /**
  * Bot que ouve comandos no chat da Twitch.
@@ -32,11 +31,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly busClient: BusClient;
 
   /**
-   * Últimas mensagens recebidas da Twitch e enviadas ao Bus.
-   */
-  private readonly sentTwitchMessages: ITwitchMessageInfo[] = [];
-
-  /**
    * Sinaliza que a aplicação já foi parada.
    */
   private stopped = false;
@@ -45,6 +39,13 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Cliente do IRC Chat
    */
   private readonly twitchChatClient: TwitchChatClient;
+
+  /**
+   * Histórico de mensagens enviadas.
+   */
+  private readonly twitchMessages: HashObject<
+    TwitchChatMessage | TwitchChatRedeem
+  >;
 
   /**
    * Tratamento da interação com o usuário.
@@ -82,6 +83,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     Message.subscribe(
       UserMessageRejected,
       this.handleUserMessageRejected.bind(this)
+    );
+
+    const oneMinute = 60000;
+    this.twitchMessages = new HashObject<TwitchChatMessage | TwitchChatRedeem>(
+      oneMinute
     );
   }
 
@@ -154,21 +160,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   }
 
   /**
-   * Recupera do histórico uma mensagem enviada.
-   * @param sentMessage Mensagem enviada pelo Bus.
-   * @returns Mensagem original recebida pelo chat
-   */
-  private getOriginalTwitchMessage(
-    sentMessage: unknown
-  ): TwitchChatMessage | TwitchChatRedeem | undefined {
-    const sentMessageHash = sha1(JSON.stringify(sentMessage));
-
-    return this.sentTwitchMessages.find(
-      (info) => info.sentMessageHash === sentMessageHash
-    )?.originalMessage;
-  }
-
-  /**
    * Handle: TwitchChatMessage | TwitchChatRedeem
    */
   private handleTwitchMessage(
@@ -187,10 +178,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         user,
         fromPlatform
       );
-      // TODO: Extrair registerSentTwitchMessages e getOriginalTwitchMessage para composição de objeto.
-      HelperObject.setProperty(userMessageReceived, "_id", this.id);
+      HelperObject.setProperty(userMessageReceived, "__unique", Math.random());
       userMessageReceived.send();
-      this.registerSentTwitchMessages(message, userMessageReceived);
+      this.twitchMessages.set(userMessageReceived, message);
     }
   }
 
@@ -198,7 +188,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Handle: UserMessageRejected
    */
   private handleUserMessageRejected(message: UserMessageRejected): void {
-    const originalMessage = this.getOriginalTwitchMessage(message.message);
+    const originalMessage = this.twitchMessages.get(message.message);
     if (!originalMessage) {
       return;
     }
@@ -209,22 +199,5 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         `@${originalMessage.username}, você enviou um comando inválido: ${originalMessage.message}`
       ).send();
     }
-  }
-
-  /**
-   * Registra no histórico uma mensagem enviada.
-   * @param originalMessage Mensagem original recebida pelo chat.
-   * @param sentMessage Mensagem enviada pelo Bus.
-   */
-  private registerSentTwitchMessages(
-    originalMessage: TwitchChatMessage | TwitchChatRedeem,
-    sentMessage: unknown
-  ): void {
-    this.sentTwitchMessages.push({
-      originalMessage,
-      sentMessage,
-      sentMessageHash: sha1(JSON.stringify(sentMessage)),
-      timestamp: new Date().getTime(),
-    });
   }
 }
