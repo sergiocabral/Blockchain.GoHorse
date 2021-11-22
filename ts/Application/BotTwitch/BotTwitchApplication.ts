@@ -1,9 +1,8 @@
-import { HelperObject, Message } from "@sergiocabral/helper";
+import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
 import { BusClient } from "../../Bus/BusClient";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { HashObject } from "../../Core/HashObject/HashObject";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
 import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
 import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
@@ -43,7 +42,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Histórico de mensagens enviadas.
    */
-  private readonly twitchMessages: HashObject<
+  private readonly twitchMessages: HashJson<
     TwitchChatMessage | TwitchChatRedeem
   >;
 
@@ -86,7 +85,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     );
 
     const oneMinute = 60000;
-    this.twitchMessages = new HashObject<TwitchChatMessage | TwitchChatRedeem>(
+    this.twitchMessages = new HashJson<TwitchChatMessage | TwitchChatRedeem>(
       oneMinute
     );
   }
