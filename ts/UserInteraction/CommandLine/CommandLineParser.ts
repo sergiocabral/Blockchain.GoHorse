@@ -37,9 +37,8 @@ export class CommandLineParser {
       const regexIsQuoted = new RegExp(`^([${quotes}]).*\\1$`);
       const isQuoted = regexIsQuoted.test(argument);
       if (isQuoted) {
-        const twoQuotesLength = 2;
         argument = argument
-          .substr(1, argument.length - twoQuotesLength)
+          .substring(1, argument.length - 1)
           .replace(/\0/g, " ");
       } else {
         argument = argument.trim();

@@ -151,7 +151,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         userMessage.startsWith(`${prefix} `.toLowerCase())
       );
       if (commandPrefix !== undefined) {
-        return message.message.substr(commandPrefix.length).trim();
+        return message.message.substring(commandPrefix.length).trim();
       }
     }
 

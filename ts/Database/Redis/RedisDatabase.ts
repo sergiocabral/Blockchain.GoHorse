@@ -209,7 +209,7 @@ export class RedisDatabase extends Database<RedisConfiguration> {
       const keyPrefix = this.formatKey(table);
       this.redis.keys(`${keyPrefix}*`, (error, keys) => {
         if (!error) {
-          keys = keys.map((key) => key.substr(keyPrefix.length + 1));
+          keys = keys.map((key) => key.substring(keyPrefix.length + 1));
           resolve(keys);
         } else {
           reject();
