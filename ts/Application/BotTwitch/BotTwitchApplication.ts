@@ -1,6 +1,7 @@
 import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
 import { BusClient } from "../../Bus/BusClient";
+import { BusChannel } from "../../Common/BusChannel";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
@@ -63,7 +64,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     super();
     this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
     this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, this.constructor.name); // TODO: Usar como nome de canal outra coisa que não seja o nome da classe para remover acoplamento.
+    this.busClient = new BusClient(this.webSocketClient, BusChannel.UserInteraction);
     this.twitchChatClient = new TwitchChatClient(
       this.configuration.twitchChat,
       {

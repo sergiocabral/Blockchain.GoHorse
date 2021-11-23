@@ -2,6 +2,7 @@ import { Logger, Message } from "@sergiocabral/helper";
 
 import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
+import { BusChannel } from "../../Common/BusChannel";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
@@ -34,7 +35,7 @@ export class MinerApplication extends Application<MinerConfiguration> {
     super();
     this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
     this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, this.constructor.name);
+    this.busClient = new BusClient(this.webSocketClient, BusChannel.Miner);
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
 

@@ -1,7 +1,7 @@
-import { CoinApplication } from "../../Application/Coin/CoinApplication";
 import { BusMessage } from "../../Bus/BusMessage/BusMessage";
 import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
 import { FieldValidator } from "../../Bus/FieldValidator";
+import { BusChannel } from "../../Common/BusChannel";
 
 /**
  * Realiza o câmbio de uma moeda para outra.
@@ -46,7 +46,7 @@ export class ExchangeCoinMessage extends BusMessageForCommunication {
     public readonly amount: number,
     public readonly message?: string
   ) {
-    super([CoinApplication.name]);
+    super([BusChannel.Coin]);
     this.id = this.hash(
       `${this.id}${this.from}${this.destination}${this.price}${this.amount}${this.message}`
     );

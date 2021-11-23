@@ -1,9 +1,9 @@
 import { Message } from "@sergiocabral/helper";
 
-import { BotTwitchApplication } from "../../Application/BotTwitch/BotTwitchApplication";
 import { BusMessage } from "../../Bus/BusMessage/BusMessage";
 import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
 import { FieldValidator } from "../../Bus/FieldValidator";
+import { BusChannel } from "../../Common/BusChannel";
 
 /**
  * Sinaliza que a mensagem recebida do usuário foi rejeitada.
@@ -47,7 +47,7 @@ export class UserMessageRejected extends BusMessageForCommunication {
    * @param message Mensagem que foi rejeitada.
    */
   public constructor(message: Message) {
-    super([BotTwitchApplication.name]);
+    super([BusChannel.UserInteraction]);
     this.id = this.hash(`${this.id}${JSON.stringify(this.message)}`);
     this.messageType = message.constructor.name;
     this.message = message;
