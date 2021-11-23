@@ -1,7 +1,7 @@
 import { Message, ShouldNeverHappenError } from "@sergiocabral/helper";
 
-import { BusClient } from "../Bus/BusClient";
-import { BusMessage } from "../Bus/BusMessage/BusMessage";
+import { BusMessage } from "../../Bus/BusMessage/BusMessage";
+import { SendBusMessage } from "../Bus/Message/SendBusMessage";
 
 import { UserMessageRejected } from "./BusMessage/UserMessageRejected";
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
@@ -13,20 +13,9 @@ import { UserMessageReceived } from "./Message/UserMessageReceived";
  */
 export class UserInteraction {
   /**
-   * Construtor.
-   * @param busClient Cliente de acesso ao Bus
-   */
-  public constructor(private readonly busClient: BusClient) {
-    Message.subscribe(
-      UserMessageReceived,
-      this.handleUserMessageReceived.bind(this)
-    );
-  }
-
-  /**
    * Handle: UserMessageReceived
    */
-  private handleUserMessageReceived(message: UserMessageReceived): void {
+  private static handleUserMessageReceived(message: UserMessageReceived): void {
     const commandLineParsed = CommandLineParser.parse(message.message);
 
     let busMessage: BusMessage | undefined;
@@ -42,6 +31,16 @@ export class UserInteraction {
       throw new ShouldNeverHappenError();
     }
 
-    this.busClient.send(busMessage); // TODO: Desacomplar. Enviar talvez pelo bus interno. sendToBus()
+    void new SendBusMessage(busMessage).sendAsync();
+  }
+
+  /**
+   * Construtor.
+   */
+  public constructor() {
+    Message.subscribe(
+      UserMessageReceived,
+      UserInteraction.handleUserMessageReceived.bind(this)
+    );
   }
 }

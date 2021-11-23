@@ -1,11 +1,10 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
-import { BusChannel } from "../../Common/BusChannel";
+import { BusChannel } from "../../Business/Bus/BusChannel";
+import { BusConnection } from "../../Business/Bus/BusConnection";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BlockchainConfiguration } from "./BlockchainConfiguration";
 
@@ -19,23 +18,19 @@ export class BlockchainApplication extends Application<BlockchainConfiguration> 
   protected readonly configurationType = BlockchainConfiguration;
 
   /**
-   * Enviador de mensagem via websocket.
+   * Conexão com o bus de comunicação entre as aplicações.
    */
-  private readonly busClient: BusClient;
-
-  /**
-   * Cliente websocket.
-   */
-  private readonly webSocketClient: WebSocketClient;
+  private readonly busConnection: BusConnection;
 
   /**
    * Construtor.
    */
   public constructor() {
     super();
-    this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
-    this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, BusChannel.Blockchain);
+    this.busConnection = new BusConnection(
+      this.configuration.messageBus,
+      BusChannel.Blockchain
+    );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
 
@@ -43,15 +38,15 @@ export class BlockchainApplication extends Application<BlockchainConfiguration> 
    * Implementação da execução da aplicação..
    */
   protected async doRun(): Promise<void> {
-    await this.webSocketClient.open();
+    await this.busConnection.open();
   }
 
   /**
    * Implementação da finalização da aplicação.
    */
   protected async doStop(): Promise<void> {
-    if (this.webSocketClient.state !== ConnectionState.Closed) {
-      await this.webSocketClient.close();
+    if (this.busConnection.state !== ConnectionState.Closed) {
+      await this.busConnection.close();
     }
   }
 }

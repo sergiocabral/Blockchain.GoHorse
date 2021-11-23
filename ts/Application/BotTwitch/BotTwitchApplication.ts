@@ -1,7 +1,10 @@
 import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
-import { BusClient } from "../../Bus/BusClient";
-import { BusChannel } from "../../Common/BusChannel";
+import { BusChannel } from "../../Business/Bus/BusChannel";
+import { BusConnection } from "../../Business/Bus/BusConnection";
+import { UserMessageRejected } from "../../Business/UserInteraction/BusMessage/UserMessageRejected";
+import { UserMessageReceived } from "../../Business/UserInteraction/Message/UserMessageReceived";
+import { UserInteraction } from "../../Business/UserInteraction/UserInteraction";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
@@ -9,10 +12,6 @@ import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/Twi
 import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { TwitchHelper } from "../../ExternalService/Twitch/TwitchHelper";
-import { UserMessageRejected } from "../../UserInteraction/BusMessage/UserMessageRejected";
-import { UserMessageReceived } from "../../UserInteraction/Message/UserMessageReceived";
-import { UserInteraction } from "../../UserInteraction/UserInteraction";
-import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
@@ -26,9 +25,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   protected readonly configurationType = BotTwitchConfiguration;
 
   /**
-   * Cliente de acesso ao Bus.
+   * Conexão com o bus de comunicação entre as aplicações.
    */
-  private readonly busClient: BusClient;
+  private readonly busConnection: BusConnection;
 
   /**
    * Sinaliza que a aplicação já foi parada.
@@ -53,18 +52,15 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly userInteraction: UserInteraction;
 
   /**
-   * Cliente WebSocket.
-   */
-  private readonly webSocketClient: WebSocketClient;
-
-  /**
    * Construtor.
    */
   public constructor() {
     super();
-    this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
-    this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, BusChannel.UserInteraction);
+    this.busConnection = new BusConnection(
+      this.configuration.messageBus,
+      BusChannel.UserInteraction
+    );
+    this.busConnection.onClose.add(this.stop.bind(this));
     this.twitchChatClient = new TwitchChatClient(
       this.configuration.twitchChat,
       {
@@ -72,7 +68,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.userInteraction = new UserInteraction(this.busClient);
+    this.userInteraction = new UserInteraction();
 
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)
@@ -95,7 +91,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * Implementação da execução da aplicação..
    */
   protected async doRun(): Promise<void> {
-    await this.webSocketClient.open();
+    await this.busConnection.open();
     await this.twitchChatClient.open();
   }
 
@@ -112,8 +108,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       await this.twitchChatClient.close();
     }
 
-    if (this.webSocketClient.state !== ConnectionState.Closed) {
-      await this.webSocketClient.close();
+    if (this.busConnection.state !== ConnectionState.Closed) {
+      await this.busConnection.close();
     }
   }
 

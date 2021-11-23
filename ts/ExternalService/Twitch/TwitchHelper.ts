@@ -1,6 +1,6 @@
 import { Userstate } from "tmi.js";
 
-import { UserModel } from "../../UserInteraction/Model/UserModel";
+import { UserModel } from "../../Business/UserInteraction/Model/UserModel";
 
 /**
  * Utilário para o namespace da Twitch.

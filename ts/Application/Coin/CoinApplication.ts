@@ -1,12 +1,11 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { BusClient } from "../../Bus/BusClient";
 import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
+import { BusChannel } from "../../Business/Bus/BusChannel";
+import { BusConnection } from "../../Business/Bus/BusConnection";
 import { CoinCommandHandler } from "../../Coin/CoinCommandHandler";
-import { BusChannel } from "../../Common/BusChannel";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 
 import { CoinConfiguration } from "./CoinConfiguration";
 
@@ -20,9 +19,9 @@ export class CoinApplication extends Application<CoinConfiguration> {
   protected readonly configurationType = CoinConfiguration;
 
   /**
-   * Enviador de mensagem via websocket.
+   * Conexão com o bus de comunicação entre as aplicações.
    */
-  private readonly busClient: BusClient;
+  private readonly busConnection: BusConnection;
 
   /**
    * Trata a captura de comandos relacionados a criptomoeda
@@ -30,18 +29,14 @@ export class CoinApplication extends Application<CoinConfiguration> {
   private readonly coinCommandHandler: CoinCommandHandler;
 
   /**
-   * Cliente websocket.
-   */
-  private readonly webSocketClient: WebSocketClient;
-
-  /**
    * Construtor.
    */
   public constructor() {
     super();
-    this.webSocketClient = new WebSocketClient(this.configuration.messageBus);
-    this.webSocketClient.onClose.add(this.stop.bind(this));
-    this.busClient = new BusClient(this.webSocketClient, BusChannel.Coin);
+    this.busConnection = new BusConnection(
+      this.configuration.messageBus,
+      BusChannel.Coin
+    );
     this.coinCommandHandler = new CoinCommandHandler();
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
@@ -50,15 +45,15 @@ export class CoinApplication extends Application<CoinConfiguration> {
    * Implementação da execução da aplicação..
    */
   protected async doRun(): Promise<void> {
-    await this.webSocketClient.open();
+    await this.busConnection.open();
   }
 
   /**
    * Implementação da finalização da aplicação.
    */
   protected async doStop(): Promise<void> {
-    if (this.webSocketClient.state !== ConnectionState.Closed) {
-      await this.webSocketClient.close();
+    if (this.busConnection.state !== ConnectionState.Closed) {
+      await this.busConnection.close();
     }
   }
 }

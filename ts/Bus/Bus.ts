@@ -1,7 +1,7 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
+import { UserMessageRejected } from "../Business/UserInteraction/BusMessage/UserMessageRejected";
 import { ExchangeCoinMessage } from "../Coin/BusMessage/ExchangeCoinMessage";
-import { UserMessageRejected } from "../UserInteraction/BusMessage/UserMessageRejected";
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
