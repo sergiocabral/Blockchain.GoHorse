@@ -2,9 +2,7 @@ import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
 import { BusChannel } from "../../Business/Bus/BusChannel";
 import { BusConnection } from "../../Business/Bus/BusConnection";
-import { UserMessageRejected } from "../../Business/UserInteraction/BusMessage/UserMessageRejected";
-import { UserMessageReceived } from "../../Business/UserInteraction/Message/UserMessageReceived";
-import { UserInteraction } from "../../Business/UserInteraction/UserInteraction";
+import { CreateUserCommand } from "../../Business/Coin/CreateUserCommand";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
@@ -12,6 +10,9 @@ import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/Twi
 import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { TwitchHelper } from "../../ExternalService/Twitch/TwitchHelper";
+import { UserMessageRejected } from "../../UserInteraction/BusMessage/UserMessageRejected";
+import { UserMessageReceived } from "../../UserInteraction/Message/UserMessageReceived";
+import { UserInteraction } from "../../UserInteraction/UserInteraction";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
@@ -68,7 +69,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.userInteraction = new UserInteraction();
+    this.userInteraction = new UserInteraction(new CreateUserCommand());
 
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)

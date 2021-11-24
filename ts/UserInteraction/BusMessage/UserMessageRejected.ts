@@ -1,9 +1,9 @@
 import { Message } from "@sergiocabral/helper";
 
-import { BusMessage } from "../../../Bus/BusMessage/BusMessage";
-import { BusMessageForCommunication } from "../../../Bus/BusMessage/BusMessageForCommunication";
-import { FieldValidator } from "../../../Bus/FieldValidator";
-import { BusChannel } from "../../Bus/BusChannel";
+import { BusMessage } from "../../Bus/BusMessage/BusMessage";
+import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
+import { FieldValidator } from "../../Bus/FieldValidator";
+import { BusChannel } from "../../Business/Bus/BusChannel";
 
 /**
  * Sinaliza que a mensagem recebida do usuário foi rejeitada.
