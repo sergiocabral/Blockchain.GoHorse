@@ -1,4 +1,5 @@
 import { BusServer } from "../../Bus/BusServer";
+import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../Database/IDatabase";
@@ -11,6 +12,8 @@ import { BusConfiguration } from "./BusConfiguration";
  * Barramento de mensagens para comunicação entre as aplicações.
  */
 export class BusApplication extends Application<BusConfiguration> {
+  // TODO: Comandos enviados cedo demais devem ser entregues assim que possível. É isso?
+
   /**
    * Tipo da configuração;
    */
@@ -38,7 +41,11 @@ export class BusApplication extends Application<BusConfiguration> {
     super();
     this.databaseServer = new RedisDatabase(this.configuration.redis);
     this.webSocketServer = new WebSocketServer(this.configuration.messageBus);
-    this.busServer = new BusServer(this.webSocketServer, this.databaseServer);
+    this.busServer = new BusServer(
+      this.webSocketServer,
+      this.databaseServer,
+      new CreateBusMessage()
+    );
   }
 
   /**

@@ -4,7 +4,7 @@ import { SendBusMessage } from "../Business/Bus/Message/SendBusMessage";
 
 import { UserMessageRejected } from "./BusMessage/UserMessageRejected";
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
-import { ICreateUserCommand } from "./ICreateUserCommand";
+import { ICreateBusMessage } from "./ICreateBusMessage";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
 
 /**
@@ -13,9 +13,9 @@ import { UserMessageReceived } from "./Message/UserMessageReceived";
 export class UserInteraction {
   /***
    * Construtor.
-   * @param userCommand Ações relacionadas a comandos do usuário.
+   * @param createBusMessage Criação de mensagens para o Bus.
    */
-  public constructor(private readonly userCommand: ICreateUserCommand) {
+  public constructor(private readonly createBusMessage: ICreateBusMessage) {
     Message.subscribe(
       UserMessageReceived,
       this.handleUserMessageReceived.bind(this)
@@ -29,7 +29,7 @@ export class UserInteraction {
     const commandLineParsed = CommandLineParser.parse(message.message);
 
     const busMessage =
-      this.userCommand.createMessageBus(commandLineParsed) ??
+      this.createBusMessage.fromUserCommand(commandLineParsed) ??
       new UserMessageRejected(message);
 
     void new SendBusMessage(busMessage).sendAsync();

@@ -1,14 +1,10 @@
 import { Logger, LogLevel } from "@sergiocabral/helper";
 
-import { ExchangeCoinMessage } from "../Coin/BusMessage/ExchangeCoinMessage";
-import { UserMessageRejected } from "../UserInteraction/BusMessage/UserMessageRejected";
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { BusMessage } from "./BusMessage/BusMessage";
-import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
-import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
-import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { ICreateBusMessage } from "./ICreateBusMessage";
 
 /**
  * Classe base para Client e Server.
@@ -20,31 +16,16 @@ export abstract class Bus {
   public static readonly ALL_CHANNELS = "*";
 
   /**
-   * Lista de mensagens do Bus.
+   * Construtor.
+   * @param createBusMessage Criação de mensagens para o Bus
    */
-  protected readonly messagesTypes: IBusMessageParse[] = [
-    BusMessageJoin,
-    BusMessageText,
-    ExchangeCoinMessage,
-    UserMessageRejected,
-  ]; // TODO: Remover esse acomplamento aqui, Bus conhece seus clientes.
+  protected constructor(private readonly createBusMessage: ICreateBusMessage) {}
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
    */
   protected decode(message: string): BusMessage | undefined {
-    let busMessage: unknown;
-    try {
-      busMessage = JSON.parse(message);
-    } catch (error) {
-      return undefined;
-    }
-
-    return this.messagesTypes.reduce<BusMessage | undefined>(
-      (instance, messageType) =>
-        instance ? instance : messageType.parse(busMessage),
-      undefined
-    );
+    return this.createBusMessage.fromReceivedMessage(message);
   }
 
   /**

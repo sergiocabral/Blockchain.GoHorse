@@ -1,12 +1,14 @@
 import { BusMessage } from "../../Bus/BusMessage/BusMessage";
 import { ExchangeCoinMessage } from "../../Coin/BusMessage/ExchangeCoinMessage";
 import { CommandLineParsed } from "../../UserInteraction/CommandLine/CommandLineParsed";
-import { ICreateUserCommand } from "../../UserInteraction/ICreateUserCommand";
+import { ICreateBusMessage } from "../../UserInteraction/ICreateBusMessage";
 
 /**
- * Cria comando de bus a partir da linha de comando do usuário.
+ * Criação de mensagens para o Bus a partir de entradas do usuário.
  */
-export class CreateUserCommand implements ICreateUserCommand {
+export class CreateBusMessage implements ICreateBusMessage {
+  // TODO: Isso é pra ficar aqui mesmo? Coin? UserInteraction, Business?
+
   /**
    * Comando: exchange
    */
@@ -30,14 +32,14 @@ export class CreateUserCommand implements ICreateUserCommand {
 
   /**
    * Cria uma mensagem do Bus a partir de uma linha de comando.
-   * @param commandLine Linha de comando.
+   * @param userCommand Linha de comando.
    */
-  public createMessageBus(
-    commandLine: CommandLineParsed | undefined
+  public fromUserCommand(
+    userCommand: CommandLineParsed | undefined
   ): BusMessage | undefined {
-    switch (commandLine?.command) {
+    switch (userCommand?.command) {
       case "exchange":
-        return CreateUserCommand.exchange(commandLine);
+        return CreateBusMessage.exchange(userCommand);
       default:
         return undefined;
     }

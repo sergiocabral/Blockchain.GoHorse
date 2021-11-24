@@ -2,7 +2,8 @@ import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
 import { BusChannel } from "../../Business/Bus/BusChannel";
 import { BusConnection } from "../../Business/Bus/BusConnection";
-import { CreateUserCommand } from "../../Business/Coin/CreateUserCommand";
+import { CreateBusMessage as BusCreateBusMessage } from "../../Business/Bus/CreateBusMessage";
+import { CreateBusMessage as UserInteractionCreateBusMessage } from "../../Business/UserInteraction/CreateBusMessage";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
@@ -59,7 +60,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.UserInteraction
+      BusChannel.UserInteraction,
+      new BusCreateBusMessage()
     );
     this.busConnection.onClose.add(this.stop.bind(this));
     this.twitchChatClient = new TwitchChatClient(
@@ -69,7 +71,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.userInteraction = new UserInteraction(new CreateUserCommand());
+    this.userInteraction = new UserInteraction(
+      new UserInteractionCreateBusMessage()
+    );
 
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)

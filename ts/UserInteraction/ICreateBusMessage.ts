@@ -3,14 +3,14 @@ import { BusMessage } from "../Bus/BusMessage/BusMessage";
 import { CommandLineParsed } from "./CommandLine/CommandLineParsed";
 
 /**
- * Ações relacionadas a comandos do usuário.
+ * Criação de mensagens para o Bus a partir de entradas do usuário.
  */
-export interface ICreateUserCommand {
+export interface ICreateBusMessage {
   /**
    * Cria uma mensagem do Bus a partir de uma linha de comando.
-   * @param commandLine Linha de comando.
+   * @param userCommand Linha de comando.
    */
-  createMessageBus(
-    commandLine: CommandLineParsed | undefined
+  fromUserCommand(
+    userCommand: CommandLineParsed | undefined
   ): BusMessage | undefined;
 }

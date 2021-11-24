@@ -7,6 +7,7 @@ import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { Bus } from "./Bus";
 import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { ICreateBusMessage } from "./ICreateBusMessage";
 
 /**
  * Cliente de acesso ao Bus.
@@ -21,12 +22,14 @@ export class BusClient extends Bus {
    * Construtor.
    * @param webSocketClient Cliente websocket.
    * @param channel Nome do canal.
+   * @param createBusMessage Criação de mensagens para o Bus
    */
   public constructor(
     private readonly webSocketClient: WebSocketClient,
-    private readonly channel: string
+    private readonly channel: string,
+    createBusMessage: ICreateBusMessage
   ) {
-    super();
+    super(createBusMessage);
 
     this.id = sha1(Math.random().toString());
 

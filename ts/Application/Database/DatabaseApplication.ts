@@ -3,6 +3,7 @@ import { Logger, Message } from "@sergiocabral/helper";
 import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
 import { BusChannel } from "../../Business/Bus/BusChannel";
 import { BusConnection } from "../../Business/Bus/BusConnection";
+import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
 import { Application } from "../../Core/Application";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 
@@ -29,7 +30,8 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Database
+      BusChannel.Database,
+      new CreateBusMessage()
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
