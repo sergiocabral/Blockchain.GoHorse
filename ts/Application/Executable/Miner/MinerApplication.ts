@@ -1,22 +1,21 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
-import { BusChannel } from "../../Business/Bus/BusChannel";
-import { BusConnection } from "../../Business/Bus/BusConnection";
-import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
-import { Application } from "../../Core/Application";
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { BusMessageText } from "../../../Bus/BusMessage/Communication/BusMessageText";
+import { Application } from "../../../Core/Application";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { BusChannel } from "../../Bus/BusChannel";
+import { BusConnection } from "../../Bus/BusConnection";
 
-import { BlockchainConfiguration } from "./BlockchainConfiguration";
+import { MinerConfiguration } from "./MinerConfiguration";
 
 /**
- * Blockchain.
+ * Minerador.
  */
-export class BlockchainApplication extends Application<BlockchainConfiguration> {
+export class MinerApplication extends Application<MinerConfiguration> {
   /**
    * Tipo da configuração;
    */
-  protected readonly configurationType = BlockchainConfiguration;
+  protected readonly configurationType = MinerConfiguration;
 
   /**
    * Conexão com o bus de comunicação entre as aplicações.
@@ -30,14 +29,13 @@ export class BlockchainApplication extends Application<BlockchainConfiguration> 
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Blockchain,
-      new CreateBusMessage()
+      BusChannel.Miner
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
 
   /**
-   * Implementação da execução da aplicação..
+   * Implementação da execução da aplicação.
    */
   protected async doRun(): Promise<void> {
     await this.busConnection.open();

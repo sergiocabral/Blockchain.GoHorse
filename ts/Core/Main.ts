@@ -6,12 +6,12 @@ import {
 } from "@sergiocabral/helper";
 import fs from "fs";
 
-import { BlockchainApplication } from "../Application/Blockchain/BlockchainApplication";
-import { BotTwitchApplication } from "../Application/BotTwitch/BotTwitchApplication";
-import { BusApplication } from "../Application/Bus/BusApplication";
-import { CoinApplication } from "../Application/Coin/CoinApplication";
-import { DatabaseApplication } from "../Application/Database/DatabaseApplication";
-import { MinerApplication } from "../Application/Miner/MinerApplication";
+import { BlockchainApplication } from "../Application/Executable/Blockchain/BlockchainApplication";
+import { BotTwitchApplication } from "../Application/Executable/BotTwitch/BotTwitchApplication";
+import { BusApplication } from "../Application/Executable/Bus/BusApplication";
+import { CoinApplication } from "../Application/Executable/Coin/CoinApplication";
+import { DatabaseApplication } from "../Application/Executable/Database/DatabaseApplication";
+import { MinerApplication } from "../Application/Executable/Miner/MinerApplication";
 import { Definition } from "../Definition";
 
 import { Argument } from "./Argument";

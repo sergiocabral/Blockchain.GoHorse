@@ -1,4 +1,4 @@
-import { Logger, LogLevel } from "@sergiocabral/helper";
+import { Logger, LogLevel, Message } from "@sergiocabral/helper";
 import sha1 from "sha1";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
@@ -7,12 +7,18 @@ import { WebSocketClient } from "../WebSocket/WebSocketClient";
 import { Bus } from "./Bus";
 import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
-import { ICreateBusMessage } from "./ICreateBusMessage";
+import { IBusMessageAppender } from "./IBusMessageAppender";
+import { SendBusMessage } from "./Message/SendBusMessage";
 
 /**
  * Cliente de acesso ao Bus.
  */
 export class BusClient extends Bus {
+  /**
+   * Sinaliza se deve capturar mensagens SendBusMessage e enviar pelo bus.
+   */
+  public captureSendBusMessage = false;
+
   /**
    * Identificador do cliente.
    */
@@ -27,7 +33,7 @@ export class BusClient extends Bus {
   public constructor(
     private readonly webSocketClient: WebSocketClient,
     private readonly channel: string,
-    createBusMessage: ICreateBusMessage
+    createBusMessage: IBusMessageAppender
   ) {
     super(createBusMessage);
 
@@ -36,6 +42,8 @@ export class BusClient extends Bus {
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));
     this.handleWebSocketClientOpen();
+
+    Message.subscribe(SendBusMessage, this.handleSendBusMessage.bind(this));
   }
 
   /**
@@ -79,6 +87,15 @@ export class BusClient extends Bus {
     client: WebSocketClient
   ): Promise<void> {
     await busMessage.sendAsync();
+  }
+
+  /**
+   * Handle: SendBusMessage
+   */
+  private handleSendBusMessage(message: SendBusMessage): void {
+    if (this.captureSendBusMessage) {
+      this.send(message.message);
+    }
   }
 
   /**

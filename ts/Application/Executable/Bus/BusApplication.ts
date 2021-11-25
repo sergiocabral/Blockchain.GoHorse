@@ -1,10 +1,10 @@
-import { BusServer } from "../../Bus/BusServer";
-import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
-import { Application } from "../../Core/Application";
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { IDatabase } from "../../Database/IDatabase";
-import { RedisDatabase } from "../../Database/Redis/RedisDatabase";
-import { WebSocketServer } from "../../WebSocket/WebSocketServer";
+import { BusServer } from "../../../Bus/BusServer";
+import { Application } from "../../../Core/Application";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { IDatabase } from "../../../Database/IDatabase";
+import { RedisDatabase } from "../../../Database/Redis/RedisDatabase";
+import { WebSocketServer } from "../../../WebSocket/WebSocketServer";
+import { BusMessageAppender } from "../../Bus/BusMessageAppender";
 
 import { BusConfiguration } from "./BusConfiguration";
 
@@ -44,7 +44,7 @@ export class BusApplication extends Application<BusConfiguration> {
     this.busServer = new BusServer(
       this.webSocketServer,
       this.databaseServer,
-      new CreateBusMessage()
+      new BusMessageAppender()
     );
   }
 

@@ -1,19 +1,17 @@
 import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
 
-import { BusChannel } from "../../Business/Bus/BusChannel";
-import { BusConnection } from "../../Business/Bus/BusConnection";
-import { CreateBusMessage as BusCreateBusMessage } from "../../Business/Bus/CreateBusMessage";
-import { CreateBusMessage as UserInteractionCreateBusMessage } from "../../Business/UserInteraction/CreateBusMessage";
-import { Application } from "../../Core/Application";
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
-import { SendTwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
-import { TwitchChatMessage } from "../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
-import { TwitchChatRedeem } from "../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
-import { TwitchChatClient } from "../../ExternalService/Twitch/Chat/TwitchChatClient";
-import { TwitchHelper } from "../../ExternalService/Twitch/TwitchHelper";
-import { UserMessageRejected } from "../../UserInteraction/BusMessage/UserMessageRejected";
-import { UserMessageReceived } from "../../UserInteraction/Message/UserMessageReceived";
-import { UserInteraction } from "../../UserInteraction/UserInteraction";
+import { Application } from "../../../Core/Application";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { SendTwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
+import { TwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";
+import { TwitchChatRedeem } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
+import { TwitchChatClient } from "../../../ExternalService/Twitch/Chat/TwitchChatClient";
+import { TwitchHelper } from "../../../ExternalService/Twitch/TwitchHelper";
+import { UserMessageRejected } from "../../../UserInteraction/BusMessage/UserMessageRejected";
+import { UserMessageReceived } from "../../../UserInteraction/Message/UserMessageReceived";
+import { UserInteraction } from "../../../UserInteraction/UserInteraction";
+import { BusChannel } from "../../Bus/BusChannel";
+import { BusConnection } from "../../Bus/BusConnection";
 
 import { BotTwitchConfiguration } from "./BotTwitchConfiguration";
 
@@ -60,8 +58,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.UserInteraction,
-      new BusCreateBusMessage()
+      BusChannel.UserInteraction
     );
     this.busConnection.onClose.add(this.stop.bind(this));
     this.twitchChatClient = new TwitchChatClient(
@@ -71,9 +68,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         mode: "include",
       }
     );
-    this.userInteraction = new UserInteraction(
-      new UserInteractionCreateBusMessage()
-    );
+    this.userInteraction = new UserInteraction();
 
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)

@@ -4,7 +4,10 @@ import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { BusMessage } from "./BusMessage/BusMessage";
-import { ICreateBusMessage } from "./ICreateBusMessage";
+import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
+import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
+import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { IBusMessageAppender } from "./IBusMessageAppender";
 
 /**
  * Classe base para Client e Server.
@@ -17,15 +20,36 @@ export abstract class Bus {
 
   /**
    * Construtor.
-   * @param createBusMessage Criação de mensagens para o Bus
+   * @param busMessageAppender Criação de mensagens para o Bus
    */
-  protected constructor(private readonly createBusMessage: ICreateBusMessage) {}
+  protected constructor(
+    private readonly busMessageAppender?: IBusMessageAppender
+  ) {}
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
    */
   protected decode(message: string): BusMessage | undefined {
-    return this.createBusMessage.fromReceivedMessage(message);
+    let messageAsObject: unknown;
+    try {
+      messageAsObject = JSON.parse(message);
+    } catch (error) {
+      return undefined;
+    }
+
+    let messagesTypes = Array<IBusMessageParse>(BusMessageJoin, BusMessageText);
+
+    if (this.busMessageAppender !== undefined) {
+      messagesTypes = messagesTypes.concat(
+        this.busMessageAppender.messagesTypes
+      );
+    }
+
+    return messagesTypes.reduce<BusMessage | undefined>(
+      (instance, messageType) =>
+        instance ? instance : messageType.parse(messageAsObject),
+      undefined
+    );
   }
 
   /**

@@ -1,14 +1,11 @@
-import { Message } from "@sergiocabral/helper";
-
 import { BusClient } from "../../Bus/BusClient";
-import { ICreateBusMessage } from "../../Bus/ICreateBusMessage";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IConnection } from "../../Core/Connection/IConnection";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 import { BusChannel } from "./BusChannel";
-import { SendBusMessage } from "./Message/SendBusMessage";
+import { BusMessageAppender } from "./BusMessageAppender";
 
 /**
  * Conexão com o bus de comunicação entre as aplicações.
@@ -38,22 +35,21 @@ export class BusConnection implements IConnection {
    * Construtor.
    * @param websocketConfiguration Configuração para conectar no websocket.
    * @param channel Canal de inscrição.
-   * @param createBusMessage Criação de mensagens para o Bus
    */
   public constructor(
     websocketConfiguration: WebSocketClientConfiguration,
-    channel: BusChannel,
-    createBusMessage: ICreateBusMessage
+    channel: BusChannel
   ) {
     this.webSocketClient = new WebSocketClient(websocketConfiguration);
     this.webSocketClient.onOpen.add(this.webSocketClientOnOpen.bind(this));
     this.webSocketClient.onClose.add(this.webSocketClientOnClose.bind(this));
+
     this.busClient = new BusClient(
       this.webSocketClient,
       channel,
-      createBusMessage
+      new BusMessageAppender()
     );
-    Message.subscribe(SendBusMessage, this.handleSendBusMessage.bind(this));
+    this.busClient.captureSendBusMessage = true;
   }
 
   /**
@@ -75,13 +71,6 @@ export class BusConnection implements IConnection {
    */
   public async open(): Promise<void> {
     return this.webSocketClient.open();
-  }
-
-  /**
-   * Handle: SendBusMessage
-   */
-  private handleSendBusMessage(message: SendBusMessage): void {
-    this.busClient.send(message.message);
   }
 
   /**

@@ -1,22 +1,21 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
-import { BusChannel } from "../../Business/Bus/BusChannel";
-import { BusConnection } from "../../Business/Bus/BusConnection";
-import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
-import { Application } from "../../Core/Application";
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { BusMessageText } from "../../../Bus/BusMessage/Communication/BusMessageText";
+import { Application } from "../../../Core/Application";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { BusChannel } from "../../Bus/BusChannel";
+import { BusConnection } from "../../Bus/BusConnection";
 
-import { MinerConfiguration } from "./MinerConfiguration";
+import { DatabaseConfiguration } from "./DatabaseConfiguration";
 
 /**
- * Minerador.
+ * Manipulador do banco de dados.
  */
-export class MinerApplication extends Application<MinerConfiguration> {
+export class DatabaseApplication extends Application<DatabaseConfiguration> {
   /**
    * Tipo da configuração;
    */
-  protected readonly configurationType = MinerConfiguration;
+  protected readonly configurationType = DatabaseConfiguration;
 
   /**
    * Conexão com o bus de comunicação entre as aplicações.
@@ -30,14 +29,13 @@ export class MinerApplication extends Application<MinerConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.UserInteraction,
-      new CreateBusMessage()
+      BusChannel.Database
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }
 
   /**
-   * Implementação da execução da aplicação.
+   * Implementação da execução da aplicação..
    */
   protected async doRun(): Promise<void> {
     await this.busConnection.open();

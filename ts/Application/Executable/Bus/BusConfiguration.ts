@@ -1,7 +1,7 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { RedisConfiguration } from "../../Database/Redis/RedisConfiguration";
-import { WebSocketServerConfiguration } from "../../WebSocket/WebSocketServerConfiguration";
+import { RedisConfiguration } from "../../../Database/Redis/RedisConfiguration";
+import { WebSocketServerConfiguration } from "../../../WebSocket/WebSocketServerConfiguration";
 
 /**
  * Configurações do ButApplication.

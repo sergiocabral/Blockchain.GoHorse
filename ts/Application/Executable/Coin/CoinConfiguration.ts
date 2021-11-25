@@ -1,6 +1,6 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
+import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClientConfiguration";
 
 /**
  * Configurações do CoinApplication

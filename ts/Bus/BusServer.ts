@@ -18,7 +18,7 @@ import { BusMessageForCommunication } from "./BusMessage/BusMessageForCommunicat
 import { BusMessageForNegotiation } from "./BusMessage/BusMessageForNegotiation";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
 import { BusNegotiationError } from "./Error/BusNegotiationError";
-import { ICreateBusMessage } from "./ICreateBusMessage";
+import { IBusMessageAppender } from "./IBusMessageAppender";
 
 /**
  * Servidor do Bus.
@@ -59,7 +59,7 @@ export class BusServer extends Bus {
   public constructor(
     private readonly webSocketServer: WebSocketServer,
     databaseServer: IDatabase,
-    createBusMessage: ICreateBusMessage
+    createBusMessage: IBusMessageAppender
   ) {
     super(createBusMessage);
 

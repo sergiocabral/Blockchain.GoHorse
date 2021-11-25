@@ -1,6 +1,6 @@
 import { Message } from "@sergiocabral/helper";
 
-import { BusMessage } from "../../../Bus/BusMessage/BusMessage";
+import { BusMessage } from "../BusMessage/BusMessage";
 
 /**
  * Envia uma mensagem pelo Bus.

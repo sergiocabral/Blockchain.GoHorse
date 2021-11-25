@@ -1,22 +1,21 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
-import { BusMessageText } from "../../Bus/BusMessage/Communication/BusMessageText";
-import { BusChannel } from "../../Business/Bus/BusChannel";
-import { BusConnection } from "../../Business/Bus/BusConnection";
-import { CreateBusMessage } from "../../Business/Bus/CreateBusMessage";
-import { Application } from "../../Core/Application";
-import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { BusMessageText } from "../../../Bus/BusMessage/Communication/BusMessageText";
+import { Application } from "../../../Core/Application";
+import { ConnectionState } from "../../../Core/Connection/ConnectionState";
+import { BusChannel } from "../../Bus/BusChannel";
+import { BusConnection } from "../../Bus/BusConnection";
 
-import { DatabaseConfiguration } from "./DatabaseConfiguration";
+import { BlockchainConfiguration } from "./BlockchainConfiguration";
 
 /**
- * Manipulador do banco de dados.
+ * Blockchain.
  */
-export class DatabaseApplication extends Application<DatabaseConfiguration> {
+export class BlockchainApplication extends Application<BlockchainConfiguration> {
   /**
    * Tipo da configuração;
    */
-  protected readonly configurationType = DatabaseConfiguration;
+  protected readonly configurationType = BlockchainConfiguration;
 
   /**
    * Conexão com o bus de comunicação entre as aplicações.
@@ -30,8 +29,7 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Database,
-      new CreateBusMessage()
+      BusChannel.Blockchain
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }

@@ -1,14 +1,13 @@
-import { BusMessage } from "../../Bus/BusMessage/BusMessage";
-import { ExchangeCoinMessage } from "../../Coin/BusMessage/ExchangeCoinMessage";
-import { CommandLineParsed } from "../../UserInteraction/CommandLine/CommandLineParsed";
-import { ICreateBusMessage } from "../../UserInteraction/ICreateBusMessage";
+import { BusMessage } from "../Bus/BusMessage/BusMessage";
+import { ExchangeCoinMessage } from "../Coin/BusMessage/ExchangeCoinMessage";
+
+import { CommandLineParsed } from "./CommandLine/CommandLineParsed";
+import { ICreateBusMessage } from "./ICreateBusMessage";
 
 /**
  * Criação de mensagens para o Bus a partir de entradas do usuário.
  */
 export class CreateBusMessage implements ICreateBusMessage {
-  // TODO: Isso é pra ficar aqui mesmo? Coin? UserInteraction, Business?
-
   /**
    * Comando: exchange
    */

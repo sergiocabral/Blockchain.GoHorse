@@ -1,8 +1,8 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
-import { JsonLoaderFieldErrors } from "../../Core/JsonLoaderFieldErrors";
-import { TwitchChatClientConfiguration } from "../../ExternalService/Twitch/Chat/TwitchChatClientConfiguration";
-import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
+import { JsonLoaderFieldErrors } from "../../../Core/JsonLoaderFieldErrors";
+import { TwitchChatClientConfiguration } from "../../../ExternalService/Twitch/Chat/TwitchChatClientConfiguration";
+import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClientConfiguration";
 
 /**
  * Configurações do BotTwitchApplication
