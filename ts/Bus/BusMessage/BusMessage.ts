@@ -25,6 +25,11 @@ export abstract class BusMessage extends Message {
   public clientId?: string;
 
   /**
+   * Sinaliza que foi entregue para alguém.
+   */
+  public delivered = false;
+
+  /**
    * Identificador único.
    */
   public id: string;

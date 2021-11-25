@@ -59,9 +59,9 @@ export class BusServer extends Bus {
   public constructor(
     private readonly webSocketServer: WebSocketServer,
     databaseServer: IDatabase,
-    createBusMessage: IBusMessageAppender
+    createBusMessage?: IBusMessageAppender
   ) {
-    super(createBusMessage);
+    super(true, createBusMessage);
 
     this.database = new BusDatabase(databaseServer);
     this.database.onMessageReceived.add(
@@ -103,9 +103,9 @@ export class BusServer extends Bus {
 
     if (busMessage instanceof BusMessageForNegotiation) {
       busMessage.client = client;
-      await busMessage.sendAsync();
+      busMessage.delivered = (await busMessage.sendAsync()).rounds > 0;
     } else if (busMessage instanceof BusMessageForCommunication) {
-      await this.database.postMessage(busMessage);
+      busMessage.delivered = await this.database.postMessage(busMessage);
     } else {
       throw new NotImplementedError("Unknown category of message bus.");
     }

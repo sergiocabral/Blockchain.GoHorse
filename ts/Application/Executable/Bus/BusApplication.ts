@@ -12,8 +12,6 @@ import { BusConfiguration } from "./BusConfiguration";
  * Barramento de mensagens para comunicação entre as aplicações.
  */
 export class BusApplication extends Application<BusConfiguration> {
-  // TODO: Comandos enviados cedo demais devem ser entregues assim que possível. É isso?
-
   /**
    * Tipo da configuração;
    */

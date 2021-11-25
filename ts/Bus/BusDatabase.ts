@@ -114,8 +114,10 @@ export class BusDatabase {
 
   /**
    * Posta uma mensagem do Bus.
+   * @param message Mensagem.
+   * @returns Indica se alguém leu a mensagem.
    */
-  public async postMessage(message: BusMessage): Promise<void> {
+  public async postMessage(message: BusMessage): Promise<boolean> {
     if (!message.clientId) {
       throw new ShouldNeverHappenError();
     }
@@ -136,6 +138,8 @@ export class BusDatabase {
 
       await this.database.notify(clientId);
     }
+
+    return clientsIds.length > 0;
   }
 
   /**

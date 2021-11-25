@@ -33,9 +33,9 @@ export class BusClient extends Bus {
   public constructor(
     private readonly webSocketClient: WebSocketClient,
     private readonly channel: string,
-    createBusMessage: IBusMessageAppender
+    createBusMessage?: IBusMessageAppender
   ) {
-    super(createBusMessage);
+    super(false, createBusMessage);
 
     this.id = sha1(Math.random().toString());
 
