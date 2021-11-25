@@ -1,4 +1,4 @@
-import { HelperObject, Logger, LogLevel } from "@sergiocabral/helper";
+import { Logger, LogLevel } from "@sergiocabral/helper";
 
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -100,12 +100,25 @@ export abstract class Bus {
         return;
       }
 
-      const undeliveredMessage = this.decode(busMessage.undeliveredMessage);
-      HelperObject.setProperty(
-        busMessage,
-        "undeliveredMessage",
-        undeliveredMessage
-      );
+      const undeliveredMessage = this.decode(busMessage.message);
+
+      if (undeliveredMessage === undefined) {
+        Logger.post(
+          'A message was not delivered but its contents were not returned. The {messageType}@{messageId} message was received from "{clientId}" client.',
+          {
+            clientId: busMessage.clientId,
+            messageId: busMessage.id,
+            messageType: busMessage.type,
+          },
+          LogLevel.Warning,
+          Bus.name
+        );
+
+        return;
+      }
+
+      undeliveredMessage.clientId = undefined;
+      busMessage.message = undeliveredMessage;
     }
 
     if (!busMessage) {

@@ -1,4 +1,9 @@
-import { HashJson, HelperObject, Message } from "@sergiocabral/helper";
+import {
+  HashJson,
+  HelperObject,
+  Message,
+  NotImplementedError,
+} from "@sergiocabral/helper";
 
 import { Application } from "../../../Core/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
@@ -9,6 +14,7 @@ import { TwitchChatClient } from "../../../ExternalService/Twitch/Chat/TwitchCha
 import { TwitchHelper } from "../../../ExternalService/Twitch/TwitchHelper";
 import { UserMessageRejected } from "../../../UserInteraction/BusMessage/UserMessageRejected";
 import { UserMessageReceived } from "../../../UserInteraction/Message/UserMessageReceived";
+import { RejectReason } from "../../../UserInteraction/RejectReason";
 import { UserInteraction } from "../../../UserInteraction/UserInteraction";
 import { BusChannel } from "../../Bus/BusChannel";
 import { BusConnection } from "../../Bus/BusConnection";
@@ -70,6 +76,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     );
     this.userInteraction = new UserInteraction();
 
+    const oneMinute = 60000;
+    this.twitchMessages = new HashJson<TwitchChatMessage | TwitchChatRedeem>(
+      oneMinute
+    );
+
     Message.subscribe(TwitchChatMessage, (message) =>
       this.handleTwitchMessage(message)
     );
@@ -79,11 +90,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     Message.subscribe(
       UserMessageRejected,
       this.handleUserMessageRejected.bind(this)
-    );
-
-    const oneMinute = 60000;
-    this.twitchMessages = new HashJson<TwitchChatMessage | TwitchChatRedeem>(
-      oneMinute
     );
   }
 
@@ -188,12 +194,25 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     if (!originalMessage) {
       return;
     }
+
     if (message.messageType === UserMessageReceived.name) {
       // TODO: Implementar tradução de texto.
-      new SendTwitchChatMessage(
-        originalMessage.channel,
-        `@${originalMessage.username}, você enviou um comando inválido: ${originalMessage.message}`
-      ).send();
+
+      let text: string;
+      switch (message.reason) {
+        case RejectReason.Invalid:
+          text = `@${originalMessage.username}, você enviou um comando inválido: ${originalMessage.message}`;
+          break;
+        case RejectReason.Undelivered:
+          text = `@${originalMessage.username}, tente mais tarde porque o sistema parece não estar online. Seu comando não foi processado: ${originalMessage.message}`;
+          break;
+        default:
+          throw new NotImplementedError(
+            `The reject reason "${message.reason}" was not implemented.`
+          );
+      }
+
+      new SendTwitchChatMessage(originalMessage.channel, text).send();
     }
   }
 }

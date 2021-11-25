@@ -29,11 +29,11 @@ export class BusMessageUndelivered extends BusMessageForCommunication {
 
   /**
    * Construtor.
-   * @param undeliveredMessage Mensagem que foi rejeitado.
+   * @param message Mensagem que foi rejeitado.
    */
-  public constructor(public readonly undeliveredMessage: BusMessage) {
+  public constructor(public message: BusMessage) {
     super([]);
-    this.id = this.hash(`${this.id}${this.undeliveredMessage.id}`);
-    this.clientId = undeliveredMessage.clientId;
+    this.id = this.hash(`${this.id}${this.message.id}`);
+    this.clientId = message.clientId;
   }
 }

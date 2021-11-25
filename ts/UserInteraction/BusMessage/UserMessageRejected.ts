@@ -4,6 +4,7 @@ import { BusChannel } from "../../Application/Bus/BusChannel";
 import { BusMessage } from "../../Bus/BusMessage/BusMessage";
 import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
 import { FieldValidator } from "../../Bus/FieldValidator";
+import { RejectReason } from "../RejectReason";
 
 /**
  * Sinaliza que a mensagem recebida do usuário foi rejeitada.
@@ -26,7 +27,10 @@ export class UserMessageRejected extends BusMessageForCommunication {
 
     return busMessage !== undefined && isValid
       ? Object.assign(
-          new UserMessageRejected({} as unknown as Message),
+          new UserMessageRejected(
+            {} as unknown as Message,
+            "" as unknown as RejectReason
+          ),
           busMessage
         )
       : undefined;
@@ -45,8 +49,9 @@ export class UserMessageRejected extends BusMessageForCommunication {
   /**
    * Constructor
    * @param message Mensagem que foi rejeitada.
+   * @param reason Motivos para uma mensagem do usuário ser devolvida.
    */
-  public constructor(message: Message) {
+  public constructor(message: Message, public readonly reason: RejectReason) {
     super([BusChannel.UserInteraction]);
     this.id = this.hash(`${this.id}${JSON.stringify(this.message)}`);
     this.messageType = message.constructor.name;
