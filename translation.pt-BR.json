@@ -1,0 +1,6 @@
+{
+  "BitTwitchApplication": {
+    "@{username}, you sent an invalid command: {invalidCommand}": "@{username}, você enviou um comando inválido: {invalidCommand}",
+    "@{username}, please try later because the system does not seem to be online. Your command was not processed: {command}": "@{username}, tente mais tarde porque o sistema parece não estar online. Seu comando não foi processado: {command}"
+  }
+}

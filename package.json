@@ -25,7 +25,7 @@
   "scripts": {
     "stop": "ts-node ./ts/index.ts --stop",
     "start": "ts-node ./ts/index.ts",
-    "format": "prettier -w ./ts && tslint -p tsconfig.json",
+    "format": "prettier -w ./ts && prettier -w ./translation*.json && tslint -p tsconfig.json",
     "build": "tsc"
   },
   "devDependencies": {

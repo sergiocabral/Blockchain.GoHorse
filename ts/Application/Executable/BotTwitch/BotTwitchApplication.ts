@@ -196,15 +196,24 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     }
 
     if (message.messageType === UserMessageReceived.name) {
-      // TODO: Implementar tradução de texto.
-
       let text: string;
       switch (message.reason) {
         case RejectReason.Invalid:
-          text = `@${originalMessage.username}, você enviou um comando inválido: ${originalMessage.message}`;
+          text = "@{username}, you sent an invalid command: {invalidCommand}"
+            .translate()
+            .querystring({
+              invalidCommand: originalMessage.message,
+              username: originalMessage.username,
+            });
           break;
         case RejectReason.Undelivered:
-          text = `@${originalMessage.username}, tente mais tarde porque o sistema parece não estar online. Seu comando não foi processado: ${originalMessage.message}`;
+          text =
+            "@{username}, please try later because the system does not seem to be online. Your command was not processed: {command}"
+              .translate()
+              .querystring({
+                command: originalMessage.message,
+                username: originalMessage.username,
+              });
           break;
         default:
           throw new NotImplementedError(
