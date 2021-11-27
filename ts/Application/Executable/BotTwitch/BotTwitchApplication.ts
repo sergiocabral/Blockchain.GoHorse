@@ -5,7 +5,7 @@ import {
   NotImplementedError,
 } from "@sergiocabral/helper";
 
-import { Application } from "../../../Core/Application";
+import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { SendTwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/SendTwitchChatMessage";
 import { TwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatMessage";

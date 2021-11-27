@@ -8,10 +8,10 @@ import {
 import fs from "fs";
 import path from "path";
 
-import { Definition } from "../../Definition";
 import { Argument } from "../Argument";
 
 import { ITranslationFile } from "./ITranslationFile";
+import { TranslateConfiguration } from "./TranslateConfiguration";
 
 /**
  * Serviço de tradução.
@@ -19,12 +19,19 @@ import { ITranslationFile } from "./ITranslationFile";
 export class Translation {
   /**
    * Carrega as traduções da aplicação.
+   * @param configuration Configurações de idioma.
    */
-  public static async load(): Promise<ITranslate> {
+  public static async load(
+    configuration: TranslateConfiguration
+  ): Promise<ITranslate> {
     const setAsDefault = true;
     const translate = new Translate(
-      Definition.DEFAULT_LANGUAGE,
-      Definition.DEFAULT_LANGUAGE,
+      configuration.selected ??
+        Translation.defaultConfiguration.selected ??
+        undefined,
+      configuration.fallback ??
+        Translation.defaultConfiguration.fallback ??
+        undefined,
       setAsDefault
     );
 
@@ -35,6 +42,11 @@ export class Translation {
 
     return translate;
   }
+
+  /**
+   * Configuração padrão.
+   */
+  private static readonly defaultConfiguration = new TranslateConfiguration();
 
   /**
    * Carrega a lista de arquivos com traduções.

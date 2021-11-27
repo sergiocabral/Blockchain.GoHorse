@@ -1,5 +1,5 @@
 import { BusServer } from "../../../Bus/BusServer";
-import { Application } from "../../../Core/Application";
+import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../../Database/IDatabase";
 import { RedisDatabase } from "../../../Database/Redis/RedisDatabase";

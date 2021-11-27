@@ -1,5 +1,4 @@
-import { JsonLoader } from "@sergiocabral/helper";
-
+import { ApplicationConfiguration } from "../../../Core/Application/ApplicationConfiguration";
 import { JsonLoaderFieldErrors } from "../../../Core/JsonLoaderFieldErrors";
 import { TwitchChatClientConfiguration } from "../../../ExternalService/Twitch/Chat/TwitchChatClientConfiguration";
 import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClientConfiguration";
@@ -7,7 +6,7 @@ import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClient
 /**
  * Configurações do BotTwitchApplication
  */
-export class BotTwitchConfiguration extends JsonLoader {
+export class BotTwitchConfiguration extends ApplicationConfiguration {
   /**
    * Prefixos obrigatórios na mensagem para ela ser trafegada pelo Bus.
    */
@@ -48,7 +47,7 @@ export class BotTwitchConfiguration extends JsonLoader {
   /**
    * Lista de erros presentes na configuração atual
    */
-  public errors(): string[] {
+  public override errors(): string[] {
     const errors = Array<string>();
 
     errors.push(...JsonLoaderFieldErrors.list(this, "commandPrefix", "string"));

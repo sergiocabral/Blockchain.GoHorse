@@ -14,8 +14,8 @@ import { DatabaseApplication } from "../Application/Executable/Database/Database
 import { MinerApplication } from "../Application/Executable/Miner/MinerApplication";
 import { Definition } from "../Definition";
 
+import { IApplication } from "./Application/IApplication";
 import { Argument } from "./Argument";
-import { IApplication } from "./IApplication";
 
 /**
  * Classe principal com o ponto de entrada da execução.

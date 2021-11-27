@@ -24,7 +24,7 @@ export class WebSocketClientConfiguration extends JsonLoader {
   /**
    * Lista de erros presentes na configuração atual
    */
-  public errors(): string[] {
+  public override errors(): string[] {
     const errors = Array<string>();
 
     errors.push(

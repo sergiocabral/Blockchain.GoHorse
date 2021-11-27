@@ -1,3 +1,4 @@
+/* tslint:disable:no-null-keyword */
 import { JsonLoader } from "@sergiocabral/helper";
 
 import { JsonLoaderFieldErrors } from "../../Core/JsonLoaderFieldErrors";
@@ -19,12 +20,12 @@ export class RedisConfiguration extends JsonLoader {
   /**
    * Namespace para demais entradas de dados.
    */
-  public namespace?: string | null;
+  public namespace?: string | null = null;
 
   /**
    * Senha de conexão.
    */
-  public password?: string | null;
+  public password?: string | null = null;
 
   /**
    * Porta de conexão.
@@ -39,7 +40,7 @@ export class RedisConfiguration extends JsonLoader {
   /**
    * Lista de erros presentes na configuração atual
    */
-  public errors(): string[] {
+  public override errors(): string[] {
     const errors = Array<string>();
 
     errors.push(

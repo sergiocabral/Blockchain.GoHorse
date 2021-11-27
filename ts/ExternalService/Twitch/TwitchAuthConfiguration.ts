@@ -17,7 +17,7 @@ export class TwitchAuthConfiguration extends JsonLoader {
   /**
    * Lista de erros presentes na configuração atual
    */
-  public errors(): string[] {
+  public override errors(): string[] {
     const errors = Array<string>();
 
     let fieldName = "token";

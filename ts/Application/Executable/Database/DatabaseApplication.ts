@@ -1,7 +1,7 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
 import { BusMessageText } from "../../../Bus/BusMessage/Communication/BusMessageText";
-import { Application } from "../../../Core/Application";
+import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { BusChannel } from "../../Bus/BusChannel";
 import { BusConnection } from "../../Bus/BusConnection";
