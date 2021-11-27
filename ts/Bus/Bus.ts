@@ -1,4 +1,4 @@
-import { Logger, LogLevel, Message } from "@sergiocabral/helper";
+import { HelperObject, Logger, LogLevel, Message } from "@sergiocabral/helper";
 
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -68,7 +68,7 @@ export abstract class Bus {
    * Codifica uma mensagem para ser enviada como string.
    */
   protected encode(message: BusMessage): string {
-    return JSON.stringify(message);
+    return HelperObject.toText(message, 0);
   }
 
   /**

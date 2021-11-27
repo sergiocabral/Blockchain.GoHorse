@@ -5,6 +5,7 @@ import {
 } from "@sergiocabral/helper";
 
 import { AttachMessagesToBus } from "../Bus/Message/AttachMessagesToBus";
+import { SendBusMessage } from "../Bus/Message/SendBusMessage";
 
 import { LockResponse } from "./BusMessage/LockResponse";
 import { RequestLock } from "./BusMessage/RequestLock";
@@ -39,6 +40,15 @@ export class LockSynchronization {
   private static instance?: LockSynchronization;
 
   /**
+   * Handle: RequestLock
+   */
+  private static handleRequestLock(message: RequestLock): void {
+    // TODO: Registrar lock.
+    message.lock.result = LockResult.Locked;
+    message.response = new LockResponse(message.lock);
+  }
+
+  /**
    * Lista de locks.
    */
   private readonly locks = new Map<string, ILockData>();
@@ -49,6 +59,7 @@ export class LockSynchronization {
   private constructor() {
     Message.subscribe(Lock, this.handleLock.bind(this));
     Message.subscribe(LockResponse, this.handleLockResponse.bind(this));
+    Message.subscribe(RequestLock, LockSynchronization.handleRequestLock.bind(LockSynchronization));
   }
 
   /**
@@ -86,15 +97,15 @@ export class LockSynchronization {
 
       setTimeout(() => lockResolve(LockResult.Timeout), message.timeout);
 
-      void new RequestLock(message).send();
+      new SendBusMessage(new RequestLock(message)).send();
     });
   }
 
   /**
-   * Handle: Lock
+   * Handle: LockResponse
    */
   private handleLockResponse(message: LockResponse): void {
-    const lock = this.locks.get(message.id);
+    const lock = this.locks.get(message.lock.id);
     if (lock?.resolve !== undefined) {
       lock.resolve(message.lock.result);
     }

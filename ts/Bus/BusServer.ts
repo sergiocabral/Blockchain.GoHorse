@@ -100,7 +100,15 @@ export class BusServer extends Bus {
 
     if (busMessage instanceof BusMessageForNegotiation) {
       busMessage.client = client;
-      busMessage.delivered = (await busMessage.sendAsync()).rounds > 0;
+      const {
+        rounds,
+        message: { response },
+      } = await busMessage.sendAsync();
+      if (response !== undefined) {
+        response.clientId = busMessage.clientId;
+        client.send(this.encode(response));
+      }
+      busMessage.delivered = rounds > 0;
     } else if (busMessage instanceof BusMessageForCommunication) {
       busMessage.delivered = await this.database.postMessage(busMessage);
     } else {

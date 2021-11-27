@@ -10,4 +10,9 @@ export abstract class BusMessageForNegotiation extends BusMessage {
    * Instância do cliente websocket.
    */
   public client?: WebSocketClient;
+
+  /**
+   * Mensagem de resposta se houver.
+   */
+  public response?: BusMessage;
 }
