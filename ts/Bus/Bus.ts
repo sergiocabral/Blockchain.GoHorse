@@ -1,4 +1,4 @@
-import { Logger, LogLevel } from "@sergiocabral/helper";
+import { Logger, LogLevel, Message } from "@sergiocabral/helper";
 
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
@@ -8,7 +8,7 @@ import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
 import { BusMessageUndelivered } from "./BusMessage/Communication/BusMessageUndelivered";
 import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
-import { IBusMessageAppender } from "./IBusMessageAppender";
+import { AttachMessagesToBus } from "./Message/AttachMessagesToBus";
 
 /**
  * Classe base para Client e Server.
@@ -31,12 +31,13 @@ export abstract class Bus {
   /**
    * Construtor.
    * @param isServer A instância é um servidor.
-   * @param busMessageAppender Criação de mensagens para o Bus
    */
-  protected constructor(
-    private readonly isServer: boolean,
-    private readonly busMessageAppender?: IBusMessageAppender
-  ) {}
+  protected constructor(private readonly isServer: boolean) {
+    Message.subscribe(
+      AttachMessagesToBus,
+      this.handleAttachMessagesToBus.bind(this)
+    );
+  }
 
   /**
    * Decodifica uma string para ser tratada com um objeto IBusMessage
@@ -56,15 +57,7 @@ export abstract class Bus {
       return undefined;
     }
 
-    let messagesTypes = Array<IBusMessageParse>().concat(this.messagesTypes);
-
-    if (this.busMessageAppender !== undefined) {
-      messagesTypes = messagesTypes.concat(
-        this.busMessageAppender.messagesTypes
-      );
-    }
-
-    return messagesTypes.reduce<BusMessage | undefined>(
+    return this.messagesTypes.reduce<BusMessage | undefined>(
       (instance, messageType) =>
         instance ? instance : messageType.parse(messageAsObject),
       undefined
@@ -159,5 +152,12 @@ export abstract class Bus {
 
       await client.close(ProtocolError.TOP_LAYER_ERROR, errorMessage);
     }
+  }
+
+  /**
+   * Handle: AppendBusMessage
+   */
+  private handleAttachMessagesToBus(message: AttachMessagesToBus): void {
+    this.messagesTypes.push(...message.messagesTypes);
   }
 }

@@ -1,8 +1,4 @@
-import {
-  HashJson,
-  Message,
-  NotImplementedError,
-} from "@sergiocabral/helper";
+import { HashJson, Message, NotImplementedError } from "@sergiocabral/helper";
 
 import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";

@@ -5,7 +5,7 @@ import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
 import { BusChannel } from "./BusChannel";
-import { BusMessageAppender } from "./BusMessageAppender";
+import { DomainBusMessages } from "./DomainBusMessages";
 
 /**
  * Conexão com o bus de comunicação entre as aplicações.
@@ -44,12 +44,10 @@ export class BusConnection implements IConnection {
     this.webSocketClient.onOpen.add(this.webSocketClientOnOpen.bind(this));
     this.webSocketClient.onClose.add(this.webSocketClientOnClose.bind(this));
 
-    this.busClient = new BusClient(
-      this.webSocketClient,
-      channel,
-      new BusMessageAppender()
-    );
+    this.busClient = new BusClient(this.webSocketClient, channel);
     this.busClient.captureSendBusMessage = true;
+
+    DomainBusMessages.attach();
   }
 
   /**

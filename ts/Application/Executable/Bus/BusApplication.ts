@@ -4,7 +4,7 @@ import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../../Database/IDatabase";
 import { RedisDatabase } from "../../../Database/Redis/RedisDatabase";
 import { WebSocketServer } from "../../../WebSocket/WebSocketServer";
-import { BusMessageAppender } from "../../Bus/BusMessageAppender";
+import { DomainBusMessages } from "../../Bus/DomainBusMessages";
 
 import { BusConfiguration } from "./BusConfiguration";
 
@@ -39,11 +39,8 @@ export class BusApplication extends Application<BusConfiguration> {
     super();
     this.databaseServer = new RedisDatabase(this.configuration.redis);
     this.webSocketServer = new WebSocketServer(this.configuration.messageBus);
-    this.busServer = new BusServer(
-      this.webSocketServer,
-      this.databaseServer,
-      new BusMessageAppender()
-    );
+    this.busServer = new BusServer(this.webSocketServer, this.databaseServer);
+    DomainBusMessages.attach();
   }
 
   /**

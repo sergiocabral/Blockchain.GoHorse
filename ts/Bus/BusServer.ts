@@ -18,7 +18,6 @@ import { BusMessageForCommunication } from "./BusMessage/BusMessageForCommunicat
 import { BusMessageForNegotiation } from "./BusMessage/BusMessageForNegotiation";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
 import { BusNegotiationError } from "./Error/BusNegotiationError";
-import { IBusMessageAppender } from "./IBusMessageAppender";
 
 /**
  * Servidor do Bus.
@@ -54,14 +53,12 @@ export class BusServer extends Bus {
    * Construtor.
    * @param webSocketServer Servidor websocket.
    * @param databaseServer Servidor do banco de dados.
-   * @param createBusMessage Criação de mensagens para o Bus
    */
   public constructor(
     private readonly webSocketServer: WebSocketServer,
-    databaseServer: IDatabase,
-    createBusMessage?: IBusMessageAppender
+    databaseServer: IDatabase
   ) {
-    super(true, createBusMessage);
+    super(true);
 
     this.database = new BusDatabase(databaseServer);
     this.database.onMessageReceived.add(

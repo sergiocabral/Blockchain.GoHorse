@@ -4,6 +4,8 @@ import {
   Message,
 } from "@sergiocabral/helper";
 
+import { AttachMessagesToBus } from "../Bus/Message/AttachMessagesToBus";
+
 import { LockResponse } from "./BusMessage/LockResponse";
 import { RequestLock } from "./BusMessage/RequestLock";
 import { ILockData } from "./ILockData";
@@ -14,6 +16,13 @@ import { Lock } from "./Message/Lock";
  * Bloqueio para sincronização de acesso.
  */
 export class LockSynchronization {
+  /**
+   * Anexa as mensagens relacionadas ao bus.
+   */
+  public static attachMessagesToBus(): void {
+    void new AttachMessagesToBus(LockResponse, RequestLock).send();
+  }
+
   /**
    * Inicializa o serviço de bloqueio.
    */
