@@ -2,8 +2,6 @@ import { FieldValidator } from "../../FieldValidator";
 import { BusMessage } from "../BusMessage";
 import { BusMessageForCommunication } from "../BusMessageForCommunication";
 
-// TODO: As aplicações precisam implementar essa mensagem.
-
 /**
  * Ninguém pode receber uma mensagem do Bus.
  */

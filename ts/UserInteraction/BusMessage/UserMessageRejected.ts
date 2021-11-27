@@ -53,7 +53,7 @@ export class UserMessageRejected extends BusMessageForCommunication {
    */
   public constructor(message: Message, public readonly reason: RejectReason) {
     super([BusChannel.UserInteraction]);
-    this.id = this.hash(`${this.id}${JSON.stringify(this.message)}`);
+    this.id = this.hash(JSON.stringify(this.message));
     this.messageType = message.constructor.name;
     this.message = message;
   }

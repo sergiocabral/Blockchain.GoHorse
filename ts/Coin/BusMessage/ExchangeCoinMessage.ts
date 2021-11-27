@@ -48,7 +48,7 @@ export class ExchangeCoinMessage extends BusMessageForCommunication {
   ) {
     super([BusChannel.Coin]);
     this.id = this.hash(
-      `${this.id}${this.from}${this.destination}${this.price}${this.amount}${this.message}`
+      `${this.from}${this.destination}${this.price}${this.amount}${this.message}`
     );
   }
 }

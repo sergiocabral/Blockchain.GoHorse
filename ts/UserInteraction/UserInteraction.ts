@@ -71,6 +71,11 @@ export class UserInteraction {
       this.createBusMessage.fromUserCommand(commandLineParsed) ??
       new UserMessageRejected(message, RejectReason.Invalid);
 
+    busMessage.addIdentifier({
+      author: message.author,
+      timestamp: new Date().format({ mask: "y-M-d h:m:s" }),
+    });
+
     this.userMessages.set(busMessage, message);
 
     void new SendBusMessage(busMessage).sendAsync();

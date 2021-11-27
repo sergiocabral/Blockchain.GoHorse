@@ -58,6 +58,15 @@ export abstract class BusMessage extends Message {
   }
 
   /**
+   * Adiciona uma informação ao id da mensagem.
+   */
+  public addIdentifier(identifier: unknown): this {
+    this.id = this.hash(`${this.id}${JSON.stringify2(identifier, 0)}`);
+
+    return this;
+  }
+
+  /**
    * Gerador de hash.
    */
   protected hash(input: unknown): string {

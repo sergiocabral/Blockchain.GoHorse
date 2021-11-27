@@ -1,9 +1,4 @@
-import {
-  HashJson,
-  HelperObject,
-  Message,
-  NotImplementedError,
-} from "@sergiocabral/helper";
+import { HashJson, Message, NotImplementedError } from "@sergiocabral/helper";
 
 import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
@@ -180,7 +175,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         user,
         fromPlatform
       );
-      HelperObject.setProperty(userMessageReceived, "__unique", Math.random());
       userMessageReceived.send();
       this.twitchMessages.set(userMessageReceived, message);
     }
