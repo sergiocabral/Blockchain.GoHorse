@@ -11,6 +11,7 @@ import sha1 from "sha1";
 
 import { Argument } from "./Argument";
 import { IApplication } from "./IApplication";
+import { Translation } from "./Translation/Translation";
 
 /**
  * Classe base para uma aplicação.
@@ -56,6 +57,7 @@ export abstract class Application<TConfiguration extends JsonLoader>
    * Executa a aplicação.
    */
   public async run(): Promise<void> {
+    await Translation.load();
     await this.doRun();
   }
 

@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 /**
  * Responde perguntas sobre quais parâmetros foram informados na linha de comando.
  */
@@ -14,6 +17,22 @@ export class Argument {
    */
   public static getEnvironmentFile(): string {
     return Argument.getArgumentValue(/\.json$/);
+  }
+
+  /**
+   * Nome da aplicação a ser executada.
+   */
+  public static getExecutableFile(): string {
+    return process.argv[1];
+  }
+
+  /**
+   * Nome da aplicação a ser executada.
+   */
+  public static getRootDirectory(): string {
+    return fs.realpathSync(
+      path.resolve(path.dirname(Argument.getExecutableFile()), "..")
+    );
   }
 
   /**
