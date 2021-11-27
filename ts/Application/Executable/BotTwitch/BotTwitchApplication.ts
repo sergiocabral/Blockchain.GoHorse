@@ -171,6 +171,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     if (userCommand !== undefined) {
       const user = TwitchHelper.createUserModel(message.userstate);
       const userMessageReceived = new UserMessageReceived(
+        message.id,
         userCommand,
         user,
         fromPlatform

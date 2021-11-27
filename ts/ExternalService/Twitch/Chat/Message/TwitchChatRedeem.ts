@@ -7,6 +7,7 @@ import { ChatUserstate } from "tmi.js";
 export class TwitchChatRedeem extends Message {
   /**
    * Construtor.
+   * @param id Identificador.
    * @param rewardType Tipo de resgate.
    * @param message Mensagem.
    * @param username Usuário.
@@ -14,6 +15,7 @@ export class TwitchChatRedeem extends Message {
    * @param userstate Dados do usuário.
    */
   public constructor(
+    public readonly id: string,
     public readonly rewardType: string,
     public readonly message: string,
     public readonly username: string,

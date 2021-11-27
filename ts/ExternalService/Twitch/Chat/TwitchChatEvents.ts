@@ -244,6 +244,7 @@ export class TwitchChatEvents implements Events {
     TwitchChatEvents.handle("chat", { channel, userstate, message, self });
     if (userstate.username) {
       new TwitchChatMessage(
+        userstate.id ?? "",
         message,
         channel,
         userstate.username,
@@ -652,7 +653,14 @@ export class TwitchChatEvents implements Events {
       message,
     });
     if (tags["display-name"]) {
-      new TwitchChatRedeem(rewardType, message, channel, username, tags).send();
+      new TwitchChatRedeem(
+        tags.id ?? "",
+        rewardType,
+        message,
+        channel,
+        username,
+        tags
+      ).send();
     }
   }
 
