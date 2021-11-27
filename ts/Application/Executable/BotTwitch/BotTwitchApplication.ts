@@ -1,4 +1,8 @@
-import { HashJson, Message, NotImplementedError } from "@sergiocabral/helper";
+import {
+  HashJson,
+  Message,
+  NotImplementedError,
+} from "@sergiocabral/helper";
 
 import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
@@ -7,6 +11,8 @@ import { TwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/
 import { TwitchChatRedeem } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 import { TwitchChatClient } from "../../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { TwitchHelper } from "../../../ExternalService/Twitch/TwitchHelper";
+import { LockResult } from "../../../Lock/LockResult";
+import { Lock } from "../../../Lock/Message/Lock";
 import { UserMessageRejected } from "../../../UserInteraction/BusMessage/UserMessageRejected";
 import { UserMessageReceived } from "../../../UserInteraction/Message/UserMessageReceived";
 import { RejectReason } from "../../../UserInteraction/RejectReason";
@@ -184,7 +190,9 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   /**
    * Handle: UserMessageRejected
    */
-  private handleUserMessageRejected(message: UserMessageRejected): void {
+  private async handleUserMessageRejected(
+    message: UserMessageRejected
+  ): Promise<void> {
     const originalMessage = this.twitchMessages.get(message.message);
     if (!originalMessage) {
       return;
@@ -216,7 +224,20 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
           );
       }
 
-      new SendTwitchChatMessage(originalMessage.channel, text).send();
+      const locked = (
+        await new Lock()
+          .with(BotTwitchApplication.name)
+          .with(message.constructor.name)
+          .with(text)
+          .sendAsync()
+      ).message.result;
+
+      if (locked === LockResult.Locked) {
+        await new SendTwitchChatMessage(
+          originalMessage.channel,
+          text
+        ).sendAsync();
+      }
     }
   }
 }

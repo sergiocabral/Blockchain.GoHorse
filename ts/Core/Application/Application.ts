@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import sha1 from "sha1";
 
+import { LockSynchronization } from "../../Lock/LockSynchronization";
 import { Argument } from "../Argument";
 import { Translation } from "../Translation/Translation";
 
@@ -37,6 +38,13 @@ export abstract class Application<
    * Configurações.
    */
   private configurationValue?: TConfiguration;
+
+  /**
+   * Construtor.
+   */
+  protected constructor() {
+    LockSynchronization.initialize();
+  }
 
   /**
    * Configurações.

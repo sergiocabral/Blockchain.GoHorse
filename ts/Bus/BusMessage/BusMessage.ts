@@ -1,4 +1,4 @@
-import { Message } from "@sergiocabral/helper";
+import { HelperObject, Message } from "@sergiocabral/helper";
 import sha1 from "sha1";
 
 import { FieldValidator } from "../FieldValidator";
@@ -48,7 +48,7 @@ export abstract class BusMessage extends Message {
    * Construtor.
    * @param channels Canais destinatários.
    */
-  protected constructor(public readonly channels: string[]) {
+  public constructor(public readonly channels: string[]) {
     super();
     this.type = this.constructor.name;
     this.timestamp = new Date().getTime();
@@ -61,7 +61,7 @@ export abstract class BusMessage extends Message {
    * Adiciona uma informação ao id da mensagem.
    */
   public addIdentifier(identifier: unknown): this {
-    this.id = this.hash(`${this.id}${JSON.stringify2(identifier, 0)}`);
+    this.id = this.hash(`${this.id}${HelperObject.toText(identifier, 0)}`);
 
     return this;
   }
