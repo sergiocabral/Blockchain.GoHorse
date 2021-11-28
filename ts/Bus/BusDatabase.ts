@@ -60,64 +60,42 @@ export class BusDatabase {
     clientId: string,
     channelName: string
   ): Promise<BusDatabaseResult> {
-    return this.lockAndExecute(
-      async () => {
-        await this.database.addValues(
-          this.DEFINITION.tableChannel,
-          channelName,
-          [
-            {
-              content: JSON.stringify(
-                {
-                  serverId,
-                  // tslint:disable-next-line:object-literal-sort-keys
-                  clientId,
-                  joined: {
-                    datetime: (
-                      await this.database.time()
-                    ).format({ mask: "universal" }),
-                    timestamp: new Date().getTime(),
-                  },
-                },
-                undefined,
-                " "
-              ),
-              id: clientId,
+    await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
+      {
+        content: JSON.stringify(
+          {
+            serverId,
+            // tslint:disable-next-line:object-literal-sort-keys
+            clientId,
+            joined: {
+              datetime: (
+                await this.database.time()
+              ).format({ mask: "universal" }),
+              timestamp: new Date().getTime(),
             },
-          ]
-        );
-        await this.database.subscribe(clientId);
-
-        return BusDatabaseResult.Success;
+          },
+          undefined,
+          " "
+        ),
+        id: clientId,
       },
-      clientId,
-      serverId,
-      channelName,
-      this.clientJoin.name
-    );
+    ]);
+    await this.database.subscribe(clientId);
+
+    return BusDatabaseResult.Success;
   }
 
   /**
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<BusDatabaseResult> {
-    return this.lockAndExecute(
-      async () => {
-        await this.database.unsubscribe(clientId);
-        await this.database.removeValues(
-          this.DEFINITION.tableChannel,
-          undefined,
-          [clientId]
-        );
-        await this.database.removeValues(this.DEFINITION.tableMessage, [
-          clientId,
-        ]);
-
-        return BusDatabaseResult.Success;
-      },
+    await this.database.unsubscribe(clientId);
+    await this.database.removeValues(this.DEFINITION.tableChannel, undefined, [
       clientId,
-      this.clientLeave.name
-    );
+    ]);
+    await this.database.removeValues(this.DEFINITION.tableMessage, [clientId]);
+
+    return BusDatabaseResult.Success;
   }
 
   /**
