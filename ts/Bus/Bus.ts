@@ -10,7 +10,6 @@ import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { BusDatabase } from "./BusDatabase";
-import { BusDatabaseResult } from "./BusDatabaseResult";
 import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
 import { BusMessageUndelivered } from "./BusMessage/Communication/BusMessageUndelivered";
@@ -146,11 +145,7 @@ export abstract class Bus {
 
     try {
       await this.handleBusMessage(busMessage, client);
-      if (
-        this.isServer &&
-        busMessage.delivered !== BusDatabaseResult.Success &&
-        busMessage.delivered !== BusDatabaseResult.AlreadyHandled
-      ) {
+      if (this.isServer && !busMessage.delivered) {
         client.send(this.encode(new BusMessageUndelivered(busMessage)));
       }
     } catch (error: unknown) {

@@ -1,7 +1,6 @@
 import { HelperObject, Message } from "@sergiocabral/helper";
 import sha1 from "sha1";
 
-import { BusDatabaseResult } from "../BusDatabaseResult";
 import { FieldValidator } from "../FieldValidator";
 
 /**
@@ -28,7 +27,7 @@ export abstract class BusMessage extends Message {
   /**
    * Sinaliza que foi entregue para alguém.
    */
-  public delivered: BusDatabaseResult = BusDatabaseResult.None;
+  public delivered = false;
 
   /**
    * Identificador único.

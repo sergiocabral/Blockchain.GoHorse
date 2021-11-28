@@ -1,5 +1,5 @@
 import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
-import sha1 from "sha1"; // TODO: Trocar para @sergiocabral
+import sha1 from "sha1";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { IDatabase } from "../Database/IDatabase";

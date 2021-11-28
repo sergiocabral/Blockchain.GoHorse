@@ -116,10 +116,12 @@ export class BusServer extends Bus {
         response.clientId = busMessage.clientId;
         client.send(this.encode(response));
       }
-      busMessage.delivered =
-        rounds > 0 ? BusDatabaseResult.Success : BusDatabaseResult.Undelivered;
+      busMessage.delivered = rounds > 0;
     } else if (busMessage instanceof BusMessageForCommunication) {
-      busMessage.delivered = await this.database.postMessage(busMessage);
+      const postResult = await this.database.postMessage(busMessage);
+      busMessage.delivered =
+        postResult === BusDatabaseResult.Success ||
+        postResult === BusDatabaseResult.AlreadyHandled;
     } else {
       throw new NotImplementedError("Unknown category of message bus.");
     }
