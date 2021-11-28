@@ -234,7 +234,7 @@ export class BusDatabase {
     clientId: string,
     ...data: unknown[]
   ): Promise<BusDatabaseResult> {
-    const lockId = sha1(BusDatabase.name + clientId + JSON.stringify2(data, 0));
+    const lockId = sha1(BusDatabase.name + JSON.stringify2(data, 0));
 
     let result: BusDatabaseResult;
     const acquired = await this.lock(lockId, clientId, LockAction.Acquire);
