@@ -242,10 +242,27 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
       await new Lock()
         .with(twitchMessageId)
-        .execute(() =>
-          new SendTwitchChatMessage(originalMessage.channel, text).send()
-        )
+        .execute(() => this.sendMessage(text, originalMessage.channel))
         .sendAsync();
     }
+  }
+
+  /**
+   * Enviar uma mensagem para a Twitch.
+   * @param message Mensagem
+   * @param channels Canais.
+   */
+  private sendMessage(message: string, ...channels: string[]): void {
+    const signature = this.configuration.messageSignature
+      ?.querystring({
+        id: this.busConnection.clientId,
+      })
+      .trim();
+    if (signature) {
+      message = `${message.trim()} — ${signature}`;
+    }
+    channels.forEach((channel) =>
+      new SendTwitchChatMessage(channel, message).send()
+    );
   }
 }

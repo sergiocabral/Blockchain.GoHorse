@@ -21,7 +21,7 @@ export class BusClient extends Bus {
   /**
    * Identificador do cliente.
    */
-  private readonly id: string;
+  public readonly id: string = sha1(Math.random().toString());
 
   /**
    * Construtor.
@@ -33,8 +33,6 @@ export class BusClient extends Bus {
     private readonly channel: string
   ) {
     super(false);
-
-    this.id = sha1(Math.random().toString());
 
     webSocketClient.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     webSocketClient.onOpen.add(this.handleWebSocketClientOpen.bind(this));

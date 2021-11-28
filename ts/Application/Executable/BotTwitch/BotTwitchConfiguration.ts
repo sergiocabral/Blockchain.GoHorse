@@ -40,6 +40,11 @@ export class BotTwitchConfiguration extends ApplicationConfiguration {
   public messageBus = new WebSocketClientConfiguration();
 
   /**
+   * Assinatura no final da mensagem.
+   */
+  public messageSignature?: string | null = "id: {id}";
+
+  /**
    * Dados para conexão ao chat da Twitch
    */
   public twitchChat = new TwitchChatClientConfiguration();
@@ -69,6 +74,9 @@ export class BotTwitchConfiguration extends ApplicationConfiguration {
         [1, Number.MAX_SAFE_INTEGER],
         "integer"
       )
+    );
+    errors.push(
+      ...JsonLoaderFieldErrors.canEmptyString(this, "messageSignature")
     );
     errors.push(...super.errors());
 

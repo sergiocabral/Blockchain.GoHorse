@@ -6,7 +6,6 @@ import {
 } from "@sergiocabral/helper";
 import fs from "fs";
 import path from "path";
-import sha1 from "sha1";
 
 import { LockSynchronization } from "../../Lock/LockSynchronization";
 import { Argument } from "../Argument";
@@ -28,11 +27,6 @@ export abstract class Application<
   public readonly onStop: Set<() => Promise<void>> = new Set<
     () => Promise<void>
   >();
-
-  /**
-   * Identificador da aplicação por execução.
-   */
-  protected readonly id: string = sha1(Math.random().toString());
 
   /**
    * Configurações.

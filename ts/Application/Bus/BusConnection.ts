@@ -51,6 +51,13 @@ export class BusConnection implements IConnection {
   }
 
   /**
+   * Identificador do cliente da conexão.
+   */
+  public get clientId(): string {
+    return this.busClient.id;
+  }
+
+  /**
    * Estado da conexão.
    */
   public get state(): ConnectionState {
