@@ -3,6 +3,7 @@ import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../../Database/IDatabase";
 import { RedisDatabase } from "../../../Database/Redis/RedisDatabase";
+import { Definition } from "../../../Definition";
 import { LockSynchronization } from "../../../Lock/LockSynchronization";
 import { WebSocketServer } from "../../../WebSocket/WebSocketServer";
 import { DomainBusMessages } from "../../Bus/DomainBusMessages";
@@ -67,7 +68,7 @@ export class BusApplication extends Application<BusConfiguration> {
    * Finaliza a conexão com o banco de dados.
    * @param waitFor Tempo de espera antes de iniciar o fechamento da conexão.
    */
-  private async closeDatabase(waitFor = 1000): Promise<void> {
+  private async closeDatabase(waitFor = Definition.ONE_SECOND_IN_MILLISECOND): Promise<void> {
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
         if (this.databaseServer.state !== ConnectionState.Closed) {

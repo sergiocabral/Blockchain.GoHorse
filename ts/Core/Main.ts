@@ -62,7 +62,7 @@ export class Main {
 
           await application.stop();
         }
-      }, Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE);
+      }, Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_MILLISECONDS);
 
       application.onStop.add(() => clearInterval(killVerifyIntervalTimer));
     } else {

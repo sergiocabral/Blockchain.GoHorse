@@ -213,9 +213,6 @@ export class BusDatabase {
   ): Promise<boolean> {
     const lockId = sha1(BusDatabase.name + clientId + JSON.stringify2(data, 0));
 
-    const second = 1000;
-    const timeoutInSeconds = Definition.LOCK_TIMEOUT_RELEASE / second;
-
-    return this.lock(lockId, clientId, timeoutInSeconds);
+    return this.lock(lockId, clientId, Definition.LOCK_TIMEOUT_RELEASE_IN_SECONDS);
   }
 }

@@ -11,6 +11,7 @@ import {
 import { BusDatabase } from "../Bus/BusDatabase";
 import { AttachMessagesToBus } from "../Bus/Message/AttachMessagesToBus";
 import { SendBusMessage } from "../Bus/Message/SendBusMessage";
+import { Definition } from "../Definition";
 
 import { LockResponse } from "./BusMessage/LockResponse";
 import { SetLock } from "./BusMessage/SetLock";
@@ -78,8 +79,6 @@ export class LockSynchronization {
       throw new ShouldNeverHappenError();
     }
 
-    const second = 1000;
-
     switch (message.action) {
       case LockAction.Acquire:
         message.lock.result = (await LockSynchronization.database.lock(
@@ -94,7 +93,7 @@ export class LockSynchronization {
         message.lock.result = (await LockSynchronization.database.lock(
           message.lock.id,
           message.clientId,
-          Math.round(message.lock.releaseTimeout / second)
+          message.lock.releaseTimeoutInSeconds
         ))
           ? LockResult.Released
           : LockResult.Fail;
@@ -186,7 +185,7 @@ export class LockSynchronization {
     return new Promise((resolve) => {
       const timeoutId = setTimeout(
         async () => lockResolve(LockResult.Timeout),
-        message.acquireTimeout
+        message.acquireTimeoutInSeconds * Definition.ONE_SECOND_IN_MILLISECOND
       );
 
       const lockResolve = (lock.resolve = async (locked: LockResult) => {

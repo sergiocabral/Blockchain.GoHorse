@@ -11,6 +11,7 @@ import {
 import { createClient, RedisClient } from "redis";
 
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
+import { Definition } from "../../Definition";
 import { Database } from "../Database";
 import { IValue } from "../Value/IValue";
 import { ValueContent } from "../Value/ValueContent";
@@ -463,11 +464,10 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     return new Promise((resolve, reject) => {
       this.redis.time((error, time) => {
         if (!error) {
-          const shiftMilliseconds = 1000;
           const unixTime = Number(time[0]);
           const microseconds = Number(time[1]);
-          const date = new Date(unixTime * shiftMilliseconds);
-          date.setMilliseconds(Math.round(microseconds / shiftMilliseconds));
+          const date = new Date(unixTime * Definition.ONE_SECOND_IN_MILLISECOND);
+          date.setMilliseconds(Math.round(microseconds / Definition.ONE_SECOND_IN_MILLISECOND));
           HelperObject.setProperty(date, "redisTime", [unixTime, microseconds]);
           resolve(date);
         } else {
