@@ -1,4 +1,10 @@
-import { HashJson, Message, NotImplementedError } from "@sergiocabral/helper";
+import {
+  HashJson,
+  Logger,
+  LogLevel,
+  Message,
+  NotImplementedError,
+} from "@sergiocabral/helper";
 
 import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
@@ -217,17 +223,29 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
           );
       }
 
+      const twitchMessageId = (message.message as TwitchChatMessage | undefined)
+        ?.id;
+
+      if (twitchMessageId === undefined) {
+        throw new NotImplementedError("The Twitch message id was not found.");
+      }
+
+      Logger.post(
+        'User message "{twitchMessageId}" rejected: {text}',
+        {
+          text,
+          twitchMessageId,
+        },
+        LogLevel.Verbose,
+        BotTwitchApplication.name
+      );
+
+      // TODO: Lock falhando com 2 BusServer
       await new Lock()
-        .with(BotTwitchApplication.name)
-        .with(message.constructor.name)
-        .with((message.message as TwitchChatMessage)?.id)
-        .with(text)
-        .execute(async () => {
-          await new SendTwitchChatMessage(
-            originalMessage.channel,
-            text
-          ).sendAsync();
-        })
+        .with(twitchMessageId)
+        .execute(() =>
+          new SendTwitchChatMessage(originalMessage.channel, text).send()
+        )
         .sendAsync();
     }
   }

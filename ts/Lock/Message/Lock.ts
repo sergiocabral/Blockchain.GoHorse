@@ -11,7 +11,7 @@ export class Lock extends Message {
   /**
    * Lista de callback executados em caso de sucesso no lock.
    */
-  public readonly callbacks = new Set<() => Promise<void>>();
+  public readonly callbacks = new Set<(() => Promise<void>) | (() => void)>();
 
   /**
    * Sinaliza se o bloqueio foi realizado
@@ -49,7 +49,7 @@ export class Lock extends Message {
   /**
    * Função executada se houver êxito no lock.
    */
-  public execute(callback: () => Promise<void>): this {
+  public execute(callback: (() => Promise<void>) | (() => void)): this {
     this.callbacks.add(callback);
 
     return this;

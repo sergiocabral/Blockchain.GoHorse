@@ -2,6 +2,8 @@ import {
   EmptyError,
   InvalidDataError,
   InvalidExecutionError,
+  Logger,
+  LogLevel,
   Message,
   ShouldNeverHappenError,
 } from "@sergiocabral/helper";
@@ -104,6 +106,18 @@ export class LockSynchronization {
         );
     }
 
+    Logger.post(
+      'The "{clientId}" client requested "{action}" for "{lockId}" lock. Result: {state}',
+      {
+        action: message.action,
+        clientId: message.clientId,
+        lockId: message.lock.id,
+        state: message.lock.result,
+      },
+      LogLevel.Debug,
+      LockSynchronization.name
+    );
+
     message.response = new LockResponse(message.lock);
   }
 
@@ -142,6 +156,16 @@ export class LockSynchronization {
       );
     }
 
+    Logger.post(
+      'Lock "{lockId}" {state}. Created.',
+      {
+        lockId,
+        state: message.result,
+      },
+      LogLevel.Verbose,
+      LockSynchronization.name
+    );
+
     message.result = LockResult.Waiting;
 
     const lock: ILockData = {
@@ -169,6 +193,16 @@ export class LockSynchronization {
 
         switch (locked) {
           case LockResult.Locked:
+            Logger.post(
+              'Lock "{lockId}" {state}. Executing statements.',
+              {
+                lockId,
+                state: message.result,
+              },
+              LogLevel.Debug,
+              LockSynchronization.name
+            );
+
             for (const callback of message.callbacks) {
               await callback();
             }
@@ -177,6 +211,16 @@ export class LockSynchronization {
             await new SendBusMessage(
               new SetLock(message, LockAction.Release)
             ).sendAsync();
+
+            Logger.post(
+              'Lock "{lockId}" {state}. Trying release.',
+              {
+                lockId,
+                state: message.result,
+              },
+              LogLevel.Verbose,
+              LockSynchronization.name
+            );
             break;
 
           case LockResult.Cannot:
@@ -185,6 +229,17 @@ export class LockSynchronization {
             clearTimeout(timeoutId);
             this.locks.delete(lock.id);
             lock.expectedResult = [];
+
+            Logger.post(
+              'Lock "{lockId}" {state}. Finished.',
+              {
+                lockId,
+                state: message.result,
+              },
+              LogLevel.Debug,
+              LockSynchronization.name
+            );
+
             resolve();
             break;
 
@@ -199,6 +254,16 @@ export class LockSynchronization {
         LockResult.Timeout,
       ];
       new SendBusMessage(new SetLock(message, LockAction.Acquire)).send();
+
+      Logger.post(
+        'Lock "{lockId}" {state}. Trying acquire.',
+        {
+          lockId,
+          state: message.result,
+        },
+        LogLevel.Debug,
+        LockSynchronization.name
+      );
     });
   }
 
