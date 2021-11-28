@@ -31,7 +31,7 @@ export class BusMessageUndelivered extends BusMessageForCommunication {
    */
   public constructor(public message: BusMessage) {
     super([]);
-    this.id = this.hash(`${this.id}${this.message.id}`);
+    this.id = this.hash(`${BusMessageUndelivered.name}${this.message.id}`);
     this.clientId = message.clientId;
   }
 }

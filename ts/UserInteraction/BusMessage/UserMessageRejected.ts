@@ -4,6 +4,7 @@ import { BusChannel } from "../../Application/Bus/BusChannel";
 import { BusMessage } from "../../Bus/BusMessage/BusMessage";
 import { BusMessageForCommunication } from "../../Bus/BusMessage/BusMessageForCommunication";
 import { FieldValidator } from "../../Bus/FieldValidator";
+import { IIdentifier } from "../../Core/IIdentifier";
 import { RejectReason } from "../RejectReason";
 
 /**
@@ -53,7 +54,15 @@ export class UserMessageRejected extends BusMessageForCommunication {
    */
   public constructor(message: Message, public readonly reason: RejectReason) {
     super([BusChannel.UserInteraction]);
-    this.id = this.hash(JSON.stringify(this.message));
+
+    const identifier = (message as unknown as IIdentifier).id;
+
+    this.id = this.hash(
+      `${UserMessageRejected.name}${
+        identifier ? identifier : JSON.stringify(this.message)
+      }`
+    );
+
     this.messageType = message.constructor.name;
     this.message = message;
   }
