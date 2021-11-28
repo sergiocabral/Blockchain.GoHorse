@@ -3,7 +3,7 @@ import sha1 from "sha1";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { IDatabase } from "../Database/IDatabase";
-import { Definition } from "../Definition";
+import { LockAction } from "../Lock/LockAction";
 
 import { Bus } from "./Bus";
 import { BusDatabaseResult } from "./BusDatabaseResult";
@@ -56,58 +56,64 @@ export class BusDatabase {
     clientId: string,
     channelName: string
   ): Promise<BusDatabaseResult> {
-    if (
-      !(await this.lockMessage(
-        clientId,
-        serverId,
-        channelName,
-        this.clientJoin.name
-      ))
-    ) {
-      return BusDatabaseResult.AlreadyHandled;
-    }
-
-    await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
-      {
-        content: JSON.stringify(
-          {
-            serverId,
-            // tslint:disable-next-line:object-literal-sort-keys
-            clientId,
-            joined: {
-              datetime: (
-                await this.database.time()
-              ).format({ mask: "universal" }),
-              timestamp: new Date().getTime(),
+    return this.lockAndExecute(
+      async () => {
+        await this.database.addValues(
+          this.DEFINITION.tableChannel,
+          channelName,
+          [
+            {
+              content: JSON.stringify(
+                {
+                  serverId,
+                  // tslint:disable-next-line:object-literal-sort-keys
+                  clientId,
+                  joined: {
+                    datetime: (
+                      await this.database.time()
+                    ).format({ mask: "universal" }),
+                    timestamp: new Date().getTime(),
+                  },
+                },
+                undefined,
+                " "
+              ),
+              id: clientId,
             },
-          },
-          undefined,
-          " "
-        ),
-        id: clientId,
+          ]
+        );
+        await this.database.subscribe(clientId);
+
+        return BusDatabaseResult.Success;
       },
-    ]);
-
-    await this.database.subscribe(clientId);
-
-    return BusDatabaseResult.Success;
+      clientId,
+      serverId,
+      channelName,
+      this.clientJoin.name
+    );
   }
 
   /**
    * Um cliente sai.
    */
   public async clientLeave(clientId: string): Promise<BusDatabaseResult> {
-    if (!(await this.lockMessage(clientId, this.clientLeave.name))) {
-      return BusDatabaseResult.AlreadyHandled;
-    }
+    return this.lockAndExecute(
+      async () => {
+        await this.database.unsubscribe(clientId);
+        await this.database.removeValues(
+          this.DEFINITION.tableChannel,
+          undefined,
+          [clientId]
+        );
+        await this.database.removeValues(this.DEFINITION.tableMessage, [
+          clientId,
+        ]);
 
-    await this.database.unsubscribe(clientId);
-    await this.database.removeValues(this.DEFINITION.tableChannel, undefined, [
+        return BusDatabaseResult.Success;
+      },
       clientId,
-    ]);
-    await this.database.removeValues(this.DEFINITION.tableMessage, [clientId]);
-
-    return BusDatabaseResult.Success;
+      this.clientLeave.name
+    );
   }
 
   /**
@@ -140,21 +146,19 @@ export class BusDatabase {
    * Tenta fazer um bloqueio
    * @param lockId Identificador do lock.
    * @param clientId Identificador do cliente.
-   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
+   * @param action Ação
    * @returns Retorna o valor do lock.
    */
   public async lock(
     lockId: string,
     clientId: string,
-    timeoutInSeconds?: number
+    action: LockAction
   ): Promise<boolean> {
-    return (
-      (await this.database.lock(
-        this.DEFINITION.tableLock,
-        lockId,
-        clientId,
-        timeoutInSeconds
-      )) === clientId
+    return this.database.lock(
+      this.DEFINITION.tableLock,
+      lockId,
+      clientId,
+      action
     );
   }
 
@@ -168,30 +172,39 @@ export class BusDatabase {
       throw new ShouldNeverHappenError();
     }
 
-    if (!(await this.lockMessage(message.clientId, message.id))) {
-      return BusDatabaseResult.AlreadyHandled;
-    }
+    return this.lockAndExecute(
+      async () => {
+        const clientsIds = (
+          await this.database.getValues(
+            this.DEFINITION.tableChannel,
+            message.channels.includes(Bus.ALL_CHANNELS)
+              ? undefined
+              : message.channels
+          )
+        ).map((client) => client.id);
 
-    const clientsIds = (
-      await this.database.getValues(
-        this.DEFINITION.tableChannel,
-        message.channels.includes(Bus.ALL_CHANNELS)
-          ? undefined
-          : message.channels
-      )
-    ).map((client) => client.id);
+        for (const clientId of clientsIds) {
+          await this.database.addValues(
+            this.DEFINITION.tableMessage,
+            clientId,
+            [
+              {
+                content: JSON.stringify(message, undefined, " "),
+                id: message.id,
+              },
+            ]
+          );
 
-    for (const clientId of clientsIds) {
-      await this.database.addValues(this.DEFINITION.tableMessage, clientId, [
-        { id: message.id, content: JSON.stringify(message, undefined, " ") },
-      ]);
+          await this.database.notify(clientId);
+        }
 
-      await this.database.notify(clientId);
-    }
-
-    return clientsIds.length > 0
-      ? BusDatabaseResult.Success
-      : BusDatabaseResult.Undelivered;
+        return clientsIds.length > 0
+          ? BusDatabaseResult.Success
+          : BusDatabaseResult.Undelivered;
+      },
+      message.clientId,
+      message.id
+    );
   }
 
   /**
@@ -205,14 +218,27 @@ export class BusDatabase {
   }
 
   /**
-   * Realiza um lock de dados para um cliente.
+   * Realiza um lock de dados para um cliente e executa um bloco.
+   * @param execute Executar durante o lock.
+   * @param clientId Cliente.
+   * @param data Dados.
    */
-  private async lockMessage(
+  private async lockAndExecute(
+    execute: () => Promise<BusDatabaseResult>,
     clientId: string,
     ...data: unknown[]
-  ): Promise<boolean> {
+  ): Promise<BusDatabaseResult> {
     const lockId = sha1(BusDatabase.name + clientId + JSON.stringify2(data, 0));
 
-    return this.lock(lockId, clientId, Definition.LOCK_TIMEOUT_RELEASE_IN_SECONDS);
+    let result: BusDatabaseResult;
+    const acquired = await this.lock(lockId, clientId, LockAction.Acquire);
+    if (acquired) {
+      result = await execute();
+      await this.lock(lockId, clientId, LockAction.Release);
+    } else {
+      result = BusDatabaseResult.AlreadyHandled;
+    }
+
+    return result;
   }
 }

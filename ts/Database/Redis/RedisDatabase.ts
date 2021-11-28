@@ -12,6 +12,7 @@ import { createClient, RedisClient } from "redis";
 
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { Definition } from "../../Definition";
+import { LockAction } from "../../Lock/LockAction";
 import { Database } from "../Database";
 import { IValue } from "../Value/IValue";
 import { ValueContent } from "../Value/ValueContent";
@@ -322,26 +323,47 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param table Nome da tabela.
    * @param key Identificador do lock.
    * @param content Conteúdo.
-   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna o valor do lock.
+   * @param action Ação.
    */
   public async lock(
     table: string,
     key: string,
     content: string,
-    timeoutInSeconds?: number
-  ): Promise<string> {
+    action: LockAction
+  ): Promise<boolean> {
     const redisKey = this.formatKey(table, key);
 
-    await this.setnx(redisKey, content);
+    let affected: boolean;
+    let contentPersisted: string | undefined;
 
-    const clientIdPersisted = await this.get(redisKey);
+    switch (action) {
+      case LockAction.Acquire:
+        affected = await this.setnx(redisKey, content);
+        if (affected) {
+          contentPersisted = await this.get(redisKey);
+          affected = content === contentPersisted;
+          if (affected) {
+            await this.resetExpiration(redisKey);
+          }
+        }
+        break;
 
-    if (content === clientIdPersisted) {
-      await this.resetExpiration(redisKey, timeoutInSeconds);
+      case LockAction.Release:
+        contentPersisted = await this.get(redisKey);
+        affected = content === contentPersisted;
+        if (affected) {
+          await this.resetExpiration(
+            redisKey,
+            Definition.LOCK_TIMEOUT_RELEASE_IN_SECONDS
+          );
+        }
+        break;
+
+      default:
+        throw new InvalidArgumentError(`Invalid lock action "${action}".`);
     }
 
-    return clientIdPersisted ?? "";
+    return affected;
   }
 
   /**
@@ -466,8 +488,12 @@ export class RedisDatabase extends Database<RedisConfiguration> {
         if (!error) {
           const unixTime = Number(time[0]);
           const microseconds = Number(time[1]);
-          const date = new Date(unixTime * Definition.ONE_SECOND_IN_MILLISECOND);
-          date.setMilliseconds(Math.round(microseconds / Definition.ONE_SECOND_IN_MILLISECOND));
+          const date = new Date(
+            unixTime * Definition.ONE_SECOND_IN_MILLISECOND
+          );
+          date.setMilliseconds(
+            Math.round(microseconds / Definition.ONE_SECOND_IN_MILLISECOND)
+          );
           HelperObject.setProperty(date, "redisTime", [unixTime, microseconds]);
           resolve(date);
         } else {

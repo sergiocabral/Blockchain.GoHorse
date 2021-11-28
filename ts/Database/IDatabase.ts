@@ -1,4 +1,5 @@
 import { IConnection } from "../Core/Connection/IConnection";
+import { LockAction } from "../Lock/LockAction";
 
 import { IValue } from "./Value/IValue";
 import { ValueContent } from "./Value/ValueContent";
@@ -47,15 +48,14 @@ export interface IDatabase extends IConnection {
    * @param table Nome da tabela.
    * @param key Identificador do lock.
    * @param content Conteúdo.
-   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna o valor do lock.
+   * @param action Ação.
    */
   lock(
     table: string,
     key: string,
     content: string,
-    timeoutInSeconds?: number
-  ): Promise<string>;
+    action: LockAction
+  ): Promise<boolean>;
 
   /**
    * Envia uma notificação

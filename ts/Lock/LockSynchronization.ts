@@ -79,26 +79,19 @@ export class LockSynchronization {
       throw new ShouldNeverHappenError();
     }
 
+    const acquired = await LockSynchronization.database.lock(
+      message.lock.id,
+      message.clientId,
+      message.action
+    );
+
     switch (message.action) {
       case LockAction.Acquire:
-        message.lock.result = (await LockSynchronization.database.lock(
-          message.lock.id,
-          message.clientId
-        ))
-          ? LockResult.Locked
-          : LockResult.Cannot;
+        message.lock.result = acquired ? LockResult.Locked : LockResult.Cannot;
         break;
-
       case LockAction.Release:
-        message.lock.result = (await LockSynchronization.database.lock(
-          message.lock.id,
-          message.clientId,
-          message.lock.releaseTimeoutInSeconds
-        ))
-          ? LockResult.Released
-          : LockResult.Fail;
+        message.lock.result = acquired ? LockResult.Released : LockResult.Fail;
         break;
-
       default:
         throw new InvalidExecutionError(
           `Invalid Lock action: ${message.action}`

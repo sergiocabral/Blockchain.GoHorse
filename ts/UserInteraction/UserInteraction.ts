@@ -55,6 +55,9 @@ export class UserInteraction {
         userMessageReceived,
         RejectReason.Undelivered
       );
+
+      userMessageRejected.addIdentifier(message.message.id);
+
       void new SendBusMessage(userMessageRejected).sendAsync();
     }
   }
@@ -69,10 +72,7 @@ export class UserInteraction {
       this.createBusMessage.fromUserCommand(commandLineParsed) ??
       new UserMessageRejected(message, RejectReason.Invalid);
 
-    busMessage.addIdentifier({
-      author: message.author,
-      timestamp: new Date().format({ mask: "y-M-d h:m:s" }),
-    });
+    busMessage.addIdentifier(message.id);
 
     this.userMessages.set(busMessage, message);
 

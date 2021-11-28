@@ -68,7 +68,9 @@ export class BusApplication extends Application<BusConfiguration> {
    * Finaliza a conexão com o banco de dados.
    * @param waitFor Tempo de espera antes de iniciar o fechamento da conexão.
    */
-  private async closeDatabase(waitFor = Definition.ONE_SECOND_IN_MILLISECOND): Promise<void> {
+  private async closeDatabase(
+    waitFor = Definition.ONE_SECOND_IN_MILLISECOND
+  ): Promise<void> {
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
         if (this.databaseServer.state !== ConnectionState.Closed) {

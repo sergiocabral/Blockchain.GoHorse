@@ -1,6 +1,7 @@
 import { JsonLoader } from "@sergiocabral/helper";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
+import { LockAction } from "../Lock/LockAction";
 
 import { IDatabase } from "./IDatabase";
 import { IValue } from "./Value/IValue";
@@ -81,15 +82,14 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * @param table Nome da tabela.
    * @param key Identificador do lock.
    * @param content Conteúdo.
-   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna o valor do lock.
+   * @param action Ação.
    */
   public abstract lock(
     table: string,
     key: string,
     content: string,
-    timeoutInSeconds?: number
-  ): Promise<string>;
+    action: LockAction
+  ): Promise<boolean>;
 
   /**
    * Envia uma notificação
