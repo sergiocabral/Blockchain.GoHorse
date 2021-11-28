@@ -65,8 +65,6 @@ export class UserInteraction {
   private handleUserMessageReceived(message: UserMessageReceived): void {
     const commandLineParsed = CommandLineParser.parse(message.message);
 
-    // TODO: Evitar envio/captura de mensagens iguais. Criar mecaniscmo de lock.
-
     const busMessage =
       this.createBusMessage.fromUserCommand(commandLineParsed) ??
       new UserMessageRejected(message, RejectReason.Invalid);

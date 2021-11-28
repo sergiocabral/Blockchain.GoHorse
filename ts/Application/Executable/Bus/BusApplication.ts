@@ -3,6 +3,7 @@ import { Application } from "../../../Core/Application/Application";
 import { ConnectionState } from "../../../Core/Connection/ConnectionState";
 import { IDatabase } from "../../../Database/IDatabase";
 import { RedisDatabase } from "../../../Database/Redis/RedisDatabase";
+import { LockSynchronization } from "../../../Lock/LockSynchronization";
 import { WebSocketServer } from "../../../WebSocket/WebSocketServer";
 import { DomainBusMessages } from "../../Bus/DomainBusMessages";
 
@@ -41,6 +42,7 @@ export class BusApplication extends Application<BusConfiguration> {
     this.webSocketServer = new WebSocketServer(this.configuration.messageBus);
     this.busServer = new BusServer(this.webSocketServer, this.databaseServer);
     DomainBusMessages.attach();
+    LockSynchronization.database = this.busServer.database;
   }
 
   /**

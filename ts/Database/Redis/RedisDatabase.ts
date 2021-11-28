@@ -317,6 +317,35 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Tenta fazer um bloqueio
+   * @param table Nome da tabela.
+   * @param lockId Identificador do lock.
+   * @param clientId Identificador do cliente.
+   * @param lock Liga ou desliga o lock.
+   * @returns Retorna true se tiver sucesso.
+   */
+  public async lock(
+    table: string,
+    lockId: string,
+    clientId: string,
+    lock: boolean
+  ): Promise<boolean> {
+    const redisKey = this.formatKey(table, lockId);
+
+    let affected: boolean;
+    if (lock) {
+      affected = await this.setnx(redisKey, clientId);
+      if (affected) {
+        await this.resetExpiration(redisKey);
+      }
+    } else {
+      affected = await this.del(redisKey);
+    }
+
+    return affected;
+  }
+
+  /**
    * Envia uma notificação
    * @param channel Canal.
    * @param message Mensagem.
@@ -524,6 +553,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Retorna um valor e apagar.
+   * @param redisKey Chave do redis.
+   */
+  private async del(redisKey: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.redis.del(redisKey, (error, count) => {
+        if (!error) {
+          resolve(count > 0);
+        } else {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
    * Adiciona um valor numa tabela de dados.
    * @param redisKey Chave do redis.
    * @param ttl Time to live, tempo de expiração.
@@ -693,5 +738,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     } else {
       await this.persist(redisKey);
     }
+  }
+
+  /**
+   * Define um valor.
+   * @param redisKey Chave do redis.
+   * @param value Valor.
+   */
+  private async setnx(redisKey: string, value: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.redis.setnx(redisKey, value, (error, result) => {
+        if (!error) {
+          resolve(result === 1);
+        } else {
+          reject(error);
+        }
+      });
+    });
   }
 }

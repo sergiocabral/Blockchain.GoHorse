@@ -43,6 +43,21 @@ export interface IDatabase extends IConnection {
   getValues(table: string, keys?: string[]): Promise<IValue[]>;
 
   /**
+   * Tenta fazer um bloqueio
+   * @param table Nome da tabela.
+   * @param lockId Identificador do lock.
+   * @param clientId Identificador do cliente.
+   * @param lock Liga ou desliga o lock.
+   * @returns Retorna true se tiver sucesso.
+   */
+  lock(
+    table: string,
+    lockId: string,
+    clientId: string,
+    lock: boolean
+  ): Promise<boolean>;
+
+  /**
    * Envia uma notificação
    * @param channel Canal.
    * @param message Mensagem.

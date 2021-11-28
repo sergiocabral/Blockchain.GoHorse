@@ -29,15 +29,15 @@ export class BusServer extends Bus {
   private static readonly serverId: string = sha1(Math.random().toString());
 
   /**
+   * Database especializado para o Bus.
+   */
+  public readonly database: BusDatabase;
+
+  /**
    * Dados dos clientes.
    */
   private readonly clientsIds: Map<WebSocketClient, string | undefined> =
     new Map<WebSocketClient, string | undefined>();
-
-  /**
-   * Database especializado para o Bus.
-   */
-  private readonly database: BusDatabase;
 
   /**
    * Sinaliza que o polling de mensagens está em execução.

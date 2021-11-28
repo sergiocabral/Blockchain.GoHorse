@@ -22,6 +22,7 @@ export class BusDatabase {
    */
   private readonly DEFINITION = {
     tableChannel: "channels",
+    tableLock: "locks",
     tableMessage: "messages",
   };
 
@@ -110,6 +111,26 @@ export class BusDatabase {
     }
 
     return messages.map((message) => message.content);
+  }
+
+  /**
+   * Tenta fazer um bloqueio
+   * @param lockId Identificador do lock.
+   * @param clientId Identificador do cliente.
+   * @param lock Liga ou desliga o lock.
+   * @returns Retorna true se tiver sucesso.
+   */
+  public async lock(
+    lockId: string,
+    clientId: string,
+    lock: boolean
+  ): Promise<boolean> {
+    return this.database.lock(
+      this.DEFINITION.tableLock,
+      lockId,
+      clientId,
+      lock
+    );
   }
 
   /**
