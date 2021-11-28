@@ -253,13 +253,20 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * @param channels Canais.
    */
   private sendMessage(message: string, ...channels: string[]): void {
-    const signature = this.configuration.messageSignature
-      ?.querystring({
-        id: this.busConnection.clientId,
-      })
-      .trim();
-    if (signature) {
-      message = `${message.trim()} — ${signature}`;
+    if (this.configuration.messageSignature) {
+      const clientId = this.busConnection.clientId;
+      const fields: Record<string, unknown> = {
+        id: clientId,
+      };
+      for (let i = 1; i <= clientId.length; i += 1) {
+        fields[`id:${i}`] = clientId.substring(0, i);
+      }
+      const signature = this.configuration.messageSignature
+        ?.querystring(fields)
+        .trim();
+      if (signature) {
+        message = `${message.trim()} — ${signature}`;
+      }
     }
     channels.forEach((channel) =>
       new SendTwitchChatMessage(channel, message).send()

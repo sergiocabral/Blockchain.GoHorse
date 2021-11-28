@@ -42,7 +42,7 @@ export class BotTwitchConfiguration extends ApplicationConfiguration {
   /**
    * Assinatura no final da mensagem.
    */
-  public messageSignature?: string | null = "id: {id}";
+  public messageSignature?: string | null = "client: {id:6}";
 
   /**
    * Dados para conexão ao chat da Twitch

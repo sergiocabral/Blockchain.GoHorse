@@ -1,4 +1,8 @@
-import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
+import {
+  HelperNumeric,
+  NotReadyError,
+  ShouldNeverHappenError,
+} from "@sergiocabral/helper";
 import sha1 from "sha1";
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
@@ -182,6 +186,8 @@ export class BusDatabase {
               : message.channels
           )
         ).map((client) => client.id);
+
+        clientsIds.sort(() => HelperNumeric.between(-1, 1));
 
         for (const clientId of clientsIds) {
           await this.database.addValues(
