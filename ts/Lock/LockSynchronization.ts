@@ -151,9 +151,16 @@ export class LockSynchronization {
     }
 
     if (this.locks.has(lockId)) {
-      throw new InvalidExecutionError(
-        `The Lock ${lockId} has already been requested.`
+      Logger.post(
+        "The Lock {lockId} has already been requested.",
+        {
+          lockId,
+        },
+        LogLevel.Warning,
+        LockSynchronization.name
       );
+
+      return;
     }
 
     Logger.post(

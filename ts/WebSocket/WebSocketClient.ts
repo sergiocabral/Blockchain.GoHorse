@@ -165,7 +165,19 @@ export class WebSocketClient extends WebSocketBase {
    */
   public send(message: string, raw?: "raw"): void {
     if (raw) {
-      this.client.send(message);
+      const clientState = this.state;
+      if (clientState === ConnectionState.Ready) {
+        this.client.send(message);
+      } else {
+        Logger.post(
+          'An attempt was made to send a message to a not connected client with "{clientState}" state.',
+          {
+            clientState,
+          },
+          LogLevel.Warning,
+          WebSocketClient.name
+        );
+      }
     } else {
       this.protocol.transmit(message);
     }
