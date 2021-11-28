@@ -81,14 +81,14 @@ export abstract class Database<TConfiguration extends JsonLoader>
    * @param table Nome da tabela.
    * @param lockId Identificador do lock.
    * @param clientId Identificador do cliente.
-   * @param lock Liga ou desliga o lock.
+   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
    * @returns Retorna true se tiver sucesso.
    */
   public abstract lock(
     table: string,
     lockId: string,
     clientId: string,
-    lock: boolean
+    timeoutInSeconds?: number
   ): Promise<boolean>;
 
   /**

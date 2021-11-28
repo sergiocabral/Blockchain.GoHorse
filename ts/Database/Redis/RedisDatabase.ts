@@ -321,25 +321,26 @@ export class RedisDatabase extends Database<RedisConfiguration> {
    * @param table Nome da tabela.
    * @param lockId Identificador do lock.
    * @param clientId Identificador do cliente.
-   * @param lock Liga ou desliga o lock.
+   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
    * @returns Retorna true se tiver sucesso.
    */
   public async lock(
     table: string,
     lockId: string,
     clientId: string,
-    lock: boolean
+    timeoutInSeconds?: number
   ): Promise<boolean> {
     const redisKey = this.formatKey(table, lockId);
 
-    let affected: boolean;
-    if (lock) {
-      affected = await this.setnx(redisKey, clientId);
-      if (affected) {
-        await this.resetExpiration(redisKey);
-      }
-    } else {
-      affected = await this.del(redisKey);
+    let affected = await this.setnx(redisKey, clientId);
+
+    const clientIdPersisted = affected
+      ? clientId
+      : (await this.get(redisKey)) || "";
+
+    if (clientId === clientIdPersisted) {
+      await this.resetExpiration(redisKey, timeoutInSeconds);
+      affected = true;
     }
 
     return affected;
@@ -553,22 +554,6 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
-   * Retorna um valor e apagar.
-   * @param redisKey Chave do redis.
-   */
-  private async del(redisKey: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      this.redis.del(redisKey, (error, count) => {
-        if (!error) {
-          resolve(count > 0);
-        } else {
-          reject(error);
-        }
-      });
-    });
-  }
-
-  /**
    * Adiciona um valor numa tabela de dados.
    * @param redisKey Chave do redis.
    * @param ttl Time to live, tempo de expiração.
@@ -599,6 +584,22 @@ export class RedisDatabase extends Database<RedisConfiguration> {
     }
 
     return parts.join(":");
+  }
+
+  /**
+   * Retorna um valor.
+   * @param redisKey Chave do redis.
+   */
+  private async get(redisKey: string): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+      this.redis.get(redisKey, (error, result) => {
+        if (!error) {
+          resolve(typeof result === "string" ? result : undefined);
+        } else {
+          reject(error);
+        }
+      });
+    });
   }
 
   /**
@@ -730,11 +731,12 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   /**
    * Define a expiração para um valor numa tabela.
    * @param redisKey Chave do redis.
+   * @param ttl Time to live, tempo de expiração.
    */
-  private async resetExpiration(redisKey: string): Promise<void> {
-    const ttl = this.configuration.expireAfterSeconds;
-    if (ttl !== undefined && ttl !== null && ttl >= 0) {
-      await this.expire(redisKey, ttl);
+  private async resetExpiration(redisKey: string, ttl?: number): Promise<void> {
+    const ttlValue = ttl ?? this.configuration.expireAfterSeconds;
+    if (ttlValue !== undefined && ttlValue !== null && ttlValue >= 0) {
+      await this.expire(redisKey, ttlValue);
     } else {
       await this.persist(redisKey);
     }

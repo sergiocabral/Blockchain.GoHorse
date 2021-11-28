@@ -6,6 +6,11 @@ import { Lock } from "./Message/Lock";
  */
 export interface ILockData {
   /**
+   * Resultados esperados.
+   */
+  expectedResult: LockResult[];
+
+  /**
    * Identificador.
    */
   id: string;
@@ -18,5 +23,5 @@ export interface ILockData {
   /**
    * Responde se o lock foi feito ou não.
    */
-  resolve?(result?: LockResult): void;
+  resolve?(result?: LockResult): Promise<void>;
 }

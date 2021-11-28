@@ -13,7 +13,12 @@ export class Definition {
   public static readonly INTERVAL_BETWEEN_CHECKING_FLAG_FILE = 10000;
 
   /**
-   * Tempo de esperar por um bloqueio de sincronização do Bus.
+   * Espera limite para conseguir o bloqueio.
    */
-  public static readonly LOCK_TIMEOUT = 10000;
+  public static readonly LOCK_TIMEOUT_ACQUIRE = 30000;
+
+  /**
+   * Espera de espera antes de liberar.
+   */
+  public static readonly LOCK_TIMEOUT_RELEASE = 10000;
 }

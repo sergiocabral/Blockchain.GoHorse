@@ -117,19 +117,19 @@ export class BusDatabase {
    * Tenta fazer um bloqueio
    * @param lockId Identificador do lock.
    * @param clientId Identificador do cliente.
-   * @param lock Liga ou desliga o lock.
+   * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
    * @returns Retorna true se tiver sucesso.
    */
   public async lock(
     lockId: string,
     clientId: string,
-    lock: boolean
+    timeoutInSeconds?: number
   ): Promise<boolean> {
     return this.database.lock(
       this.DEFINITION.tableLock,
       lockId,
       clientId,
-      lock
+      timeoutInSeconds
     );
   }
 

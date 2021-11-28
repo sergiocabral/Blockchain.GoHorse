@@ -1,8 +1,4 @@
-import {
-  HelperObject,
-  InvalidExecutionError,
-  Message,
-} from "@sergiocabral/helper";
+import { HelperObject, Message } from "@sergiocabral/helper";
 import sha1 from "sha1";
 
 import { Definition } from "../../Definition";
@@ -13,29 +9,34 @@ import { LockResult } from "../LockResult";
  */
 export class Lock extends Message {
   /**
+   * Lista de callback executados em caso de sucesso no lock.
+   */
+  public readonly callbacks = new Set<() => Promise<void>>();
+
+  /**
+   * Sinaliza se o bloqueio foi realizado
+   */
+  public result: LockResult = LockResult.None;
+
+  /**
    * Identificador do lock.
    */
   private idValue = "";
 
   /**
-   * Sinaliza se o bloqueio foi realizado
-   */
-  private resultValue?: LockResult;
-
-  /**
    * Contrutor.
-   * @param timeout Tempo limite para esperar pelo bloqueio.
+   * @param acquireTimeout Espera limite para conseguir o bloqueio.
+   * @param releaseTimeout Espera de espera antes de liberar.
    * @param data Adiciona informação ao lock.
    */
   public constructor(
-    public readonly timeout: number = Definition.LOCK_TIMEOUT,
+    public readonly acquireTimeout: number = Definition.LOCK_TIMEOUT_ACQUIRE,
+    public readonly releaseTimeout: number = Definition.LOCK_TIMEOUT_RELEASE,
     data?: unknown
   ) {
     super();
 
-    if (data !== undefined) {
-      this.with(data);
-    }
+    this.with(data);
   }
 
   /**
@@ -46,21 +47,12 @@ export class Lock extends Message {
   }
 
   /**
-   * Sinaliza se o bloqueio foi realizado
+   * Função executada se houver êxito no lock.
    */
-  public get result() {
-    return this.resultValue ?? LockResult.Waiting;
-  }
+  public execute(callback: () => Promise<void>): this {
+    this.callbacks.add(callback);
 
-  /**
-   * Sinaliza se o bloqueio foi realizado
-   */
-  public set result(value: LockResult) {
-    if (this.resultValue !== undefined) {
-      throw new InvalidExecutionError("It is not allowed to set lock twice.");
-    }
-
-    this.resultValue = value;
+    return this;
   }
 
   /**
@@ -68,7 +60,9 @@ export class Lock extends Message {
    * @param data Adiciona informação ao lock.
    */
   public with(data: unknown): this {
-    this.idValue = sha1(`${this.idValue}${HelperObject.toText(data, 0)}`);
+    if (data !== undefined) {
+      this.idValue = sha1(`${this.idValue}${HelperObject.toText(data, 0)}`);
+    }
 
     return this;
   }

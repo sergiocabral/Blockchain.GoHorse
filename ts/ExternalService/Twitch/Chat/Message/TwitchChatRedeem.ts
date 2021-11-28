@@ -1,10 +1,11 @@
-import { Message } from "@sergiocabral/helper";
 import { ChatUserstate } from "tmi.js";
+
+import { TwitchChatMessage } from "./TwitchChatMessage";
 
 /**
  * Resgate de recompensa pelo chat da Twitch.
  */
-export class TwitchChatRedeem extends Message {
+export class TwitchChatRedeem extends TwitchChatMessage {
   /**
    * Construtor.
    * @param id Identificador.
@@ -15,13 +16,13 @@ export class TwitchChatRedeem extends Message {
    * @param userstate Dados do usuário.
    */
   public constructor(
-    public readonly id: string,
+    id: string,
     public readonly rewardType: string,
-    public readonly message: string,
-    public readonly username: string,
-    public readonly channel: string,
-    public readonly userstate: ChatUserstate
+    message: string,
+    username: string,
+    channel: string,
+    userstate: ChatUserstate
   ) {
-    super();
+    super(id, message, username, channel, userstate);
   }
 }

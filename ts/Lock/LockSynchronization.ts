@@ -11,8 +11,9 @@ import { AttachMessagesToBus } from "../Bus/Message/AttachMessagesToBus";
 import { SendBusMessage } from "../Bus/Message/SendBusMessage";
 
 import { LockResponse } from "./BusMessage/LockResponse";
-import { RequestLock } from "./BusMessage/RequestLock";
+import { SetLock } from "./BusMessage/SetLock";
 import { ILockData } from "./ILockData";
+import { LockAction } from "./LockAction";
 import { LockResult } from "./LockResult";
 import { Lock } from "./Message/Lock";
 
@@ -44,7 +45,7 @@ export class LockSynchronization {
    * Anexa as mensagens relacionadas ao bus.
    */
   public static attachMessagesToBus(): void {
-    void new AttachMessagesToBus(LockResponse, RequestLock).send();
+    void new AttachMessagesToBus(LockResponse, SetLock).send();
   }
 
   /**
@@ -70,18 +71,38 @@ export class LockSynchronization {
   /**
    * Handle: RequestLock
    */
-  private static async handleRequestLock(message: RequestLock): Promise<void> {
+  private static async handleSetLock(message: SetLock): Promise<void> {
     if (message.clientId === undefined) {
       throw new ShouldNeverHappenError();
     }
 
-    message.lock.result = (await LockSynchronization.database.lock(
-      message.lock.id,
-      message.clientId,
-      true
-    ))
-      ? LockResult.Locked
-      : LockResult.Cannot;
+    const second = 1000;
+
+    switch (message.action) {
+      case LockAction.Acquire:
+        message.lock.result = (await LockSynchronization.database.lock(
+          message.lock.id,
+          message.clientId
+        ))
+          ? LockResult.Locked
+          : LockResult.Cannot;
+        break;
+
+      case LockAction.Release:
+        message.lock.result = (await LockSynchronization.database.lock(
+          message.lock.id,
+          message.clientId,
+          Math.round(message.lock.releaseTimeout / second)
+        ))
+          ? LockResult.Released
+          : LockResult.Fail;
+        break;
+
+      default:
+        throw new InvalidExecutionError(
+          `Invalid Lock action: ${message.action}`
+        );
+    }
 
     message.response = new LockResponse(message.lock);
   }
@@ -98,8 +119,8 @@ export class LockSynchronization {
     Message.subscribe(Lock, this.handleLock.bind(this));
     Message.subscribe(LockResponse, this.handleLockResponse.bind(this));
     Message.subscribe(
-      RequestLock,
-      LockSynchronization.handleRequestLock.bind(LockSynchronization)
+      SetLock,
+      LockSynchronization.handleSetLock.bind(LockSynchronization)
     );
   }
 
@@ -121,7 +142,10 @@ export class LockSynchronization {
       );
     }
 
+    message.result = LockResult.Waiting;
+
     const lock: ILockData = {
+      expectedResult: [],
       id: lockId,
       lock: message,
     };
@@ -129,26 +153,62 @@ export class LockSynchronization {
     this.locks.set(lock.id, lock);
 
     return new Promise((resolve) => {
-      const lockResolve = (lock.resolve = (locked: LockResult) => {
-        if (this.locks.delete(lock.id)) {
-          message.result = locked;
-          resolve();
+      const timeoutId = setTimeout(
+        async () => lockResolve(LockResult.Timeout),
+        message.acquireTimeout
+      );
+
+      const lockResolve = (lock.resolve = async (locked: LockResult) => {
+        if (!lock.expectedResult.includes(locked)) {
+          throw new InvalidExecutionError(
+            `Lock result not expected: ${locked}`
+          );
+        }
+
+        message.result = locked;
+
+        switch (locked) {
+          case LockResult.Locked:
+            for (const callback of message.callbacks) {
+              await callback();
+            }
+            lock.expectedResult = [LockResult.Released, LockResult.Timeout];
+
+            await new SendBusMessage(
+              new SetLock(message, LockAction.Release)
+            ).sendAsync();
+            break;
+
+          case LockResult.Cannot:
+          case LockResult.Timeout:
+          case LockResult.Released:
+            clearTimeout(timeoutId);
+            this.locks.delete(lock.id);
+            lock.expectedResult = [];
+            resolve();
+            break;
+
+          default:
+            throw new InvalidExecutionError(`Invalid lock result: ${locked}`);
         }
       });
 
-      setTimeout(() => lockResolve(LockResult.Timeout), message.timeout);
-
-      new SendBusMessage(new RequestLock(message)).send();
+      lock.expectedResult = [
+        LockResult.Locked,
+        LockResult.Cannot,
+        LockResult.Timeout,
+      ];
+      new SendBusMessage(new SetLock(message, LockAction.Acquire)).send();
     });
   }
 
   /**
    * Handle: LockResponse
    */
-  private handleLockResponse(message: LockResponse): void {
+  private async handleLockResponse(message: LockResponse): Promise<void> {
     const lock = this.locks.get(message.lock.id);
     if (lock?.resolve !== undefined) {
-      lock.resolve(message.lock.result);
+      await lock.resolve(message.lock.result);
     }
   }
 }

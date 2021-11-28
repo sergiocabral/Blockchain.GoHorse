@@ -7,7 +7,6 @@ import { TwitchChatMessage } from "../../../ExternalService/Twitch/Chat/Message/
 import { TwitchChatRedeem } from "../../../ExternalService/Twitch/Chat/Message/TwitchChatRedeem";
 import { TwitchChatClient } from "../../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { TwitchHelper } from "../../../ExternalService/Twitch/TwitchHelper";
-import { LockResult } from "../../../Lock/LockResult";
 import { Lock } from "../../../Lock/Message/Lock";
 import { UserMessageRejected } from "../../../UserInteraction/BusMessage/UserMessageRejected";
 import { UserMessageReceived } from "../../../UserInteraction/Message/UserMessageReceived";
@@ -145,14 +144,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private extractUserCommand(
     message: TwitchChatMessage | TwitchChatRedeem
   ): string | undefined {
-    if (message instanceof TwitchChatMessage) {
-      const userMessage = message.message.toLowerCase().trim();
-      const commandPrefix = this.configuration.commandPrefix.find((prefix) =>
-        userMessage.startsWith(`${prefix} `.toLowerCase())
-      );
-      if (commandPrefix !== undefined) {
-        return message.message.substring(commandPrefix.length).trim();
-      }
+    const userMessage = message.message.toLowerCase().trim();
+    const commandPrefix = this.configuration.commandPrefix.find((prefix) =>
+      userMessage.startsWith(`${prefix} `.toLowerCase())
+    );
+    if (commandPrefix !== undefined) {
+      return message.message.substring(commandPrefix.length).trim();
     }
 
     return undefined;
@@ -220,20 +217,18 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
           );
       }
 
-      const locked = (
-        await new Lock()
-          .with(BotTwitchApplication.name)
-          .with(message.constructor.name)
-          .with(text)
-          .sendAsync()
-      ).message.result;
-
-      if (locked === LockResult.Locked) {
-        await new SendTwitchChatMessage(
-          originalMessage.channel,
-          text
-        ).sendAsync();
-      }
+      await new Lock()
+        .with(BotTwitchApplication.name)
+        .with(message.constructor.name)
+        .with((message.message as TwitchChatMessage)?.id)
+        .with(text)
+        .execute(async () => {
+          await new SendTwitchChatMessage(
+            originalMessage.channel,
+            text
+          ).sendAsync();
+        })
+        .sendAsync();
     }
   }
 }

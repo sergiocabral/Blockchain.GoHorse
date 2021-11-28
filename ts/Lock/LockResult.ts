@@ -3,7 +3,12 @@
  */
 export enum LockResult {
   /**
-   * Esperando.
+   * Estado inicial.
+   */
+  None = "None",
+
+  /**
+   * Esperando resposta.
    */
   Waiting = "Waiting",
 
@@ -18,7 +23,17 @@ export enum LockResult {
   Locked = "Locked",
 
   /**
+   * Liberado.
+   */
+  Released = "Released",
+
+  /**
    * O tempo espirou.
    */
   Timeout = "Timeout",
+
+  /**
+   * Falha.
+   */
+  Fail = "Fail",
 }
