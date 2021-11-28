@@ -1,5 +1,7 @@
 import { Logger, Message } from "@sergiocabral/helper";
 
+import { Lock } from "../Lock/Message/Lock";
+
 import { ExchangeCoinMessage } from "./BusMessage/ExchangeCoinMessage";
 
 /**
@@ -9,8 +11,13 @@ export class CoinCommandHandler {
   /**
    * Mensagem: CoinCommandHandler
    */
-  private static handleExchangeCoinMessage(message: CoinCommandHandler): void {
-    Logger.post(`EXCHANGE: ${JSON.stringify(message)}`);
+  private static handleExchangeCoinMessage(message: ExchangeCoinMessage): void {
+    new Lock()
+      .with(message.id)
+      .execute(() => {
+        Logger.post(`EXCHANGE: ${JSON.stringify(message)}`);
+      })
+      .send();
   }
 
   /**
