@@ -319,31 +319,28 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   /**
    * Tenta fazer um bloqueio
    * @param table Nome da tabela.
-   * @param lockId Identificador do lock.
-   * @param clientId Identificador do cliente.
+   * @param key Identificador do lock.
+   * @param content Conteúdo.
    * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna true se tiver sucesso.
+   * @returns Retorna o valor do lock.
    */
   public async lock(
     table: string,
-    lockId: string,
-    clientId: string,
+    key: string,
+    content: string,
     timeoutInSeconds?: number
-  ): Promise<boolean> {
-    const redisKey = this.formatKey(table, lockId);
+  ): Promise<string> {
+    const redisKey = this.formatKey(table, key);
 
-    let affected = await this.setnx(redisKey, clientId);
+    await this.setnx(redisKey, content);
 
-    const clientIdPersisted = affected
-      ? clientId
-      : (await this.get(redisKey)) || "";
+    const clientIdPersisted = await this.get(redisKey);
 
-    if (clientId === clientIdPersisted) {
+    if (content === clientIdPersisted) {
       await this.resetExpiration(redisKey, timeoutInSeconds);
-      affected = true;
     }
 
-    return affected;
+    return clientIdPersisted ?? "";
   }
 
   /**

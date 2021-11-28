@@ -1,9 +1,12 @@
 import { NotReadyError, ShouldNeverHappenError } from "@sergiocabral/helper";
+import sha1 from "sha1"; // TODO: Trocar para @sergiocabral
 
 import { ConnectionState } from "../Core/Connection/ConnectionState";
 import { IDatabase } from "../Database/IDatabase";
+import { Definition } from "../Definition";
 
 import { Bus } from "./Bus";
+import { BusDatabaseResult } from "./BusDatabaseResult";
 import { BusMessage } from "./BusMessage/BusMessage";
 
 /**
@@ -52,7 +55,18 @@ export class BusDatabase {
     serverId: string,
     clientId: string,
     channelName: string
-  ): Promise<void> {
+  ): Promise<BusDatabaseResult> {
+    if (
+      !(await this.lockMessage(
+        clientId,
+        serverId,
+        channelName,
+        this.clientJoin.name
+      ))
+    ) {
+      return BusDatabaseResult.AlreadyHandled;
+    }
+
     await this.database.addValues(this.DEFINITION.tableChannel, channelName, [
       {
         content: JSON.stringify(
@@ -73,18 +87,27 @@ export class BusDatabase {
         id: clientId,
       },
     ]);
+
     await this.database.subscribe(clientId);
+
+    return BusDatabaseResult.Success;
   }
 
   /**
    * Um cliente sai.
    */
-  public async clientLeave(clientId: string): Promise<void> {
+  public async clientLeave(clientId: string): Promise<BusDatabaseResult> {
+    if (!(await this.lockMessage(clientId, this.clientLeave.name))) {
+      return BusDatabaseResult.AlreadyHandled;
+    }
+
     await this.database.unsubscribe(clientId);
     await this.database.removeValues(this.DEFINITION.tableChannel, undefined, [
       clientId,
     ]);
     await this.database.removeValues(this.DEFINITION.tableMessage, [clientId]);
+
+    return BusDatabaseResult.Success;
   }
 
   /**
@@ -118,18 +141,20 @@ export class BusDatabase {
    * @param lockId Identificador do lock.
    * @param clientId Identificador do cliente.
    * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna true se tiver sucesso.
+   * @returns Retorna o valor do lock.
    */
   public async lock(
     lockId: string,
     clientId: string,
     timeoutInSeconds?: number
   ): Promise<boolean> {
-    return this.database.lock(
-      this.DEFINITION.tableLock,
-      lockId,
-      clientId,
-      timeoutInSeconds
+    return (
+      (await this.database.lock(
+        this.DEFINITION.tableLock,
+        lockId,
+        clientId,
+        timeoutInSeconds
+      )) === clientId
     );
   }
 
@@ -138,9 +163,13 @@ export class BusDatabase {
    * @param message Mensagem.
    * @returns Indica se alguém leu a mensagem.
    */
-  public async postMessage(message: BusMessage): Promise<boolean> {
+  public async postMessage(message: BusMessage): Promise<BusDatabaseResult> {
     if (!message.clientId) {
       throw new ShouldNeverHappenError();
+    }
+
+    if (!(await this.lockMessage(message.clientId, message.id))) {
+      return BusDatabaseResult.AlreadyHandled;
     }
 
     const clientsIds = (
@@ -160,7 +189,9 @@ export class BusDatabase {
       await this.database.notify(clientId);
     }
 
-    return clientsIds.length > 0;
+    return clientsIds.length > 0
+      ? BusDatabaseResult.Success
+      : BusDatabaseResult.Undelivered;
   }
 
   /**
@@ -171,5 +202,20 @@ export class BusDatabase {
     this.onMessageReceived.forEach((onMessageReceived) =>
       onMessageReceived(channel)
     );
+  }
+
+  /**
+   * Realiza um lock de dados para um cliente.
+   */
+  private async lockMessage(
+    clientId: string,
+    ...data: unknown[]
+  ): Promise<boolean> {
+    const lockId = sha1(BusDatabase.name + clientId + JSON.stringify2(data, 0));
+
+    const second = 1000;
+    const timeoutInSeconds = Definition.LOCK_TIMEOUT_RELEASE / second;
+
+    return this.lock(lockId, clientId, timeoutInSeconds);
   }
 }

@@ -45,17 +45,17 @@ export interface IDatabase extends IConnection {
   /**
    * Tenta fazer um bloqueio
    * @param table Nome da tabela.
-   * @param lockId Identificador do lock.
-   * @param clientId Identificador do cliente.
+   * @param key Identificador do lock.
+   * @param content Conteúdo.
    * @param timeoutInSeconds Tempo de expiração. Se não informado usa o tempo padrão do banco de dados.
-   * @returns Retorna true se tiver sucesso.
+   * @returns Retorna o valor do lock.
    */
   lock(
     table: string,
-    lockId: string,
-    clientId: string,
+    key: string,
+    content: string,
     timeoutInSeconds?: number
-  ): Promise<boolean>;
+  ): Promise<string>;
 
   /**
    * Envia uma notificação

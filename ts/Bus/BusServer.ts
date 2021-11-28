@@ -13,6 +13,7 @@ import { WebSocketServer } from "../WebSocket/WebSocketServer";
 
 import { Bus } from "./Bus";
 import { BusDatabase } from "./BusDatabase";
+import { BusDatabaseResult } from "./BusDatabaseResult";
 import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageForCommunication } from "./BusMessage/BusMessageForCommunication";
 import { BusMessageForNegotiation } from "./BusMessage/BusMessageForNegotiation";
@@ -29,15 +30,15 @@ export class BusServer extends Bus {
   private static readonly serverId: string = sha1(Math.random().toString());
 
   /**
-   * Database especializado para o Bus.
-   */
-  public readonly database: BusDatabase;
-
-  /**
    * Dados dos clientes.
    */
   private readonly clientsIds: Map<WebSocketClient, string | undefined> =
     new Map<WebSocketClient, string | undefined>();
+
+  /**
+   * Database especializado para o Bus.
+   */
+  private readonly databaseValue: BusDatabase;
 
   /**
    * Sinaliza que o polling de mensagens está em execução.
@@ -60,7 +61,7 @@ export class BusServer extends Bus {
   ) {
     super(true);
 
-    this.database = new BusDatabase(databaseServer);
+    this.databaseValue = new BusDatabase(databaseServer);
     this.database.onMessageReceived.add(
       this.handleListenerNotifications.bind(this)
     );
@@ -73,6 +74,13 @@ export class BusServer extends Bus {
     );
 
     Message.subscribe(BusMessageJoin, this.handleBusMessageJoin.bind(this));
+  }
+
+  /**
+   * Database especializado para o Bus.
+   */
+  public override get database(): BusDatabase {
+    return this.databaseValue;
   }
 
   /**
@@ -108,7 +116,8 @@ export class BusServer extends Bus {
         response.clientId = busMessage.clientId;
         client.send(this.encode(response));
       }
-      busMessage.delivered = rounds > 0;
+      busMessage.delivered =
+        rounds > 0 ? BusDatabaseResult.Success : BusDatabaseResult.Undelivered;
     } else if (busMessage instanceof BusMessageForCommunication) {
       busMessage.delivered = await this.database.postMessage(busMessage);
     } else {

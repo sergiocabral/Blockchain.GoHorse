@@ -1,8 +1,16 @@
-import { HelperObject, Logger, LogLevel, Message } from "@sergiocabral/helper";
+import {
+  HelperObject,
+  Logger,
+  LogLevel,
+  Message,
+  NotReadyError,
+} from "@sergiocabral/helper";
 
 import { ProtocolError } from "../WebSocket/Protocol/ProtocolError";
 import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
+import { BusDatabase } from "./BusDatabase";
+import { BusDatabaseResult } from "./BusDatabaseResult";
 import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
 import { BusMessageUndelivered } from "./BusMessage/Communication/BusMessageUndelivered";
@@ -37,6 +45,13 @@ export abstract class Bus {
       AttachMessagesToBus,
       this.handleAttachMessagesToBus.bind(this)
     );
+  }
+
+  /**
+   * Database especializado para o Bus.
+   */
+  public get database(): BusDatabase {
+    throw new NotReadyError("The BusDatabase is not available");
   }
 
   /**
@@ -131,7 +146,11 @@ export abstract class Bus {
 
     try {
       await this.handleBusMessage(busMessage, client);
-      if (!busMessage.delivered && this.isServer) {
+      if (
+        this.isServer &&
+        busMessage.delivered !== BusDatabaseResult.Success &&
+        busMessage.delivered !== BusDatabaseResult.AlreadyHandled
+      ) {
         client.send(this.encode(new BusMessageUndelivered(busMessage)));
       }
     } catch (error: unknown) {

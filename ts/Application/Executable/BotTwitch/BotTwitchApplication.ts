@@ -240,7 +240,6 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
         BotTwitchApplication.name
       );
 
-      // TODO: Lock falhando com 2 BusServer
       await new Lock()
         .with(twitchMessageId)
         .execute(() =>
