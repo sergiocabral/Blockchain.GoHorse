@@ -27,16 +27,12 @@ export class Lock extends Message {
    * Contrutor.
    * @param acquireTimeoutInSeconds Espera limite para conseguir o bloqueio.
    * @param releaseTimeoutInSeconds Espera de espera antes de liberar.
-   * @param data Adiciona informação ao lock.
    */
   public constructor(
     public readonly acquireTimeoutInSeconds: number = Definition.LOCK_TIMEOUT_ACQUIRE_IN_SECONDS,
-    public readonly releaseTimeoutInSeconds: number = Definition.LOCK_TIMEOUT_RELEASE_IN_SECONDS,
-    data?: unknown
+    public readonly releaseTimeoutInSeconds: number = Definition.LOCK_TIMEOUT_RELEASE_IN_SECONDS
   ) {
     super();
-
-    this.with(data);
   }
 
   /**
