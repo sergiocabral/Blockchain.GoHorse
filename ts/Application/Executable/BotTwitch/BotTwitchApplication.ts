@@ -201,7 +201,7 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       let text: string;
       switch (message.reason) {
         case RejectReason.Invalid:
-          text = "@{username}, you sent an invalid command: {invalidCommand}"
+          text = "@{username}, you sent an invalid command: {command}"
             .translate()
             .querystring({
               invalidCommand: originalMessage.message,
