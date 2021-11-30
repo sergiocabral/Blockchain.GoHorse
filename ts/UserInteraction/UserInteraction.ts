@@ -1,14 +1,14 @@
 import { HashJson, Message } from "@sergiocabral/helper";
 
-import { BusMessageUndelivered } from "../Bus/BusMessage/Communication/BusMessageUndelivered";
+import { BusMessageDeliveryReceipt } from "../Bus/BusMessage/Communication/BusMessageDeliveryReceipt";
 import { SendBusMessage } from "../Bus/Message/SendBusMessage";
 
-import { UserMessageRejected } from "./BusMessage/UserMessageRejected";
+import { UserMessageDeliveryReceipt } from "./BusMessage/UserMessageDeliveryReceipt";
 import { CommandLineParser } from "./CommandLine/CommandLineParser";
 import { CreateBusMessage } from "./CreateBusMessage";
+import { DeliveryStatus } from "./DeliveryStatus";
 import { ICreateBusMessage } from "./ICreateBusMessage";
 import { UserMessageReceived } from "./Message/UserMessageReceived";
-import { RejectReason } from "./RejectReason";
 
 /**
  * Interação com o usuário.
@@ -35,8 +35,8 @@ export class UserInteraction {
     this.userMessages = new HashJson<UserMessageReceived>(oneMinute);
 
     Message.subscribe(
-      BusMessageUndelivered,
-      this.handleBusMessageUndelivered.bind(this)
+      BusMessageDeliveryReceipt,
+      this.handleBusMessageDeliveryReceipt.bind(this)
     );
     Message.subscribe(
       UserMessageReceived,
@@ -45,20 +45,26 @@ export class UserInteraction {
   }
 
   /**
-   * Handle: BusMessageUndelivered
+   * Handle: BusMessageDeliveryReceipt
    */
-  private handleBusMessageUndelivered(message: BusMessageUndelivered): void {
-    const userMessageReceived = this.userMessages.get(message.message);
+  private handleBusMessageDeliveryReceipt(
+    message: BusMessageDeliveryReceipt
+  ): void {
+    const originalMessage = this.userMessages.get(
+      message.message.cloneForComparison()
+    );
 
-    if (userMessageReceived !== undefined) {
-      const userMessageRejected = new UserMessageRejected(
-        userMessageReceived,
-        RejectReason.Undelivered
+    if (originalMessage !== undefined) {
+      const userMessageDeliveryReceipt = new UserMessageDeliveryReceipt(
+        originalMessage,
+        message.delivered
+          ? DeliveryStatus.Delivered
+          : DeliveryStatus.Undelivered
       );
 
-      userMessageRejected.addIdentifier(message.message.id);
+      userMessageDeliveryReceipt.addIdentifier(message.message.id);
 
-      void new SendBusMessage(userMessageRejected).sendAsync();
+      void new SendBusMessage(userMessageDeliveryReceipt).sendAsync();
     }
   }
 
@@ -70,11 +76,11 @@ export class UserInteraction {
 
     const busMessage =
       this.createBusMessage.fromUserCommand(commandLineParsed) ??
-      new UserMessageRejected(message, RejectReason.Invalid);
+      new UserMessageDeliveryReceipt(message, DeliveryStatus.Invalid);
 
     busMessage.addIdentifier(message.id);
 
-    this.userMessages.set(busMessage, message);
+    this.userMessages.set(busMessage.cloneForComparison(), message);
 
     void new SendBusMessage(busMessage).sendAsync();
   }

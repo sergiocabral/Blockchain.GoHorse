@@ -11,11 +11,13 @@ import { WebSocketClient } from "../WebSocket/WebSocketClient";
 
 import { BusDatabase } from "./BusDatabase";
 import { BusMessage } from "./BusMessage/BusMessage";
+import { BusMessageDeliveryReceipt } from "./BusMessage/Communication/BusMessageDeliveryReceipt";
 import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
-import { BusMessageUndelivered } from "./BusMessage/Communication/BusMessageUndelivered";
 import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
 import { AttachMessagesToBus } from "./Message/AttachMessagesToBus";
+
+// TODO: Reduzir expires do Redis e fazer PING-PONG dos clientes.
 
 /**
  * Classe base para Client e Server.
@@ -32,7 +34,7 @@ export abstract class Bus {
   private readonly messagesTypes: IBusMessageParse[] = [
     BusMessageText,
     BusMessageJoin,
-    BusMessageUndelivered,
+    BusMessageDeliveryReceipt,
   ];
 
   /**
@@ -102,16 +104,16 @@ export abstract class Bus {
   ): Promise<void> {
     const busMessage = this.decode(message);
 
-    if (busMessage instanceof BusMessageUndelivered) {
+    if (busMessage instanceof BusMessageDeliveryReceipt) {
       if (this.isServer) {
         return;
       }
 
-      const undeliveredMessage = this.decode(busMessage.message);
+      const originalMessage = this.decode(busMessage.message);
 
-      if (undeliveredMessage === undefined) {
+      if (originalMessage === undefined) {
         Logger.post(
-          'A message was not delivered but its contents were not returned. The {messageType}@{messageId} message was received from "{clientId}" client.',
+          'Message content was not returned on receipt. The {messageType}@{messageId} message was received from "{clientId}" client.',
           {
             clientId: busMessage.clientId,
             messageId: busMessage.id,
@@ -124,8 +126,7 @@ export abstract class Bus {
         return;
       }
 
-      undeliveredMessage.clientId = undefined;
-      busMessage.message = undeliveredMessage;
+      busMessage.message = originalMessage;
     }
 
     if (!busMessage) {
@@ -145,8 +146,12 @@ export abstract class Bus {
 
     try {
       await this.handleBusMessage(busMessage, client);
-      if (this.isServer && !busMessage.delivered) {
-        client.send(this.encode(new BusMessageUndelivered(busMessage)));
+      if (this.isServer) {
+        client.send(
+          this.encode(
+            new BusMessageDeliveryReceipt(busMessage, busMessage.delivered)
+          )
+        );
       }
     } catch (error: unknown) {
       const errorMessage =

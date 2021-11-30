@@ -8,6 +8,24 @@ import { FieldValidator } from "../FieldValidator";
  */
 export abstract class BusMessage extends Message {
   /**
+   * Cria uma cópia da instância para verificação.
+   * Remove alguns campos que são ajustado durante o trânsito da mensagem.
+   */
+  public static cloneForComparison<TBusMessage extends BusMessage>(
+    busMessage: TBusMessage
+  ): TBusMessage {
+    const clone = Object.assign(
+      JSON.parse(JSON.stringify(busMessage)),
+      busMessage
+    ) as Record<string, unknown>;
+
+    delete clone.clientId;
+    delete clone.delivered;
+
+    return clone as TBusMessage;
+  }
+
+  /**
    * Analisa se uma instância corresponde ao tipo.
    * @param instance Instância.
    */
@@ -64,6 +82,14 @@ export abstract class BusMessage extends Message {
     this.id = this.hash(`${this.id}${HelperObject.toText(identifier, 0)}`);
 
     return this;
+  }
+
+  /**
+   * Cria uma cópia da instância para verificação.
+   * Remove alguns campos que são ajustado durante o trânsito da mensagem.
+   */
+  public cloneForComparison<TBusMessage extends BusMessage>(): this {
+    return BusMessage.cloneForComparison(this);
   }
 
   /**

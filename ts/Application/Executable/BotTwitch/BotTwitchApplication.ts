@@ -14,9 +14,9 @@ import { TwitchChatRedeem } from "../../../ExternalService/Twitch/Chat/Message/T
 import { TwitchChatClient } from "../../../ExternalService/Twitch/Chat/TwitchChatClient";
 import { TwitchHelper } from "../../../ExternalService/Twitch/TwitchHelper";
 import { Lock } from "../../../Lock/Message/Lock";
-import { UserMessageRejected } from "../../../UserInteraction/BusMessage/UserMessageRejected";
+import { UserMessageDeliveryReceipt } from "../../../UserInteraction/BusMessage/UserMessageDeliveryReceipt";
+import { DeliveryStatus } from "../../../UserInteraction/DeliveryStatus";
 import { UserMessageReceived } from "../../../UserInteraction/Message/UserMessageReceived";
-import { RejectReason } from "../../../UserInteraction/RejectReason";
 import { UserInteraction } from "../../../UserInteraction/UserInteraction";
 import { BusChannel } from "../../Bus/BusChannel";
 import { BusConnection } from "../../Bus/BusConnection";
@@ -90,8 +90,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       this.handleTwitchMessage(message)
     );
     Message.subscribe(
-      UserMessageRejected,
-      this.handleUserMessageRejected.bind(this)
+      UserMessageDeliveryReceipt,
+      this.handleUserMessageDeliveryReceipt.bind(this)
     );
   }
 
@@ -187,10 +187,10 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   }
 
   /**
-   * Handle: UserMessageRejected
+   * Handle: UserMessageDeliveryReceipt
    */
-  private async handleUserMessageRejected(
-    message: UserMessageRejected
+  private async handleUserMessageDeliveryReceipt(
+    message: UserMessageDeliveryReceipt
   ): Promise<void> {
     const originalMessage = this.twitchMessages.get(message.message);
     if (!originalMessage) {
@@ -199,16 +199,16 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
 
     if (message.messageType === UserMessageReceived.name) {
       let text: string;
-      switch (message.reason) {
-        case RejectReason.Invalid:
+      switch (message.status) {
+        case DeliveryStatus.Invalid:
           text = "@{username}, you sent an invalid command: {command}"
             .translate()
             .querystring({
-              invalidCommand: originalMessage.message,
+              command: originalMessage.message,
               username: originalMessage.username,
             });
           break;
-        case RejectReason.Undelivered:
+        case DeliveryStatus.Undelivered:
           text =
             "@{username}, please try later because the system does not seem to be online. Your command was not processed: {command}"
               .translate()
@@ -217,9 +217,17 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
                 username: originalMessage.username,
               });
           break;
+        case DeliveryStatus.Delivered:
+          text = "@{username}, your command has been received: {command}"
+            .translate()
+            .querystring({
+              command: originalMessage.message,
+              username: originalMessage.username,
+            });
+          break;
         default:
           throw new NotImplementedError(
-            `The reject reason "${message.reason}" was not implemented.`
+            `The delivery status "${message.status}" was not implemented.`
           );
       }
 
