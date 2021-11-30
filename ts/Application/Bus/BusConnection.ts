@@ -1,6 +1,9 @@
 import { BusClient } from "../../Bus/BusClient";
+import { BusMessagePing } from "../../Bus/BusMessage/Negotiation/BusMessagePing";
+import { SendBusMessage } from "../../Bus/Message/SendBusMessage";
 import { ConnectionState } from "../../Core/Connection/ConnectionState";
 import { IConnection } from "../../Core/Connection/IConnection";
+import { Definition } from "../../Definition";
 import { WebSocketClient } from "../../WebSocket/WebSocketClient";
 import { WebSocketClientConfiguration } from "../../WebSocket/WebSocketClientConfiguration";
 
@@ -27,6 +30,11 @@ export class BusConnection implements IConnection {
   private readonly busClient: BusClient;
 
   /**
+   * Intervalo entre o PING para o servidor.
+   */
+  private readonly pingIntervalInSeconds: number;
+
+  /**
    * Cliente WebSocket.
    */
   private readonly webSocketClient: WebSocketClient;
@@ -35,10 +43,12 @@ export class BusConnection implements IConnection {
    * Construtor.
    * @param websocketConfiguration Configuração para conectar no websocket.
    * @param channel Canal de inscrição.
+   * @param pingIntervalInSeconds Intervalo entre o PING para o servidor.
    */
   public constructor(
     websocketConfiguration: WebSocketClientConfiguration,
-    channel: BusChannel
+    channel: BusChannel,
+    pingIntervalInSeconds?: number | null
   ) {
     this.webSocketClient = new WebSocketClient(websocketConfiguration);
     this.webSocketClient.onOpen.add(this.webSocketClientOnOpen.bind(this));
@@ -47,7 +57,13 @@ export class BusConnection implements IConnection {
     this.busClient = new BusClient(this.webSocketClient, channel);
     this.busClient.captureSendBusMessage = true;
 
+    this.pingIntervalInSeconds =
+      pingIntervalInSeconds ??
+      Definition.DEFAULT_INTERVAL_BETWEEN_PING_TO_SERVER_IN_SECONDS;
+
     DomainBusMessages.attach();
+
+    void this.pingToServer();
   }
 
   /**
@@ -76,6 +92,19 @@ export class BusConnection implements IConnection {
    */
   public async open(): Promise<void> {
     return this.webSocketClient.open();
+  }
+
+  /**
+   * Envia um PING ao servidor para sinaliza conexão ativa.
+   */
+  private async pingToServer(): Promise<void> {
+    if (this.state === ConnectionState.Ready) {
+      await new SendBusMessage(new BusMessagePing(this.clientId)).sendAsync();
+    }
+    setTimeout(
+      this.pingToServer.bind(this),
+      this.pingIntervalInSeconds * Definition.ONE_SECOND_IN_MILLISECOND
+    );
   }
 
   /**

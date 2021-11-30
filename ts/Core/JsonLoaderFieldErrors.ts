@@ -126,6 +126,39 @@ export class JsonLoaderFieldErrors {
   }
 
   /**
+   * Sem erros para: número não informado ou entre dois valores
+   */
+  public static numberEmptyOrBetween(
+    instance: JsonLoader,
+    fieldName: string,
+    validValues: [number, number],
+    type: "integer" | "decimal"
+  ): string[] {
+    const errors = Array<string>();
+    const value = HelperObject.getProperty(instance, fieldName);
+    const minValue = validValues[0];
+    const maxValue = validValues[1];
+    if (value !== undefined && value !== null) {
+      if (
+        typeof value !== "number" ||
+        value < minValue ||
+        value > maxValue ||
+        (type === "integer" && Math.floor(value) !== value)
+      ) {
+        errors.push(
+          `${
+            instance.constructor.name
+          }.${fieldName} must be null, undefined or a ${type} number between ${minValue} and ${maxValue}, but found: ${typeof value}, ${String(
+            value
+          )}`
+        );
+      }
+    }
+
+    return errors;
+  }
+
+  /**
    * Sem erros para: valor presente na lista
    */
   public static onTheList(

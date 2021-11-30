@@ -15,7 +15,7 @@ export class RedisConfiguration extends JsonLoader {
   /**
    * Tempo padrão para que as chaves expirem.
    */
-  public expireAfterSeconds?: number | null = 86400;
+  public expireAfterSeconds?: number | null = 300;
 
   /**
    * Namespace para demais entradas de dados.

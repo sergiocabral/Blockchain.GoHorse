@@ -71,7 +71,8 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.UserInteraction
+      BusChannel.UserInteraction,
+      this.configuration.pingToServerInSeconds
     );
     this.busConnection.onClose.add(this.stop.bind(this));
     this.twitchChatClient = new TwitchChatClient(

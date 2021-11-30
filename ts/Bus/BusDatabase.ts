@@ -99,6 +99,21 @@ export class BusDatabase {
   }
 
   /**
+   * Um cliente notificou PING
+   */
+  public async clientPing(
+    serverId: string,
+    clientId: string,
+    channelName: string
+  ): Promise<BusDatabaseResult> {
+    void (await this.database.touch(this.DEFINITION.tableChannel, [
+      channelName,
+    ]));
+
+    return BusDatabaseResult.Success;
+  }
+
+  /**
    * Retorna as mensagens pendentes para um cliente.
    */
   public async getMessages(clientId: string): Promise<string[]> {

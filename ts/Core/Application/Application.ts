@@ -11,14 +11,14 @@ import { LockSynchronization } from "../../Lock/LockSynchronization";
 import { Argument } from "../Argument";
 import { Translation } from "../Translation/Translation";
 
-import { ApplicationConfiguration } from "./ApplicationConfiguration";
+import { ApplicationBusClientConfiguration } from "./ApplicationBusClientConfiguration";
 import { IApplication } from "./IApplication";
 
 /**
  * Classe base para uma aplicação.
  */
 export abstract class Application<
-  TConfiguration extends ApplicationConfiguration
+  TConfiguration extends ApplicationBusClientConfiguration
 > implements IApplication
 {
   /**

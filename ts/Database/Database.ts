@@ -127,6 +127,13 @@ export abstract class Database<TConfiguration extends JsonLoader>
   public abstract time(): Promise<Date>;
 
   /**
+   * Sinaliza que a informação ainda está em uso.
+   * @param table Nome da tabela.
+   * @param keys Chaves. Não informado aplica-se a todos.
+   */
+  public abstract touch(table: string, keys?: string[]): Promise<void>;
+
+  /**
    * Cancela a inscrição para receber notificações em um canal.
    * @param channel Canal.
    */

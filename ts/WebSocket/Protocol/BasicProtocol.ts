@@ -24,13 +24,6 @@ export class BasicProtocol extends ProtocolBase {
     try {
       const message = this.extractMessage(packet);
 
-      Logger.post(
-        "Websocket client received message: {0}",
-        message,
-        LogLevel.Verbose,
-        this.client.constructor.name
-      );
-
       this.onMessageReceived.forEach((onMessageReceived) =>
         onMessageReceived(message)
       );
@@ -99,13 +92,6 @@ export class BasicProtocol extends ProtocolBase {
     if (message !== undefined) {
       const messageRaw = this.encodeMessage(message);
       this.client.send(messageRaw, "raw");
-
-      Logger.post(
-        "Websocket client sent a message: {0}",
-        message,
-        LogLevel.Verbose,
-        this.client.constructor.name
-      );
 
       setImmediate(() => this.polling());
     }

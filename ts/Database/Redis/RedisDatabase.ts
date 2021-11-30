@@ -504,6 +504,19 @@ export class RedisDatabase extends Database<RedisConfiguration> {
   }
 
   /**
+   * Sinaliza que a informação ainda está em uso.
+   * @param table Nome da tabela.
+   * @param keys Chaves. Não informado aplica-se a todos.
+   */
+  public override async touch(table: string, keys?: string[]): Promise<void> {
+    keys = keys ?? (await this.getKeys(table));
+    for (const key of keys) {
+      const redisKey = this.formatKey(table, key);
+      await this.resetExpiration(redisKey);
+    }
+  }
+
+  /**
    * Tempo de expiração de uma chave
    */
   public async ttl(redisKey: string): Promise<number> {

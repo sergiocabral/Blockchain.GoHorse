@@ -18,7 +18,9 @@ import { BusMessage } from "./BusMessage/BusMessage";
 import { BusMessageForCommunication } from "./BusMessage/BusMessageForCommunication";
 import { BusMessageForNegotiation } from "./BusMessage/BusMessageForNegotiation";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { BusMessagePing } from "./BusMessage/Negotiation/BusMessagePing";
 import { BusNegotiationError } from "./Error/BusNegotiationError";
+import { IBusClientData } from "./IBusClientData";
 
 /**
  * Servidor do Bus.
@@ -32,8 +34,10 @@ export class BusServer extends Bus {
   /**
    * Dados dos clientes.
    */
-  private readonly clientsIds: Map<WebSocketClient, string | undefined> =
-    new Map<WebSocketClient, string | undefined>();
+  private readonly clientsData: Map<
+    WebSocketClient,
+    IBusClientData | undefined
+  > = new Map<WebSocketClient, IBusClientData | undefined>();
 
   /**
    * Database especializado para o Bus.
@@ -74,6 +78,7 @@ export class BusServer extends Bus {
     );
 
     Message.subscribe(BusMessageJoin, this.handleBusMessageJoin.bind(this));
+    Message.subscribe(BusMessagePing, this.handleBusMessagePing.bind(this));
   }
 
   /**
@@ -94,14 +99,14 @@ export class BusServer extends Bus {
       throw new ShouldNeverHappenError();
     }
 
-    const clientId = this.clientsIds.get(client);
+    const clientData = this.clientsData.get(client);
     const clientIdChanged =
-      clientId !== undefined && clientId !== busMessage.clientId;
+      clientData !== undefined && clientData.id !== busMessage.clientId;
     if (clientIdChanged) {
       throw new BusNegotiationError(
         "Client id was changed from {previous} to {actual}.".querystring({
           actual: busMessage.clientId,
-          previous: clientId,
+          previous: clientData,
         })
       );
     }
@@ -188,7 +193,7 @@ export class BusServer extends Bus {
       throw new ShouldNeverHappenError();
     }
 
-    const alreadyJoined = this.clientsIds.get(busMessage.client) !== undefined;
+    const alreadyJoined = this.clientsData.get(busMessage.client) !== undefined;
     if (alreadyJoined) {
       throw new BusNegotiationError("The client has already joined.");
     }
@@ -198,7 +203,11 @@ export class BusServer extends Bus {
       busMessage.clientId,
       channelName
     );
-    this.clientsIds.set(busMessage.client, busMessage.clientId);
+
+    this.clientsData.set(busMessage.client, {
+      channel: channelName,
+      id: busMessage.clientId,
+    });
 
     Logger.post(
       'A "{clientId}" client has joined "{channel}" channel.',
@@ -209,12 +218,61 @@ export class BusServer extends Bus {
   }
 
   /**
+   * Mensagem: BusMessagePing
+   */
+  private async handleBusMessagePing(
+    busMessage: BusMessagePing
+  ): Promise<void> {
+    if (busMessage.channels.length > 0) {
+      throw new BusNegotiationError(
+        `Expected no channel name, but found {channelCount}: {channelNames}`.querystring(
+          {
+            channelCount: busMessage.channels.length,
+            channelNames: busMessage.channels
+              .map((channel) => `"${channel}"`)
+              .join(", "),
+          }
+        )
+      );
+    }
+
+    if (busMessage.client === undefined) {
+      throw new ShouldNeverHappenError();
+    }
+
+    const clientsData = this.clientsData.get(busMessage.client);
+    const didNotJoin = clientsData === undefined;
+    if (didNotJoin) {
+      throw new BusNegotiationError("The client did not join.");
+    }
+
+    if (busMessage.clientId !== clientsData.id) {
+      throw new BusNegotiationError(
+        `Client id "${busMessage.clientId}" does not match expected.`
+      );
+    }
+
+    await this.database.clientPing(
+      BusServer.serverId,
+      clientsData.id,
+      clientsData.channel
+    );
+
+    Logger.post(
+      'Receive PING from "{clientId}" client.',
+      { clientId: busMessage.clientId },
+      LogLevel.Verbose,
+      BusServer.name
+    );
+  }
+
+  /**
    * Handle: Mensagem recebida do bus.
    * @param clientId Cliente que recebeu mensagem.
    */
   private handleListenerNotifications(clientId: string): void {
-    const client = (Array.from(this.clientsIds.entries()).find(
-      (entry) => entry[1] === clientId
+    const client = (Array.from(this.clientsData.entries()).find(
+      (entry) => entry[1]?.id === clientId
     ) ?? [])[0];
 
     if (!client) {
@@ -246,17 +304,17 @@ export class BusServer extends Bus {
     code: number,
     reason: string
   ): Promise<void> {
-    const clientId = this.clientsIds.get(client);
-    if (clientId !== undefined) {
-      await this.database.clientLeave(clientId);
+    const clientData = this.clientsData.get(client);
+    if (clientData !== undefined) {
+      await this.database.clientLeave(clientData.id);
     }
-    this.clientsIds.delete(client);
+    this.clientsData.delete(client);
 
     Logger.post(
       'A client connection was closed. {clientId} Reason: {code}, "{reason}".',
       {
-        clientId: clientId
-          ? `Client id "${clientId}".`
+        clientId: clientData
+          ? `Client id "${clientData.id}".`
           : "Client id unknown because no message was ever received.",
         code,
         reason,
@@ -270,7 +328,7 @@ export class BusServer extends Bus {
    * Handle: uma conexão de cliente foi recebida no servidor.
    */
   private handleWebSocketServerConnection(client: WebSocketClient): void {
-    this.clientsIds.set(client, undefined);
+    this.clientsData.set(client, undefined);
     client.onMessage.add(this.handleWebSocketClientMessage.bind(this));
     client.onClose.add(this.handleWebSocketClientClose.bind(this));
   }

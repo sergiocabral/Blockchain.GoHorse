@@ -1,4 +1,4 @@
-import { ApplicationConfiguration } from "../../../Core/Application/ApplicationConfiguration";
+import { ApplicationBusClientConfiguration } from "../../../Core/Application/ApplicationBusClientConfiguration";
 import { JsonLoaderFieldErrors } from "../../../Core/JsonLoaderFieldErrors";
 import { TwitchChatClientConfiguration } from "../../../ExternalService/Twitch/Chat/TwitchChatClientConfiguration";
 import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClientConfiguration";
@@ -6,7 +6,7 @@ import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClient
 /**
  * Configurações do BotTwitchApplication
  */
-export class BotTwitchConfiguration extends ApplicationConfiguration {
+export class BotTwitchConfiguration extends ApplicationBusClientConfiguration {
   /**
    * Prefixos obrigatórios na mensagem para ela ser trafegada pelo Bus.
    */

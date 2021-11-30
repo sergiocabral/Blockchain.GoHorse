@@ -1,10 +1,10 @@
-import { ApplicationConfiguration } from "../../../Core/Application/ApplicationConfiguration";
+import { ApplicationBusClientConfiguration } from "../../../Core/Application/ApplicationBusClientConfiguration";
 import { WebSocketClientConfiguration } from "../../../WebSocket/WebSocketClientConfiguration";
 
 /**
  * Configurações do MinerApplication
  */
-export class MinerConfiguration extends ApplicationConfiguration {
+export class MinerConfiguration extends ApplicationBusClientConfiguration {
   /**
    * Configurações para conectar ao servidor websocket.
    */

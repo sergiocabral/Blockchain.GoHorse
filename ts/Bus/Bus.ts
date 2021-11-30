@@ -15,9 +15,8 @@ import { BusMessageDeliveryReceipt } from "./BusMessage/Communication/BusMessage
 import { BusMessageText } from "./BusMessage/Communication/BusMessageText";
 import { IBusMessageParse } from "./BusMessage/IBusMessageParse";
 import { BusMessageJoin } from "./BusMessage/Negotiation/BusMessageJoin";
+import { BusMessagePing } from "./BusMessage/Negotiation/BusMessagePing";
 import { AttachMessagesToBus } from "./Message/AttachMessagesToBus";
-
-// TODO: Reduzir expires do Redis e fazer PING-PONG dos clientes.
 
 /**
  * Classe base para Client e Server.
@@ -34,6 +33,7 @@ export abstract class Bus {
   private readonly messagesTypes: IBusMessageParse[] = [
     BusMessageText,
     BusMessageJoin,
+    BusMessagePing,
     BusMessageDeliveryReceipt,
   ];
 

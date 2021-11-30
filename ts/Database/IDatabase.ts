@@ -88,6 +88,13 @@ export interface IDatabase extends IConnection {
   time(): Promise<Date>;
 
   /**
+   * Sinaliza que a informação ainda está em uso.
+   * @param table Nome da tabela.
+   * @param keys Chaves. Não informado aplica-se a todos.
+   */
+  touch(table: string, keys?: string[]): Promise<void>;
+
+  /**
    * Cancela a inscrição para receber notificações em um canal.
    * @param channel Canal.
    */

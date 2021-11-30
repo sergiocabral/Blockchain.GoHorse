@@ -29,7 +29,8 @@ export class DatabaseApplication extends Application<DatabaseConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Database
+      BusChannel.Database,
+      this.configuration.pingToServerInSeconds
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }

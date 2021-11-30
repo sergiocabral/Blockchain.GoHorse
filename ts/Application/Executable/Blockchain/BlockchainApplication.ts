@@ -29,7 +29,8 @@ export class BlockchainApplication extends Application<BlockchainConfiguration> 
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Blockchain
+      BusChannel.Blockchain,
+      this.configuration.pingToServerInSeconds
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }

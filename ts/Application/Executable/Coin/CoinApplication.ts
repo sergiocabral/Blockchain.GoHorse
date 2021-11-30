@@ -35,7 +35,8 @@ export class CoinApplication extends Application<CoinConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Coin
+      BusChannel.Coin,
+      this.configuration.pingToServerInSeconds
     );
     this.coinCommandHandler = new CoinCommandHandler();
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));

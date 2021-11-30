@@ -29,7 +29,8 @@ export class MinerApplication extends Application<MinerConfiguration> {
     super();
     this.busConnection = new BusConnection(
       this.configuration.messageBus,
-      BusChannel.Miner
+      BusChannel.Miner,
+      this.configuration.pingToServerInSeconds
     );
     Message.subscribe(BusMessageText, (message) => Logger.post(message.text));
   }

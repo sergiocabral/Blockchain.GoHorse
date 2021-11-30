@@ -3,6 +3,11 @@
  */
 export class Definition {
   /**
+   * Intervalo padrão (quando não especificado) entre cada PING ao servidor para indicar conexão ativa.
+   */
+  public static readonly DEFAULT_INTERVAL_BETWEEN_PING_TO_SERVER_IN_SECONDS = 60;
+
+  /**
    * Nome do idioma padrão.
    */
   public static readonly DEFAULT_LANGUAGE = "en-US";
