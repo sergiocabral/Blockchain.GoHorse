@@ -38,6 +38,11 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
   private readonly busConnection: BusConnection;
 
   /**
+   * Campos fixos usados para formatar a mensagem.
+   */
+  private messageFormatFieldsValue?: Record<string, string>;
+
+  /**
    * Sinaliza que a aplicação já foi parada.
    */
   private stopped = false;
@@ -93,6 +98,27 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
       UserMessageDeliveryReceipt,
       this.handleUserMessageDeliveryReceipt.bind(this)
     );
+  }
+
+  /**
+   * Campos fixos usados para formatar a mensagem.
+   */
+  private get messageFormatFields(): Record<string, string> {
+    if (this.messageFormatFieldsValue === undefined) {
+      const clientId = this.busConnection.clientId;
+      const clientIdKey = "id";
+      const fields: Record<string, string> = {};
+      for (let i = 0; i <= clientId.length; i += 1) {
+        const key = i === 0 ? clientIdKey : `${clientIdKey}:${i}`;
+        const value = i === 0 ? clientId : clientId.substring(0, i);
+        fields[key.toLowerCase()] = value.toLowerCase();
+        fields[key.toUpperCase()] = value.toUpperCase();
+      }
+
+      this.messageFormatFieldsValue = fields;
+    }
+
+    return this.messageFormatFieldsValue;
   }
 
   /**
@@ -261,23 +287,12 @@ export class BotTwitchApplication extends Application<BotTwitchConfiguration> {
    * @param channels Canais.
    */
   private sendMessage(message: string, ...channels: string[]): void {
-    if (this.configuration.messageSignature) {
-      const clientId = this.busConnection.clientId;
-      const fields: Record<string, unknown> = {
-        id: clientId,
-      };
-      for (let i = 1; i <= clientId.length; i += 1) {
-        fields[`id:${i}`] = clientId.substring(0, i);
-      }
-      const signature = this.configuration.messageSignature
-        ?.querystring(fields)
-        .trim();
-      if (signature) {
-        message = `${message.trim()} — ${signature}`;
-      }
-    }
+    const messageFormatted = this.configuration.messageFormat.querystring({
+      message: message.trim(),
+      ...this.messageFormatFields,
+    });
     channels.forEach((channel) =>
-      new SendTwitchChatMessage(channel, message).send()
+      new SendTwitchChatMessage(channel, messageFormatted).send()
     );
   }
 }

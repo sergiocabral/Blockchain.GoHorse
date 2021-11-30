@@ -42,7 +42,7 @@ export class BotTwitchConfiguration extends ApplicationConfiguration {
   /**
    * Assinatura no final da mensagem.
    */
-  public messageSignature?: string | null = "client: {id:6}";
+  public messageFormat = "[Client {ID:4}] {message}";
 
   /**
    * Dados para conexão ao chat da Twitch
@@ -75,9 +75,7 @@ export class BotTwitchConfiguration extends ApplicationConfiguration {
         "integer"
       )
     );
-    errors.push(
-      ...JsonLoaderFieldErrors.canEmptyString(this, "messageSignature")
-    );
+    errors.push(...JsonLoaderFieldErrors.notEmptyString(this, "messageFormat"));
     errors.push(...super.errors());
 
     return errors;
