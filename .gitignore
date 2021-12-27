@@ -6,7 +6,7 @@ package-lock.json
 /js
 
 # Ferramentas
-.idea
+# .idea
 .vscode
 
 # Arquivos de ambiente
