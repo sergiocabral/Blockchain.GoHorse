@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-bus-database",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GoHorse is a Git-based blockchain. Library for implementing a database for the bus.",
   "main": "js/index.js",
   "types": "js/index.d.ts",
