@@ -24,6 +24,8 @@ module.exports = {
         "@typescript-eslint",
         "import"
     ],
-    "rules": {
-    }
+    "rules": { // TODO: Remover as exceções com 1, isto é, warning.
+        "@typescript-eslint/no-misused-promises": 1,
+        "no-async-promise-executor": 1
+    },
 };
