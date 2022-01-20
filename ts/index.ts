@@ -1,9 +1,13 @@
-import { Foo } from './Dummy/Foo';
+import { ConnectionState } from './Connection/ConnectionState';
+import { IConnection } from './Connection/IConnection';
+import { Argument } from './IO/Argument';
+import { IIdentifier } from './Model/IIdentifier';
+import { JsonLoaderFieldErrors } from './Validation/JsonLoaderFieldErrors';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export {
+  IIdentifier,
+  Argument,
+  IConnection,
+  ConnectionState,
+  JsonLoaderFieldErrors
+};
