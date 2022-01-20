@@ -1,0 +1,9 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["tslint:all", "tslint-config-prettier"],
+    "jsRules": {},
+    "rules": {
+        "file-name-casing": [false, "camel-case"]
+    },
+    "rulesDirectory": []
+}

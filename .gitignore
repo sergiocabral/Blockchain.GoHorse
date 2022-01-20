@@ -1,0 +1,17 @@
+# NodeJS
+node_modules
+package-lock.json
+
+# Compilados
+/js
+
+# Resultado dos testes de cobertura
+/coverage
+
+# Ferramentas
+.idea
+.vscode
+
+# Arquivos de ambiente
+.env*
+env.*
