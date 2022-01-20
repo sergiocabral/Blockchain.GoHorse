@@ -1,7 +1,7 @@
 {
-  "name": "@gohorse/npm-template",
+  "name": "@gohorse/npm-i18n",
   "version": "0.0.0",
-  "description": "GoHorse is a Git-based blockchain. This is a template for creating new NPM packages.",
+  "description": "GoHorse is a Git-based blockchain. Library with functionality for internationalization.",
   "main": "js/index.js",
   "types": "js/index.d.ts",
   "scripts": {
@@ -41,8 +41,9 @@
   "bugs": {
     "url": "https://github.com/sergiocabral/Blockchain.GoHorse/issues"
   },
-  "homepage": "https://github.com/sergiocabral/Blockchain.GoHorse/tree/npm-template",
+  "homepage": "https://github.com/sergiocabral/Blockchain.GoHorse/tree/npm-i18n",
   "devDependencies": {
+    "@gohorse/npm-core": "^1.0.0",
     "@sergiocabral/helper": "^2.2.1",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.10",
