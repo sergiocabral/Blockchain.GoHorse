@@ -1,9 +1,7 @@
-import { Foo } from './Dummy/Foo';
+import { Database } from './Database/Database';
+import { IDatabase } from './Database/IDatabase';
+import { IValue } from './Types/IValue';
+import { ValueContent } from './Types/ValueContent';
+import { ValueId } from './Types/ValueId';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export { Database, IDatabase, IValue, ValueContent, ValueId };
