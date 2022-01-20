@@ -1,9 +1,23 @@
-import { Foo } from './Dummy/Foo';
+import { BasicProtocol } from './WebSocket/Protocol/BasicProtocol';
+import { IProtocol } from './WebSocket/Protocol/IProtocol';
+import { NoProtocol } from './WebSocket/Protocol/NoProtocol';
+import { ProtocolBase } from './WebSocket/Protocol/ProtocolBase';
+import { ProtocolError } from './WebSocket/Protocol/ProtocolError';
+import { WebSocketBase } from './WebSocket/WebSocketBase';
+import { WebSocketClient } from './WebSocket/WebSocketClient';
+import { WebSocketClientConfiguration } from './WebSocket/WebSocketClientConfiguration';
+import { WebSocketServer } from './WebSocket/WebSocketServer';
+import { WebSocketServerConfiguration } from './WebSocket/WebSocketServerConfiguration';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export {
+  WebSocketBase,
+  WebSocketClient,
+  WebSocketClientConfiguration,
+  WebSocketServer,
+  WebSocketServerConfiguration,
+  BasicProtocol,
+  IProtocol,
+  NoProtocol,
+  ProtocolBase,
+  ProtocolError
+};
