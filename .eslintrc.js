@@ -24,6 +24,7 @@ module.exports = {
         "@typescript-eslint",
         "import"
     ],
-    "rules": {
+    "rules": { // TODO: Remover alertas definidos como 1.
+        "@typescript-eslint/no-misused-promises": 1
     }
 };
