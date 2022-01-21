@@ -1,9 +1,27 @@
-import { Foo } from './Dummy/Foo';
+import { UserMessageDeliveryReceipt } from './BusMessage/UserMessageDeliveryReceipt';
+import { CommandLineParsed } from './CommandLine/CommandLineParsed';
+import { CommandLineParser } from './CommandLine/CommandLineParser';
+import { CreateBusMessage } from './Core/CreateBusMessage';
+import { DeliveryStatus } from './Core/DeliveryStatus';
+import { ICreateBusMessage } from './Core/ICreateBusMessage';
+import { OriginOfInteraction } from './Core/OriginOfInteraction';
+import { UserInteraction } from './Core/UserInteraction';
+import { UserMessageReceived } from './Message/UserMessageReceived';
+import { UserModel } from './Model/UserModel';
+import { BusChannel } from './Temporary/BusChannel';
+import { ExchangeCoinMessage } from './Temporary/ExchangeCoinMessage';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export {
+  UserMessageDeliveryReceipt,
+  CommandLineParsed,
+  CommandLineParser,
+  CreateBusMessage,
+  DeliveryStatus,
+  ICreateBusMessage,
+  OriginOfInteraction,
+  UserInteraction,
+  UserMessageReceived,
+  UserModel,
+  BusChannel,
+  ExchangeCoinMessage
+};
