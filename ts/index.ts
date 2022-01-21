@@ -1,9 +1,17 @@
-import { Foo } from './Dummy/Foo';
+import { Application } from './Application/Application';
+import { ApplicationBusClientConfiguration } from './Application/ApplicationBusClientConfiguration';
+import { ApplicationConfiguration } from './Application/ApplicationConfiguration';
+import { IApplication } from './Application/IApplication';
+import { BusChannel } from './Bus/BusChannel';
+import { BusConnection } from './Bus/BusConnection';
+import { DomainBusMessages } from './Bus/DomainBusMessages';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export {
+  Application,
+  ApplicationBusClientConfiguration,
+  ApplicationConfiguration,
+  IApplication,
+  BusChannel,
+  BusConnection,
+  DomainBusMessages
+};
