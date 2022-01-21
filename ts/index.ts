@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { Foo } from './Dummy/Foo';
 
 export { Foo };
