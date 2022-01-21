@@ -1,0 +1,7 @@
+{
+  "BotTwitchApplication": {
+    "@{username}, you sent an invalid command: {command}": "@{username}, você enviou um comando inválido: {command}",
+    "@{username}, please try later because the system does not seem to be online. Your command was not processed: {command}": "@{username}, tente mais tarde porque o sistema parece não estar online. Seu comando não foi processado: {command}",
+    "@{username}, your command has been received: {command}": "@{username}, seu comando foi recebido: {command}"
+  }
+}
