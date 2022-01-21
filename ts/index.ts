@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { BasicProtocol } from './WebSocket/Protocol/BasicProtocol';
 import { IProtocol } from './WebSocket/Protocol/IProtocol';
 import { NoProtocol } from './WebSocket/Protocol/NoProtocol';
