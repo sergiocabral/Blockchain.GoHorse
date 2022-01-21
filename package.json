@@ -10,7 +10,7 @@
     "lint": "eslint \"ts/**/*.ts\"",
     "format+lint": "npm run format && npm run lint",
     "test": "jest --config jest.config.ts",
-    "build": "npm install && tsc",
+    "build": "tsc",
     "build:prod": "npm run build && npm run format+lint && npm run test",
     "start": "ts-node ./ts/index.ts",
     "stop": "ts-node ./ts/index.ts --stop",
