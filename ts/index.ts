@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { ConnectionState } from './Connection/ConnectionState';
 import { IConnection } from './Connection/IConnection';
 import { Argument } from './IO/Argument';
