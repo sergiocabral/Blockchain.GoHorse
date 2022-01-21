@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { Application } from './Application/Application';
 import { ApplicationBusClientConfiguration } from './Application/ApplicationBusClientConfiguration';
 import { ApplicationConfiguration } from './Application/ApplicationConfiguration';
