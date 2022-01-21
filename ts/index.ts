@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { UserMessageDeliveryReceipt } from './BusMessage/UserMessageDeliveryReceipt';
 import { CommandLineParsed } from './CommandLine/CommandLineParsed';
 import { CommandLineParser } from './CommandLine/CommandLineParser';
