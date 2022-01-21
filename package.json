@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/app-bus",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GoHorse is a Git-based blockchain. Bus message service application.",
   "main": "js/index.js",
   "types": "js/index.d.ts",

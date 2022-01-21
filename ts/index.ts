@@ -1,4 +1,4 @@
-import { Main } from "@gohorse/npm-application";
+import { Main } from '@gohorse/npm-application';
 import { GenericError, Logger, LogLevel } from '@sergiocabral/helper';
 import { BusApplication } from './Executable/BusApplication';
 
