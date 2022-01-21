@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { Main } from '@gohorse/npm-application';
 import { GenericError, Logger, LogLevel } from '@sergiocabral/helper';
 import { BotTwitchApplication } from './Executable/BotTwitchApplication';
