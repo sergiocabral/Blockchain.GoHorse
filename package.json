@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-twitch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GoHorse is a Git-based blockchain. Library with features involving Twitch.",
   "main": "js/index.js",
   "types": "js/index.d.ts",
