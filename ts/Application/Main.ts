@@ -79,5 +79,7 @@ export class Main {
   /**
    * Construtor privado.
    */
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 }
