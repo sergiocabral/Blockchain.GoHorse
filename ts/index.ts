@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { BusMessage } from './BusMessage/BusMessage';
 import { BusMessageForCommunication } from './BusMessage/BusMessageForCommunication';
 import { BusMessageForNegotiation } from './BusMessage/BusMessageForNegotiation';
