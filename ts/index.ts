@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { TwitchChatClient } from './Chat/TwitchChatClient';
 import { TwitchChatClientConfiguration } from './Chat/TwitchChatClientConfiguration';
 import { TwitchChatEvents } from './Chat/TwitchChatEvents';
