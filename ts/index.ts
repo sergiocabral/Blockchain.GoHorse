@@ -1,9 +1,14 @@
-import { Foo } from './Dummy/Foo';
+import { Main } from '@gohorse/npm-application/js/Application/Main';
+import { GenericError, Logger, LogLevel } from '@sergiocabral/helper';
+import { BusApplication } from './Executable/BusApplication';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+Main.start(BusApplication).catch(error => {
+  while (error) {
+    if (error instanceof GenericError) {
+      Logger.post(error.message, undefined, LogLevel.Fatal);
+      error = error.innerError;
+    } else {
+      throw error;
+    }
+  }
+});
