@@ -13,7 +13,6 @@ import { BusDatabaseResult } from './Core/BusDatabaseResult';
 import { BusServer } from './Core/BusServer';
 import { FieldValidator } from './Core/FieldValidator';
 import { IBusClientData } from './Core/IBusClientData';
-import { Definition } from './Definition';
 import { BusNegotiationError } from './Error/BusNegotiationError';
 import { LockResponse } from './Lock/BusMessage/LockResponse';
 import { SetLock } from './Lock/BusMessage/SetLock';
@@ -41,7 +40,6 @@ export {
   BusServer,
   FieldValidator,
   IBusClientData,
-  Definition,
   BusNegotiationError,
   LockResponse,
   SetLock,
