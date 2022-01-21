@@ -1,9 +1,19 @@
-import { Foo } from './Dummy/Foo';
+import { TwitchChatClient } from './Chat/TwitchChatClient';
+import { TwitchChatClientConfiguration } from './Chat/TwitchChatClientConfiguration';
+import { TwitchChatEvents } from './Chat/TwitchChatEvents';
+import { TwitchAuthConfiguration } from './Core/TwitchAuthConfiguration';
+import { SendTwitchChatMessage } from './Message/SendTwitchChatMessage';
+import { TwitchChatEvent } from './Message/TwitchChatEvent';
+import { TwitchChatMessage } from './Message/TwitchChatMessage';
+import { TwitchChatRedeem } from './Message/TwitchChatRedeem';
 
-export { Foo };
-
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+export {
+  TwitchChatClient,
+  TwitchChatClientConfiguration,
+  TwitchChatEvents,
+  TwitchAuthConfiguration,
+  SendTwitchChatMessage,
+  TwitchChatEvent,
+  TwitchChatMessage,
+  TwitchChatRedeem
+};
