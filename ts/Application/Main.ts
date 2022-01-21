@@ -1,13 +1,13 @@
-import { Argument } from "@gohorse/npm-core";
+import { Argument } from '@gohorse/npm-core';
 import {
   InvalidArgumentError,
   InvalidExecutionError,
   Logger,
-  LogLevel,
-} from "@sergiocabral/helper";
-import fs from "fs";
-import { Definition } from "../Definition";
-import { IApplication } from "./IApplication";
+  LogLevel
+} from '@sergiocabral/helper';
+import fs from 'fs';
+import { Definition } from '../Definition';
+import { IApplication } from './IApplication';
 
 /**
  * Classe principal com o ponto de entrada da execução.
@@ -16,10 +16,12 @@ export class Main {
   /**
    * Aplicação selecionada para execução.
    */
-  public static async start(applicationConstructor: (new () => IApplication)): Promise<void> {
+  public static async start(
+    applicationConstructor: new () => IApplication
+  ): Promise<void> {
     if (Main.instance !== undefined) {
       throw new InvalidExecutionError(
-        "Main cannot be instantiated more than once."
+        'Main cannot be instantiated more than once.'
       );
     }
 
@@ -46,7 +48,7 @@ export class Main {
           fs.unlinkSync(killFilename);
 
           Logger.post(
-            "Signal received to terminate application.",
+            'Signal received to terminate application.',
             undefined,
             LogLevel.Information,
             Main.name
@@ -59,13 +61,13 @@ export class Main {
       application.onStop.add(() => clearInterval(killVerifyIntervalTimer));
     } else {
       Logger.post(
-        "Sending signal to terminate application.",
+        'Sending signal to terminate application.',
         undefined,
         LogLevel.Information,
         Main.name
       );
 
-      fs.writeFileSync(killFilename, "");
+      fs.writeFileSync(killFilename, '');
     }
   }
 

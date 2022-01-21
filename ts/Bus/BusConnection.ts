@@ -1,8 +1,10 @@
 import { BusClient, BusMessagePing, SendBusMessage } from '@gohorse/npm-bus';
 import { IBusMessageParse } from '@gohorse/npm-bus/js/BusMessage/IBusMessageParse';
-import { WebSocketClient } from '@gohorse/npm-bus/js/WebSocket/WebSocketClient';
-import { WebSocketClientConfiguration } from '@gohorse/npm-bus/js/WebSocket/WebSocketClientConfiguration';
 import { ConnectionState, IConnection } from '@gohorse/npm-core';
+import {
+  WebSocketClient,
+  WebSocketClientConfiguration
+} from '@gohorse/npm-websocket';
 import { Definition } from '../Definition';
 import { BusChannel } from './BusChannel';
 import { DomainBusMessages } from './DomainBusMessages';
