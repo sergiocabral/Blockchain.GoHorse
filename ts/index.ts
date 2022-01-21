@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { Database } from './Database/Database';
 import { IDatabase } from './Database/IDatabase';
 import { IValue } from './Types/IValue';
