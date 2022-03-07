@@ -54,7 +54,14 @@ export class Translation {
     const regexTranslationFile = /^translation(\..*|)\.json/i;
     const rootDirectory = Argument.getRootDirectory();
 
-    return fs
+    Logger.post(
+      'Root directory for translation is "{rootDirectory}".',
+      { rootDirectory },
+      LogLevel.Verbose,
+      'Translation'
+    );
+
+    const files = fs
       .readdirSync(rootDirectory)
       .filter(file => regexTranslationFile.test(file))
       .map(file => {
@@ -68,6 +75,15 @@ export class Translation {
           path: filePath
         };
       });
+
+    Logger.post(
+      'Translation files found: {count}',
+      { count: files.length },
+      LogLevel.Verbose,
+      'Translation'
+    );
+
+    return files;
   }
 
   /**
