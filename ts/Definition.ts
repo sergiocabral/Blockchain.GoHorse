@@ -1,9 +1,9 @@
 /**
- * Conjunto de parâmetro de definição de baixo nível.
+ * Definições hard-coded para este projeto.
  */
 export class Definition {
   /**
-   * Nome do idioma padrão.
+   * Idioma padrão.
    */
   public static readonly DEFAULT_LANGUAGE = 'en-US';
 }
