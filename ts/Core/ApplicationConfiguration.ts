@@ -2,7 +2,7 @@ import { TranslateConfiguration } from '@gohorse/npm-i18n';
 import { JsonLoader } from '@sergiocabral/helper';
 
 /**
- * Configurações comuns a tudo.
+ * Configurações da aplicação.
  */
 export class ApplicationConfiguration extends JsonLoader {
   /**

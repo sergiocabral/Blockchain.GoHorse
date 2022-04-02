@@ -5,7 +5,7 @@ import {
   WebSocketClient,
   WebSocketClientConfiguration
 } from '@gohorse/npm-websocket';
-import { Definition } from '../Definition';
+import { Definition } from '../Application/Definition';
 import { BusChannel } from './BusChannel';
 import { DomainBusMessages } from './DomainBusMessages';
 

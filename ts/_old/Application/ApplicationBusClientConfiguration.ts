@@ -1,5 +1,5 @@
 import { JsonLoaderFieldErrors } from '@gohorse/npm-core';
-import { ApplicationConfiguration } from './ApplicationConfiguration';
+import { ApplicationConfiguration } from '../../Core/ApplicationConfiguration';
 
 /**
  * Configurações comuns a tudo.

@@ -6,7 +6,7 @@ import {
   LogLevel
 } from '@sergiocabral/helper';
 import fs from 'fs';
-import { Definition } from '../Definition';
+import { Definition } from './Definition';
 import { IApplication } from './IApplication';
 
 /**
