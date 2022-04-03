@@ -30,11 +30,6 @@ export abstract class Application<
   }
 
   /**
-   * Informações sobre a linha de comando.
-   */
-  public readonly argument: Argument;
-
-  /**
    * Configurações da aplicação.
    */
   private configurationValue?: TConfiguration;
@@ -45,6 +40,16 @@ export abstract class Application<
   protected abstract get configurationType(): new (
     json?: unknown
   ) => TConfiguration;
+
+  /**
+   * Informações sobre a linha de comando.
+   */
+  protected readonly argument: Argument;
+
+  /**
+   * Execução da aplicação.
+   */
+  protected abstract run(): Promise<void> | void;
 
   /**
    * Configurações da aplicação.
@@ -60,6 +65,8 @@ export abstract class Application<
    * Inicia a aplicação.
    */
   private async start(): Promise<void> {
+    await this.loadConfiguration();
+
     Logger.post(
       '"{type}" application started.',
       {
@@ -69,7 +76,7 @@ export abstract class Application<
       Application.logContext
     );
 
-    await this.loadConfiguration();
+    await this.run();
 
     Logger.post(
       '"{type}" application finished.',
