@@ -6,6 +6,7 @@ import {
   IPackageJson
 } from '@sergiocabral/helper';
 import path from 'path';
+import fs from 'fs';
 
 /**
  * Informações sobre a linha de comando.
@@ -27,6 +28,51 @@ export class Argument extends CommandLine {
         ['´', '´']
       ]
     });
+  }
+
+  /**
+   * Diretório inicial de execução da aplicação.
+   */
+  public readonly inicialDirectory: string = fs.realpathSync(process.cwd());
+
+  /**
+   * Identificador para a instância da aplicação atualmente em execução.
+   */
+  public readonly applicationInstanceIdentifier: string = Buffer.from(
+    Math.random().toString()
+  )
+    .toString('base64')
+    .replace(/[\W_]/g, '')
+    .substring(10, 15);
+
+  /**
+   * Nome a aplicação.
+   */
+  public get applicationName(): string {
+    if (this.packageJson.name === undefined) {
+      throw new InvalidDataError('Cannot found application name');
+    }
+    const regexContextAndName = /(@[^/]+|^)\/?(.*)/;
+    const matches = this.packageJson.name.match(regexContextAndName);
+    return matches?.length === 3
+      ? matches[2].slugify()
+      : this.packageJson.name.slugify();
+  }
+
+  /**
+   * Caminho do arquivo de configuração.
+   */
+  public get configurationFile(): string {
+    const name = `env.${this.applicationName}.json`;
+    return path.join(this.inicialDirectory, name);
+  }
+
+  /**
+   * Caminho do arquivo que sinaliza que a aplicação está em execução.
+   */
+  public get runningFlagFile(): string {
+    const name = `env.${this.applicationName}.${this.applicationInstanceIdentifier}.isRunning`;
+    return path.join(this.inicialDirectory, name);
   }
 
   /**
@@ -52,45 +98,5 @@ export class Argument extends CommandLine {
       this.packageJsonValue = applications[0].Value;
     }
     return this.packageJsonValue;
-  }
-
-  /**
-   * Nome a aplicação.
-   */
-  public get applicationName(): string {
-    if (this.packageJson.name === undefined) {
-      throw new InvalidDataError('Cannot found application name');
-    }
-    const regexContextAndName = /(@[^/]+|^)\/?(.*)/;
-    const matches = this.packageJson.name.match(regexContextAndName);
-    return matches?.length === 3
-      ? matches[2].slugify()
-      : this.packageJson.name.slugify();
-  }
-
-  /**
-   * Nome do arquivo de configuração.
-   */
-  public get configurationFileName(): string {
-    return `env.${this.applicationName}.json`;
-  }
-
-  /**
-   * Caminho do arquivo de configuração.
-   */
-  private configurationFilePathValue?: string;
-
-  /**
-   * Caminho do arquivo de configuração.
-   */
-  public get configurationFilePath(): string {
-    if (this.configurationFilePathValue === undefined) {
-      const currentDirectory = process.cwd();
-      this.configurationFilePathValue = path.join(
-        currentDirectory,
-        this.configurationFileName
-      );
-    }
-    return this.configurationFilePathValue;
   }
 }

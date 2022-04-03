@@ -2,11 +2,13 @@ import { Argument } from './Argument';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 import {
   EmptyError,
+  HelperFileSystem,
   Logger,
   LogLevel,
   ResultEvent
 } from '@sergiocabral/helper';
 import fs from 'fs';
+import { Definition } from '../Definition';
 
 /**
  * Esboço de uma aplicação executável.
@@ -23,14 +25,15 @@ export abstract class Application<
    * Construtor.
    */
   public constructor(onFinished: ResultEvent) {
+    this.argument = new Argument(process.argv);
+
     Logger.post(
-      'Application instance created.',
-      undefined,
+      'Application instance created with id "{id}".',
+      { id: this.argument.applicationInstanceIdentifier },
       LogLevel.Debug,
       Application.logContext
     );
 
-    this.argument = new Argument(process.argv);
     setImmediate(() => void this.ready(onFinished));
   }
 
@@ -91,6 +94,7 @@ export abstract class Application<
    * Inicia a aplicação.
    */
   private async execute(): Promise<void> {
+    this.createRunningFlagFile();
     await this.loadConfiguration();
 
     Logger.post(
@@ -127,16 +131,16 @@ export abstract class Application<
       );
 
       const configurationExists = fs.existsSync(
-        this.argument.configurationFilePath
+        this.argument.configurationFile
       );
       const configuration: TConfiguration = configurationExists
         ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
             this.configurationType,
-            this.argument.configurationFilePath
+            this.argument.configurationFile
           )
         : ApplicationConfiguration.createNewFile<TConfiguration>(
             this.configurationType,
-            this.argument.configurationFilePath
+            this.argument.configurationFile
           );
 
       try {
@@ -154,6 +158,48 @@ export abstract class Application<
         reject(error);
       }
     });
+  }
+
+  /**
+   * Cria um arquivo em disco que sinaliza que esta instância está em execução.
+   * A remoção do arquivo resulta na finalização da aplicação.
+   */
+  private createRunningFlagFile(): void {
+    Logger.post(
+      'Creating application instance execution flag file: {path}',
+      {
+        path: this.argument.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+
+    HelperFileSystem.createRecursive(
+      this.argument.runningFlagFile,
+      `
+FLAG FILE
+
+This file signals that the application should continue running.
+
+If this file no longer exists, the application is terminated.
+
+Application
+ - Name: ${this.argument.applicationName} 
+ - Instance: ${this.argument.applicationInstanceIdentifier}
+`.trim()
+    );
+
+    // TODO: Utilizar FileSystemMonitoring
+
+    Logger.post(
+      'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
+      {
+        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+        path: this.argument.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
   }
 
   /**
