@@ -17,7 +17,7 @@ export class Argument extends CommandLine {
    */
   constructor(commandLine: string | string[]) {
     super(Array.isArray(commandLine) ? commandLine.join(' ') : commandLine, {
-      caseInsensitiveForName: false,
+      caseInsensitiveForName: true,
       caseInsensitiveForValue: false,
       attribution: '=',
       quotes: [

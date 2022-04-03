@@ -1,6 +1,11 @@
 import { Argument } from './Argument';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
-import { EmptyError, Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  EmptyError,
+  Logger,
+  LogLevel,
+  ResultEvent
+} from '@sergiocabral/helper';
 import fs from 'fs';
 
 /**
@@ -17,7 +22,7 @@ export abstract class Application<
   /**
    * Construtor.
    */
-  public constructor(onFinished: (error: unknown | undefined) => void) {
+  public constructor(onFinished: ResultEvent) {
     Logger.post(
       'Application instance created.',
       undefined,
@@ -26,7 +31,7 @@ export abstract class Application<
     );
 
     this.argument = new Argument(process.argv);
-    setImmediate(() => void this.start().then(onFinished).catch(onFinished));
+    setImmediate(() => void this.ready(onFinished));
   }
 
   /**
@@ -47,9 +52,14 @@ export abstract class Application<
   protected readonly argument: Argument;
 
   /**
-   * Execução da aplicação.
+   * Inicia a aplicação.
    */
-  protected abstract run(): Promise<void> | void;
+  protected abstract start(): Promise<void> | void;
+
+  /**
+   * Finaliza a aplicação.
+   */
+  protected abstract stop(): Promise<void> | void;
 
   /**
    * Configurações da aplicação.
@@ -62,9 +72,25 @@ export abstract class Application<
   }
 
   /**
+   * Chamado quando a instância está pronta para uso.
+   */
+  private async ready(onFinished: ResultEvent): Promise<void> {
+    const signalToTerminate = this.argument.hasArgumentName('/stop');
+    const goAhead = signalToTerminate
+      ? this.kill.bind(this)
+      : this.execute.bind(this);
+    try {
+      await goAhead();
+      onFinished(true);
+    } catch (error) {
+      onFinished(false, error);
+    }
+  }
+
+  /**
    * Inicia a aplicação.
    */
-  private async start(): Promise<void> {
+  private async execute(): Promise<void> {
     await this.loadConfiguration();
 
     Logger.post(
@@ -76,7 +102,7 @@ export abstract class Application<
       Application.logContext
     );
 
-    await this.run();
+    await this.start();
 
     Logger.post(
       '"{type}" application finished.',
@@ -127,6 +153,17 @@ export abstract class Application<
       } catch (error) {
         reject(error);
       }
+    });
+  }
+
+  /**
+   * Sinaliza que a instância devem ser finalizadas.
+   * @private
+   */
+  private async kill(): Promise<void> {
+    return new Promise<void>(resolve => {
+      console.log('HOW TO KILL?');
+      resolve();
     });
   }
 }

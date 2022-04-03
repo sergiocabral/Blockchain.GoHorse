@@ -1,8 +1,9 @@
 import { Application } from './Application';
+import { ResultEvent } from '@sergiocabral/helper';
 
 /**
  * Construtor de Application.
  */
 export type ApplicationConstructor = new (
-  onFinished: (error: unknown | undefined) => void
+  onFinished: ResultEvent
 ) => Application;

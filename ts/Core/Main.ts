@@ -29,8 +29,8 @@ export class Main {
     );
 
     this.applicationValue = new applicationConstructor(
-      (error: unknown | undefined) => {
-        if (error === undefined) {
+      (success: boolean, error?: unknown) => {
+        if (success) {
           Logger.post(
             'The application ended successfully.',
             undefined,
@@ -45,7 +45,11 @@ export class Main {
             Main.logContext
           );
           Logger.post(
-            error instanceof Error ? error.message : String(error),
+            error instanceof Error
+              ? error.message
+              : error
+              ? String(error)
+              : 'Unknown error.',
             {
               error: HelperObject.toText(error)
             },

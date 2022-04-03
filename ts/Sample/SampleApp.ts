@@ -16,9 +16,9 @@ export class SampleApp extends Application<SampleAppConfiguration> {
   protected override configurationType = SampleAppConfiguration;
 
   /**
-   * Execução da aplicação.
+   * Inicia a aplicação.
    */
-  protected override async run(): Promise<void> {
+  protected override async start(): Promise<void> {
     const appName = this.argument.applicationName;
 
     console.info(`      ____`);
@@ -37,6 +37,13 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(``);
 
     await this.loop();
+  }
+
+  /**
+   * Finaliza a aplicação.
+   */
+  protected override stop(): void {
+    this.signalToTerminate = true;
   }
 
   /**
