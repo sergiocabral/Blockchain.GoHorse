@@ -60,6 +60,10 @@ export class Argument extends CommandLine {
     if (this.packageJson.name === undefined) {
       throw new InvalidDataError('Cannot found application name');
     }
-    return this.packageJson.name;
+    const regexContextAndName = /(@[^/]+|^)\/?(.*)/;
+    const matches = this.packageJson.name.match(regexContextAndName);
+    return matches?.length === 3
+      ? matches[2].slugify()
+      : this.packageJson.name.slugify();
   }
 }
