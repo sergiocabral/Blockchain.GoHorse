@@ -1,4 +1,4 @@
-import { Argument } from './Argument';
+import { ApplicationParameters } from './ApplicationParameters';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 import {
   EmptyError,
@@ -25,11 +25,11 @@ export abstract class Application<
    * Construtor.
    */
   public constructor(onFinished: ResultEvent) {
-    this.argument = new Argument(process.argv);
+    this.parameters = new ApplicationParameters(process.argv);
 
     Logger.post(
       'Application instance created with id "{id}".',
-      { id: this.argument.applicationInstanceIdentifier },
+      { id: this.parameters.applicationInstanceIdentifier },
       LogLevel.Debug,
       Application.logContext
     );
@@ -50,9 +50,9 @@ export abstract class Application<
   ) => TConfiguration;
 
   /**
-   * Informações sobre a linha de comando.
+   * Parâmetros de execução da aplicação.
    */
-  protected readonly argument: Argument;
+  protected readonly parameters: ApplicationParameters;
 
   /**
    * Inicia a aplicação.
@@ -78,7 +78,7 @@ export abstract class Application<
    * Chamado quando a instância está pronta para uso.
    */
   private async ready(onFinished: ResultEvent): Promise<void> {
-    const signalToTerminate = this.argument.hasArgumentName('/stop');
+    const signalToTerminate = this.parameters.hasArgumentName('/stop');
     const goAhead = signalToTerminate
       ? this.kill.bind(this)
       : this.execute.bind(this);
@@ -131,16 +131,16 @@ export abstract class Application<
       );
 
       const configurationExists = fs.existsSync(
-        this.argument.configurationFile
+        this.parameters.configurationFile
       );
       const configuration: TConfiguration = configurationExists
         ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
             this.configurationType,
-            this.argument.configurationFile
+            this.parameters.configurationFile
           )
         : ApplicationConfiguration.createNewFile<TConfiguration>(
             this.configurationType,
-            this.argument.configurationFile
+            this.parameters.configurationFile
           );
 
       try {
@@ -168,14 +168,14 @@ export abstract class Application<
     Logger.post(
       'Creating application instance execution flag file: {path}',
       {
-        path: this.argument.runningFlagFile
+        path: this.parameters.runningFlagFile
       },
       LogLevel.Debug,
       Application.logContext
     );
 
     HelperFileSystem.createRecursive(
-      this.argument.runningFlagFile,
+      this.parameters.runningFlagFile,
       `
 FLAG FILE
 
@@ -184,8 +184,8 @@ This file signals that the application should continue running.
 If this file no longer exists, the application is terminated.
 
 Application
- - Name: ${this.argument.applicationName} 
- - Instance: ${this.argument.applicationInstanceIdentifier}
+ - Name: ${this.parameters.applicationName} 
+ - Instance: ${this.parameters.applicationInstanceIdentifier}
 `.trim()
     );
 
@@ -195,7 +195,7 @@ Application
       'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
       {
         seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-        path: this.argument.runningFlagFile
+        path: this.parameters.runningFlagFile
       },
       LogLevel.Debug,
       Application.logContext

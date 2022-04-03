@@ -19,7 +19,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
    * Inicia a aplicação.
    */
   protected override async start(): Promise<void> {
-    const appName = this.argument.applicationName;
+    const appName = this.parameters.applicationName;
 
     console.info(`      ____`);
     console.info(`     /  __\\           ____`);

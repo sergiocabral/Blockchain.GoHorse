@@ -9,9 +9,9 @@ import path from 'path';
 import fs from 'fs';
 
 /**
- * Informações sobre a linha de comando.
+ * Parâmetros de execução da aplicação.
  */
-export class Argument extends CommandLine {
+export class ApplicationParameters extends CommandLine {
   /**
    * Construtor.
    * @param commandLine Argumentos da linha de comando.
