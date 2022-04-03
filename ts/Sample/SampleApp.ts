@@ -6,6 +6,11 @@ import { SampleAppConfiguration } from './SampleAppConfiguration';
  */
 export class SampleApp extends Application<SampleAppConfiguration> {
   /**
+   * Sinaliza que deve finaliza a aplicação.
+   */
+  private signalToTerminate = false;
+
+  /**
    * Tipo da Configurações da aplicação;
    */
   protected override configurationType = SampleAppConfiguration;
@@ -13,7 +18,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
   /**
    * Execução da aplicação.
    */
-  protected override run(): void {
+  protected override async run(): Promise<void> {
     const appName = this.argument.applicationName;
 
     console.info(`      ____`);
@@ -30,5 +35,25 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(`     |_|_|           |_|__|`);
     console.info(`     [__)_)         (_(___] ${appName}`);
     console.info(``);
+
+    await this.loop();
+  }
+
+  /**
+   * Loop para manter a execução da aplicação.
+   */
+  private async loop(): Promise<void> {
+    return new Promise<void>(resolve => {
+      let count = 0;
+      const loop = () => {
+        console.debug(`Loop ${++count}`);
+        if (this.signalToTerminate) {
+          resolve();
+        } else {
+          setTimeout(loop, 1000);
+        }
+      };
+      setImmediate(loop);
+    });
   }
 }
