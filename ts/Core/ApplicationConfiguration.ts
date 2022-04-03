@@ -1,5 +1,11 @@
 import { TranslateConfiguration } from '@gohorse/npm-i18n';
-import { IOError, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  InvalidArgumentError,
+  IOError,
+  JsonLoader,
+  Logger,
+  LogLevel
+} from '@sergiocabral/helper';
 import fs from 'fs';
 
 /**
@@ -26,9 +32,9 @@ export class ApplicationConfiguration extends JsonLoader {
     filePath: string
   ): TConfiguration {
     Logger.post(
-      'Creating default the "{type}" configuration to file: {filePath}',
+      'Creating the default "{type}" configuration to file: {filePath}',
       {
-        configurationType: type.name,
+        type: type.name,
         filePath
       },
       LogLevel.Debug,
@@ -55,9 +61,9 @@ export class ApplicationConfiguration extends JsonLoader {
     }
 
     Logger.post(
-      'Configuration "{type}" written to file discarding previous content: {filePath}',
+      'Default "{type}" configuration written as new file: {filePath}',
       {
-        configurationType: type.name,
+        type: type.name,
         filePath
       },
       LogLevel.Debug,
@@ -148,5 +154,23 @@ export class ApplicationConfiguration extends JsonLoader {
     }
 
     return configuration;
+  }
+
+  /**
+   * Verifica se as configurações são válidas.
+   * @param configuration Configurações.
+   */
+  public static validate<TConfiguration extends ApplicationConfiguration>(
+    configuration: TConfiguration
+  ): void {
+    const errors = configuration.errors();
+    if (errors.length) {
+      throw new InvalidArgumentError(
+        'Invalid JSON for {className}:\n{errors}'.querystring({
+          className: this.constructor.name,
+          errors: errors.map(error => `- ${error}`).join('\n')
+        })
+      );
+    }
   }
 }

@@ -10,23 +10,23 @@ export abstract class Application<
   TConfiguration extends ApplicationConfiguration = ApplicationConfiguration
 > {
   /**
-   * Contexto do log nesta classe.
+   * Contexto do log.
    */
-  private static logSection = 'Application';
+  private static logContext = 'Application';
 
   /**
    * Construtor.
    */
-  public constructor() {
+  public constructor(onFinished: (error: unknown | undefined) => void) {
     Logger.post(
       'Application instance created.',
       undefined,
       LogLevel.Debug,
-      Application.logSection
+      Application.logContext
     );
 
     this.argument = new Argument(process.argv);
-    setImmediate(() => void this.start());
+    setImmediate(() => void this.start().then(onFinished).catch(onFinished));
   }
 
   /**
@@ -61,19 +61,23 @@ export abstract class Application<
    */
   private async start(): Promise<void> {
     Logger.post(
-      'Application starting.',
-      undefined,
+      '"{type}" application started.',
+      {
+        type: this.constructor.name
+      },
       LogLevel.Debug,
-      Application.logSection
+      Application.logContext
     );
 
     await this.loadConfiguration();
 
     Logger.post(
-      'Application started.',
-      undefined,
+      '"{type}" application finished.',
+      {
+        type: this.constructor.name
+      },
       LogLevel.Debug,
-      Application.logSection
+      Application.logContext
     );
   }
 
@@ -81,7 +85,14 @@ export abstract class Application<
    * Carrega o arquivo de configuração da aplicação.
    */
   private async loadConfiguration(): Promise<void> {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve, reject) => {
+      Logger.post(
+        'Loading application configuration.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+
       const configurationExists = fs.existsSync(
         this.argument.configurationFilePath
       );
@@ -95,7 +106,20 @@ export abstract class Application<
             this.argument.configurationFilePath
           );
 
-      resolve();
+      try {
+        ApplicationConfiguration.validate(configuration);
+
+        Logger.post(
+          'Application configuration loaded.',
+          undefined,
+          LogLevel.Debug,
+          Application.logContext
+        );
+
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 }

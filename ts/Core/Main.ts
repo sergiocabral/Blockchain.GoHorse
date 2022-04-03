@@ -1,32 +1,74 @@
 import { Application } from './Application';
-import { Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  HelperObject,
+  InvalidExecutionError,
+  Logger,
+  LogLevel
+} from '@sergiocabral/helper';
+import { ApplicationConstructor } from './ApplicationConstructor';
 
 /**
  * Módulo principal do programa.
  */
 export class Main {
   /**
-   * Contexto do log nesta classe.
+   * Contexto do log.
    */
-  private static logSection = 'Main';
+  private static logContext = 'Main';
 
   /**
    * Construtor.
    * @param applicationConstructor Aplicação a ser inciada.
    */
-  public constructor(applicationConstructor: new () => Application) {
+  public constructor(applicationConstructor: ApplicationConstructor) {
     Logger.post(
       'Main module created.',
       undefined,
       LogLevel.Debug,
-      Main.logSection
+      Main.logContext
     );
 
-    this.application = new applicationConstructor();
+    this.applicationValue = new applicationConstructor(
+      (error: unknown | undefined) => {
+        if (error === undefined) {
+          Logger.post(
+            'The application ended successfully.',
+            undefined,
+            LogLevel.Debug,
+            Main.logContext
+          );
+        } else {
+          Logger.post(
+            'The application ended with errors.',
+            undefined,
+            LogLevel.Error,
+            Main.logContext
+          );
+          Logger.post(
+            error instanceof Error ? error.message : String(error),
+            {
+              error: HelperObject.toText(error)
+            },
+            LogLevel.Fatal,
+            Main.logContext
+          );
+        }
+      }
+    );
   }
 
   /**
    * Classe concreta da aplicação.
    */
-  public readonly application: Application;
+  private readonly applicationValue?: Application;
+
+  /**
+   * Classe concreta da aplicação.
+   */
+  public get application(): Application {
+    if (this.applicationValue === undefined) {
+      throw new InvalidExecutionError('Application instance was not created.');
+    }
+    return this.applicationValue;
+  }
 }
