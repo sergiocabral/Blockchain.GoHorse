@@ -1,6 +1,7 @@
 import { Argument } from './Argument';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 import { EmptyError, Logger, LogLevel } from '@sergiocabral/helper';
+import fs from 'fs';
 
 /**
  * Esboço de uma aplicação executável.
@@ -25,7 +26,7 @@ export abstract class Application<
     );
 
     this.argument = new Argument(process.argv);
-    setImmediate(() => this.start());
+    setImmediate(() => void this.start());
   }
 
   /**
@@ -58,7 +59,7 @@ export abstract class Application<
   /**
    * Inicia a aplicação.
    */
-  public start(): void {
+  private async start(): Promise<void> {
     Logger.post(
       'Application starting.',
       undefined,
@@ -66,7 +67,7 @@ export abstract class Application<
       Application.logSection
     );
 
-    console.log(this.configurationType.name);
+    await this.loadConfiguration();
 
     Logger.post(
       'Application started.',
@@ -74,5 +75,27 @@ export abstract class Application<
       LogLevel.Debug,
       Application.logSection
     );
+  }
+
+  /**
+   * Carrega o arquivo de configuração da aplicação.
+   */
+  private async loadConfiguration(): Promise<void> {
+    return new Promise<void>(resolve => {
+      const configurationExists = fs.existsSync(
+        this.argument.configurationFilePath
+      );
+      const configuration: TConfiguration = configurationExists
+        ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
+            this.configurationType,
+            this.argument.configurationFilePath
+          )
+        : ApplicationConfiguration.createNewFile<TConfiguration>(
+            this.configurationType,
+            this.argument.configurationFilePath
+          );
+
+      resolve();
+    });
   }
 }
