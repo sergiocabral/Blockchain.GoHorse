@@ -5,6 +5,7 @@ import {
   InvalidDataError,
   IPackageJson
 } from '@sergiocabral/helper';
+import path from 'path';
 
 /**
  * Informações sobre a linha de comando.
@@ -65,5 +66,31 @@ export class Argument extends CommandLine {
     return matches?.length === 3
       ? matches[2].slugify()
       : this.packageJson.name.slugify();
+  }
+
+  /**
+   * Nome do arquivo de configuração.
+   */
+  public get configurationFileName(): string {
+    return `env.${this.applicationName}.json`;
+  }
+
+  /**
+   * Caminho do arquivo de configuração.
+   */
+  private configurationFilePathValue?: string;
+
+  /**
+   * Caminho do arquivo de configuração.
+   */
+  public get configurationFilePath(): string {
+    if (this.configurationFilePathValue === undefined) {
+      const currentDirectory = process.cwd();
+      this.configurationFilePathValue = path.join(
+        currentDirectory,
+        this.configurationFileName
+      );
+    }
+    return this.configurationFilePathValue;
   }
 }
