@@ -71,9 +71,22 @@ export class ApplicationParameters extends CommandLine {
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
   public get runningFlagFile(): string {
-    const name = `env.${this.applicationName}.${this.applicationInstanceIdentifier}.isRunning`;
+    // TODO: "env" e "isRunning" deve estar em variáveis separadas?
+    const firstIdLetter = 'i';
+    const name = `env.${this.applicationName}.${firstIdLetter}${this.applicationInstanceIdentifier}.isRunning`;
     return path.join(this.inicialDirectory, name);
   }
+
+  /**
+   * Determina se um arquivo é um sinalizador de execução.
+   * Armazena o id no primeiro grupo;
+   */
+  public readonly regexRunningFlagFileId: RegExp = new RegExp(
+    HelperText.escapeRegExp(`env.${this.applicationName}.`) +
+      '([^\\W_]+)' +
+      HelperText.escapeRegExp('.isRunning') +
+      '$'
+  );
 
   /**
    * package.json da aplicação.

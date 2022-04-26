@@ -229,21 +229,25 @@ Application
         Logger.post(
           'It is necessary to inform the id of the instance that will be terminated. Use `/id=<id1>,<id2>,<id3>` to specify the instances or `/id=*` to end all. Instances currently running: {instancesIds}',
           {
-            instancesIds: this.getRunningInstancesIds().join(', ')
+            instancesIds: Object.keys(this.getRunningInstances()).join(', ')
           },
           LogLevel.Error,
           Application.logContext
         );
       }
 
+      // TODO: Continuar daqui exibindo id das instancias a finalizar
+
       Logger.post(
-        'Instance ids: {ids}',
-        { ids },
+        'Informed ids: {ids}. Executing ids: {instancesIds}',
+        {
+          ids,
+          instancesIds: Object.keys(this.getRunningInstances()).join(', ')
+        },
         LogLevel.Information,
         Application.logContext
       );
 
-      // TODO: Como finalizar? Apagar o arquivo.
       resolve();
     });
   }
@@ -251,8 +255,18 @@ Application
   /**
    * Retorna os ids das instâncias em execução.
    */
-  private getRunningInstancesIds(): string[] {
-    // TODO: Lista instâncias apenas desta aplicação que estão em execução.
-    return ['a1', 'a2', 'a3'];
+  private getRunningInstances(): Record<string, string> {
+    const regexMatches = fs
+      .readdirSync(this.parameters.inicialDirectory)
+      .map(file => this.parameters.regexRunningFlagFileId.exec(file))
+      .filter(regexMatch => regexMatch !== null) as RegExpExecArray[];
+    // TODO: Usar reduce?
+
+    const result: Record<string, string> = {};
+    for (const regexMatch of regexMatches) {
+      result[regexMatch[1]] = regexMatch[0];
+    }
+
+    return result;
   }
 }
