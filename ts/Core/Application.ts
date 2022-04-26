@@ -217,9 +217,42 @@ Application
    */
   private async kill(): Promise<void> {
     return new Promise<void>(resolve => {
+      const ids = this.parameters
+        .getArgumentValues('/id')
+        .filter(value => value !== undefined)
+        .join(',')
+        .split(',')
+        .filter(value => value.length > 0)
+        .map(value => value.trim());
+
+      if (ids.length === 0) {
+        Logger.post(
+          'It is necessary to inform the id of the instance that will be terminated. Use `/id=<id1>,<id2>,<id3>` to specify the instances or `/id=*` to end all. Instances currently running: {instancesIds}',
+          {
+            instancesIds: this.getRunningInstancesIds().join(', ')
+          },
+          LogLevel.Error,
+          Application.logContext
+        );
+      }
+
+      Logger.post(
+        'Instance ids: {ids}',
+        { ids },
+        LogLevel.Information,
+        Application.logContext
+      );
+
       // TODO: Como finalizar? Apagar o arquivo.
-      console.log('HOW TO KILL?');
       resolve();
     });
+  }
+
+  /**
+   * Retorna os ids das instâncias em execução.
+   */
+  private getRunningInstancesIds(): string[] {
+    // TODO: Lista instâncias apenas desta aplicação que estão em execução.
+    return ['a1', 'a2', 'a3'];
   }
 }
