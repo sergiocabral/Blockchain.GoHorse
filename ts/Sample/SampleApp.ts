@@ -60,7 +60,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
           setTimeout(loop, 1000);
         }
       };
-      setImmediate(loop);
+      loop();
     });
   }
 }

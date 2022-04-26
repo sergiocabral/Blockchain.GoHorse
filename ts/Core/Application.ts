@@ -2,6 +2,7 @@ import { ApplicationParameters } from './ApplicationParameters';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 import {
   EmptyError,
+  FileSystemMonitoring,
   HelperFileSystem,
   Logger,
   LogLevel,
@@ -84,9 +85,9 @@ export abstract class Application<
       : this.execute.bind(this);
     try {
       await goAhead();
-      onFinished(true);
+      await onFinished(true);
     } catch (error) {
-      onFinished(false, error);
+      await onFinished(false, error);
     }
   }
 
@@ -189,7 +190,15 @@ Application
 `.trim()
     );
 
-    // TODO: Utilizar FileSystemMonitoring
+    const monitoring = new FileSystemMonitoring(
+      this.parameters.runningFlagFile,
+      Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS
+    );
+
+    monitoring.onDeleted.add(async () => {
+      monitoring.stop();
+      await this.stop();
+    });
 
     Logger.post(
       'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
@@ -208,6 +217,7 @@ Application
    */
   private async kill(): Promise<void> {
     return new Promise<void>(resolve => {
+      // TODO: Como finalizar? Apagar o arquivo.
       console.log('HOW TO KILL?');
       resolve();
     });
