@@ -60,16 +60,6 @@ export class ApplicationConfiguration extends JsonLoader {
       );
     }
 
-    Logger.post(
-      'Default "{type}" configuration written as new file: {filePath}',
-      {
-        type: type.name,
-        filePath
-      },
-      LogLevel.Debug,
-      ApplicationConfiguration.logContext
-    );
-
     return configuration;
   }
 
