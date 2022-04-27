@@ -256,17 +256,14 @@ Application
    * Retorna os ids das instâncias em execução.
    */
   private getRunningInstances(): Record<string, string> {
-    const regexMatches = fs
+    return fs
       .readdirSync(this.parameters.inicialDirectory)
       .map(file => this.parameters.regexRunningFlagFileId.exec(file))
-      .filter(regexMatch => regexMatch !== null) as RegExpExecArray[];
-    // TODO: Usar reduce?
-
-    const result: Record<string, string> = {};
-    for (const regexMatch of regexMatches) {
-      result[regexMatch[1]] = regexMatch[0];
-    }
-
-    return result;
+      .reduce<Record<string, string>>((result, regexMatch) => {
+        if (regexMatch !== null) {
+          result[regexMatch[1]] = regexMatch[0];
+        }
+        return result;
+      }, {});
   }
 }
