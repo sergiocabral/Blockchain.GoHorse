@@ -68,12 +68,19 @@ export class ApplicationParameters extends CommandLine {
   }
 
   /**
+   * Consdtantes de uso local.
+   */
+  private static DEFINITION = {
+    ENV: 'env',
+    RUNNING: 'isRunning'
+  };
+
+  /**
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
   public get runningFlagFile(): string {
-    // TODO: "env" e "isRunning" deve estar em variáveis separadas?
     const firstIdLetter = 'i';
-    const name = `env.${this.applicationName}.${firstIdLetter}${this.applicationInstanceIdentifier}.isRunning`;
+    const name = `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.${firstIdLetter}${this.applicationInstanceIdentifier}.${ApplicationParameters.DEFINITION.RUNNING}`;
     return path.join(this.inicialDirectory, name);
   }
 
@@ -82,9 +89,11 @@ export class ApplicationParameters extends CommandLine {
    * Armazena o id no primeiro grupo;
    */
   public readonly regexRunningFlagFileId: RegExp = new RegExp(
-    HelperText.escapeRegExp(`env.${this.applicationName}.`) +
+    HelperText.escapeRegExp(
+      `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.`
+    ) +
       '([^\\W_]+)' +
-      HelperText.escapeRegExp('.isRunning') +
+      HelperText.escapeRegExp(`.${ApplicationParameters.DEFINITION.RUNNING}`) +
       '$'
   );
 
