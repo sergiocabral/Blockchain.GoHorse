@@ -26,14 +26,14 @@ export abstract class Application<
    * Construtor.
    */
   public constructor(onFinished: ResultEvent) {
-    this.parameters = new ApplicationParameters(process.argv);
-
     Logger.post(
-      'Application instance created with id "{id}".',
-      { id: this.parameters.applicationInstanceIdentifier },
+      'Application instance created.',
+      undefined,
       LogLevel.Debug,
       Application.logContext
     );
+
+    this.parameters = new ApplicationParameters(process.argv);
 
     setImmediate(() => void this.ready(onFinished));
   }
@@ -82,7 +82,7 @@ export abstract class Application<
     const signalToTerminate = this.parameters.hasArgumentName('/stop');
 
     Logger.post(
-      'Execution Mode: {mode}',
+      'Application ready to run in mode: {mode}',
       {
         mode: signalToTerminate
           ? 'terminate other instances'
@@ -230,8 +230,10 @@ Application
   ): Promise<void> {
     monitoring.stop();
     Logger.post(
-      'The execution signal file was deleted.',
-      undefined,
+      'The execution signal file was deleted: {path}',
+      {
+        path: this.parameters.runningFlagFile
+      },
       LogLevel.Debug,
       Application.logContext
     );

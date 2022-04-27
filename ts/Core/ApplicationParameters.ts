@@ -3,7 +3,9 @@ import {
   HelperNodeJs,
   HelperText,
   InvalidDataError,
-  IPackageJson
+  IPackageJson,
+  Logger,
+  LogLevel
 } from '@sergiocabral/helper';
 import path from 'path';
 import fs from 'fs';
@@ -12,6 +14,11 @@ import fs from 'fs';
  * Parâmetros de execução da aplicação.
  */
 export class ApplicationParameters extends CommandLine {
+  /**
+   * Contexto do log.
+   */
+  private static logContext = 'ApplicationParameters';
+
   /**
    * Construtor.
    * @param commandLine Argumentos da linha de comando.
@@ -28,6 +35,20 @@ export class ApplicationParameters extends CommandLine {
         ['´', '´']
       ]
     });
+
+    Logger.post(
+      'Instance created with id "{id}".',
+      { id: this.applicationInstanceIdentifier },
+      LogLevel.Debug,
+      ApplicationParameters.logContext
+    );
+
+    Logger.post(
+      'Initial directory as: {inicialDirectory}',
+      { inicialDirectory: this.inicialDirectory },
+      LogLevel.Debug,
+      ApplicationParameters.logContext
+    );
   }
 
   /**
