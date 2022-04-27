@@ -9,6 +9,7 @@ import {
 } from '@sergiocabral/helper';
 import path from 'path';
 import fs from 'fs';
+import { Definition } from '../Definition';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -89,14 +90,6 @@ export class ApplicationParameters extends CommandLine {
   }
 
   /**
-   * Consdtantes de uso local.
-   */
-  private static DEFINITION = {
-    ENV: 'env',
-    RUNNING: 'isRunning'
-  };
-
-  /**
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
   public get runningFlagFile(): string {
@@ -108,7 +101,7 @@ export class ApplicationParameters extends CommandLine {
    * @param id Identificador.
    */
   public getRunningFlagFile(id: string) {
-    const name = `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.${id}.${ApplicationParameters.DEFINITION.RUNNING}`;
+    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.${id}.${Definition.RUNNING_FILE_SUFFIX}`;
     return path.join(this.inicialDirectory, name);
   }
 
@@ -118,10 +111,10 @@ export class ApplicationParameters extends CommandLine {
    */
   public readonly regexRunningFlagFileId: RegExp = new RegExp(
     HelperText.escapeRegExp(
-      `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.`
+      `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.`
     ) +
       '([^\\W_]+)' +
-      HelperText.escapeRegExp(`.${ApplicationParameters.DEFINITION.RUNNING}`) +
+      HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
       '$'
   );
 

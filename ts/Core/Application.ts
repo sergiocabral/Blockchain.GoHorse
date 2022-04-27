@@ -79,7 +79,9 @@ export abstract class Application<
    * Chamado quando a instância está pronta para uso.
    */
   private async ready(onFinished: ResultEvent): Promise<void> {
-    const signalToTerminate = this.parameters.hasArgumentName('/stop');
+    const signalToTerminate = this.parameters.hasArgumentName(
+      Definition.ARGUMENT_STOP
+    );
 
     Logger.post(
       'Application ready to run in mode: {mode}',
@@ -247,7 +249,10 @@ Application
   private async kill(): Promise<void> {
     return new Promise<void>(resolve => {
       const receivedIds = this.parameters
-        .getArgumentValues('/id')
+        .getArgumentValues(
+          Definition.ARGUMENT_STOP,
+          Definition.ARGUMENT_INSTANCE_ID
+        )
         .filter(value => value !== undefined)
         .join(',')
         .split(',')
@@ -258,7 +263,7 @@ Application
 
       if (receivedIds.length === 0) {
         Logger.post(
-          'It is necessary to inform the id of the instance that will be terminated. Use `/id=<id1>,<id2>,<id3>` to specify the instances or `/id=*` to end all. Instances currently running: {runingIds}',
+          `It is necessary to inform the id of the instance that will be terminated. Use \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to end all. Instances currently running: {runingIds}`,
           {
             runingIds: Object.keys(runingIds).join(', ')
           },
@@ -266,11 +271,11 @@ Application
           Application.logContext
         );
       } else {
-        const killAll = receivedIds.includes('*');
+        const killAll = receivedIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
 
         if (killAll) {
           Logger.post(
-            'Terminating all instances because of *.',
+            `Terminating all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
             undefined,
             LogLevel.Debug,
             Application.logContext
