@@ -38,12 +38,12 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
-  public readonly applicationInstanceIdentifier: string = Buffer.from(
-    Math.random().toString()
-  )
-    .toString('base64')
-    .replace(/[\W_]/g, '')
-    .substring(10, 15);
+  public readonly applicationInstanceIdentifier: string =
+    'i' +
+    Buffer.from(Math.random().toString())
+      .toString('base64')
+      .replace(/[\W_]/g, '')
+      .substring(10, 15);
 
   /**
    * Nome a aplicação.
@@ -79,8 +79,15 @@ export class ApplicationParameters extends CommandLine {
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
   public get runningFlagFile(): string {
-    const firstIdLetter = 'i';
-    const name = `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.${firstIdLetter}${this.applicationInstanceIdentifier}.${ApplicationParameters.DEFINITION.RUNNING}`;
+    return this.getRunningFlagFile(this.applicationInstanceIdentifier);
+  }
+
+  /**
+   * Constrói o nome do arquivo de sinalização.
+   * @param id Identificador.
+   */
+  public getRunningFlagFile(id: string) {
+    const name = `${ApplicationParameters.DEFINITION.ENV}.${this.applicationName}.${id}.${ApplicationParameters.DEFINITION.RUNNING}`;
     return path.join(this.inicialDirectory, name);
   }
 
@@ -96,6 +103,17 @@ export class ApplicationParameters extends CommandLine {
       HelperText.escapeRegExp(`.${ApplicationParameters.DEFINITION.RUNNING}`) +
       '$'
   );
+
+  /**
+   * Extrai o id de um  arquivo é um sinalizador de execução.
+   */
+  public getRunningFlagFileId(file: string): string | undefined {
+    const regexMatch = this.regexRunningFlagFileId.exec(file);
+    if (regexMatch && regexMatch.length > 1) {
+      return regexMatch[1];
+    }
+    return undefined;
+  }
 
   /**
    * package.json da aplicação.

@@ -80,6 +80,18 @@ export abstract class Application<
    */
   private async ready(onFinished: ResultEvent): Promise<void> {
     const signalToTerminate = this.parameters.hasArgumentName('/stop');
+
+    Logger.post(
+      'Execution Mode: {mode}',
+      {
+        mode: signalToTerminate
+          ? 'terminate other instances'
+          : 'start this instance'
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+
     const goAhead = signalToTerminate
       ? this.kill.bind(this)
       : this.execute.bind(this);
@@ -195,10 +207,9 @@ Application
       Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS
     );
 
-    monitoring.onDeleted.add(async () => {
-      monitoring.stop();
-      await this.stop();
-    });
+    monitoring.onDeleted.add(
+      async () => await this.onDeletedRunningFlagFile(monitoring)
+    );
 
     Logger.post(
       'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
@@ -212,12 +223,28 @@ Application
   }
 
   /**
+   * Evento ao excluir o arquivo de sinalização de execução.
+   */
+  private async onDeletedRunningFlagFile(
+    monitoring: FileSystemMonitoring
+  ): Promise<void> {
+    monitoring.stop();
+    Logger.post(
+      'The execution signal file was deleted.',
+      undefined,
+      LogLevel.Debug,
+      Application.logContext
+    );
+    await this.stop();
+  }
+
+  /**
    * Sinaliza que a instância devem ser finalizadas.
    * @private
    */
   private async kill(): Promise<void> {
     return new Promise<void>(resolve => {
-      const ids = this.parameters
+      const receivedIds = this.parameters
         .getArgumentValues('/id')
         .filter(value => value !== undefined)
         .join(',')
@@ -225,28 +252,95 @@ Application
         .filter(value => value.length > 0)
         .map(value => value.trim());
 
-      if (ids.length === 0) {
+      const runingIds = this.getRunningInstances();
+
+      if (receivedIds.length === 0) {
         Logger.post(
-          'It is necessary to inform the id of the instance that will be terminated. Use `/id=<id1>,<id2>,<id3>` to specify the instances or `/id=*` to end all. Instances currently running: {instancesIds}',
+          'It is necessary to inform the id of the instance that will be terminated. Use `/id=<id1>,<id2>,<id3>` to specify the instances or `/id=*` to end all. Instances currently running: {runingIds}',
           {
-            instancesIds: Object.keys(this.getRunningInstances()).join(', ')
+            runingIds: Object.keys(runingIds).join(', ')
           },
           LogLevel.Error,
           Application.logContext
         );
+      } else {
+        const killAll = receivedIds.includes('*');
+
+        if (killAll) {
+          Logger.post(
+            'Terminating all instances because of *.',
+            undefined,
+            LogLevel.Debug,
+            Application.logContext
+          );
+        }
+
+        const instancesToKill: Record<string, string> = killAll
+          ? runingIds
+          : receivedIds.reduce<Record<string, string>>((result, id) => {
+              result[id] = this.parameters.getRunningFlagFile(id);
+              return result;
+            }, {});
+
+        if (Object.keys(instancesToKill).length === 0) {
+          Logger.post(
+            'No instances have been found to be terminated.',
+            undefined,
+            LogLevel.Information,
+            Application.logContext
+          );
+        } else {
+          let countKill = 0;
+          for (const instanceId in instancesToKill) {
+            let instanceFile = instancesToKill[instanceId];
+            if (fs.existsSync(instanceFile)) {
+              try {
+                instanceFile = fs.realpathSync(instanceFile);
+                fs.unlinkSync(instanceFile);
+                countKill++;
+                Logger.post(
+                  'Terminated instance "{instanceId}" by deleting execution signal file: {instanceFile}',
+                  {
+                    instanceId,
+                    instanceFile
+                  },
+                  LogLevel.Information,
+                  Application.logContext
+                );
+              } catch (error) {
+                Logger.post(
+                  'Error to terminate instance "{instanceId}" by deleting execution signal file: {instanceFile}. ERROR: {error}',
+                  {
+                    instanceId,
+                    instanceFile,
+                    error
+                  },
+                  LogLevel.Error,
+                  Application.logContext
+                );
+              }
+            } else {
+              Logger.post(
+                'Instance "{instanceId}" is not running to terminate.',
+                {
+                  instanceId
+                },
+                LogLevel.Warning,
+                Application.logContext
+              );
+            }
+          }
+
+          Logger.post(
+            'Total instances terminated: {countKill}',
+            {
+              countKill
+            },
+            LogLevel.Debug,
+            Application.logContext
+          );
+        }
       }
-
-      // TODO: Continuar daqui exibindo id das instancias a finalizar
-
-      Logger.post(
-        'Informed ids: {ids}. Executing ids: {instancesIds}',
-        {
-          ids,
-          instancesIds: Object.keys(this.getRunningInstances()).join(', ')
-        },
-        LogLevel.Information,
-        Application.logContext
-      );
 
       resolve();
     });
