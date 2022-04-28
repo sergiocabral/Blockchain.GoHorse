@@ -79,11 +79,9 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Diretório da aplicação.
    */
-  public readonly applicationDirectory: string = HelperFileSystem.findFilesOut(
-    __dirname,
-    'package.json',
-    1
-  )[0];
+  public readonly applicationDirectory: string = path.dirname(
+    HelperFileSystem.findFilesOut(__dirname, 'package.json', 1)[0]
+  );
 
   /**
    * Diretório inicial de execução da aplicação.
