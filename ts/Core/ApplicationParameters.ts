@@ -45,6 +45,13 @@ export class ApplicationParameters extends CommandLine {
     );
 
     Logger.post(
+      'Command line: {commandLine}',
+      { commandLine: this.toString() },
+      LogLevel.Debug,
+      ApplicationParameters.logContext
+    );
+
+    Logger.post(
       'Initial directory as: {inicialDirectory}',
       { inicialDirectory: this.inicialDirectory },
       LogLevel.Debug,
