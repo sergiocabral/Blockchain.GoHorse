@@ -4,6 +4,7 @@ import {
   EmptyError,
   FileSystemMonitoring,
   HelperFileSystem,
+  HelperObject,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -161,9 +162,9 @@ export abstract class Application<
 
     try {
       await goAhead();
-      await this.trigger(this.onDispose, true);
+      await HelperObject.triggerEventSet(this.onDispose, true);
     } catch (error) {
-      await this.trigger(this.onDispose, true, error);
+      await HelperObject.triggerEventSet(this.onDispose, true, error);
     }
 
     this.aplicationState = 'stoped';
@@ -481,21 +482,5 @@ Application
         }
         return result;
       }, {});
-  }
-
-  /**
-   * Dispara os eventos presentes em uma lista.
-   * @param listeners Lista de listeners
-   * @param success Sinalização de sucesso.
-   * @param data Dado associado.
-   */
-  private async trigger(
-    listeners: Set<ResultEvent>,
-    success: boolean,
-    data?: unknown
-  ): Promise<void> {
-    for (const listener of listeners) {
-      await listener(success, data);
-    }
   }
 }
