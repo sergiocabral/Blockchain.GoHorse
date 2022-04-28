@@ -164,10 +164,10 @@ export abstract class Application<
       await goAhead();
       await HelperObject.triggerEventSet(this.onDispose, true);
     } catch (error) {
-      await HelperObject.triggerEventSet(this.onDispose, true, error);
+      await HelperObject.triggerEventSet(this.onDispose, false, error);
     }
 
-    this.aplicationState = 'stoped';
+    await this.stop();
   }
 
   /**
@@ -196,8 +196,6 @@ export abstract class Application<
       LogLevel.Debug,
       Application.logContext
     );
-
-    await this.stop();
   }
 
   /**
