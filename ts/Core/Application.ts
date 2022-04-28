@@ -286,16 +286,18 @@ Application
    * Apaga o arquivo que sinaliza a execução da instância.
    */
   private deleteRunningFlagFile(): void {
-    this.runningFlagFileMonitoring.stop();
-    Logger.post(
-      'Stopped monitoring for the presence of the application instance execution flag file: {path}',
-      {
-        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-        path: this.parameters.runningFlagFile
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
+    if (this.runningFlagFileMonitoring.isActive) {
+      this.runningFlagFileMonitoring.stop();
+      Logger.post(
+        'Stopped monitoring for the presence of the application instance execution flag file: {path}',
+        {
+          seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+          path: this.parameters.runningFlagFile
+        },
+        LogLevel.Debug,
+        Application.logContext
+      );
+    }
 
     if (fs.existsSync(this.parameters.runningFlagFile)) {
       Logger.post(
