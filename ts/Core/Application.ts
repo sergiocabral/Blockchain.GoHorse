@@ -5,6 +5,7 @@ import {
   FileSystemMonitoring,
   HelperFileSystem,
   HelperObject,
+  HelperText,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -328,24 +329,7 @@ export abstract class Application<
       errors.push(error);
     }
 
-    if (this.onDispose.size > 0) {
-      Logger.post(
-        'Disposing resources.',
-        undefined,
-        LogLevel.Debug,
-        Application.logContext
-      );
-
-      try {
-        await HelperObject.triggerEventSet(
-          this.onDispose,
-          errors.length === 0,
-          errors
-        );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
+    errors.push(...(await this.dispose(errors)));
 
     if (errors.length === 0) {
       Logger.post(
@@ -364,11 +348,7 @@ export abstract class Application<
 
       for (const error of errors) {
         Logger.post(
-          error instanceof Error
-            ? error.message
-            : error
-            ? String(error)
-            : 'Unknown error.',
+          HelperText.formatError(error),
           {
             error: HelperObject.toText(error)
           },
@@ -493,6 +473,30 @@ Application
         reject(error);
       }
     });
+  }
+
+  /**
+   * Libera os recursos.
+   */
+  private async dispose(errors: unknown[]): Promise<unknown[]> {
+    if (this.onDispose.size === 0) {
+      return [];
+    }
+
+    Logger.post(
+      'Disposing resources.',
+      undefined,
+      LogLevel.Debug,
+      Application.logContext
+    );
+
+    return (
+      await HelperObject.triggerEvent(
+        this.onDispose,
+        errors.length === 0,
+        errors
+      )
+    ).filter(error => Boolean(error));
   }
 
   /**
