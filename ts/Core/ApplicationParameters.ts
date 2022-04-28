@@ -57,6 +57,15 @@ export class ApplicationParameters extends CommandLine {
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
+
+    this.regexRunningFlagFileId = new RegExp(
+      HelperText.escapeRegExp(
+        `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.`
+      ) +
+        '([^\\W_]+)' +
+        HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
+        '$'
+    );
   }
 
   /**
@@ -116,14 +125,7 @@ export class ApplicationParameters extends CommandLine {
    * Determina se um arquivo é um sinalizador de execução.
    * Armazena o id no primeiro grupo;
    */
-  public readonly regexRunningFlagFileId: RegExp = new RegExp(
-    HelperText.escapeRegExp(
-      `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.`
-    ) +
-      '([^\\W_]+)' +
-      HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
-      '$'
-  );
+  public readonly regexRunningFlagFileId: RegExp;
 
   /**
    * Extrai o id de um  arquivo é um sinalizador de execução.
