@@ -37,6 +37,23 @@ export abstract class Application<
   private static logContext = 'Application';
 
   /**
+   * Tipo da Configurações da aplicação;
+   */
+  protected abstract get configurationType(): new (
+    json?: unknown
+  ) => TConfiguration;
+
+  /**
+   * Quando a aplicação é iniciada.
+   */
+  protected abstract onStart(): Promise<void> | void;
+
+  /**
+   * Quando a aplicação é finalizada.
+   */
+  protected abstract onStop(): Promise<void> | void;
+
+  /**
    * Construtor.
    */
   public constructor() {
@@ -67,11 +84,6 @@ export abstract class Application<
   }
 
   /**
-   * Modo de execução da aplicação.
-   */
-  private readonly executionMode: ExecutionMode;
-
-  /**
    * Evento ao finalizar a aplicação e liberar recursos.
    */
   public onDispose: Set<ResultEvent> = new Set<ResultEvent>();
@@ -80,13 +92,6 @@ export abstract class Application<
    * Configurações da aplicação.
    */
   private configurationValue?: TConfiguration;
-
-  /**
-   * Tipo da Configurações da aplicação;
-   */
-  protected abstract get configurationType(): new (
-    json?: unknown
-  ) => TConfiguration;
 
   /**
    * Configurações JSON da aplicação.
@@ -99,24 +104,11 @@ export abstract class Application<
   }
 
   /**
-   * Parâmetros de execução da aplicação.
+   * Sinaliza se a aplicação está em execução.
    */
-  protected readonly parameters: ApplicationParameters;
-
-  /**
-   * Monitoramento do arquivo de sinalização de execução.
-   */
-  private readonly runningFlagFileMonitoring: FileSystemMonitoring;
-
-  /**
-   * Quando a aplicação é iniciada.
-   */
-  protected abstract onStart(): Promise<void> | void;
-
-  /**
-   * Quando a aplicação é finalizada.
-   */
-  protected abstract onStop(): Promise<void> | void;
+  public get isRunning(): boolean {
+    return this.aplicationState !== 'stoped';
+  }
 
   /**
    * Estado de execução da aplicação.
@@ -124,11 +116,19 @@ export abstract class Application<
   private aplicationState: AplicationState = 'stoped';
 
   /**
-   * Sinaliza se a aplicação está em execução.
+   * Modo de execução da aplicação.
    */
-  public get isRunning(): boolean {
-    return this.aplicationState !== 'stoped';
-  }
+  private readonly executionMode: ExecutionMode;
+
+  /**
+   * Monitoramento do arquivo de sinalização de execução.
+   */
+  private readonly runningFlagFileMonitoring: FileSystemMonitoring;
+
+  /**
+   * Parâmetros de execução da aplicação.
+   */
+  protected readonly parameters: ApplicationParameters;
 
   /**
    * Inicia a execução da aplicação.
@@ -176,210 +176,6 @@ export abstract class Application<
     this.createRunningFlagFile();
     await this.loadConfiguration();
     await this.onStart();
-  }
-
-  /**
-   * Carrega o arquivo de configuração da aplicação.
-   */
-  private async loadConfiguration(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      Logger.post(
-        'Loading application configuration.',
-        undefined,
-        LogLevel.Debug,
-        Application.logContext
-      );
-
-      const configurationExists = fs.existsSync(
-        this.parameters.configurationFile
-      );
-      const configuration: TConfiguration = configurationExists
-        ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
-            this.configurationType,
-            this.parameters.configurationFile
-          )
-        : ApplicationConfiguration.createNewFile<TConfiguration>(
-            this.configurationType,
-            this.parameters.configurationFile
-          );
-
-      try {
-        ApplicationConfiguration.validate(configuration);
-
-        Logger.post(
-          'Application configuration loaded.',
-          undefined,
-          LogLevel.Debug,
-          Application.logContext
-        );
-
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  /**
-   * Cria um arquivo em disco que sinaliza que esta instância está em execução.
-   * A remoção do arquivo resulta na finalização da aplicação.
-   */
-  private createRunningFlagFile(): void {
-    Logger.post(
-      'Creating application instance execution flag file: {path}',
-      {
-        path: this.parameters.runningFlagFile
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
-
-    HelperFileSystem.createRecursive(
-      this.parameters.runningFlagFile,
-      `
-FLAG FILE
-
-This file signals that the application should continue running.
-
-If this file no longer exists, the application is terminated.
-
-Application
- - Name: ${this.parameters.applicationName} 
- - Instance: ${this.parameters.applicationInstanceIdentifier}
-`.trim()
-    );
-
-    this.runningFlagFileMonitoring.start();
-
-    Logger.post(
-      'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
-      {
-        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-        path: this.parameters.runningFlagFile
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
-  }
-
-  /**
-   * Apaga o arquivo que sinaliza a execução da instância.
-   */
-  private deleteRunningFlagFile(): void {
-    if (this.runningFlagFileMonitoring.isActive) {
-      this.runningFlagFileMonitoring.stop();
-      Logger.post(
-        'Stopped monitoring for the presence of the application instance execution flag file: {path}',
-        {
-          seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-          path: this.parameters.runningFlagFile
-        },
-        LogLevel.Debug,
-        Application.logContext
-      );
-    }
-
-    if (fs.existsSync(this.parameters.runningFlagFile)) {
-      Logger.post(
-        'Deleting application instance execution flag file: {path}',
-        {
-          path: this.parameters.runningFlagFile
-        },
-        LogLevel.Debug,
-        Application.logContext
-      );
-      fs.unlinkSync(this.parameters.runningFlagFile);
-    }
-  }
-
-  /**
-   * Evento ao excluir o arquivo de sinalização de execução.
-   */
-  private async onDeletedRunningFlagFile(): Promise<void> {
-    Logger.post(
-      'The execution signal file was deleted: {path}',
-      {
-        path: this.parameters.runningFlagFile
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
-    await this.stop();
-  }
-
-  /**
-   * Para a execução da aplicação.
-   * @param errors Erros durante a execução.
-   */
-  private async stop(...errors: unknown[]): Promise<void> {
-    if (this.aplicationState !== 'running') {
-      return;
-    }
-    this.aplicationState = 'stoping';
-
-    try {
-      this.deleteRunningFlagFile();
-    } catch (error) {
-      errors.push(error);
-    }
-
-    try {
-      await this.onStop();
-    } catch (error) {
-      errors.push(error);
-    }
-
-    if (this.onDispose.size > 0) {
-      Logger.post(
-        'Disposing resources.',
-        undefined,
-        LogLevel.Debug,
-        Application.logContext
-      );
-
-      try {
-        await HelperObject.triggerEventSet(
-          this.onDispose,
-          errors.length === 0,
-          errors
-        );
-      } catch (error) {
-        errors.push(error);
-      }
-    }
-
-    if (errors.length === 0) {
-      Logger.post(
-        'The application ended successfully.',
-        undefined,
-        LogLevel.Debug,
-        Application.logContext
-      );
-    } else {
-      Logger.post(
-        'The application ended with {count} error(s).',
-        { count: errors.length },
-        LogLevel.Error,
-        Application.logContext
-      );
-
-      for (const error of errors) {
-        Logger.post(
-          error instanceof Error
-            ? error.message
-            : error
-            ? String(error)
-            : 'Unknown error.',
-          {
-            error: HelperObject.toText(error)
-          },
-          LogLevel.Fatal,
-          Application.logContext
-        );
-      }
-    }
-
-    this.aplicationState = 'stoped';
   }
 
   /**
@@ -508,6 +304,210 @@ Application
 
       resolve();
     });
+  }
+
+  /**
+   * Para a execução da aplicação.
+   * @param errors Erros durante a execução.
+   */
+  private async stop(...errors: unknown[]): Promise<void> {
+    if (this.aplicationState !== 'running') {
+      return;
+    }
+    this.aplicationState = 'stoping';
+
+    try {
+      this.deleteRunningFlagFile();
+    } catch (error) {
+      errors.push(error);
+    }
+
+    try {
+      await this.onStop();
+    } catch (error) {
+      errors.push(error);
+    }
+
+    if (this.onDispose.size > 0) {
+      Logger.post(
+        'Disposing resources.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+
+      try {
+        await HelperObject.triggerEventSet(
+          this.onDispose,
+          errors.length === 0,
+          errors
+        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+
+    if (errors.length === 0) {
+      Logger.post(
+        'The application ended successfully.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+    } else {
+      Logger.post(
+        'The application ended with {count} error(s).',
+        { count: errors.length },
+        LogLevel.Error,
+        Application.logContext
+      );
+
+      for (const error of errors) {
+        Logger.post(
+          error instanceof Error
+            ? error.message
+            : error
+            ? String(error)
+            : 'Unknown error.',
+          {
+            error: HelperObject.toText(error)
+          },
+          LogLevel.Fatal,
+          Application.logContext
+        );
+      }
+    }
+
+    this.aplicationState = 'stoped';
+  }
+
+  /**
+   * Cria um arquivo em disco que sinaliza que esta instância está em execução.
+   * A remoção do arquivo resulta na finalização da aplicação.
+   */
+  private createRunningFlagFile(): void {
+    Logger.post(
+      'Creating application instance execution flag file: {path}',
+      {
+        path: this.parameters.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+
+    HelperFileSystem.createRecursive(
+      this.parameters.runningFlagFile,
+      `
+FLAG FILE
+
+This file signals that the application should continue running.
+
+If this file no longer exists, the application is terminated.
+
+Application
+ - Name: ${this.parameters.applicationName} 
+ - Instance: ${this.parameters.applicationInstanceIdentifier}
+`.trim()
+    );
+
+    this.runningFlagFileMonitoring.start();
+
+    Logger.post(
+      'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
+      {
+        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+        path: this.parameters.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+  }
+
+  /**
+   * Apaga o arquivo que sinaliza a execução da instância.
+   */
+  private deleteRunningFlagFile(): void {
+    if (this.runningFlagFileMonitoring.isActive) {
+      this.runningFlagFileMonitoring.stop();
+      Logger.post(
+        'Stopped monitoring for the presence of the application instance execution flag file: {path}',
+        {
+          seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+          path: this.parameters.runningFlagFile
+        },
+        LogLevel.Debug,
+        Application.logContext
+      );
+    }
+
+    if (fs.existsSync(this.parameters.runningFlagFile)) {
+      Logger.post(
+        'Deleting application instance execution flag file: {path}',
+        {
+          path: this.parameters.runningFlagFile
+        },
+        LogLevel.Debug,
+        Application.logContext
+      );
+      fs.unlinkSync(this.parameters.runningFlagFile);
+    }
+  }
+
+  /**
+   * Carrega o arquivo de configuração da aplicação.
+   */
+  private async loadConfiguration(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      Logger.post(
+        'Loading application configuration.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+
+      const configurationExists = fs.existsSync(
+        this.parameters.configurationFile
+      );
+      const configuration: TConfiguration = configurationExists
+        ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
+            this.configurationType,
+            this.parameters.configurationFile
+          )
+        : ApplicationConfiguration.createNewFile<TConfiguration>(
+            this.configurationType,
+            this.parameters.configurationFile
+          );
+
+      try {
+        ApplicationConfiguration.validate(configuration);
+
+        Logger.post(
+          'Application configuration loaded.',
+          undefined,
+          LogLevel.Debug,
+          Application.logContext
+        );
+
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  /**
+   * Evento ao excluir o arquivo de sinalização de execução.
+   */
+  private async onDeletedRunningFlagFile(): Promise<void> {
+    Logger.post(
+      'The execution signal file was deleted: {path}',
+      {
+        path: this.parameters.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+    await this.stop();
   }
 
   /**
