@@ -1,5 +1,6 @@
 import {
   CommandLine,
+  HelperFileSystem,
   HelperNodeJs,
   HelperText,
   InvalidDataError,
@@ -52,6 +53,13 @@ export class ApplicationParameters extends CommandLine {
     );
 
     Logger.post(
+      'Application directory as: {applicationDirectory}',
+      { applicationDirectory: this.applicationDirectory },
+      LogLevel.Debug,
+      ApplicationParameters.logContext
+    );
+
+    Logger.post(
       'Initial directory as: {inicialDirectory}',
       { inicialDirectory: this.inicialDirectory },
       LogLevel.Debug,
@@ -67,6 +75,15 @@ export class ApplicationParameters extends CommandLine {
         '$'
     );
   }
+
+  /**
+   * Diretório da aplicação.
+   */
+  public readonly applicationDirectory: string = HelperFileSystem.findFilesOut(
+    __dirname,
+    'package.json',
+    1
+  )[0];
 
   /**
    * Diretório inicial de execução da aplicação.
@@ -149,9 +166,10 @@ export class ApplicationParameters extends CommandLine {
   public get packageJson(): IPackageJson {
     if (this.packageJsonValue === undefined) {
       const mark = /^@gohorse\//;
-      const applications = HelperNodeJs.getAllPreviousPackagesJson().filter(
-        packageJson =>
-          HelperText.matchFilter(String(packageJson.Value.name), mark)
+      const applications = HelperNodeJs.getAllPreviousPackagesJson(
+        this.applicationDirectory
+      ).filter(packageJson =>
+        HelperText.matchFilter(String(packageJson.Value.name), mark)
       );
       if (applications.length !== 1) {
         throw new InvalidDataError(
