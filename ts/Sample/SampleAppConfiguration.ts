@@ -7,5 +7,5 @@ export class SampleAppConfiguration extends ApplicationConfiguration {
   /**
    * Um valor qualquer.
    */
-  public anyValue = 'Any Value';
+  public anyProperty = 'Any Value';
 }

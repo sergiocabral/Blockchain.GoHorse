@@ -4,19 +4,32 @@ import {
   EmptyError,
   FileSystemMonitoring,
   HelperFileSystem,
+  InvalidExecutionError,
   Logger,
   LogLevel,
   ResultEvent
 } from '@sergiocabral/helper';
 import fs from 'fs';
 import { Definition } from '../Definition';
+import { IApplication } from './IApplication';
+
+/**
+ * Estados de execução de uma aplicação.
+ */
+type AplicationState = 'running' | 'stoping' | 'stoped';
+
+/**
+ * Modos de execução da aplicação.
+ */
+type ExecutionMode = 'start' | 'kill';
 
 /**
  * Esboço de uma aplicação executável.
  */
 export abstract class Application<
   TConfiguration extends ApplicationConfiguration = ApplicationConfiguration
-> {
+> implements IApplication
+{
   /**
    * Contexto do log.
    */
@@ -25,7 +38,7 @@ export abstract class Application<
   /**
    * Construtor.
    */
-  public constructor(onFinished: ResultEvent) {
+  public constructor() {
     Logger.post(
       'Application instance created.',
       undefined,
@@ -35,8 +48,32 @@ export abstract class Application<
 
     this.parameters = new ApplicationParameters(process.argv);
 
-    setImmediate(() => void this.ready(onFinished));
+    const runningFlagFileMonitoringStarted = false;
+    this.runningFlagFileMonitoring = new FileSystemMonitoring(
+      this.parameters.runningFlagFile,
+      Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+      runningFlagFileMonitoringStarted
+    );
+    this.runningFlagFileMonitoring.onDeleted.add(
+      this.onDeletedRunningFlagFile.bind(this)
+    );
+
+    this.executionMode = this.parameters.hasArgumentName(
+      Definition.ARGUMENT_STOP
+    )
+      ? 'kill'
+      : 'start';
   }
+
+  /**
+   * Modo de execução da aplicação.
+   */
+  private readonly executionMode: ExecutionMode;
+
+  /**
+   * Evento ao finalizar a aplicação e liberar recursos.
+   */
+  public onDispose: Set<ResultEvent> = new Set<ResultEvent>();
 
   /**
    * Configurações da aplicação.
@@ -51,24 +88,9 @@ export abstract class Application<
   ) => TConfiguration;
 
   /**
-   * Parâmetros de execução da aplicação.
+   * Configurações JSON da aplicação.
    */
-  protected readonly parameters: ApplicationParameters;
-
-  /**
-   * Inicia a aplicação.
-   */
-  protected abstract start(): Promise<void> | void;
-
-  /**
-   * Finaliza a aplicação.
-   */
-  protected abstract stop(): Promise<void> | void;
-
-  /**
-   * Configurações da aplicação.
-   */
-  public configuration(): TConfiguration {
+  public get configuration(): TConfiguration {
     if (this.configurationValue === undefined) {
       throw new EmptyError('Application configuration not loaded.');
     }
@@ -76,33 +98,75 @@ export abstract class Application<
   }
 
   /**
-   * Chamado quando a instância está pronta para uso.
+   * Parâmetros de execução da aplicação.
    */
-  private async ready(onFinished: ResultEvent): Promise<void> {
-    const signalToTerminate = this.parameters.hasArgumentName(
-      Definition.ARGUMENT_STOP
-    );
+  protected readonly parameters: ApplicationParameters;
+
+  /**
+   * Monitoramento do arquivo de sinalização de execução.
+   */
+  private readonly runningFlagFileMonitoring: FileSystemMonitoring;
+
+  /**
+   * Quando a aplicação é iniciada.
+   */
+  protected abstract onStart(): Promise<void> | void;
+
+  /**
+   * Quando a aplicação é finalizada.
+   */
+  protected abstract onStop(): Promise<void> | void;
+
+  /**
+   * Estado de execução da aplicação.
+   */
+  private aplicationState: AplicationState = 'stoped';
+
+  /**
+   * Sinaliza se a aplicação está em execução.
+   */
+  public get isRunning(): boolean {
+    return this.aplicationState !== 'stoped';
+  }
+
+  /**
+   * Inicia a execução da aplicação.
+   */
+  public async run(): Promise<void> {
+    if (
+      this.aplicationState === 'running' ||
+      this.aplicationState === 'stoping'
+    ) {
+      throw new InvalidExecutionError('Already started or stoping.');
+    }
+
+    this.aplicationState = 'running';
 
     Logger.post(
-      'Application ready to run in mode: {mode}',
+      'Application started in mode: {mode}',
       {
-        mode: signalToTerminate
-          ? 'terminate other instances'
-          : 'start this instance'
+        mode:
+          this.executionMode === 'kill'
+            ? 'terminate other instances'
+            : 'start this instance'
       },
       LogLevel.Debug,
       Application.logContext
     );
 
-    const goAhead = signalToTerminate
-      ? this.kill.bind(this)
-      : this.execute.bind(this);
+    const goAhead =
+      this.executionMode === 'kill'
+        ? this.kill.bind(this)
+        : this.execute.bind(this);
+
     try {
       await goAhead();
-      await onFinished(true);
+      await this.trigger(this.onDispose, true);
     } catch (error) {
-      await onFinished(false, error);
+      await this.trigger(this.onDispose, true, error);
     }
+
+    this.aplicationState = 'stoped';
   }
 
   /**
@@ -121,7 +185,7 @@ export abstract class Application<
       Application.logContext
     );
 
-    await this.start();
+    await this.onStart();
 
     Logger.post(
       '"{type}" application finished.',
@@ -131,6 +195,8 @@ export abstract class Application<
       LogLevel.Debug,
       Application.logContext
     );
+
+    await this.stop();
   }
 
   /**
@@ -204,14 +270,7 @@ Application
 `.trim()
     );
 
-    const monitoring = new FileSystemMonitoring(
-      this.parameters.runningFlagFile,
-      Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS
-    );
-
-    monitoring.onDeleted.add(
-      async () => await this.onDeletedRunningFlagFile(monitoring)
-    );
+    this.runningFlagFileMonitoring.start();
 
     Logger.post(
       'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
@@ -225,12 +284,37 @@ Application
   }
 
   /**
+   * Apaga o arquivo que sinaliza a execução da instância.
+   */
+  private deleteRunningFlagFile(): void {
+    this.runningFlagFileMonitoring.stop();
+    Logger.post(
+      'Stopped monitoring for the presence of the application instance execution flag file: {path}',
+      {
+        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
+        path: this.parameters.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext
+    );
+
+    if (fs.existsSync(this.parameters.runningFlagFile)) {
+      Logger.post(
+        'Deleting application instance execution flag file: {path}',
+        {
+          path: this.parameters.runningFlagFile
+        },
+        LogLevel.Debug,
+        Application.logContext
+      );
+      fs.unlinkSync(this.parameters.runningFlagFile);
+    }
+  }
+
+  /**
    * Evento ao excluir o arquivo de sinalização de execução.
    */
-  private async onDeletedRunningFlagFile(
-    monitoring: FileSystemMonitoring
-  ): Promise<void> {
-    monitoring.stop();
+  private async onDeletedRunningFlagFile(): Promise<void> {
     Logger.post(
       'The execution signal file was deleted: {path}',
       {
@@ -240,6 +324,20 @@ Application
       Application.logContext
     );
     await this.stop();
+  }
+
+  /**
+   * Para a execução da aplicação.
+   */
+  private async stop(): Promise<void> {
+    if (this.aplicationState === 'running') {
+      this.aplicationState = 'stoping';
+
+      this.deleteRunningFlagFile();
+      await this.onStop();
+
+      this.aplicationState = 'stoped';
+    }
   }
 
   /**
@@ -259,17 +357,34 @@ Application
         .filter(value => value.length > 0)
         .map(value => value.trim());
 
-      const runingIds = this.getRunningInstances();
+      const runingInstances = this.getRunningInstances();
 
       if (receivedIds.length === 0) {
         Logger.post(
-          `It is necessary to inform the id of the instance that will be terminated. Use \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to end all. Instances currently running: {runingIds}`,
-          {
-            runingIds: Object.keys(runingIds).join(', ')
-          },
+          `It is necessary to inform the id of the instance that will be terminated. Use \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to end all.`,
+          undefined,
           LogLevel.Error,
           Application.logContext
         );
+
+        const runingIds = Object.keys(runingInstances).join(', ');
+        if (runingIds !== '') {
+          Logger.post(
+            `Instances currently running: {runingIds}`,
+            {
+              runingIds
+            },
+            LogLevel.Information,
+            Application.logContext
+          );
+        } else {
+          Logger.post(
+            `But there is no instance currently running.`,
+            undefined,
+            LogLevel.Information,
+            Application.logContext
+          );
+        }
       } else {
         const killAll = receivedIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
 
@@ -283,7 +398,7 @@ Application
         }
 
         const instancesToKill: Record<string, string> = killAll
-          ? runingIds
+          ? runingInstances
           : receivedIds.reduce<Record<string, string>>((result, id) => {
               result[id] = this.parameters.getRunningFlagFile(id);
               return result;
@@ -366,5 +481,21 @@ Application
         }
         return result;
       }, {});
+  }
+
+  /**
+   * Dispara os eventos presentes em uma lista.
+   * @param listeners Lista de listeners
+   * @param success Sinalização de sucesso.
+   * @param data Dado associado.
+   */
+  private async trigger(
+    listeners: Set<ResultEvent>,
+    success: boolean,
+    data?: unknown
+  ): Promise<void> {
+    for (const listener of listeners) {
+      await listener(success, data);
+    }
   }
 }

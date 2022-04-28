@@ -6,9 +6,9 @@ import { SampleAppConfiguration } from './SampleAppConfiguration';
  */
 export class SampleApp extends Application<SampleAppConfiguration> {
   /**
-   * Sinaliza que deve finaliza a aplicação.
+   * Sinaliza loop ativo.
    */
-  private signalToTerminate = false;
+  private isLooping = false;
 
   /**
    * Tipo da Configurações da aplicação;
@@ -18,7 +18,9 @@ export class SampleApp extends Application<SampleAppConfiguration> {
   /**
    * Inicia a aplicação.
    */
-  protected override async start(): Promise<void> {
+  protected override async onStart(): Promise<void> {
+    this.isLooping = true;
+
     const appName = this.parameters.applicationName;
 
     console.info(`      ____`);
@@ -37,27 +39,31 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(``);
 
     await this.loop();
+
+    this.isLooping = false;
   }
 
   /**
    * Finaliza a aplicação.
    */
-  protected override stop(): void {
-    this.signalToTerminate = true;
+  protected override onStop(): void {
+    this.isLooping = false;
   }
 
   /**
    * Loop para manter a execução da aplicação.
+   * @param steps Quantidade de loops.
+   * @param interval Intevalo entre cada loop.
    */
-  private async loop(): Promise<void> {
+  private async loop(steps = 10, interval = 1000): Promise<void> {
     return new Promise<void>(resolve => {
-      let count = 0;
+      let step = 0;
       const loop = () => {
-        console.debug(`Loop ${++count}`);
-        if (this.signalToTerminate) {
+        console.debug(`Tick ${++step}/${steps}`);
+        if (!this.isLooping || step === steps) {
           resolve();
         } else {
-          setTimeout(loop, 1000);
+          setTimeout(loop, interval);
         }
       };
       loop();
