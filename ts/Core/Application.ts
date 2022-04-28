@@ -160,14 +160,48 @@ export abstract class Application<
         ? this.kill.bind(this)
         : this.execute.bind(this);
 
+    let executionError: unknown = undefined;
     try {
       await goAhead();
-      await HelperObject.triggerEventSet(this.onDispose, true);
+
+      Logger.post(
+        'The application ended successfully.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
     } catch (error) {
-      await HelperObject.triggerEventSet(this.onDispose, false, error);
+      executionError = error;
+
+      Logger.post(
+        'The application ended with errors.',
+        undefined,
+        LogLevel.Error,
+        Application.logContext
+      );
     }
 
+    await HelperObject.triggerEventSet(
+      this.onDispose,
+      executionError === undefined,
+      executionError
+    );
     await this.stop();
+
+    if (executionError !== undefined) {
+      Logger.post(
+        executionError instanceof Error
+          ? executionError.message
+          : executionError
+          ? String(executionError)
+          : 'Unknown error.',
+        {
+          error: HelperObject.toText(executionError)
+        },
+        LogLevel.Fatal,
+        Application.logContext
+      );
+    }
   }
 
   /**
