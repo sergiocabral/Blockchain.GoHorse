@@ -6,11 +6,6 @@ import { SampleAppConfiguration } from './SampleAppConfiguration';
  */
 export class SampleApp extends Application<SampleAppConfiguration> {
   /**
-   * Sinaliza loop ativo.
-   */
-  private isLooping = false;
-
-  /**
    * Tipo da Configurações da aplicação;
    */
   protected override configurationType = SampleAppConfiguration;
@@ -19,8 +14,6 @@ export class SampleApp extends Application<SampleAppConfiguration> {
    * Inicia a aplicação.
    */
   protected override async onStart(): Promise<void> {
-    this.isLooping = true;
-
     const appName = this.parameters.applicationName;
 
     console.info(`      ____`);
@@ -38,35 +31,35 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(`     [__)_)         (_(___] ${appName}`);
     console.info(``);
 
-    await this.loop();
+    const steps = 10;
+    const interval = 1000;
 
-    this.isLooping = false;
+    return new Promise<void>(resolve => {
+      let step = 0;
+      const loop = () => {
+        console.info(`Tick ${++step}/${steps}`);
+        if (step === steps) {
+          resolve();
+        } else {
+          this.timeout = setTimeout(loop, interval);
+        }
+      };
+      loop();
+    });
   }
 
   /**
    * Finaliza a aplicação.
    */
   protected override onStop(): void {
-    this.isLooping = false;
+    if (this.timeout !== undefined) {
+      clearTimeout(this.timeout);
+      this.timeout = undefined;
+    }
   }
 
   /**
-   * Loop para manter a execução da aplicação.
-   * @param steps Quantidade de loops.
-   * @param interval Intevalo entre cada loop.
+   * Timeout do loop.
    */
-  private async loop(steps = 10, interval = 1000): Promise<void> {
-    return new Promise<void>(resolve => {
-      let step = 0;
-      const loop = () => {
-        console.debug(`Tick ${++step}/${steps}`);
-        if (!this.isLooping || step === steps) {
-          resolve();
-        } else {
-          setTimeout(loop, interval);
-        }
-      };
-      loop();
-    });
-  }
+  private timeout?: NodeJS.Timeout;
 }

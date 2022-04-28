@@ -160,47 +160,11 @@ export abstract class Application<
         ? this.kill.bind(this)
         : this.execute.bind(this);
 
-    let executionError: unknown = undefined;
     try {
       await goAhead();
-
-      Logger.post(
-        'The application ended successfully.',
-        undefined,
-        LogLevel.Debug,
-        Application.logContext
-      );
+      await this.stop();
     } catch (error) {
-      executionError = error;
-
-      Logger.post(
-        'The application ended with errors.',
-        undefined,
-        LogLevel.Error,
-        Application.logContext
-      );
-    }
-
-    await HelperObject.triggerEventSet(
-      this.onDispose,
-      executionError === undefined,
-      executionError
-    );
-    await this.stop();
-
-    if (executionError !== undefined) {
-      Logger.post(
-        executionError instanceof Error
-          ? executionError.message
-          : executionError
-          ? String(executionError)
-          : 'Unknown error.',
-        {
-          error: HelperObject.toText(executionError)
-        },
-        LogLevel.Fatal,
-        Application.logContext
-      );
+      await this.stop(error);
     }
   }
 
@@ -363,13 +327,79 @@ Application
 
   /**
    * Para a execução da aplicação.
+   * @param error Erro de execução se houver.
    */
-  private async stop(): Promise<void> {
+  private async stop(error?: unknown): Promise<void> {
     if (this.aplicationState === 'running') {
       this.aplicationState = 'stoping';
 
       this.deleteRunningFlagFile();
       await this.onStop();
+
+      if (error === undefined) {
+        Logger.post(
+          'The application ended successfully.',
+          undefined,
+          LogLevel.Debug,
+          Application.logContext
+        );
+      } else {
+        Logger.post(
+          'The application ended with errors.',
+          undefined,
+          LogLevel.Error,
+          Application.logContext
+        );
+        Logger.post(
+          error instanceof Error
+            ? error.message
+            : error
+            ? String(error)
+            : 'Unknown error.',
+          {
+            error: HelperObject.toText(error)
+          },
+          LogLevel.Fatal,
+          Application.logContext
+        );
+      }
+
+      if (this.onDispose.size > 0) {
+        Logger.post(
+          'Disposing resources.',
+          undefined,
+          LogLevel.Debug,
+          Application.logContext
+        );
+
+        try {
+          await HelperObject.triggerEventSet(
+            this.onDispose,
+            error === undefined,
+            error
+          );
+        } catch (listeternsError) {
+          Logger.post(
+            'One or more errors occurred when releasing resources.',
+            undefined,
+            LogLevel.Error,
+            Application.logContext
+          );
+
+          Logger.post(
+            listeternsError instanceof Error
+              ? listeternsError.message
+              : listeternsError
+              ? String(listeternsError)
+              : 'Unknown error.',
+            {
+              error: HelperObject.toText(listeternsError)
+            },
+            LogLevel.Fatal,
+            Application.logContext
+          );
+        }
+      }
 
       this.aplicationState = 'stoped';
     }
