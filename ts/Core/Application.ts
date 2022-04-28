@@ -144,12 +144,13 @@ export abstract class Application<
     this.aplicationState = 'running';
 
     Logger.post(
-      'Application started in mode: {mode}',
+      '"{type}" application started in mode: {mode}',
       {
+        type: this.constructor.name,
         mode:
           this.executionMode === 'kill'
             ? 'terminate other instances'
-            : 'start this instance'
+            : 'start as instance'
       },
       LogLevel.Debug,
       Application.logContext
@@ -174,26 +175,7 @@ export abstract class Application<
   private async execute(): Promise<void> {
     this.createRunningFlagFile();
     await this.loadConfiguration();
-
-    Logger.post(
-      '"{type}" application started.',
-      {
-        type: this.constructor.name
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
-
     await this.onStart();
-
-    Logger.post(
-      '"{type}" application finished.',
-      {
-        type: this.constructor.name
-      },
-      LogLevel.Debug,
-      Application.logContext
-    );
   }
 
   /**
@@ -327,29 +309,61 @@ Application
 
   /**
    * Para a execução da aplicação.
-   * @param error Erro de execução se houver.
+   * @param errors Erros durante a execução.
    */
-  private async stop(error?: unknown): Promise<void> {
-    if (this.aplicationState === 'running') {
-      this.aplicationState = 'stoping';
+  private async stop(...errors: unknown[]): Promise<void> {
+    if (this.aplicationState !== 'running') {
+      return;
+    }
+    this.aplicationState = 'stoping';
 
+    try {
       this.deleteRunningFlagFile();
-      await this.onStop();
+    } catch (error) {
+      errors.push(error);
+    }
 
-      if (error === undefined) {
-        Logger.post(
-          'The application ended successfully.',
-          undefined,
-          LogLevel.Debug,
-          Application.logContext
+    try {
+      await this.onStop();
+    } catch (error) {
+      errors.push(error);
+    }
+
+    if (this.onDispose.size > 0) {
+      Logger.post(
+        'Disposing resources.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+
+      try {
+        await HelperObject.triggerEventSet(
+          this.onDispose,
+          errors.length === 0,
+          errors
         );
-      } else {
-        Logger.post(
-          'The application ended with errors.',
-          undefined,
-          LogLevel.Error,
-          Application.logContext
-        );
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+
+    if (errors.length === 0) {
+      Logger.post(
+        'The application ended successfully.',
+        undefined,
+        LogLevel.Debug,
+        Application.logContext
+      );
+    } else {
+      Logger.post(
+        'The application ended with {count} error(s).',
+        { count: errors.length },
+        LogLevel.Error,
+        Application.logContext
+      );
+
+      for (const error of errors) {
         Logger.post(
           error instanceof Error
             ? error.message
@@ -363,46 +377,9 @@ Application
           Application.logContext
         );
       }
-
-      if (this.onDispose.size > 0) {
-        Logger.post(
-          'Disposing resources.',
-          undefined,
-          LogLevel.Debug,
-          Application.logContext
-        );
-
-        try {
-          await HelperObject.triggerEventSet(
-            this.onDispose,
-            error === undefined,
-            error
-          );
-        } catch (listeternsError) {
-          Logger.post(
-            'One or more errors occurred when releasing resources.',
-            undefined,
-            LogLevel.Error,
-            Application.logContext
-          );
-
-          Logger.post(
-            listeternsError instanceof Error
-              ? listeternsError.message
-              : listeternsError
-              ? String(listeternsError)
-              : 'Unknown error.',
-            {
-              error: HelperObject.toText(listeternsError)
-            },
-            LogLevel.Fatal,
-            Application.logContext
-          );
-        }
-      }
-
-      this.aplicationState = 'stoped';
     }
+
+    this.aplicationState = 'stoped';
   }
 
   /**
