@@ -7,6 +7,7 @@ import {
   LogLevel
 } from '@sergiocabral/helper';
 import fs from 'fs';
+import { LoggerConfiguration } from '../Log/LoggerConfiguration';
 
 /**
  * Configurações da aplicação.
@@ -21,6 +22,11 @@ export class ApplicationConfiguration extends JsonLoader {
    * Configurações de idioma.
    */
   public language = new TranslateConfiguration();
+
+  /**
+   * Configurações de log.
+   */
+  public logger = new LoggerConfiguration();
 
   /**
    * Cria um arquivo em disco com as configurações padrão.

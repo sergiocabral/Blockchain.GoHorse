@@ -5,11 +5,11 @@ import {
   NotEmptyError
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
-import { IApplication } from './IApplication';
+import { IApplication } from '../Core/IApplication';
 import { LogLevel } from '@sergiocabral/helper/js/Log/LogLevel';
 import { ILogMessage } from '@sergiocabral/helper/js/Log/ILogMessage';
 import { Definition } from '../Definition';
-import { ApplicationParameters } from './ApplicationParameters';
+import { ApplicationParameters } from '../Core/ApplicationParameters';
 
 /**
  * Argumentos da função post().

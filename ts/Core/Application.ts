@@ -14,7 +14,7 @@ import {
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
-import { ApplicationLogger } from './ApplicationLogger';
+import { ApplicationLogger } from '../Log/ApplicationLogger';
 
 /**
  * Estados de execução de uma aplicação.
