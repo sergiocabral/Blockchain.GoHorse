@@ -100,7 +100,7 @@ export class ApplicationLogger implements ILogWriter {
     const date = this.application.parameters.startupTime.format({
       mask: 'y-M-d-h-m-s'
     });
-    this.toFile.file = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.application.parameters.applicationName}.${this.application.parameters.applicationInstanceIdentifier}.${date}.log`;
+    this.toFile.file = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.application.parameters.applicationName}.${date}.${this.application.parameters.applicationInstanceIdentifier}.log`;
 
     let postArgument: PostArguments | undefined;
     while ((postArgument = this.buffer.shift()) !== undefined) {
