@@ -1,5 +1,6 @@
 import { ResultEvent } from '@sergiocabral/helper';
 import { ApplicationConfiguration } from './ApplicationConfiguration';
+import { ApplicationParameters } from './ApplicationParameters';
 
 /**
  * Representa uma aplicação executável.
@@ -9,6 +10,11 @@ export interface IApplication {
    * Configurações JSON da aplicação.
    */
   get configuration(): ApplicationConfiguration;
+
+  /**
+   * Parâmetros de execução da aplicação.
+   */
+  get parameters(): ApplicationParameters;
 
   /**
    * Evento ao finalizar a aplicação e liberar recursos.

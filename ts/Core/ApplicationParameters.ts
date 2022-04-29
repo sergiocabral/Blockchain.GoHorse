@@ -99,6 +99,11 @@ export class ApplicationParameters extends CommandLine {
       .substring(10, 15);
 
   /**
+   * Data e hora da execução
+   */
+  public readonly startupTime = new Date();
+
+  /**
    * Nome a aplicação.
    */
   public get applicationName(): string {

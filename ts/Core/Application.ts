@@ -14,6 +14,7 @@ import {
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
+import { ApplicationLogger } from './ApplicationLogger';
 
 /**
  * Estados de execução de uma aplicação.
@@ -58,6 +59,8 @@ export abstract class Application<
    * Construtor.
    */
   public constructor() {
+    Logger.defaultLogger = this.logger = new ApplicationLogger();
+
     Logger.post(
       'Application instance created.',
       undefined,
@@ -105,6 +108,11 @@ export abstract class Application<
   }
 
   /**
+   * Parâmetros de execução da aplicação.
+   */
+  public readonly parameters: ApplicationParameters;
+
+  /**
    * Sinaliza se a aplicação está em execução.
    */
   public get isRunning(): boolean {
@@ -127,9 +135,9 @@ export abstract class Application<
   private readonly runningFlagFileMonitoring: FileSystemMonitoring;
 
   /**
-   * Parâmetros de execução da aplicação.
+   * Logger principal da aplicação.
    */
-  protected readonly parameters: ApplicationParameters;
+  private readonly logger: ApplicationLogger;
 
   /**
    * Inicia a execução da aplicação.
@@ -143,6 +151,8 @@ export abstract class Application<
     }
 
     this.aplicationState = 'running';
+
+    this.logger.configure(this);
 
     Logger.post(
       '"{type}" application started in mode: {mode}',
