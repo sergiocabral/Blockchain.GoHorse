@@ -32,6 +32,8 @@ export class ApplicationLogger implements ILogWriter {
     this.toConsole = new LogWriterToConsole();
     this.toFile = new LogWriterToFile();
 
+    this.toFile.defaultValues = this.toConsole.defaultValues;
+
     this.toConsole.customFactoryMessage = this.toFile.customFactoryMessage =
       this.customFactoryMessage.bind(this);
   }
@@ -91,6 +93,10 @@ export class ApplicationLogger implements ILogWriter {
   public configure(application: IApplication): void {
     this.application = application;
 
+    this.defaultValues['instanceId'] =
+      application.parameters.applicationInstanceIdentifier;
+    this.defaultValues['application'] = application.parameters.applicationName;
+
     const date = this.application.parameters.startupTime.format({
       mask: 'y-M-d-h-m-s'
     });
@@ -143,7 +149,9 @@ export class ApplicationLogger implements ILogWriter {
   /**
    * Valores padrão associados a cada log.
    */
-  public defaultValues: Record<string, unknown | (() => unknown)> = {};
+  public get defaultValues(): Record<string, unknown | (() => unknown)> {
+    return this.toConsole.defaultValues;
+  }
 
   /**
    * Função para personalizar a exibição de uma mensagem de log.

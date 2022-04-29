@@ -137,7 +137,7 @@ export abstract class Application<
   /**
    * Logger principal da aplicação.
    */
-  private readonly logger: ApplicationLogger;
+  protected readonly logger: ApplicationLogger;
 
   /**
    * Inicia a execução da aplicação.
