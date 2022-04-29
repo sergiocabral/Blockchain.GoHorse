@@ -12,6 +12,16 @@ import { Definition } from '../Definition';
 import { ApplicationParameters } from './ApplicationParameters';
 
 /**
+ * Argumentos da função post().
+ */
+type PostArguments = [
+  string | (() => string),
+  unknown,
+  LogLevel | undefined,
+  string | undefined
+];
+
+/**
  * Logger da aplicação.
  */
 export class ApplicationLogger implements ILogWriter {
@@ -71,6 +81,11 @@ export class ApplicationLogger implements ILogWriter {
   }
 
   /**
+   * Buffer de mensagem antes da inicialização.
+   */
+  private buffer: PostArguments[] = [];
+
+  /**
    * Inicializa o logger com base na instância da aplicação.
    */
   public configure(application: IApplication): void {
@@ -80,6 +95,11 @@ export class ApplicationLogger implements ILogWriter {
       mask: 'y-M-d-h-m-s'
     });
     this.toFile.file = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.application.parameters.applicationName}.${this.application.parameters.applicationInstanceIdentifier}.${date}.log`;
+
+    let postArgument: PostArguments | undefined;
+    while ((postArgument = this.buffer.shift()) !== undefined) {
+      this.persist(postArgument, 'force');
+    }
   }
 
   /**
@@ -89,17 +109,34 @@ export class ApplicationLogger implements ILogWriter {
    * @param level Nível.
    * @param section Seção, ou contexto, relacionado.
    */
-  post(
+  public post(
     messageTemplate: string | (() => string),
     values?: unknown | (() => unknown),
     level?: LogLevel,
     section?: string
   ): void {
     this.toConsole.post(messageTemplate, values, level, section);
-    if (this.ready) {
-      this.toFile.post(messageTemplate, values, level, section);
+    this.persist([messageTemplate, values, level, section]);
+  }
+
+  /**
+   * Posta uma mensagem de log nos loggers além do console.
+   * @param postArguments Argumentos.
+   * @param mode Modo de postagem
+   */
+  private persist(
+    postArguments: PostArguments,
+    mode: 'force' | 'buffer' = 'buffer'
+  ): void {
+    if (mode === 'force' || (this.ready && this.buffer.length === 0)) {
+      this.toFile.post(
+        postArguments[0],
+        postArguments[1],
+        postArguments[2],
+        postArguments[3]
+      );
     } else {
-      // TODO: Buffer de logs.
+      this.buffer.push(postArguments);
     }
   }
 
