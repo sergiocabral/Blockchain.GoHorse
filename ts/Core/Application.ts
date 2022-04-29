@@ -228,7 +228,7 @@ export abstract class Application<
           Application.logContext2
         );
 
-        const runingIds = Object.keys(runingInstances).join(', ');
+        const runingIds = Object.keys(runingInstances).join(',');
         if (runingIds !== '') {
           Logger.post(
             `Instances currently running: {runingIds}`,
