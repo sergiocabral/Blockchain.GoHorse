@@ -93,9 +93,12 @@ export class ApplicationLogger implements ILogWriter {
   public configure(application: IApplication): void {
     this.application = application;
 
-    this.defaultValues['instanceId'] =
+    this.defaultValues['applicationInstanceId'] =
       application.parameters.applicationInstanceIdentifier;
-    this.defaultValues['application'] = application.parameters.applicationName;
+    this.defaultValues['applicationName'] =
+      application.parameters.applicationName;
+    this.defaultValues['applicationVersion'] =
+      application.parameters.applicationVersion;
 
     const date = this.application.parameters.startupTime.format({
       mask: 'y-M-d-h-m-s'

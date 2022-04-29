@@ -284,7 +284,7 @@ export abstract class Application<
                 Logger.post(
                   'Terminated instance "{instanceId}" by deleting execution signal file: {instanceFile}',
                   {
-                    instanceId,
+                    instanceId, // TODO: values deve sobrepor defaultValues
                     instanceFile
                   },
                   LogLevel.Information,
