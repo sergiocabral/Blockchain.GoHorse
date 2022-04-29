@@ -72,8 +72,11 @@ export abstract class Application<
     Logger.defaultLogger = this.logger = new ApplicationLogger();
 
     Logger.post(
-      'Application instance created with id "{id}".',
-      { id: Application.applicationInstanceIdentifier },
+      '"{type}" application instance created with id "{id}".',
+      {
+        id: Application.applicationInstanceIdentifier,
+        type: this.constructor.name
+      },
       LogLevel.Debug,
       Application.logContext2
     );
@@ -165,9 +168,8 @@ export abstract class Application<
     this.logger.configure(this);
 
     Logger.post(
-      '"{type}" application started in mode: {mode}',
+      'Application started in mode: {mode}',
       {
-        type: this.constructor.name,
         mode:
           this.executionMode === 'kill'
             ? 'terminate other instances'
