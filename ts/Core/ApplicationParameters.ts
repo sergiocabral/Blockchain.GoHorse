@@ -11,6 +11,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
+import { Application } from './Application';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -37,13 +38,6 @@ export class ApplicationParameters extends CommandLine {
         ['´', '´']
       ]
     });
-
-    Logger.post(
-      'Instance created with id "{id}".',
-      { id: this.applicationInstanceIdentifier },
-      LogLevel.Debug,
-      ApplicationParameters.logContext
-    );
 
     Logger.post(
       'Command line: {commandLine}',
@@ -91,18 +85,8 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
-  public static applicationInstanceIdentifier: string =
-    'i' +
-    Buffer.from(Math.random().toString())
-      .toString('base64')
-      .replace(/[\W_]/g, '')
-      .substring(10, 15);
-
-  /**
-   * Identificador para a instância da aplicação atualmente em execução.
-   */
   public get applicationInstanceIdentifier(): string {
-    return ApplicationParameters.applicationInstanceIdentifier;
+    return Application.applicationInstanceIdentifier;
   }
 
   /**

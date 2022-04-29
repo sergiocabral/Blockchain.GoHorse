@@ -36,7 +36,17 @@ export abstract class Application<
   /**
    * Contexto do log.
    */
-  private static logContext = 'Application';
+  private static logContext2 = 'Application';
+
+  /**
+   * Identificador para a instância da aplicação atualmente em execução.
+   */
+  public static applicationInstanceIdentifier: string =
+    'i' +
+    Buffer.from(Math.random().toString())
+      .toString('base64')
+      .replace(/[\W_]/g, '')
+      .substring(10, 15);
 
   /**
    * Tipo da Configurações da aplicação;
@@ -62,10 +72,10 @@ export abstract class Application<
     Logger.defaultLogger = this.logger = new ApplicationLogger();
 
     Logger.post(
-      'Application instance created.',
-      undefined,
+      'Application instance created with id "{id}".',
+      { id: Application.applicationInstanceIdentifier },
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
 
     this.parameters = new ApplicationParameters(process.argv);
@@ -164,7 +174,7 @@ export abstract class Application<
             : 'start as instance'
       },
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
 
     const goAhead =
@@ -213,7 +223,7 @@ export abstract class Application<
           `It is necessary to inform the id of the instance that will be terminated. Use \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to end all.`,
           undefined,
           LogLevel.Error,
-          Application.logContext
+          Application.logContext2
         );
 
         const runingIds = Object.keys(runingInstances).join(', ');
@@ -224,14 +234,14 @@ export abstract class Application<
               runingIds
             },
             LogLevel.Information,
-            Application.logContext
+            Application.logContext2
           );
         } else {
           Logger.post(
             `But there is no instance currently running.`,
             undefined,
             LogLevel.Information,
-            Application.logContext
+            Application.logContext2
           );
         }
       } else {
@@ -242,7 +252,7 @@ export abstract class Application<
             `Terminating all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
             undefined,
             LogLevel.Debug,
-            Application.logContext
+            Application.logContext2
           );
         }
 
@@ -258,7 +268,7 @@ export abstract class Application<
             'No instances have been found to be terminated.',
             undefined,
             LogLevel.Information,
-            Application.logContext
+            Application.logContext2
           );
         } else {
           let countKill = 0;
@@ -276,7 +286,7 @@ export abstract class Application<
                     instanceFile
                   },
                   LogLevel.Information,
-                  Application.logContext
+                  Application.logContext2
                 );
               } catch (error) {
                 Logger.post(
@@ -287,7 +297,7 @@ export abstract class Application<
                     error
                   },
                   LogLevel.Error,
-                  Application.logContext
+                  Application.logContext2
                 );
               }
             } else {
@@ -297,7 +307,7 @@ export abstract class Application<
                   instanceId
                 },
                 LogLevel.Warning,
-                Application.logContext
+                Application.logContext2
               );
             }
           }
@@ -308,7 +318,7 @@ export abstract class Application<
               countKill
             },
             LogLevel.Debug,
-            Application.logContext
+            Application.logContext2
           );
         }
       }
@@ -346,14 +356,14 @@ export abstract class Application<
         'The application ended successfully.',
         undefined,
         LogLevel.Debug,
-        Application.logContext
+        Application.logContext2
       );
     } else {
       Logger.post(
         'The application ended with {count} error(s).',
         { count: errors.length },
         LogLevel.Error,
-        Application.logContext
+        Application.logContext2
       );
 
       for (const error of errors) {
@@ -363,7 +373,7 @@ export abstract class Application<
             error: HelperObject.toText(error)
           },
           LogLevel.Fatal,
-          Application.logContext
+          Application.logContext2
         );
       }
     }
@@ -382,7 +392,7 @@ export abstract class Application<
         path: this.parameters.runningFlagFile
       },
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
 
     HelperFileSystem.createRecursive(
@@ -409,7 +419,7 @@ Application
         path: this.parameters.runningFlagFile
       },
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
   }
 
@@ -426,7 +436,7 @@ Application
           path: this.parameters.runningFlagFile
         },
         LogLevel.Debug,
-        Application.logContext
+        Application.logContext2
       );
     }
 
@@ -437,7 +447,7 @@ Application
           path: this.parameters.runningFlagFile
         },
         LogLevel.Debug,
-        Application.logContext
+        Application.logContext2
       );
       fs.unlinkSync(this.parameters.runningFlagFile);
     }
@@ -452,7 +462,7 @@ Application
         'Loading application configuration.',
         undefined,
         LogLevel.Debug,
-        Application.logContext
+        Application.logContext2
       );
 
       const configurationExists = fs.existsSync(
@@ -475,7 +485,7 @@ Application
           'Application configuration loaded.',
           undefined,
           LogLevel.Debug,
-          Application.logContext
+          Application.logContext2
         );
 
         resolve();
@@ -497,7 +507,7 @@ Application
       'Disposing resources.',
       undefined,
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
 
     return (
@@ -519,7 +529,7 @@ Application
         path: this.parameters.runningFlagFile
       },
       LogLevel.Debug,
-      Application.logContext
+      Application.logContext2
     );
     await this.stop();
   }

@@ -1,10 +1,16 @@
 import { Application } from '../Core/Application';
 import { SampleAppConfiguration } from './SampleAppConfiguration';
+import { Logger, LogLevel } from '@sergiocabral/helper';
 
 /**
  * Aplicação vazia de exemplo.
  */
 export class SampleApp extends Application<SampleAppConfiguration> {
+  /**
+   * Contexto do log.
+   */
+  private static logContext = 'SampleApp';
+
   /**
    * Tipo da Configurações da aplicação;
    */
@@ -14,6 +20,13 @@ export class SampleApp extends Application<SampleAppConfiguration> {
    * Inicia a aplicação.
    */
   protected override async onStart(): Promise<void> {
+    Logger.post(
+      'Application up.',
+      undefined,
+      LogLevel.Information,
+      SampleApp.logContext
+    );
+
     const appName = this.parameters.applicationName;
 
     console.info(`      ____`);
@@ -31,13 +44,17 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(`     [__)_)         (_(___] ${appName}`);
     console.info(``);
 
-    const steps = 10;
+    const steps = 15; // TODO: hasArgumentName deve aceitar regex
     const interval = 1000;
 
     return new Promise<void>(resolve => {
       let step = 0;
       const loop = () => {
-        console.info(`Tick ${++step}/${steps}`);
+        console.info(
+          `Tick ${(++step)
+            .toString()
+            .padStart(steps.toString().length, '0')}/${steps}`
+        );
         if (step === steps) {
           resolve();
         } else {
@@ -55,6 +72,13 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     if (this.timeout !== undefined) {
       clearTimeout(this.timeout);
       this.timeout = undefined;
+
+      Logger.post(
+        'Application down.',
+        undefined,
+        LogLevel.Information,
+        SampleApp.logContext
+      );
     }
   }
 

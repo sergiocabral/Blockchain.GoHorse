@@ -9,7 +9,7 @@ import { IApplication } from '../Core/IApplication';
 import { LogLevel } from '@sergiocabral/helper/js/Log/LogLevel';
 import { ILogMessage } from '@sergiocabral/helper/js/Log/ILogMessage';
 import { Definition } from '../Definition';
-import { ApplicationParameters } from '../Core/ApplicationParameters';
+import { Application } from '../Core/Application';
 
 /**
  * Argumentos da função post().
@@ -158,7 +158,7 @@ export class ApplicationLogger implements ILogWriter {
    */
   public customFactoryMessage(message: ILogMessage): string {
     return `${
-      ApplicationParameters.applicationInstanceIdentifier
+      Application.applicationInstanceIdentifier
     }: ${message.timestamp.format({ mask: 'universal' })} [${
       LogLevel[message.level] + (message.section ? ': ' + message.section : '')
     }] ${message.message}`;
