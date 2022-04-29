@@ -9,6 +9,7 @@ import { IApplication } from './IApplication';
 import { LogLevel } from '@sergiocabral/helper/js/Log/LogLevel';
 import { ILogMessage } from '@sergiocabral/helper/js/Log/ILogMessage';
 import { Definition } from '../Definition';
+import { ApplicationParameters } from './ApplicationParameters';
 
 /**
  * Logger da aplicação.
@@ -20,6 +21,9 @@ export class ApplicationLogger implements ILogWriter {
   public constructor() {
     this.toConsole = new LogWriterToConsole();
     this.toFile = new LogWriterToFile();
+
+    this.toConsole.customFactoryMessage = this.toFile.customFactoryMessage =
+      this.customFactoryMessage.bind(this);
   }
 
   /**
@@ -108,6 +112,10 @@ export class ApplicationLogger implements ILogWriter {
    * Função para personalizar a exibição de uma mensagem de log.
    */
   public customFactoryMessage(message: ILogMessage): string {
-    return message.message;
+    return `${
+      ApplicationParameters.applicationInstanceIdentifier
+    }: ${message.timestamp.format({ mask: 'universal' })} [${
+      LogLevel[message.level] + (message.section ? ': ' + message.section : '')
+    }] ${message.message}`;
   }
 }

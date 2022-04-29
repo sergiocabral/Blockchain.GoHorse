@@ -91,12 +91,19 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
-  public readonly applicationInstanceIdentifier: string =
+  public static applicationInstanceIdentifier: string =
     'i' +
     Buffer.from(Math.random().toString())
       .toString('base64')
       .replace(/[\W_]/g, '')
       .substring(10, 15);
+
+  /**
+   * Identificador para a instância da aplicação atualmente em execução.
+   */
+  public get applicationInstanceIdentifier(): string {
+    return ApplicationParameters.applicationInstanceIdentifier;
+  }
 
   /**
    * Data e hora da execução
