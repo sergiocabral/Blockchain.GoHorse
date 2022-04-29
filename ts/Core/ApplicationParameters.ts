@@ -40,8 +40,11 @@ export class ApplicationParameters extends CommandLine {
     });
 
     Logger.post(
-      'Application name: {applicationName}',
-      { applicationName: this.applicationName },
+      'Application "{applicationName}" v{applicationVersion}',
+      {
+        applicationName: this.applicationName,
+        applicationVersion: this.applicationVersion
+      },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
@@ -113,6 +116,16 @@ export class ApplicationParameters extends CommandLine {
     return matches?.length === 3
       ? matches[2].slugify()
       : this.packageJson.name.slugify();
+  }
+
+  /**
+   * Versão da aplicação.
+   */
+  public get applicationVersion(): string {
+    if (this.packageJson.version === undefined) {
+      throw new InvalidDataError('Cannot found application version');
+    }
+    return this.packageJson.version;
   }
 
   /**
