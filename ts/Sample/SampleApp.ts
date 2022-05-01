@@ -44,7 +44,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(`     [__)_)         (_(___] ${appName}`);
     console.info(``);
 
-    const steps = 15; // TODO: hasArgumentName deve aceitar regex
+    const steps = parseInt(this.parameters.getArgumentName(/^\d+$/) ?? '15');
     const interval = 1000;
 
     return new Promise<void>(resolve => {
