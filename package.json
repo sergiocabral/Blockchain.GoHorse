@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-application",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "GoHorse is a Git-based blockchain. Library with features for building executable applications.",
   "bin": "js/index.js",
   "main": "js/index.js",
