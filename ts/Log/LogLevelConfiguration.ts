@@ -12,5 +12,29 @@ export class LogLevelConfiguration extends JsonLoader {
   /**
    * Nível mínimo aceito para postar a mensagem do log.
    */
-  public minimumLevel = LogLevel.Verbose; // TODO: Gravar LogLevel como texto.
+  public minimumLevel = LogLevel[LogLevel.Verbose]; // TODO: Gravar LogLevel como texto.
+
+  /**
+   * Lista de erros presentes na configuração atual
+   */
+  public override errors(): string[] {
+    const errors = Array<string>();
+
+    const namesOfLogLevel: string[] = Object.keys(LogLevel).filter(key =>
+      isNaN(parseInt(key))
+    );
+
+    errors.push(
+      ...JsonLoader.mustBeBoolean<LogLevelConfiguration>(this, 'enabled'),
+      ...JsonLoader.mustBeInTheSet<LogLevelConfiguration>(
+        this,
+        'minimumLevel',
+        namesOfLogLevel,
+        'value and type',
+        false
+      )
+    );
+
+    return errors;
+  }
 }

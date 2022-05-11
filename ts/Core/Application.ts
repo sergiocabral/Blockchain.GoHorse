@@ -481,7 +481,7 @@ Application
           );
 
       try {
-        ApplicationConfiguration.validate(configuration);
+        ApplicationConfiguration.validate.bind(this)(configuration);
 
         Logger.post(
           'Application configuration loaded.',
