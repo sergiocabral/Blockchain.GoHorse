@@ -482,6 +482,7 @@ Application
 
       try {
         ApplicationConfiguration.validate.bind(this)(configuration);
+        this.configurationValue = configuration;
 
         Logger.post(
           'Application configuration loaded.',
