@@ -44,7 +44,9 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     console.info(`     [__)_)         (_(___] ${appName}`);
     console.info(``);
 
-    const steps = parseInt(this.parameters.getArgumentName(/^\d+$/) ?? '15');
+    const steps = parseInt(
+      this.parameters.getArgumentName(/^\/?\d+$/)?.replace('/', '') ?? '15'
+    );
     const interval = 1000;
 
     return new Promise<void>(resolve => {
