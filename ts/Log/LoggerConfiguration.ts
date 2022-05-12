@@ -1,5 +1,5 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { LogLevelConfiguration } from './LogLevelConfiguration';
+import { LogConfiguration } from './LogConfiguration';
 
 /**
  * Configurações do logger da aplicação.
@@ -8,10 +8,10 @@ export class LoggerConfiguration extends JsonLoader {
   /**
    * Log para console.
    */
-  public toConsole = new LogLevelConfiguration();
+  public toConsole = new LogConfiguration().setName('Logger.ToConsole');
 
   /**
    * Log para file.
    */
-  public toFile = new LogLevelConfiguration();
+  public toFile = new LogConfiguration().setName('Logger.ToFile');
 }

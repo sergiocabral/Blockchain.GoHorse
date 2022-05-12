@@ -26,7 +26,7 @@ export class ApplicationConfiguration extends JsonLoader {
   /**
    * Configurações de log.
    */
-  public logger = new LoggerConfiguration();
+  public logger = new LoggerConfiguration().setName('Application.Logger');
 
   /**
    * Cria um arquivo em disco com as configurações padrão.

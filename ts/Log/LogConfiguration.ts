@@ -3,7 +3,7 @@ import { JsonLoader, LogLevel } from '@sergiocabral/helper';
 /**
  * Nível de configuração de log.
  */
-export class LogLevelConfiguration extends JsonLoader {
+export class LogConfiguration extends JsonLoader {
   /**
    * Sinaliza que o log está ativo.
    */
@@ -12,7 +12,16 @@ export class LogLevelConfiguration extends JsonLoader {
   /**
    * Nível mínimo aceito para postar a mensagem do log.
    */
-  public minimumLevel = LogLevel[LogLevel.Verbose]; // TODO: Gravar LogLevel como texto.
+  public minimumLevel = LogLevel[LogLevel.Verbose];
+
+  /**
+   * Nível mínimo aceito para postar a mensagem do log.
+   */
+  public get minimumLevelValue(): LogLevel {
+    return LogLevel[
+      this.minimumLevel as unknown as number
+    ] as unknown as LogLevel;
+  }
 
   /**
    * Lista de erros presentes na configuração atual
@@ -25,8 +34,8 @@ export class LogLevelConfiguration extends JsonLoader {
     );
 
     errors.push(
-      ...JsonLoader.mustBeBoolean<LogLevelConfiguration>(this, 'enabled'),
-      ...JsonLoader.mustBeInTheSet<LogLevelConfiguration>(
+      ...JsonLoader.mustBeBoolean<LogConfiguration>(this, 'enabled'),
+      ...JsonLoader.mustBeInTheSet<LogConfiguration>(
         this,
         'minimumLevel',
         namesOfLogLevel,
