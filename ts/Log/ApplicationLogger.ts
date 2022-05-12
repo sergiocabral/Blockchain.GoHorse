@@ -1,13 +1,14 @@
 import {
   EmptyError,
   ILogWriter,
+  Logger,
+  LogLevel,
+  ILogMessage,
   LogWriterToConsole,
   NotEmptyError
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import { IApplication } from '../Core/IApplication';
-import { LogLevel } from '@sergiocabral/helper/js/Log/LogLevel';
-import { ILogMessage } from '@sergiocabral/helper/js/Log/ILogMessage';
 import { Definition } from '../Definition';
 import { Application } from '../Core/Application';
 
@@ -25,6 +26,11 @@ type PostArguments = [
  * Logger da aplicação.
  */
 export class ApplicationLogger implements ILogWriter {
+  /**
+   * Contexto do log.
+   */
+  private static logContext = 'ApplicationLogger';
+
   /**
    * Construtor.
    */
@@ -92,6 +98,15 @@ export class ApplicationLogger implements ILogWriter {
    */
   public configure(application: IApplication): void {
     this.application = application;
+
+    this.setMinimumLogLevel(
+      this.toFile,
+      application.configuration.logger.toFile.minimumLevelValue
+    );
+    this.setMinimumLogLevel(
+      this.toConsole,
+      application.configuration.logger.toConsole.minimumLevelValue
+    );
 
     this.defaultValues['applicationInstanceId'] =
       application.parameters.applicationInstanceIdentifier;
@@ -165,5 +180,23 @@ export class ApplicationLogger implements ILogWriter {
     }: ${message.timestamp.format({ mask: 'universal' })} [${
       LogLevel[message.level] + (message.section ? ': ' + message.section : '')
     }] ${message.message}`;
+  }
+
+  /**
+   * Definir o nível mínimo de log para uma instância.
+   * @param instance
+   * @param minimumLevel
+   */
+  private setMinimumLogLevel(instance: ILogWriter, minimumLevel: LogLevel) {
+    Logger.post(
+      'Setting minimum logging level for {logStream} to {logLevel}.',
+      {
+        logStream: instance.constructor.name,
+        logLevel: LogLevel[minimumLevel]
+      },
+      LogLevel.Debug,
+      ApplicationLogger.logContext
+    );
+    instance.minimumLevel = minimumLevel;
   }
 }

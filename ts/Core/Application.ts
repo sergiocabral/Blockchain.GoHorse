@@ -165,6 +165,7 @@ export abstract class Application<
 
     this.aplicationState = 'running';
 
+    await this.loadConfiguration();
     this.logger.configure(this);
 
     Logger.post(
@@ -197,7 +198,6 @@ export abstract class Application<
    */
   private async execute(): Promise<void> {
     this.createRunningFlagFile();
-    await this.loadConfiguration();
     await this.onStart();
   }
 
