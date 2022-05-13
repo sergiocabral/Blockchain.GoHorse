@@ -1,5 +1,6 @@
 import { JsonLoader } from '@sergiocabral/helper';
 import { LogConfiguration } from './LogConfiguration';
+import { LogToFileConfiguration } from './LogToFileConfiguration';
 
 /**
  * Configurações do logger da aplicação.
@@ -13,5 +14,5 @@ export class LoggerConfiguration extends JsonLoader {
   /**
    * Log para file.
    */
-  public toFile = new LogConfiguration().setName('toFile', this);
+  public toFile = new LogToFileConfiguration().setName('toFile', this);
 }

@@ -1,17 +1,16 @@
 import {
-  EmptyError,
   ILogWriter,
   Logger,
   LogLevel,
   ILogMessage,
-  LogWriterToConsole,
-  NotEmptyError
+  LogWriterToConsole
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
-import { IApplication } from '../Core/IApplication';
-import { Definition } from '../Definition';
 import { Application } from '../Core/Application';
 import { LogConfiguration } from './LogConfiguration';
+import { LoggerConfiguration } from './LoggerConfiguration';
+import { ApplicationParameters } from '../Core/ApplicationParameters';
+import { LogToFileConfiguration } from './LogToFileConfiguration';
 
 /**
  * Argumentos da função post().
@@ -33,61 +32,19 @@ export class ApplicationLogger implements ILogWriter {
   private static logContext = 'ApplicationLogger';
 
   /**
-   * Construtor.
+   * Sinaliza que o Logger com seus Writers foram configurados.
    */
-  public constructor() {
-    this.toConsole = new LogWriterToConsole();
-    this.toFile = new LogWriterToFile();
-
-    this.toFile.defaultValues = this.toConsole.defaultValues;
-
-    this.toConsole.customFactoryMessage = this.toFile.customFactoryMessage =
-      this.customFactoryMessage.bind(this);
-  }
+  private configured = false;
 
   /**
-   * Logger para console.
+   * Valores padrão associados a cada log.
    */
-  private readonly toConsole: LogWriterToConsole;
+  public readonly defaultValues: Record<string, unknown | (() => unknown)> = {};
 
   /**
-   * Logger para arquivos.
+   * Lista de escritores de logs.
    */
-  private readonly toFile: LogWriterToFile;
-
-  /**
-   * Instância da aplicação.
-   */
-  private applicationValue?: IApplication;
-
-  /**
-   * Instância da aplicação.
-   */
-  private get application(): IApplication {
-    if (this.applicationValue === undefined) {
-      throw new EmptyError('Application not defined.');
-    }
-
-    return this.applicationValue;
-  }
-
-  /**
-   * Instância da aplicação.
-   */
-  private set application(value: IApplication) {
-    if (this.applicationValue !== undefined) {
-      throw new NotEmptyError('Application already defined.');
-    }
-
-    this.applicationValue = value;
-  }
-
-  /**
-   * Logger pronto para postar além do console.
-   */
-  private get ready(): boolean {
-    return this.applicationValue !== undefined;
-  }
+  private readonly logWriters: ILogWriter[] = [];
 
   /**
    * Buffer de mensagem antes da inicialização.
@@ -95,36 +52,22 @@ export class ApplicationLogger implements ILogWriter {
   private buffer: PostArguments[] = [];
 
   /**
-   * Inicializa o logger com base na instância da aplicação.
+   * Configura o log com base no JSON e parâmetros da aplicação.
+   * @param configuration JSON de configuração.
+   * @param aplicationParameters Parâmetros da aplicação.
    */
-  public configure(application: IApplication): void {
-    this.application = application; // TODO: Remover this.application, receber defaultValues de quem chama.
-
-    ApplicationLogger.configureLogWriter(
-      this.toFile,
-      application.configuration.logger.toFile
+  public configure(
+    configuration: LoggerConfiguration,
+    aplicationParameters: ApplicationParameters
+  ): void {
+    this.logWriters.push(
+      this.createLogWriterToConsole(configuration.toConsole)
     );
-    ApplicationLogger.configureLogWriter(
-      this.toConsole,
-      application.configuration.logger.toConsole
+    this.logWriters.push(
+      this.createLogWriterToFile(configuration.toFile, aplicationParameters)
     );
-
-    this.defaultValues['applicationInstanceId'] =
-      application.parameters.applicationInstanceIdentifier;
-    this.defaultValues['applicationName'] =
-      application.parameters.applicationName;
-    this.defaultValues['applicationVersion'] =
-      application.parameters.applicationVersion;
-
-    const date = this.application.parameters.startupTime.format({
-      mask: 'y-M-d-h-m-s'
-    });
-    this.toFile.file = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.application.parameters.applicationName}.${date}.${this.application.parameters.applicationInstanceIdentifier}.log`;
-
-    let postArgument: PostArguments | undefined;
-    while ((postArgument = this.buffer.shift()) !== undefined) {
-      this.persist(postArgument, 'force');
-    }
+    this.configured = true;
+    this.flushToPersistence();
   }
 
   /**
@@ -140,36 +83,10 @@ export class ApplicationLogger implements ILogWriter {
     level?: LogLevel,
     section?: string
   ): void {
-    this.toConsole.post(messageTemplate, values, level, section);
-    this.persist([messageTemplate, values, level, section]);
-  }
-
-  /**
-   * Posta uma mensagem de log nos loggers além do console.
-   * @param postArguments Argumentos.
-   * @param mode Modo de postagem
-   */
-  private persist(
-    postArguments: PostArguments,
-    mode: 'force' | 'buffer' = 'buffer'
-  ): void {
-    if (mode === 'force' || (this.ready && this.buffer.length === 0)) {
-      this.toFile.post(
-        postArguments[0],
-        postArguments[1],
-        postArguments[2],
-        postArguments[3]
-      );
-    } else {
-      this.buffer.push(postArguments);
-    }
-  }
-
-  /**
-   * Valores padrão associados a cada log.
-   */
-  public get defaultValues(): Record<string, unknown | (() => unknown)> {
-    return this.toConsole.defaultValues;
+    this.persistOrBufferizer(
+      [messageTemplate, values, level, section],
+      'use-buffer'
+    );
   }
 
   /**
@@ -184,12 +101,105 @@ export class ApplicationLogger implements ILogWriter {
   }
 
   /**
+   * Despeja no console qualquer log presente no buffer.
+   */
+  public flushToConsole(): void {
+    const logWriterToConsole =
+      this.logWriters.find(
+        logWriter => logWriter instanceof LogWriterToConsole
+      ) ?? new LogWriterToConsole();
+    this.flush(postArguments =>
+      logWriterToConsole.post(
+        postArguments[0],
+        postArguments[1],
+        postArguments[2],
+        postArguments[3]
+      )
+    );
+  }
+
+  /**
+   * Liberar as mensagens dop buffer para os LogWriters.
+   */
+  private flushToPersistence(): void {
+    this.flush(postArguments =>
+      this.persistOrBufferizer(postArguments, 'no-buffer')
+    );
+  }
+
+  /**
+   * Liberar as mensagens dop buffer para os LogWriters.
+   */
+  private flush(post: (postArguments: PostArguments) => void): void {
+    let postArguments: PostArguments | undefined;
+    while ((postArguments = this.buffer.shift()) !== undefined) {
+      post(postArguments);
+    }
+  }
+
+  /**
+   * Posta uma mensagem de log no buffer ou nos log writers.
+   * @param postArguments Argumentos do log.
+   * @param mode Use 'use-buffer' para postagem normal e 'no-buffer' para força escrita imediata.
+   */
+  private persistOrBufferizer(
+    postArguments: PostArguments,
+    mode: 'use-buffer' | 'no-buffer'
+  ): void {
+    if (mode === 'no-buffer' || (this.configured && this.buffer.length === 0)) {
+      for (const logWriters of this.logWriters) {
+        logWriters.post(
+          postArguments[0],
+          postArguments[1],
+          postArguments[2],
+          postArguments[3]
+        );
+      }
+    } else {
+      this.buffer.push(postArguments);
+    }
+  }
+
+  /**
+   * Contrói o log para console.
+   */
+  private createLogWriterToConsole(
+    configuration: LogConfiguration
+  ): ILogWriter {
+    const logWriter = new LogWriterToConsole();
+    return this.configureLogWriter(logWriter, configuration);
+  }
+
+  /**
+   * Contrói o log para persistir em arquivo.
+   */
+  private createLogWriterToFile(
+    configuration: LogToFileConfiguration,
+    aplicationParameters: ApplicationParameters
+  ): ILogWriter {
+    const logWriter = new LogWriterToFile();
+
+    logWriter.file = configuration.fileTemplate.querystring({
+      appName: aplicationParameters.applicationName,
+      timestamp: aplicationParameters.startupTime.format({
+        mask: 'y-M-d-h-m-s'
+      }),
+      appId: aplicationParameters.applicationInstanceIdentifier
+    });
+
+    return this.configureLogWriter(logWriter, configuration);
+  }
+
+  /**
    * Configura uma instância de log.
    */
-  private static configureLogWriter(
+  private configureLogWriter(
     logWriter: ILogWriter,
     configuration: LogConfiguration
-  ) {
+  ): ILogWriter {
+    logWriter.defaultValues = this.defaultValues;
+    logWriter.customFactoryMessage = this.customFactoryMessage.bind(this);
+
     Logger.post(
       'Setting minimum logging level for {logStream} to {logLevel}.',
       {
@@ -200,6 +210,10 @@ export class ApplicationLogger implements ILogWriter {
       ApplicationLogger.logContext
     );
     logWriter.minimumLevel = configuration.minimumLevelValue;
+
     //TODO: Implementar ILogWriter.enabled
+    //TODO: Revalidar a interface ILogWriter
+
+    return logWriter;
   }
 }

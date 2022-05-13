@@ -185,12 +185,13 @@ export abstract class Application<
 
     try {
       await this.loadConfiguration();
-      this.logger.configure(this);
+      this.configureLogger();
 
       await goAhead();
       await this.stop();
     } catch (error) {
       await this.stop(error);
+      this.logger.flushToConsole();
     }
   }
 
@@ -508,6 +509,19 @@ Application
         );
       }
     });
+  }
+
+  /**
+   * Configura o serviço de log.
+   */
+  private configureLogger(): void {
+    this.logger.configure(this.configuration.logger, this.parameters);
+    this.logger.defaultValues['applicationInstanceId'] =
+      this.parameters.applicationInstanceIdentifier;
+    this.logger.defaultValues['applicationName'] =
+      this.parameters.applicationName;
+    this.logger.defaultValues['applicationVersion'] =
+      this.parameters.applicationVersion;
   }
 
   /**
