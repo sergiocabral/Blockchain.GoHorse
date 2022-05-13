@@ -11,6 +11,7 @@ import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import { IApplication } from '../Core/IApplication';
 import { Definition } from '../Definition';
 import { Application } from '../Core/Application';
+import { LogConfiguration } from './LogConfiguration';
 
 /**
  * Argumentos da função post().
@@ -97,15 +98,15 @@ export class ApplicationLogger implements ILogWriter {
    * Inicializa o logger com base na instância da aplicação.
    */
   public configure(application: IApplication): void {
-    this.application = application;
+    this.application = application; // TODO: Remover this.application, receber defaultValues de quem chama.
 
-    this.setMinimumLogLevel(
+    ApplicationLogger.configureLogWriter(
       this.toFile,
-      application.configuration.logger.toFile.minimumLevelValue
+      application.configuration.logger.toFile
     );
-    this.setMinimumLogLevel(
+    ApplicationLogger.configureLogWriter(
       this.toConsole,
-      application.configuration.logger.toConsole.minimumLevelValue
+      application.configuration.logger.toConsole
     );
 
     this.defaultValues['applicationInstanceId'] =
@@ -183,20 +184,22 @@ export class ApplicationLogger implements ILogWriter {
   }
 
   /**
-   * Definir o nível mínimo de log para uma instância.
-   * @param instance
-   * @param minimumLevel
+   * Configura uma instância de log.
    */
-  private setMinimumLogLevel(instance: ILogWriter, minimumLevel: LogLevel) {
+  private static configureLogWriter(
+    logWriter: ILogWriter,
+    configuration: LogConfiguration
+  ) {
     Logger.post(
       'Setting minimum logging level for {logStream} to {logLevel}.',
       {
-        logStream: instance.constructor.name,
-        logLevel: LogLevel[minimumLevel]
+        logStream: logWriter.constructor.name,
+        logLevel: configuration.minimumLevel
       },
       LogLevel.Debug,
       ApplicationLogger.logContext
     );
-    instance.minimumLevel = minimumLevel;
+    logWriter.minimumLevel = configuration.minimumLevelValue;
+    //TODO: Implementar ILogWriter.enabled
   }
 }

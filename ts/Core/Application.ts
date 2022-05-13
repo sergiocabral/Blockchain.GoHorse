@@ -6,6 +6,7 @@ import {
   HelperFileSystem,
   HelperObject,
   HelperText,
+  InvalidArgumentError,
   InvalidExecutionError,
   Logger,
   LogLevel,
@@ -459,6 +460,7 @@ Application
    * Carrega o arquivo de configuração da aplicação.
    */
   private async loadConfiguration(): Promise<void> {
+    //TODO: Tornar possível recarregar configurações sem fechar aplicação.
     return new Promise<void>((resolve, reject) => {
       Logger.post(
         'Loading application configuration.',
@@ -480,8 +482,8 @@ Application
             this.parameters.configurationFile
           );
 
-      try {
-        ApplicationConfiguration.validate.bind(this)(configuration);
+      const errors = configuration.errors();
+      if (errors.length === 0) {
         this.configurationValue = configuration;
 
         Logger.post(
@@ -492,8 +494,18 @@ Application
         );
 
         resolve();
-      } catch (error) {
-        reject(error);
+      } else {
+        reject(
+          new InvalidArgumentError(
+            'Invalid JSON for {className} in "{file}" file:\n{errors}'.querystring(
+              {
+                file: this.parameters.configurationFile,
+                className: this.constructor.name,
+                errors: errors.map(error => `- ${error}`).join('\n')
+              }
+            )
+          )
+        );
       }
     });
   }

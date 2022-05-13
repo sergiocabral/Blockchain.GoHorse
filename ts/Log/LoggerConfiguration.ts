@@ -8,10 +8,10 @@ export class LoggerConfiguration extends JsonLoader {
   /**
    * Log para console.
    */
-  public toConsole = new LogConfiguration().setName('Logger.ToConsole');
+  public toConsole = new LogConfiguration().setName('toConsole', this);
 
   /**
    * Log para file.
    */
-  public toFile = new LogConfiguration().setName('Logger.ToFile');
+  public toFile = new LogConfiguration().setName('toFile', this);
 }
