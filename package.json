@@ -63,7 +63,7 @@
     "@gohorse/npm-core": "^1.0.5",
     "@gohorse/npm-i18n": "^1.1.0",
     "@gohorse/npm-websocket": "^1.0.6",
-    "@sergiocabral/helper": "^6.8.2",
+    "@sergiocabral/helper": "^6.9.0",
     "tslib": "^2.4.0"
   }
 }
