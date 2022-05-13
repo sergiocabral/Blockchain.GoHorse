@@ -165,9 +165,6 @@ export abstract class Application<
 
     this.aplicationState = 'running';
 
-    await this.loadConfiguration();
-    this.logger.configure(this);
-
     Logger.post(
       'Application started in mode: {mode}',
       {
@@ -186,6 +183,9 @@ export abstract class Application<
         : this.execute.bind(this);
 
     try {
+      await this.loadConfiguration();
+      this.logger.configure(this);
+
       await goAhead();
       await this.stop();
     } catch (error) {
