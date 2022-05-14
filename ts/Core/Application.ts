@@ -25,7 +25,7 @@ type AplicationState = 'running' | 'stoping' | 'stoped';
 /**
  * Modos de execução da aplicação.
  */
-type ExecutionMode = 'start' | 'kill';
+type ExecutionMode = 'start' | 'kill' | 'reload';
 
 /**
  * Esboço de uma aplicação executável.
@@ -98,6 +98,8 @@ export abstract class Application<
       Definition.ARGUMENT_STOP
     )
       ? 'kill'
+      : this.parameters.hasArgumentName(Definition.ARGUMENT_RELOAD)
+      ? 'reload'
       : 'start';
   }
 
@@ -172,6 +174,8 @@ export abstract class Application<
         mode:
           this.executionMode === 'kill'
             ? 'terminate other instances'
+            : this.executionMode === 'reload'
+            ? 'reload configuration'
             : 'start as instance'
       },
       LogLevel.Debug,
@@ -181,6 +185,8 @@ export abstract class Application<
     const goAhead =
       this.executionMode === 'kill'
         ? this.kill.bind(this)
+        : this.executionMode === 'reload'
+        ? this.reload.bind(this)
         : this.execute.bind(this);
 
     try {
@@ -332,6 +338,14 @@ export abstract class Application<
   }
 
   /**
+   * Sinaliza o recarregamento das configurações
+   */
+  private async reload(): Promise<void> {
+    // TODO: Tornar possível recarregar configurações sem fechar aplicação.
+    return new Promise<void>(resolve => resolve());
+  }
+
+  /**
    * Para a execução da aplicação.
    * @param errors Erros durante a execução.
    */
@@ -461,7 +475,6 @@ Application
    * Carrega o arquivo de configuração da aplicação.
    */
   private async loadConfiguration(): Promise<void> {
-    //TODO: Tornar possível recarregar configurações sem fechar aplicação.
     return new Promise<void>((resolve, reject) => {
       Logger.post(
         'Loading application configuration.',

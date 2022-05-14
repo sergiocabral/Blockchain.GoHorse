@@ -13,6 +13,11 @@ export class Definition {
   public static readonly ARGUMENT_STOP = '/stop';
 
   /**
+   * Parâmetro recebido pela linha de comando que entra no modo de recarregar configurações.
+   */
+  public static readonly ARGUMENT_RELOAD = '/reload';
+
+  /**
    * Parâmetro recebido pela linha de comando com valores de ids de instâncias.
    */
   public static readonly ARGUMENT_INSTANCE_ID = '/id';
