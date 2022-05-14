@@ -37,6 +37,45 @@ export class ApplicationLogger implements ILogWriter {
   private configured = false;
 
   /**
+   * Sinaliza se o log está ativo ou não para postar.
+   */
+  public get enabled(): boolean {
+    for (const writer of this.writers) {
+      if (writer.enabled) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Sinaliza se o log está ativo ou não para postar.
+   */
+  public set enabled(value: boolean) {
+    for (const writer of this.writers) {
+      writer.enabled = value;
+    }
+  }
+
+  /**
+   * Nível mínimo de log para aceitar escrita do log recebido.
+   */
+  public get minimumLevel(): LogLevel {
+    return Logger.maxLogLevel(
+      ...this.writers.map(writer => writer.minimumLevel)
+    );
+  }
+
+  /**
+   * Nível padrão de log quando não informado.
+   */
+  public get defaultLogLevel(): LogLevel {
+    return Logger.maxLogLevel(
+      ...this.writers.map(writer => writer.defaultLogLevel)
+    );
+  }
+
+  /**
    * Valores padrão associados a cada log.
    */
   public readonly defaultValues: Record<string, unknown | (() => unknown)> = {};
@@ -44,7 +83,7 @@ export class ApplicationLogger implements ILogWriter {
   /**
    * Lista de escritores de logs.
    */
-  private readonly logWriters: ILogWriter[] = [];
+  private readonly writers: ILogWriter[] = [];
 
   /**
    * Buffer de mensagem antes da inicialização.
@@ -60,10 +99,8 @@ export class ApplicationLogger implements ILogWriter {
     configuration: LoggerConfiguration,
     aplicationParameters: ApplicationParameters
   ): void {
-    this.logWriters.push(
-      this.createLogWriterToConsole(configuration.toConsole)
-    );
-    this.logWriters.push(
+    this.writers.push(this.createLogWriterToConsole(configuration.toConsole));
+    this.writers.push(
       this.createLogWriterToFile(configuration.toFile, aplicationParameters)
     );
     this.configured = true;
@@ -105,9 +142,8 @@ export class ApplicationLogger implements ILogWriter {
    */
   public flushToConsole(): void {
     const logWriterToConsole =
-      this.logWriters.find(
-        logWriter => logWriter instanceof LogWriterToConsole
-      ) ?? new LogWriterToConsole();
+      this.writers.find(logWriter => logWriter instanceof LogWriterToConsole) ??
+      new LogWriterToConsole();
     this.flush(postArguments =>
       logWriterToConsole.post(
         postArguments[0],
@@ -147,7 +183,7 @@ export class ApplicationLogger implements ILogWriter {
     mode: 'use-buffer' | 'no-buffer'
   ): void {
     if (mode === 'no-buffer' || (this.configured && this.buffer.length === 0)) {
-      for (const logWriters of this.logWriters) {
+      for (const logWriters of this.writers) {
         logWriters.post(
           postArguments[0],
           postArguments[1],
@@ -197,9 +233,6 @@ export class ApplicationLogger implements ILogWriter {
     logWriter: ILogWriter,
     configuration: LogConfiguration
   ): ILogWriter {
-    logWriter.defaultValues = this.defaultValues;
-    logWriter.customFactoryMessage = this.customFactoryMessage.bind(this);
-
     Logger.post(
       'Setting minimum logging level for {logStream} to {logLevel}.',
       {
@@ -209,10 +242,13 @@ export class ApplicationLogger implements ILogWriter {
       LogLevel.Debug,
       ApplicationLogger.logContext
     );
-    logWriter.minimumLevel = configuration.minimumLevelValue;
 
-    //TODO: Implementar ILogWriter.enabled
-    //TODO: Revalidar a interface ILogWriter
+    logWriter.enabled = configuration.enabled;
+    logWriter.minimumLevel = configuration.minimumLevelValue;
+    logWriter.defaultValues = this.defaultValues;
+    logWriter.customFactoryMessage = this.customFactoryMessage.bind(this);
+
+    //TODO: Permitir especificar Date no post log
 
     return logWriter;
   }
