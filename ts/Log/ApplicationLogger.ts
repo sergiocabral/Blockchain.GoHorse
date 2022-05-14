@@ -3,7 +3,8 @@ import {
   Logger,
   LogLevel,
   ILogMessage,
-  LogWriterToConsole
+  LogWriterToConsole,
+  InvalidDataError
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import { Application } from '../Core/Application';
@@ -19,7 +20,8 @@ type PostArguments = [
   string | (() => string),
   unknown,
   LogLevel | undefined,
-  string | undefined
+  string | undefined,
+  Date | undefined
 ];
 
 /**
@@ -113,15 +115,22 @@ export class ApplicationLogger implements ILogWriter {
    * @param values Valores associados.
    * @param level Nível.
    * @param section Seção, ou contexto, relacionado.
+   * @param timestamp Proibido informar. Data e hora da mensagem.
    */
   public post(
     messageTemplate: string | (() => string),
     values?: unknown | (() => unknown),
     level?: LogLevel,
-    section?: string
+    section?: string,
+    timestamp?: Date
   ): void {
+    if (timestamp !== undefined) {
+      throw new InvalidDataError(
+        "The argument 'timestamp' must not be informed."
+      );
+    }
     this.persistOrBufferizer(
-      [messageTemplate, values, level, section],
+      [messageTemplate, values, level, section, new Date()],
       'use-buffer'
     );
   }
@@ -149,7 +158,8 @@ export class ApplicationLogger implements ILogWriter {
         postArguments[0],
         postArguments[1],
         postArguments[2],
-        postArguments[3]
+        postArguments[3],
+        postArguments[4]
       )
     );
   }
@@ -188,7 +198,8 @@ export class ApplicationLogger implements ILogWriter {
           postArguments[0],
           postArguments[1],
           postArguments[2],
-          postArguments[3]
+          postArguments[3],
+          postArguments[4]
         );
       }
     } else {
@@ -247,8 +258,6 @@ export class ApplicationLogger implements ILogWriter {
     logWriter.minimumLevel = configuration.minimumLevelValue;
     logWriter.defaultValues = this.defaultValues;
     logWriter.customFactoryMessage = this.customFactoryMessage.bind(this);
-
-    //TODO: Permitir especificar Date no post log
 
     return logWriter;
   }
