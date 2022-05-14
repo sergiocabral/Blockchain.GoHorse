@@ -15,7 +15,7 @@ export class ApplicationConfiguration extends JsonLoader {
   /**
    * Configurações de idioma.
    */
-  public language = new TranslateConfiguration();
+  public language = new TranslateConfiguration().setName('language', this);
 
   /**
    * Configurações de log.
