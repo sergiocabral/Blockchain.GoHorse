@@ -1,10 +1,10 @@
 import {
+  ILogMessage,
   ILogWriter,
+  InvalidDataError,
   Logger,
   LogLevel,
-  ILogMessage,
-  LogWriterToConsole,
-  InvalidDataError
+  LogWriterToConsole
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import { Application } from '../Core/Application';
@@ -12,6 +12,7 @@ import { LogConfiguration } from './LogConfiguration';
 import { LoggerConfiguration } from './LoggerConfiguration';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
+import path from 'path';
 
 /**
  * Argumentos da função post().
@@ -226,13 +227,26 @@ export class ApplicationLogger implements ILogWriter {
   ): ILogWriter {
     const logWriter = new LogWriterToFile();
 
-    logWriter.file = configuration.fileTemplate.querystring({
-      appName: aplicationParameters.applicationName,
-      timestamp: aplicationParameters.startupTime.format({
-        mask: 'y-M-d-h-m-s'
-      }),
-      appId: aplicationParameters.applicationInstanceIdentifier
-    });
+    logWriter.file = path.join(
+      process.cwd(),
+      configuration.fileTemplate.querystring({
+        appName: aplicationParameters.applicationName,
+        timestamp: aplicationParameters.startupTime.format({
+          mask: 'y-M-d-h-m-s'
+        }),
+        appId: aplicationParameters.applicationInstanceIdentifier
+      })
+    );
+
+    Logger.post(
+      '{logInstance} log instance sending data to file: {file}',
+      {
+        logInstance: logWriter.constructor.name,
+        file: logWriter.file
+      },
+      LogLevel.Debug,
+      ApplicationLogger.logContext
+    );
 
     return this.configureLogWriter(logWriter, configuration);
   }
