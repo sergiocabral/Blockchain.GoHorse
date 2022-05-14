@@ -1,4 +1,3 @@
-import { JsonLoaderFieldErrors } from '@gohorse/npm-core';
 import { JsonLoader } from '@sergiocabral/helper';
 import { Definition } from '../Definition';
 
@@ -22,8 +21,18 @@ export class TranslateConfiguration extends JsonLoader {
   public override errors(): string[] {
     const errors = Array<string>();
 
-    errors.push(...JsonLoaderFieldErrors.canEmptyString(this, 'fallback'));
-    errors.push(...JsonLoaderFieldErrors.canEmptyString(this, 'selected'));
+    errors.push(
+      ...JsonLoader.mustBeStringOrNotInformed<TranslateConfiguration>(
+        this,
+        'fallback'
+      )
+    );
+    errors.push(
+      ...JsonLoader.mustBeStringOrNotInformed<TranslateConfiguration>(
+        this,
+        'selected'
+      )
+    );
     errors.push(...super.errors());
 
     return errors;

@@ -1,5 +1,6 @@
-import { Argument } from '@gohorse/npm-core';
 import {
+  HelperNodeJs,
+  InvalidExecutionError,
   ITranslate,
   Logger,
   LogLevel,
@@ -52,7 +53,11 @@ export class Translation {
    */
   private static getFiles(): ITranslationFile[] {
     const regexTranslationFile = /^translation(\..*|)\.json/i;
-    const rootDirectory = Argument.getRootDirectory();
+    const packageJsonFiles = HelperNodeJs.getAllPreviousPackagesFiles();
+    if (packageJsonFiles.length === 0) {
+      throw new InvalidExecutionError('package.json file not found.');
+    }
+    const rootDirectory = path.basename(packageJsonFiles[0]);
 
     Logger.post(
       'Root directory for translation is "{rootDirectory}".',
