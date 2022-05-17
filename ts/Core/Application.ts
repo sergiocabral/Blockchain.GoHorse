@@ -10,22 +10,19 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
-  ResultEvent
+  ResultEvent,
+  ShouldNeverHappenError
 } from '@sergiocabral/helper';
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
+import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 
 /**
  * Estados de execução de uma aplicação.
  */
 type AplicationState = 'running' | 'stoping' | 'stoped';
-
-/**
- * Modos de execução da aplicação.
- */
-type ExecutionMode = 'start' | 'kill' | 'reload';
 
 /**
  * Esboço de uma aplicação executável.
@@ -97,10 +94,10 @@ export abstract class Application<
     this.executionMode = this.parameters.hasArgumentName(
       Definition.ARGUMENT_STOP
     )
-      ? 'kill'
+      ? ApplicationExecutionMode.Kill
       : this.parameters.hasArgumentName(Definition.ARGUMENT_RELOAD)
-      ? 'reload'
-      : 'start';
+      ? ApplicationExecutionMode.ReloadConfiguration
+      : ApplicationExecutionMode.Start;
   }
 
   /**
@@ -143,7 +140,7 @@ export abstract class Application<
   /**
    * Modo de execução da aplicação.
    */
-  private readonly executionMode: ExecutionMode;
+  private readonly executionMode: ApplicationExecutionMode;
 
   /**
    * Monitoramento do arquivo de sinalização de execução.
@@ -171,23 +168,16 @@ export abstract class Application<
     Logger.post(
       'Application started in mode: {mode}',
       {
-        mode:
-          this.executionMode === 'kill'
-            ? 'terminate other instances'
-            : this.executionMode === 'reload'
-            ? 'reload configuration'
-            : 'start as instance'
+        mode: this.executionMode
       },
       LogLevel.Debug,
       Application.logContext2
     );
 
     const goAhead =
-      this.executionMode === 'kill'
-        ? this.kill.bind(this)
-        : this.executionMode === 'reload'
-        ? this.reload.bind(this)
-        : this.execute.bind(this);
+      this.executionMode === ApplicationExecutionMode.Start
+        ? this.executeThisInstance.bind(this)
+        : this.messageToOtherInstances.bind(this);
 
     try {
       await this.loadConfiguration();
@@ -204,7 +194,7 @@ export abstract class Application<
   /**
    * Inicia a aplicação.
    */
-  private async execute(): Promise<void> {
+  private async executeThisInstance(): Promise<void> {
     this.createRunningFlagFile();
     await this.onStart();
   }
@@ -213,13 +203,10 @@ export abstract class Application<
    * Sinaliza que a instância devem ser finalizadas.
    * @private
    */
-  private async kill(): Promise<void> {
+  private async messageToOtherInstances(): Promise<void> {
     return new Promise<void>(resolve => {
       const receivedIds = this.parameters
-        .getArgumentValues(
-          Definition.ARGUMENT_STOP,
-          Definition.ARGUMENT_INSTANCE_ID
-        )
+        .getArgumentValues(Definition.ARGUMENT_INSTANCE_ID)
         .filter(value => value !== undefined)
         .join(',')
         .split(',')
@@ -230,7 +217,7 @@ export abstract class Application<
 
       if (receivedIds.length === 0) {
         Logger.post(
-          `It is necessary to inform the id of the instance that will be terminated. Use \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_STOP} ${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to end all.`,
+          `It is necessary to inform the id of the instance that will be affected. Use \`${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to affect all.`,
           undefined,
           LogLevel.Error,
           Application.logContext2
@@ -255,64 +242,55 @@ export abstract class Application<
           );
         }
       } else {
-        const killAll = receivedIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
+        const affectAll = receivedIds.includes(
+          Definition.ARGUMENT_VALUE_FOR_ALL
+        );
 
-        if (killAll) {
+        if (affectAll) {
           Logger.post(
-            `Terminating all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
+            `Affecting all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
             undefined,
             LogLevel.Debug,
             Application.logContext2
           );
         }
 
-        const instancesToKill: Record<string, string> = killAll
+        const instancesToAffect: Record<string, string> = affectAll
           ? runingInstances
           : receivedIds.reduce<Record<string, string>>((result, id) => {
               result[id] = this.parameters.getRunningFlagFile(id);
               return result;
             }, {});
 
-        if (Object.keys(instancesToKill).length === 0) {
+        if (Object.keys(instancesToAffect).length === 0) {
           Logger.post(
-            'No instances have been found to be terminated.',
+            'No instances have been found to be affected.',
             undefined,
             LogLevel.Information,
             Application.logContext2
           );
         } else {
-          let countKill = 0;
-          for (const instanceId in instancesToKill) {
-            let instanceFile = instancesToKill[instanceId];
+          let affectedCount = 0;
+          for (const instanceId in instancesToAffect) {
+            let instanceFile = instancesToAffect[instanceId];
             if (fs.existsSync(instanceFile)) {
-              try {
-                instanceFile = fs.realpathSync(instanceFile);
-                fs.unlinkSync(instanceFile);
-                countKill++;
-                Logger.post(
-                  'Terminated instance "{instanceId}" by deleting execution signal file: {instanceFile}',
-                  {
-                    instanceId,
-                    instanceFile
-                  },
-                  LogLevel.Information,
-                  Application.logContext2
-                );
-              } catch (error) {
-                Logger.post(
-                  'Error to terminate instance "{instanceId}" by deleting execution signal file: {instanceFile}. ERROR: {error}',
-                  {
-                    instanceId,
-                    instanceFile,
-                    error
-                  },
-                  LogLevel.Error,
-                  Application.logContext2
-                );
+              instanceFile = fs.realpathSync(instanceFile);
+              affectedCount++;
+
+              // TODO: Continuar daqui. Transformar kill e reload em mensagem de comandos
+              switch (this.executionMode) {
+                case ApplicationExecutionMode.Kill:
+                  this.kill(instanceId, instanceFile);
+                  break;
+                case ApplicationExecutionMode.ReloadConfiguration:
+                  this.reload(instanceId, instanceFile);
+                  break;
+                default:
+                  throw new ShouldNeverHappenError();
               }
             } else {
               Logger.post(
-                'Instance "{instanceId}" is not running to terminate.',
+                'Instance "{instanceId}" is not running to be affected.',
                 {
                   instanceId
                 },
@@ -323,10 +301,8 @@ export abstract class Application<
           }
 
           Logger.post(
-            'Total instances terminated: {countKill}',
-            {
-              countKill
-            },
+            'Total instances affected: {affectedCount}',
+            { affectedCount },
             LogLevel.Debug,
             Application.logContext2
           );
@@ -338,11 +314,44 @@ export abstract class Application<
   }
 
   /**
-   * Sinaliza o recarregamento das configurações
+   * Sinaliza que a instância deve ser finalizada.
+   * @param instanceId Id da instância.
+   * @param instanceFile Arquivo de comunicação com a instância.
    */
-  private async reload(): Promise<void> {
-    // TODO: Tornar possível recarregar configurações sem fechar aplicação.
-    return new Promise<void>(resolve => resolve());
+  private kill(instanceId: string, instanceFile: string): void {
+    try {
+      fs.unlinkSync(instanceFile);
+
+      Logger.post(
+        'Terminated instance "{instanceId}" by deleting execution signal file: {instanceFile}',
+        {
+          instanceId,
+          instanceFile
+        },
+        LogLevel.Information,
+        Application.logContext2
+      );
+    } catch (error) {
+      Logger.post(
+        'Error to terminate instance "{instanceId}" by deleting execution signal file: {instanceFile}. ERROR: {error}',
+        {
+          instanceId,
+          instanceFile,
+          error
+        },
+        LogLevel.Error,
+        Application.logContext2
+      );
+    }
+  }
+
+  /**
+   * Sinaliza que a instância deve ter suas configurações JSON atualizadas.
+   * @param instanceId Id da instância.
+   * @param instanceFile Arquivo de comunicação com a instância.
+   */
+  private reload(instanceId: string, instanceFile: string): void {
+    // implementar
   }
 
   /**
