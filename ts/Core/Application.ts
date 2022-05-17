@@ -18,6 +18,9 @@ import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
+import { MessageToOtherInstance } from '../Message/MessageToOtherInstance';
+import { KillOtherInstance } from '../Message/KillOtherInstance';
+import { ReloadConfigurationOfOtherInstance } from '../Message/ReloadConfigurationOfOtherInstance';
 
 /**
  * Estados de execução de uma aplicação.
@@ -177,7 +180,7 @@ export abstract class Application<
     const goAhead =
       this.executionMode === ApplicationExecutionMode.Start
         ? this.executeThisInstance.bind(this)
-        : this.messageToOtherInstances.bind(this);
+        : this.sendMessageToOtherInstances.bind(this);
 
     try {
       await this.loadConfiguration();
@@ -203,155 +206,115 @@ export abstract class Application<
    * Sinaliza que a instância devem ser finalizadas.
    * @private
    */
-  private async messageToOtherInstances(): Promise<void> {
-    return new Promise<void>(resolve => {
-      const receivedIds = this.parameters
-        .getArgumentValues(Definition.ARGUMENT_INSTANCE_ID)
-        .filter(value => value !== undefined)
-        .join(',')
-        .split(',')
-        .filter(value => value.length > 0)
-        .map(value => value.trim());
+  private async sendMessageToOtherInstances(): Promise<void> {
+    const receivedIds = this.parameters
+      .getArgumentValues(Definition.ARGUMENT_INSTANCE_ID)
+      .filter(value => value !== undefined)
+      .join(',')
+      .split(',')
+      .filter(value => value.length > 0)
+      .map(value => value.trim());
 
-      const runingInstances = this.getRunningInstances();
+    const runingInstances = this.getRunningInstances();
 
-      if (receivedIds.length === 0) {
-        Logger.post(
-          `It is necessary to inform the id of the instance that will be affected. Use \`${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to affect all.`,
-          undefined,
-          LogLevel.Error,
-          Application.logContext2
-        );
-
-        const runingIds = Object.keys(runingInstances).join(',');
-        if (runingIds !== '') {
-          Logger.post(
-            `Instances currently running: {runingIds}`,
-            {
-              runingIds
-            },
-            LogLevel.Information,
-            Application.logContext2
-          );
-        } else {
-          Logger.post(
-            `But there is no instance currently running.`,
-            undefined,
-            LogLevel.Information,
-            Application.logContext2
-          );
-        }
-      } else {
-        const affectAll = receivedIds.includes(
-          Definition.ARGUMENT_VALUE_FOR_ALL
-        );
-
-        if (affectAll) {
-          Logger.post(
-            `Affecting all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
-            undefined,
-            LogLevel.Debug,
-            Application.logContext2
-          );
-        }
-
-        const instancesToAffect: Record<string, string> = affectAll
-          ? runingInstances
-          : receivedIds.reduce<Record<string, string>>((result, id) => {
-              result[id] = this.parameters.getRunningFlagFile(id);
-              return result;
-            }, {});
-
-        if (Object.keys(instancesToAffect).length === 0) {
-          Logger.post(
-            'No instances have been found to be affected.',
-            undefined,
-            LogLevel.Information,
-            Application.logContext2
-          );
-        } else {
-          let affectedCount = 0;
-          for (const instanceId in instancesToAffect) {
-            let instanceFile = instancesToAffect[instanceId];
-            if (fs.existsSync(instanceFile)) {
-              instanceFile = fs.realpathSync(instanceFile);
-              affectedCount++;
-
-              // TODO: Continuar daqui. Transformar kill e reload em mensagem de comandos
-              switch (this.executionMode) {
-                case ApplicationExecutionMode.Kill:
-                  this.kill(instanceId, instanceFile);
-                  break;
-                case ApplicationExecutionMode.ReloadConfiguration:
-                  this.reload(instanceId, instanceFile);
-                  break;
-                default:
-                  throw new ShouldNeverHappenError();
-              }
-            } else {
-              Logger.post(
-                'Instance "{instanceId}" is not running to be affected.',
-                {
-                  instanceId
-                },
-                LogLevel.Warning,
-                Application.logContext2
-              );
-            }
-          }
-
-          Logger.post(
-            'Total instances affected: {affectedCount}',
-            { affectedCount },
-            LogLevel.Debug,
-            Application.logContext2
-          );
-        }
-      }
-
-      resolve();
-    });
-  }
-
-  /**
-   * Sinaliza que a instância deve ser finalizada.
-   * @param instanceId Id da instância.
-   * @param instanceFile Arquivo de comunicação com a instância.
-   */
-  private kill(instanceId: string, instanceFile: string): void {
-    try {
-      fs.unlinkSync(instanceFile);
-
+    if (receivedIds.length === 0) {
       Logger.post(
-        'Terminated instance "{instanceId}" by deleting execution signal file: {instanceFile}',
-        {
-          instanceId,
-          instanceFile
-        },
-        LogLevel.Information,
-        Application.logContext2
-      );
-    } catch (error) {
-      Logger.post(
-        'Error to terminate instance "{instanceId}" by deleting execution signal file: {instanceFile}. ERROR: {error}',
-        {
-          instanceId,
-          instanceFile,
-          error
-        },
+        `It is necessary to inform the id of the instance that will be affected. Use \`${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to affect all.`,
+        undefined,
         LogLevel.Error,
         Application.logContext2
       );
-    }
-  }
 
-  /**
-   * Sinaliza que a instância deve ter suas configurações JSON atualizadas.
-   * @param instanceId Id da instância.
-   * @param instanceFile Arquivo de comunicação com a instância.
-   */
-  private reload(instanceId: string, instanceFile: string): void {
-    // implementar
+      const runingIds = Object.keys(runingInstances).join(',');
+      if (runingIds !== '') {
+        Logger.post(
+          `Instances currently running: {runingIds}`,
+          {
+            runingIds
+          },
+          LogLevel.Information,
+          Application.logContext2
+        );
+      } else {
+        Logger.post(
+          `But there is no instance currently running.`,
+          undefined,
+          LogLevel.Information,
+          Application.logContext2
+        );
+      }
+    } else {
+      const affectAll = receivedIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
+
+      if (affectAll) {
+        Logger.post(
+          `Affecting all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
+          undefined,
+          LogLevel.Debug,
+          Application.logContext2
+        );
+      }
+
+      const instancesToAffect: Record<string, string> = affectAll
+        ? runingInstances
+        : receivedIds.reduce<Record<string, string>>((result, id) => {
+            result[id] = this.parameters.getRunningFlagFile(id);
+            return result;
+          }, {});
+
+      if (Object.keys(instancesToAffect).length === 0) {
+        Logger.post(
+          'No instances have been found to be affected.',
+          undefined,
+          LogLevel.Information,
+          Application.logContext2
+        );
+      } else {
+        let affectedCount = 0;
+        for (const instanceId in instancesToAffect) {
+          let instanceFile = instancesToAffect[instanceId];
+          if (fs.existsSync(instanceFile)) {
+            instanceFile = fs.realpathSync(instanceFile);
+            affectedCount++;
+
+            let messageToOtherInstance: MessageToOtherInstance;
+            switch (this.executionMode) {
+              case ApplicationExecutionMode.Kill:
+                messageToOtherInstance = new KillOtherInstance(
+                  instanceId,
+                  instanceFile
+                );
+                break;
+              case ApplicationExecutionMode.ReloadConfiguration:
+                messageToOtherInstance = new ReloadConfigurationOfOtherInstance(
+                  instanceId,
+                  instanceFile
+                );
+                break;
+              default:
+                throw new ShouldNeverHappenError();
+            }
+            await messageToOtherInstance.send();
+          } else {
+            Logger.post(
+              'Instance "{instanceId}" is not running to be affected.',
+              {
+                instanceId
+              },
+              LogLevel.Warning,
+              Application.logContext2
+            );
+          }
+        }
+
+        Logger.post(
+          'Total instances affected: {affectedCount}',
+          { affectedCount },
+          LogLevel.Debug,
+          Application.logContext2
+        );
+      }
+    }
   }
 
   /**
