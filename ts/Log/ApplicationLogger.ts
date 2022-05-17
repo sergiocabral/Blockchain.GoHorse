@@ -234,7 +234,7 @@ export class ApplicationLogger implements ILogWriter {
         timestamp: aplicationParameters.startupTime.format({
           mask: 'y-M-d-h-m-s'
         }),
-        appId: aplicationParameters.applicationInstanceIdentifier
+        instanceId: aplicationParameters.applicationInstanceIdentifier
       })
     );
 
