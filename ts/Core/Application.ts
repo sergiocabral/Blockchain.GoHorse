@@ -18,7 +18,7 @@ import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
-import { MessageToOtherInstance } from '../Message/MessageToOtherInstance';
+import { MessageBetweenInstances } from '../Message/MessageBetweenInstances';
 import { KillOtherInstance } from '../Message/KillOtherInstance';
 import { ReloadConfigurationOfOtherInstance } from '../Message/ReloadConfigurationOfOtherInstance';
 
@@ -277,7 +277,7 @@ export abstract class Application<
             instanceFile = fs.realpathSync(instanceFile);
             affectedCount++;
 
-            let messageToOtherInstance: MessageToOtherInstance;
+            let messageToOtherInstance: MessageBetweenInstances;
             switch (this.executionMode) {
               case ApplicationExecutionMode.Kill:
                 messageToOtherInstance = new KillOtherInstance(

@@ -1,8 +1,8 @@
-export abstract class MessageToOtherInstance {
+export abstract class MessageBetweenInstances {
   /**
    * Contexto do log.
    */
-  private static logContext = 'MessageToOtherInstance';
+  private static logContext = 'MessageBetweenInstances';
 
   /**
    * Construtor.

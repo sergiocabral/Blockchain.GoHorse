@@ -1,11 +1,11 @@
-import { MessageToOtherInstance } from './MessageToOtherInstance';
+import { MessageBetweenInstances } from './MessageBetweenInstances';
 import fs from 'fs';
 import { Logger, LogLevel } from '@sergiocabral/helper';
 
 /**
  * Finaliza outra instância.
  */
-export class KillOtherInstance extends MessageToOtherInstance {
+export class KillOtherInstance extends MessageBetweenInstances {
   /**
    * Contexto do log.
    */

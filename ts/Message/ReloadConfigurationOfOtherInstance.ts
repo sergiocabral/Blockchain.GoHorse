@@ -1,9 +1,9 @@
-import { MessageToOtherInstance } from './MessageToOtherInstance';
+import { MessageBetweenInstances } from './MessageBetweenInstances';
 
 /**
  * Recarrega as configurações de outra instância.
  */
-export class ReloadConfigurationOfOtherInstance extends MessageToOtherInstance {
+export class ReloadConfigurationOfOtherInstance extends MessageBetweenInstances {
   /**
    * Contexto do log.
    */
