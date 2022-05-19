@@ -7,7 +7,6 @@ import {
   LogWriterToConsole
 } from '@sergiocabral/helper';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
-import { Application } from '../Core/Application';
 import { LogConfiguration } from './LogConfiguration';
 import { LoggerConfiguration } from './LoggerConfiguration';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
@@ -141,7 +140,7 @@ export class ApplicationLogger implements ILogWriter {
    */
   public customFactoryMessage(message: ILogMessage): string {
     return `${
-      Application.applicationInstanceIdentifier
+      ApplicationParameters.applicationInstanceIdentifier
     }: ${message.timestamp.format({ mask: 'universal' })} [${
       LogLevel[message.level] + (message.section ? ': ' + message.section : '')
     }] ${message.message}`;

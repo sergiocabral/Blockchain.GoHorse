@@ -7,12 +7,5 @@ export class ReloadConfigurationOfOtherInstance extends MessageBetweenInstances 
   /**
    * Contexto do log.
    */
-  private static logContext2 = 'ReloadConfigurationOfOtherInstance';
-
-  /**
-   * Envia a mensagem.
-   */
-  public override send(): void {
-    // Implementar...
-  }
+  private static logContext = 'ReloadConfigurationOfOtherInstance';
 }

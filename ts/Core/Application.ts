@@ -10,8 +10,7 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
-  ResultEvent,
-  ShouldNeverHappenError
+  ResultEvent
 } from '@sergiocabral/helper';
 import fs from 'fs';
 import { Definition } from '../Definition';
@@ -19,8 +18,6 @@ import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageBetweenInstances } from '../Message/MessageBetweenInstances';
-import { KillOtherInstance } from '../Message/KillOtherInstance';
-import { ReloadConfigurationOfOtherInstance } from '../Message/ReloadConfigurationOfOtherInstance';
 
 /**
  * Estados de execução de uma aplicação.
@@ -38,16 +35,6 @@ export abstract class Application<
    * Contexto do log.
    */
   private static logContext2 = 'Application';
-
-  /**
-   * Identificador para a instância da aplicação atualmente em execução.
-   */
-  public static applicationInstanceIdentifier: string =
-    'i' +
-    Buffer.from(Math.random().toString())
-      .toString('base64')
-      .replace(/[\W_]/g, '')
-      .substring(10, 15);
 
   /**
    * Tipo da Configurações da aplicação;
@@ -75,7 +62,7 @@ export abstract class Application<
     Logger.post(
       '"{type}" application instance created with id "{id}".',
       {
-        id: Application.applicationInstanceIdentifier,
+        id: ApplicationParameters.applicationInstanceIdentifier,
         type: this.constructor.name
       },
       LogLevel.Debug,
@@ -215,7 +202,7 @@ export abstract class Application<
       .filter(value => value.length > 0)
       .map(value => value.trim());
 
-    const runingInstances = this.getRunningInstances();
+    const runingInstances = Application.getRunningInstances();
 
     if (receivedIds.length === 0) {
       Logger.post(
@@ -258,7 +245,7 @@ export abstract class Application<
       const instancesToAffect: Record<string, string> = affectAll
         ? runingInstances
         : receivedIds.reduce<Record<string, string>>((result, id) => {
-            result[id] = this.parameters.getRunningFlagFile(id);
+            result[id] = ApplicationParameters.getRunningFlagFile(id);
             return result;
           }, {});
 
@@ -277,23 +264,11 @@ export abstract class Application<
             instanceFile = fs.realpathSync(instanceFile);
             affectedCount++;
 
-            let messageToOtherInstance: MessageBetweenInstances;
-            switch (this.executionMode) {
-              case ApplicationExecutionMode.Kill:
-                messageToOtherInstance = new KillOtherInstance(
-                  instanceId,
-                  instanceFile
-                );
-                break;
-              case ApplicationExecutionMode.ReloadConfiguration:
-                messageToOtherInstance = new ReloadConfigurationOfOtherInstance(
-                  instanceId,
-                  instanceFile
-                );
-                break;
-              default:
-                throw new ShouldNeverHappenError();
-            }
+            const messageToOtherInstance = MessageBetweenInstances.factory(
+              this.executionMode,
+              this.parameters.applicationInstanceIdentifier,
+              instanceId
+            );
             await messageToOtherInstance.send();
           } else {
             Logger.post(
@@ -551,10 +526,10 @@ Application
   /**
    * Retorna os ids das instâncias em execução.
    */
-  private getRunningInstances(): Record<string, string> {
+  private static getRunningInstances(): Record<string, string> {
     return fs
-      .readdirSync(this.parameters.inicialDirectory)
-      .map(file => this.parameters.regexRunningFlagFileId.exec(file))
+      .readdirSync(ApplicationParameters.inicialDirectory)
+      .map(file => ApplicationParameters.regexRunningFlagFileId.exec(file))
       .reduce<Record<string, string>>((result, regexMatch) => {
         if (regexMatch !== null) {
           result[regexMatch[1]] = regexMatch[0];

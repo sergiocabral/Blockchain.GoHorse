@@ -11,7 +11,6 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
-import { Application } from './Application';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -69,34 +68,51 @@ export class ApplicationParameters extends CommandLine {
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
-
-    this.regexRunningFlagFileId = new RegExp(
-      HelperText.escapeRegExp(
-        `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.`
-      ) +
-        '([^\\W_]+)' +
-        HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
-        '$'
-    );
   }
 
   /**
    * Diretório da aplicação.
    */
-  public readonly applicationDirectory: string = path.dirname(
+  public static readonly applicationDirectory: string = path.dirname(
     HelperFileSystem.findFilesOut(__dirname, 'package.json', 1)[0]
+  );
+
+  /**
+   * Diretório da aplicação.
+   */
+  public get applicationDirectory(): string {
+    return ApplicationParameters.applicationDirectory;
+  }
+
+  /**
+   * Diretório inicial de execução da aplicação.
+   */
+  public static readonly inicialDirectory: string = fs.realpathSync(
+    process.cwd()
   );
 
   /**
    * Diretório inicial de execução da aplicação.
    */
-  public readonly inicialDirectory: string = fs.realpathSync(process.cwd());
+  public get inicialDirectory(): string {
+    return ApplicationParameters.inicialDirectory;
+  }
+
+  /**
+   * Identificador para a instância da aplicação atualmente em execução.
+   */
+  public static readonly applicationInstanceIdentifier: string =
+    'i' +
+    Buffer.from(Math.random().toString())
+      .toString('base64')
+      .replace(/[\W_]/g, '')
+      .substring(10, 15);
 
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
   public get applicationInstanceIdentifier(): string {
-    return Application.applicationInstanceIdentifier;
+    return ApplicationParameters.applicationInstanceIdentifier;
   }
 
   /**
@@ -107,25 +123,40 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Nome a aplicação.
    */
-  public get applicationName(): string {
-    if (this.packageJson.name === undefined) {
+  public static get applicationName(): string {
+    if (ApplicationParameters.packageJson.name === undefined) {
       throw new InvalidDataError('Cannot found application name');
     }
     const regexContextAndName = /(@[^/]+|^)\/?(.*)/;
-    const matches = this.packageJson.name.match(regexContextAndName);
+    const matches =
+      ApplicationParameters.packageJson.name.match(regexContextAndName);
     return matches?.length === 3
       ? matches[2].slugify()
-      : this.packageJson.name.slugify();
+      : ApplicationParameters.packageJson.name.slugify();
+  }
+
+  /**
+   * Nome a aplicação.
+   */
+  public get applicationName(): string {
+    return ApplicationParameters.applicationName;
+  }
+
+  /**
+   * Versão da aplicação.
+   */
+  public static get applicationVersion(): string {
+    if (ApplicationParameters.packageJson.version === undefined) {
+      throw new InvalidDataError('Cannot found application version');
+    }
+    return ApplicationParameters.packageJson.version;
   }
 
   /**
    * Versão da aplicação.
    */
   public get applicationVersion(): string {
-    if (this.packageJson.version === undefined) {
-      throw new InvalidDataError('Cannot found application version');
-    }
-    return this.packageJson.version;
+    return ApplicationParameters.applicationVersion;
   }
 
   /**
@@ -140,29 +171,38 @@ export class ApplicationParameters extends CommandLine {
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
   public get runningFlagFile(): string {
-    return this.getRunningFlagFile(this.applicationInstanceIdentifier);
+    return ApplicationParameters.getRunningFlagFile(
+      this.applicationInstanceIdentifier
+    );
   }
 
   /**
    * Constrói o nome do arquivo de sinalização.
    * @param id Identificador.
    */
-  public getRunningFlagFile(id: string) {
-    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${this.applicationName}.${id}.${Definition.RUNNING_FILE_SUFFIX}`;
-    return path.join(this.inicialDirectory, name);
+  public static getRunningFlagFile(id: string) {
+    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.${id}.${Definition.RUNNING_FILE_SUFFIX}`;
+    return path.join(ApplicationParameters.inicialDirectory, name);
   }
 
   /**
    * Determina se um arquivo é um sinalizador de execução.
    * Armazena o id no primeiro grupo;
    */
-  public readonly regexRunningFlagFileId: RegExp;
+  public static readonly regexRunningFlagFileId: RegExp = new RegExp(
+    HelperText.escapeRegExp(
+      `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.`
+    ) +
+      '([^\\W_]+)' +
+      HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
+      '$'
+  );
 
   /**
    * Extrai o id de um  arquivo é um sinalizador de execução.
    */
-  public getRunningFlagFileId(file: string): string | undefined {
-    const regexMatch = this.regexRunningFlagFileId.exec(file);
+  public static getRunningFlagFileId(file: string): string | undefined {
+    const regexMatch = ApplicationParameters.regexRunningFlagFileId.exec(file);
     if (regexMatch && regexMatch.length > 1) {
       return regexMatch[1];
     }
@@ -172,16 +212,16 @@ export class ApplicationParameters extends CommandLine {
   /**
    * package.json da aplicação.
    */
-  private packageJsonValue?: IPackageJson;
+  private static packageJsonValue?: IPackageJson;
 
   /**
    * Nome da aplicação a ser executada.
    */
-  public get packageJson(): IPackageJson {
-    if (this.packageJsonValue === undefined) {
+  public static get packageJson(): IPackageJson {
+    if (ApplicationParameters.packageJsonValue === undefined) {
       const mark = /^@gohorse\//;
       const applications = HelperNodeJs.getAllPreviousPackagesJson(
-        this.applicationDirectory
+        ApplicationParameters.applicationDirectory
       ).filter(packageJson =>
         HelperText.matchFilter(String(packageJson.Value.name), mark)
       );
@@ -190,8 +230,15 @@ export class ApplicationParameters extends CommandLine {
           `Expected one package.json but found ${applications.length}.`
         );
       }
-      this.packageJsonValue = applications[0].Value;
+      ApplicationParameters.packageJsonValue = applications[0].Value;
     }
-    return this.packageJsonValue;
+    return ApplicationParameters.packageJsonValue;
+  }
+
+  /**
+   * Nome da aplicação a ser executada.
+   */
+  public get packageJson(): IPackageJson {
+    return ApplicationParameters.packageJson;
   }
 }
