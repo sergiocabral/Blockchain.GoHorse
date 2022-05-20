@@ -264,12 +264,13 @@ export abstract class Application<
             instanceFile = fs.realpathSync(instanceFile);
             affectedCount++;
 
-            const messageToOtherInstance = MessageRouter.factory(
-              this.executionMode,
-              this.parameters.applicationInstanceIdentifier,
-              instanceId
+            await MessageRouter.send(
+              MessageRouter.factory(
+                this.executionMode,
+                this.parameters.applicationInstanceIdentifier,
+                instanceId
+              )
             );
-            await messageToOtherInstance.send();
           } else {
             Logger.post(
               'Instance "{instanceId}" is not running to be affected.',

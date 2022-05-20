@@ -1,22 +1,13 @@
-import fs from 'fs';
-import { ApplicationParameters } from '../Core/ApplicationParameters';
-
-/**
- * Tipo para o construtor de Message
- */
-export type MessageToInstanceConstructor = new (
-  fromInstanceId: string,
-  toInstanceId: string
-) => MessageToInstance;
+import { IMessageToInstance } from './IMessageToInstance';
 
 /**
  * Base abstrata das mensagens entre instâncias.
  */
-export abstract class MessageToInstance {
+export abstract class MessageToInstance implements IMessageToInstance {
   /**
-   * Contexto do log.
+   * Tipo da mensagem.
    */
-  private static logContext2 = 'Message';
+  public abstract type: string;
 
   /**
    * Construtor.
@@ -27,19 +18,4 @@ export abstract class MessageToInstance {
     public readonly fromInstanceId: string,
     public readonly toInstanceId: string
   ) {}
-
-  /**
-   * Envia a mensagem.
-   */
-  public send(): Promise<void> {
-    return new Promise<void>(resolve => {
-      const message = '{}'; // TODO: Prencher a mensagem.
-      const fileContent = `${new Date().getTime()}:${JSON.stringify(message)}`;
-      const instanceFile = ApplicationParameters.getRunningFlagFile(
-        this.toInstanceId
-      );
-      fs.appendFileSync(instanceFile, fileContent);
-      resolve();
-    });
-  }
 }

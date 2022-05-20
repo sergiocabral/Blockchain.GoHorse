@@ -5,9 +5,9 @@ import { MessageToInstance } from './MessageToInstance';
  */
 export class Kill extends MessageToInstance {
   /**
-   * Contexto do log.
+   * Tipo da mensagem.
    */
-  private static logContext = 'Kill';
+  public override type = 'Kill';
 
   // // TODO: Essa era a lógica original. Voltar ela pra algum lugar
   //

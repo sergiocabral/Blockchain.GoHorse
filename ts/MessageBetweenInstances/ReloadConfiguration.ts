@@ -5,7 +5,7 @@ import { MessageToInstance } from './MessageToInstance';
  */
 export class ReloadConfiguration extends MessageToInstance {
   /**
-   * Contexto do log.
+   * Tipo da mensagem.
    */
-  private static logContext = 'ReloadConfiguration';
+  public override type = 'ReloadConfiguration';
 }
