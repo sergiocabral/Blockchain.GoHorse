@@ -17,7 +17,7 @@ import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
-import { MessageBetweenInstances } from '../Message/MessageBetweenInstances';
+import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
 
 /**
  * Estados de execução de uma aplicação.
@@ -264,7 +264,7 @@ export abstract class Application<
             instanceFile = fs.realpathSync(instanceFile);
             affectedCount++;
 
-            const messageToOtherInstance = MessageBetweenInstances.factory(
+            const messageToOtherInstance = MessageRouter.factory(
               this.executionMode,
               this.parameters.applicationInstanceIdentifier,
               instanceId

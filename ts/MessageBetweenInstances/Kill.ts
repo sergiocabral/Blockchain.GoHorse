@@ -1,13 +1,13 @@
-import { MessageBetweenInstances } from './MessageBetweenInstances';
+import { MessageToInstance } from './MessageToInstance';
 
 /**
  * Finaliza outra instância.
  */
-export class KillOtherInstance extends MessageBetweenInstances {
+export class Kill extends MessageToInstance {
   /**
    * Contexto do log.
    */
-  private static logContext = 'KillOtherInstance';
+  private static logContext = 'Kill';
 
   // // TODO: Essa era a lógica original. Voltar ela pra algum lugar
   //
@@ -21,7 +21,7 @@ export class KillOtherInstance extends MessageBetweenInstances {
   //       instanceFile: this.instanceFile
   //     },
   //     LogLevel.Information,
-  //     KillOtherInstance.logContext2
+  //     Kill.logContext2
   //   );
   // } catch (error) {
   //   Logger.post(
@@ -32,7 +32,7 @@ export class KillOtherInstance extends MessageBetweenInstances {
   //       error
   //     },
   //     LogLevel.Error,
-  //     KillOtherInstance.logContext2
+  //     Kill.logContext2
   //   );
   // }
 }
