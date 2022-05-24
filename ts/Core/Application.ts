@@ -82,6 +82,9 @@ export abstract class Application<
     this.runningFlagFileMonitoring.onDeleted.add(
       this.onDeletedRunningFlagFile.bind(this)
     );
+    this.runningFlagFileMonitoring.onModified.add(
+      this.onModifiedRunningFlagFile.bind(this)
+    );
 
     this.executionMode = this.parameters.hasArgumentName(
       Definition.ARGUMENT_STOP
@@ -508,6 +511,22 @@ Application
       Application.logContext2
     );
     await this.stop();
+  }
+
+  /**
+   * Evento ao modificar o arquivo de sinalização de execução.
+   */
+  private async onModifiedRunningFlagFile(): Promise<void> {
+    Logger.post(
+      'The execution signal file was modified: {path}',
+      {
+        path: this.parameters.runningFlagFile
+      },
+      LogLevel.Debug,
+      Application.logContext2
+    );
+    // TODO: Implementar leitura das mensagens.
+    return new Promise<void>(resolve => resolve());
   }
 
   /**
