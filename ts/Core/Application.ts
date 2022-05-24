@@ -4,6 +4,7 @@ import {
   EmptyError,
   FileSystemMonitoring,
   HelperFileSystem,
+  HelperList,
   HelperObject,
   HelperText,
   InvalidArgumentError,
@@ -18,6 +19,7 @@ import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
+import * as os from 'os';
 
 /**
  * Estados de execução de uma aplicação.
@@ -194,7 +196,7 @@ export abstract class Application<
    * @private
    */
   private async sendMessageToOtherInstances(): Promise<void> {
-    const receivedIds = this.parameters
+    let instanceIds = this.parameters
       .getArgumentValues(Definition.ARGUMENT_INSTANCE_ID)
       .filter(value => value !== undefined)
       .join(',')
@@ -202,9 +204,7 @@ export abstract class Application<
       .filter(value => value.length > 0)
       .map(value => value.trim());
 
-    const runingInstances = Application.getRunningInstances();
-
-    if (receivedIds.length === 0) {
+    if (instanceIds.length === 0) {
       Logger.post(
         `It is necessary to inform the id of the instance that will be affected. Use \`${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to affect all.`,
         undefined,
@@ -212,6 +212,7 @@ export abstract class Application<
         Application.logContext2
       );
 
+      const runingInstances = Application.getRunningInstances();
       const runingIds = Object.keys(runingInstances).join(',');
       if (runingIds !== '') {
         Logger.post(
@@ -231,7 +232,7 @@ export abstract class Application<
         );
       }
     } else {
-      const affectAll = receivedIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
+      const affectAll = instanceIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
 
       if (affectAll) {
         Logger.post(
@@ -240,53 +241,36 @@ export abstract class Application<
           LogLevel.Debug,
           Application.logContext2
         );
+
+        instanceIds = instanceIds.concat(
+          Object.keys(Application.getRunningInstances())
+        );
       }
 
-      const instancesToAffect: Record<string, string> = affectAll
-        ? runingInstances
-        : receivedIds.reduce<Record<string, string>>((result, id) => {
-            result[id] = ApplicationParameters.getRunningFlagFile(id);
-            return result;
-          }, {});
+      instanceIds = HelperList.unique(
+        instanceIds.filter(
+          instanceId => instanceId !== Definition.ARGUMENT_VALUE_FOR_ALL
+        )
+      );
 
-      if (Object.keys(instancesToAffect).length === 0) {
-        Logger.post(
-          'No instances have been found to be affected.',
-          undefined,
-          LogLevel.Information,
-          Application.logContext2
+      if (instanceIds.length > 0) {
+        const affectedCount = await MessageRouter.factoryAndSend(
+          this.executionMode,
+          this.parameters.applicationInstanceIdentifier,
+          instanceIds
         );
-      } else {
-        let affectedCount = 0;
-        for (const instanceId in instancesToAffect) {
-          let instanceFile = instancesToAffect[instanceId];
-          if (fs.existsSync(instanceFile)) {
-            instanceFile = fs.realpathSync(instanceFile);
-            affectedCount++;
-
-            await MessageRouter.send(
-              MessageRouter.factory(
-                this.executionMode,
-                this.parameters.applicationInstanceIdentifier,
-                instanceId
-              )
-            );
-          } else {
-            Logger.post(
-              'Instance "{instanceId}" is not running to be affected.',
-              {
-                instanceId
-              },
-              LogLevel.Warning,
-              Application.logContext2
-            );
-          }
-        }
 
         Logger.post(
           'Total instances affected: {affectedCount}',
           { affectedCount },
           LogLevel.Debug,
+          Application.logContext2
+        );
+      } else {
+        Logger.post(
+          'No instances have been found to be affected.',
+          undefined,
+          LogLevel.Information,
           Application.logContext2
         );
       }
@@ -367,13 +351,15 @@ export abstract class Application<
 FLAG FILE
 
 This file signals that the application should continue running.
-
+It also serves as a channel for receiving messages.
 If this file no longer exists, the application is terminated.
 
 Application
  - Name: ${this.parameters.applicationName} 
  - Instance: ${this.parameters.applicationInstanceIdentifier}
-`.trim()
+`.trim() +
+        os.EOL +
+        os.EOL
     );
 
     this.runningFlagFileMonitoring.start();
@@ -527,7 +513,7 @@ Application
   /**
    * Retorna os ids das instâncias em execução.
    */
-  private static getRunningInstances(): Record<string, string> {
+  public static getRunningInstances(): Record<string, string> {
     return fs
       .readdirSync(ApplicationParameters.inicialDirectory)
       .map(file => ApplicationParameters.regexRunningFlagFileId.exec(file))
