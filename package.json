@@ -12,8 +12,8 @@
     "test": "jest --config jest.config.ts",
     "build": "tsc",
     "build:prod": "npm run build && npm run format+lint && npm run test",
-    "start": "ts-node ./ts/index.ts",
-    "stop": "ts-node ./ts/index.ts /stop /id=*",
+    "start": "ts-node ./ts/index.ts /id=*",
+    "stop": "ts-node ./ts/index.ts /id=* /stop",
     "prepare": "npm run build",
     "version": "npm run build:prod && git add --all",
     "postversion": "git push -u origin HEAD && git push origin --tags"
