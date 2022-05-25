@@ -123,7 +123,7 @@ export class MessageRouter {
       {
         path: data.after.realpath
       },
-      LogLevel.Debug,
+      LogLevel.Verbose,
       MessageRouter.logContext
     );
 
@@ -265,6 +265,7 @@ export class MessageRouter {
       const json = JSON.parse(content) as Partial<IMessageToInstance>;
 
       if (
+        Object.keys(json).includes('name') ||
         json.identifier === undefined ||
         json.type === undefined ||
         json.fromInstanceId === undefined ||
@@ -344,8 +345,13 @@ export class MessageRouter {
    */
   public static async send(message: IMessageToInstance): Promise<void> {
     return new Promise<void>(resolve => {
+      const messageClone = JSON.parse(JSON.stringify(message)) as Record<
+        string,
+        unknown
+      >;
+      delete messageClone['name'];
       const fileContent =
-        `${new Date().toISOString()} ${JSON.stringify(message)}` + os.EOL;
+        `${new Date().toISOString()} ${JSON.stringify(messageClone)}` + os.EOL;
       const instanceFile = ApplicationParameters.getRunningFlagFile(
         message.toInstanceId
       );

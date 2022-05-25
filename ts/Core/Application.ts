@@ -11,6 +11,7 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
+  Message,
   ResultEvent
 } from '@sergiocabral/helper';
 import fs from 'fs';
@@ -20,6 +21,8 @@ import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
 import * as os from 'os';
+import { Kill } from '../MessageBetweenInstances/Kill';
+import { ReloadConfiguration } from '../MessageBetweenInstances/ReloadConfiguration';
 
 /**
  * Estados de execução de uma aplicação.
@@ -91,6 +94,12 @@ export abstract class Application<
       : this.parameters.hasArgumentName(Definition.ARGUMENT_RELOAD)
       ? ApplicationExecutionMode.ReloadConfiguration
       : ApplicationExecutionMode.Start;
+
+    Message.subscribe(Kill, this.onHandleKill.bind(this));
+    Message.subscribe(
+      ReloadConfiguration,
+      this.onHandleReloadConfiguration.bind(this)
+    );
   }
 
   /**
@@ -499,6 +508,20 @@ Application
         errors
       )
     ).filter(error => Boolean(error));
+  }
+
+  /**
+   * Handle: Kill
+   */
+  private async onHandleKill(message: Kill): Promise<void> {
+    await this.stop();
+  }
+
+  /**
+   * Handle: ReloadConfiguration
+   */
+  private onHandleReloadConfiguration(message: ReloadConfiguration): void {
+    // TODO: Tornar possível recarregar configurações sem fechar aplicação.
   }
 
   /**
