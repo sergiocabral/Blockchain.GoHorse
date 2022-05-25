@@ -55,7 +55,9 @@ export class SampleApp extends Application<SampleAppConfiguration> {
         console.info(
           `Tick ${(++step)
             .toString()
-            .padStart(steps.toString().length, '0')}/${steps}`
+            .padStart(steps.toString().length, '0')}/${steps} ${
+            this.configuration.sampleLabel
+          }`
         );
         if (step === steps) {
           resolve();

@@ -5,7 +5,7 @@ import { ApplicationConfiguration } from '../Core/ApplicationConfiguration';
  */
 export class SampleAppConfiguration extends ApplicationConfiguration {
   /**
-   * Um valor qualquer.
+   * Uma propriedade qualquer.
    */
-  public anyProperty = 'Any Value';
+  public sampleLabel = 'gohorse.dev';
 }

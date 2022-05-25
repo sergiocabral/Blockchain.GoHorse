@@ -520,8 +520,17 @@ Application
   /**
    * Handle: ReloadConfiguration
    */
-  private onHandleReloadConfiguration(): void {
-    // TODO: Tornar possível recarregar configurações sem fechar aplicação.
+  private async onHandleReloadConfiguration(): Promise<void> {
+    try {
+      await this.loadConfiguration();
+    } catch (error) {
+      Logger.post(
+        'An error occurred while reloading configuration: {error}',
+        { error: HelperText.formatError(error) },
+        LogLevel.Warning,
+        Application.logContext2
+      );
+    }
   }
 
   /**
