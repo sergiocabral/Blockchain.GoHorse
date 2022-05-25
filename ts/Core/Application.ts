@@ -21,7 +21,7 @@ import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
 import * as os from 'os';
-import { Kill } from '../MessageBetweenInstances/Kill';
+import { KillApplication } from '../MessageBetweenInstances/KillApplication';
 import { ReloadConfiguration } from '../MessageBetweenInstances/ReloadConfiguration';
 
 /**
@@ -90,12 +90,12 @@ export abstract class Application<
     this.executionMode = this.parameters.hasArgumentName(
       Definition.ARGUMENT_STOP
     )
-      ? ApplicationExecutionMode.Kill
+      ? ApplicationExecutionMode.KillApplication
       : this.parameters.hasArgumentName(Definition.ARGUMENT_RELOAD)
       ? ApplicationExecutionMode.ReloadConfiguration
-      : ApplicationExecutionMode.Start;
+      : ApplicationExecutionMode.StartMe;
 
-    Message.subscribe(Kill, this.onHandleKill.bind(this));
+    Message.subscribe(KillApplication, this.onHandleKill.bind(this));
     Message.subscribe(
       ReloadConfiguration,
       this.onHandleReloadConfiguration.bind(this)
@@ -182,7 +182,7 @@ export abstract class Application<
     );
 
     const goAhead =
-      this.executionMode === ApplicationExecutionMode.Start
+      this.executionMode === ApplicationExecutionMode.StartMe
         ? this.executeThisInstance.bind(this)
         : this.sendMessageToOtherInstances.bind(this);
 

@@ -3,9 +3,9 @@ import { MessageToInstance } from './MessageToInstance';
 /**
  * Finaliza outra instância.
  */
-export class Kill extends MessageToInstance {
+export class KillApplication extends MessageToInstance {
   /**
    * Tipo da mensagem.
    */
-  public override type = 'Kill';
+  public override type = 'KillApplication';
 }

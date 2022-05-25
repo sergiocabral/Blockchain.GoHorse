@@ -5,12 +5,12 @@ export enum ApplicationExecutionMode {
   /**
    * Início normal da instância.
    */
-  Start = 'start instance',
+  StartMe = 'start instance',
 
   /**
    * Finaliza outras instâncias.
    */
-  Kill = 'kill other instances',
+  KillApplication = 'kill other instances',
 
   /**
    * Recarrega configuração das outras instâncias.

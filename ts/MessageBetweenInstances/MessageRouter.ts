@@ -11,7 +11,7 @@ import {
   sha256
 } from '@sergiocabral/helper';
 import { MessageToInstance } from './MessageToInstance';
-import { Kill } from './Kill';
+import { KillApplication } from './KillApplication';
 import { ReloadConfiguration } from './ReloadConfiguration';
 import { IMessageToInstance } from './IMessageToInstance';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
@@ -43,7 +43,7 @@ export class MessageRouter {
   private static wellKnowMessages: Array<
     [ApplicationExecutionMode, MessageToInstanceConstructor]
   > = [
-    [ApplicationExecutionMode.Kill, Kill],
+    [ApplicationExecutionMode.KillApplication, KillApplication],
     [ApplicationExecutionMode.ReloadConfiguration, ReloadConfiguration]
   ];
 
@@ -100,7 +100,7 @@ export class MessageRouter {
       LogLevel.Debug,
       MessageRouter.logContext
     );
-    await new Kill(
+    await new KillApplication(
       ApplicationParameters.applicationInstanceIdentifier,
       ApplicationParameters.applicationInstanceIdentifier
     ).sendAsync();
