@@ -13,7 +13,7 @@
     "build": "tsc",
     "build:prod": "npm run build && npm run format+lint && npm run test",
     "start": "ts-node ./ts/index.ts",
-    "stop": "ts-node ./ts/index.ts /stop",
+    "stop": "ts-node ./ts/index.ts /stop /id=*",
     "prepare": "npm run build",
     "version": "npm run build:prod && git add --all",
     "postversion": "git push -u origin HEAD && git push origin --tags"
