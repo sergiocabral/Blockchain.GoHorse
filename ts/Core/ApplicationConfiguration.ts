@@ -24,17 +24,17 @@ export class ApplicationConfiguration extends JsonLoader {
 
   /**
    * Cria um arquivo em disco com as configurações padrão.
-   * @param type Construtor da instância de configuração.
+   * @param typeConstructor Construtor da instância de configuração.
    * @param filePath Arquivo de configuração.
    */
   static createNewFile<TConfiguration extends ApplicationConfiguration>(
-    type: { new (json?: unknown): TConfiguration },
+    typeConstructor: { new (json?: unknown): TConfiguration },
     filePath: string
   ): TConfiguration {
     Logger.post(
-      'Creating the default "{type}" configuration to file: {filePath}',
+      'Creating the default "{configurationType}" configuration to file: {filePath}',
       {
-        type: type.name,
+        configurationType: typeConstructor.name,
         filePath
       },
       LogLevel.Debug,
@@ -43,16 +43,16 @@ export class ApplicationConfiguration extends JsonLoader {
 
     let configuration: TConfiguration;
     try {
-      configuration = new type();
+      configuration = new typeConstructor();
       fs.writeFileSync(
         filePath,
         JSON.stringify(configuration, undefined, '  ')
       );
     } catch (error: unknown) {
       throw new IOError(
-        'Cannot create default the "{type}" configuration into file: {filePath}'.querystring(
+        'Cannot create default the "{configurationType}" configuration into file: {filePath}'.querystring(
           {
-            configurationType: type.name,
+            configurationType: typeConstructor.name,
             filePath
           }
         ),
@@ -65,19 +65,19 @@ export class ApplicationConfiguration extends JsonLoader {
 
   /**
    * Carrega as configurações de um arquivo em disco.
-   * @param type Construtor da instância de configuração.
+   * @param typeConstructor Construtor da instância de configuração.
    * @param filePath Arquivo de configuração.
    */
   public static loadAndUpdateFile<
     TConfiguration extends ApplicationConfiguration
   >(
-    type: { new (json?: unknown): TConfiguration },
+    typeConstructor: { new (json?: unknown): TConfiguration },
     filePath: string
   ): TConfiguration {
     Logger.post(
-      'Loading the "{type}" configuration from file: {filePath}',
+      'Loading the "{configurationType}" configuration from file: {filePath}',
       {
-        type: type.name,
+        configurationType: typeConstructor.name,
         filePath
       },
       LogLevel.Debug,
@@ -89,9 +89,9 @@ export class ApplicationConfiguration extends JsonLoader {
       fileContent = fs.readFileSync(filePath).toString();
     } catch (error: unknown) {
       throw new IOError(
-        'Cannot read the "{type}" configuration from file: {filePath}'.querystring(
+        'Cannot read the "{configurationType}" configuration from file: {filePath}'.querystring(
           {
-            type: type.name,
+            configurationType: typeConstructor.name,
             filePath
           }
         ),
@@ -104,9 +104,9 @@ export class ApplicationConfiguration extends JsonLoader {
       fileContentAsJson = JSON.parse(fileContent);
     } catch (error: unknown) {
       throw new IOError(
-        'Cannot parse the "{type}" configuration from file: {filePath}'.querystring(
+        'Cannot parse the "{configurationType}" configuration from file: {filePath}'.querystring(
           {
-            type: type.name,
+            configurationType: typeConstructor.name,
             filePath
           }
         ),
@@ -114,13 +114,13 @@ export class ApplicationConfiguration extends JsonLoader {
       );
     }
 
-    const configuration = new type(fileContentAsJson).initialize();
+    const configuration = new typeConstructor(fileContentAsJson).initialize();
 
     try {
       Logger.post(
-        'Rewriting back the "{type}" configuration to file: {filePath}',
+        'Rewriting back the "{configurationType}" configuration to file: {filePath}',
         {
-          type: type.name,
+          configurationType: typeConstructor.name,
           filePath
         },
         LogLevel.Debug,
@@ -133,9 +133,9 @@ export class ApplicationConfiguration extends JsonLoader {
       );
     } catch (error: unknown) {
       throw new IOError(
-        'Cannot update the "{type}" configuration to file: {filePath}'.querystring(
+        'Cannot update the "{configurationType}" configuration to file: {filePath}'.querystring(
           {
-            type: type.name,
+            configurationType: typeConstructor.name,
             filePath
           }
         ),

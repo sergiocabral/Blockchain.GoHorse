@@ -44,7 +44,7 @@ export abstract class Application<
   /**
    * Tipo da Configurações da aplicação;
    */
-  protected abstract get configurationType(): new (
+  protected abstract get configurationConstructor(): new (
     json?: unknown
   ) => TConfiguration;
 
@@ -437,11 +437,11 @@ Application
       );
       const configuration: TConfiguration = configurationExists
         ? ApplicationConfiguration.loadAndUpdateFile<TConfiguration>(
-            this.configurationType,
+            this.configurationConstructor,
             this.parameters.configurationFile
           )
         : ApplicationConfiguration.createNewFile<TConfiguration>(
-            this.configurationType,
+            this.configurationConstructor,
             this.parameters.configurationFile
           );
 

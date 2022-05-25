@@ -14,7 +14,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
   /**
    * Tipo da Configurações da aplicação;
    */
-  protected override configurationType = SampleAppConfiguration;
+  protected override configurationConstructor = SampleAppConfiguration;
 
   /**
    * Inicia a aplicação.
