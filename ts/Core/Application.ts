@@ -513,14 +513,14 @@ Application
   /**
    * Handle: Kill
    */
-  private async onHandleKill(message: Kill): Promise<void> {
+  private async onHandleKill(): Promise<void> {
     await this.stop();
   }
 
   /**
    * Handle: ReloadConfiguration
    */
-  private onHandleReloadConfiguration(message: ReloadConfiguration): void {
+  private onHandleReloadConfiguration(): void {
     // TODO: Tornar possível recarregar configurações sem fechar aplicação.
   }
 
