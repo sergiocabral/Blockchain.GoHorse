@@ -59,7 +59,7 @@
     "typescript": "^4.7.2"
   },
   "dependencies": {
-    "@sergiocabral/helper": "^7.6.0",
+    "@sergiocabral/helper": "^7.6.1",
     "tslib": "^2.4.0"
   }
 }
