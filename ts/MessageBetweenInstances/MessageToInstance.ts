@@ -14,6 +14,16 @@ export abstract class MessageToInstance
   public abstract type: string;
 
   /**
+   * Identificador da mensagem.
+   */
+  public identifier =
+    'm' +
+    Buffer.from(Math.random().toString())
+      .toString('base64')
+      .replace(/[\W_]/g, '')
+      .substring(10, 15);
+
+  /**
    * Construtor.
    * @param fromInstanceId Instância remetente da mensagem
    * @param toInstanceId Instância que recebe a mensagem

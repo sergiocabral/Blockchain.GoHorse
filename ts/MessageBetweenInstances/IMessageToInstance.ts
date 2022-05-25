@@ -3,6 +3,11 @@
  */
 export interface IMessageToInstance {
   /**
+   * Identificador da mensagem.
+   */
+  identifier: string;
+
+  /**
    * Tipo da mensagem.
    */
   type: string;

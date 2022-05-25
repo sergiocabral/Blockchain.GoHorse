@@ -36,4 +36,9 @@ export class Definition {
    * Sufixo dos arquivos de finalização de execução.
    */
   public static readonly RUNNING_FILE_SUFFIX = 'isRunning';
+
+  /**
+   * Tolerancia de atrasado em segundos para ler mensagens do arquivo de sinalização.
+   */
+  public static readonly DELAY_TOLERANCE_IN_SECONDS_FOR_READING_MESSAGES = 10;
 }
