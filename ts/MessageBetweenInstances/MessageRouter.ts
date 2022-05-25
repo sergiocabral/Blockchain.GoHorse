@@ -1,9 +1,12 @@
 import { ApplicationExecutionMode } from '../Core/ApplicationExecutionMode';
 import {
   EmptyError,
+  FileSystemMonitoring,
   InvalidArgumentError,
+  InvalidExecutionError,
   Logger,
-  LogLevel
+  LogLevel,
+  Message
 } from '@sergiocabral/helper';
 import { MessageToInstance } from './MessageToInstance';
 import { Kill } from './Kill';
@@ -11,6 +14,7 @@ import { ReloadConfiguration } from './ReloadConfiguration';
 import { IMessageToInstance } from './IMessageToInstance';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import fs from 'fs';
+import { IFileSystemMonitoringEventData } from '@sergiocabral/helper/js/IO/FileSystem/IFileSystemMonitoringEventData';
 
 /**
  * Tipo para o construtor de Message
@@ -38,6 +42,47 @@ export class MessageRouter {
     [ApplicationExecutionMode.Kill, Kill],
     [ApplicationExecutionMode.ReloadConfiguration, ReloadConfiguration]
   ];
+
+  /**
+   * Construtor.
+   * @param messageFileMonitoring Monitoramento do arquivo de mensagens.
+   */
+  public constructor(private messageFileMonitoring: FileSystemMonitoring) {
+    messageFileMonitoring.onModified.add(
+      this.onModifiedRunningFlagFile.bind(this)
+    );
+  }
+
+  /**
+   * Evento ao modificar o arquivo de sinalização de execução.
+   * @param success Sucesso da operação.
+   * @param data Dados associados ao evento.
+   */
+  private onModifiedRunningFlagFile(
+    success: boolean,
+    data?: IFileSystemMonitoringEventData
+  ): void {
+    if (!success || data === undefined) {
+      throw new InvalidExecutionError('Expected onModified with success.');
+    }
+    Logger.post(
+      'The execution signal file was modified: {path}',
+      {
+        path: data.after.realpath
+      },
+      LogLevel.Debug,
+      MessageRouter.logContext
+    );
+    // TODO: Implementar leitura das mensagens.
+  }
+
+  /**
+   * Valida um conteúdo e entrega a instância de uma mensagem.
+   */
+  public static parse(content: string): Message | undefined {
+    // TODO: Implementar o parse
+    return undefined;
+  }
 
   /**
    * Retorna a mensagem correspondente ao modo de execução.

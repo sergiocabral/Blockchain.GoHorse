@@ -20,6 +20,7 @@ import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
 import * as os from 'os';
+import { IFileSystemMonitoringEventData } from '@sergiocabral/helper/js/IO/FileSystem/IFileSystemMonitoringEventData';
 
 /**
  * Estados de execução de uma aplicação.
@@ -82,8 +83,9 @@ export abstract class Application<
     this.runningFlagFileMonitoring.onDeleted.add(
       this.onDeletedRunningFlagFile.bind(this)
     );
-    this.runningFlagFileMonitoring.onModified.add(
-      this.onModifiedRunningFlagFile.bind(this)
+
+    this.runningFlagFileMessageRouter = new MessageRouter(
+      this.runningFlagFileMonitoring
     );
 
     this.executionMode = this.parameters.hasArgumentName(
@@ -141,6 +143,11 @@ export abstract class Application<
    * Monitoramento do arquivo de sinalização de execução.
    */
   private readonly runningFlagFileMonitoring: FileSystemMonitoring;
+
+  /**
+   * Tratamento de mensagem recebidas pelo arquivo de monitoramento.
+   */
+  public readonly runningFlagFileMessageRouter: MessageRouter;
 
   /**
    * Logger principal da aplicação.
@@ -501,32 +508,22 @@ Application
   /**
    * Evento ao excluir o arquivo de sinalização de execução.
    */
-  private async onDeletedRunningFlagFile(): Promise<void> {
+  private async onDeletedRunningFlagFile(
+    success: boolean,
+    data?: IFileSystemMonitoringEventData
+  ): Promise<void> {
+    if (!success || data === undefined) {
+      throw new InvalidExecutionError('Expected onDeleted with success.');
+    }
     Logger.post(
       'The execution signal file was deleted: {path}',
       {
-        path: this.parameters.runningFlagFile
+        path: data.before.realpath
       },
       LogLevel.Debug,
       Application.logContext2
     );
     await this.stop();
-  }
-
-  /**
-   * Evento ao modificar o arquivo de sinalização de execução.
-   */
-  private async onModifiedRunningFlagFile(): Promise<void> {
-    Logger.post(
-      'The execution signal file was modified: {path}',
-      {
-        path: this.parameters.runningFlagFile
-      },
-      LogLevel.Debug,
-      Application.logContext2
-    );
-    // TODO: Implementar leitura das mensagens.
-    return new Promise<void>(resolve => resolve());
   }
 
   /**

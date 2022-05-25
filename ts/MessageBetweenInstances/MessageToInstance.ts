@@ -1,9 +1,13 @@
 import { IMessageToInstance } from './IMessageToInstance';
+import { Message } from '@sergiocabral/helper';
 
 /**
  * Base abstrata das mensagens entre instâncias.
  */
-export abstract class MessageToInstance implements IMessageToInstance {
+export abstract class MessageToInstance
+  extends Message
+  implements IMessageToInstance
+{
   /**
    * Tipo da mensagem.
    */
@@ -17,5 +21,7 @@ export abstract class MessageToInstance implements IMessageToInstance {
   public constructor(
     public readonly fromInstanceId: string,
     public readonly toInstanceId: string
-  ) {}
+  ) {
+    super();
+  }
 }
