@@ -20,7 +20,6 @@ import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
 import * as os from 'os';
-import { IFileSystemMonitoringEventData } from '@sergiocabral/helper/js/IO/FileSystem/IFileSystemMonitoringEventData';
 
 /**
  * Estados de execução de uma aplicação.
@@ -79,9 +78,6 @@ export abstract class Application<
       this.parameters.runningFlagFile,
       Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
       runningFlagFileMonitoringStarted
-    );
-    this.runningFlagFileMonitoring.onDeleted.add(
-      this.onDeletedRunningFlagFile.bind(this)
     );
 
     this.runningFlagFileMessageRouter = new MessageRouter(
@@ -503,27 +499,6 @@ Application
         errors
       )
     ).filter(error => Boolean(error));
-  }
-
-  /**
-   * Evento ao excluir o arquivo de sinalização de execução.
-   */
-  private async onDeletedRunningFlagFile(
-    success: boolean,
-    data?: IFileSystemMonitoringEventData
-  ): Promise<void> {
-    if (!success || data === undefined) {
-      throw new InvalidExecutionError('Expected onDeleted with success.');
-    }
-    Logger.post(
-      'The execution signal file was deleted: {path}',
-      {
-        path: data.before.realpath
-      },
-      LogLevel.Debug,
-      Application.logContext2
-    );
-    await this.stop();
   }
 
   /**

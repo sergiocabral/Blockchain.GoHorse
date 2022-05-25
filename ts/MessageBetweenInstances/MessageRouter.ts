@@ -45,12 +45,42 @@ export class MessageRouter {
 
   /**
    * Construtor.
-   * @param messageFileMonitoring Monitoramento do arquivo de mensagens.
+   * @param fileMessageMonitoring Monitoramento do arquivo de mensagens.
    */
-  public constructor(private messageFileMonitoring: FileSystemMonitoring) {
-    messageFileMonitoring.onModified.add(
+  public constructor(private fileMessageMonitoring: FileSystemMonitoring) {
+    fileMessageMonitoring.onDeleted.add(
+      this.onDeletedRunningFlagFile.bind(this)
+    );
+    fileMessageMonitoring.onModified.add(
       this.onModifiedRunningFlagFile.bind(this)
     );
+    this.fileMessageLastRead = new Date().addSeconds(-1);
+  }
+
+  /**
+   * Último momento de leitura.
+   */
+  private fileMessageLastRead: Date;
+
+  /**
+   * Evento ao excluir o arquivo de sinalização de execução.
+   */
+  private onDeletedRunningFlagFile(
+    success: boolean,
+    data?: IFileSystemMonitoringEventData
+  ): void {
+    if (!success || data === undefined) {
+      throw new InvalidExecutionError('Expected onDeleted with success.');
+    }
+    Logger.post(
+      'The message file was deleted: {path}',
+      {
+        path: data.before.realpath
+      },
+      LogLevel.Debug,
+      MessageRouter.logContext
+    );
+    // TODO: Implementar emissão de Kill.
   }
 
   /**
@@ -66,7 +96,7 @@ export class MessageRouter {
       throw new InvalidExecutionError('Expected onModified with success.');
     }
     Logger.post(
-      'The execution signal file was modified: {path}',
+      'The message file was modified: {path}',
       {
         path: data.after.realpath
       },
