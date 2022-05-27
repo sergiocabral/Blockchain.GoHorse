@@ -6,12 +6,10 @@ import {
   LogLevel,
   LogWriterToConsole
 } from '@sergiocabral/helper';
-import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
-import { LogConfiguration } from './LogConfiguration';
 import { LoggerConfiguration } from './LoggerConfiguration';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
-import { LogToFileConfiguration } from './LogToFileConfiguration';
-import path from 'path';
+import { CreateLogToConsole } from './Console/CreateLogToConsole';
+import { CreateLogToFile } from './File/CreateLogToFile';
 
 /**
  * Argumentos da função post().
@@ -28,11 +26,6 @@ type PostArguments = [
  * Logger da aplicação.
  */
 export class ApplicationLogger implements ILogWriter {
-  /**
-   * Contexto do log.
-   */
-  private static logContext = 'ApplicationLogger';
-
   /**
    * Sinaliza que o Logger com seus Writers foram configurados.
    */
@@ -101,9 +94,17 @@ export class ApplicationLogger implements ILogWriter {
     configuration: LoggerConfiguration,
     aplicationParameters: ApplicationParameters
   ): void {
-    this.writers.push(this.createLogWriterToConsole(configuration.toConsole));
     this.writers.push(
-      this.createLogWriterToFile(configuration.toFile, aplicationParameters)
+      ...[
+        new CreateLogToConsole(this).create(
+          configuration.toConsole,
+          aplicationParameters
+        ),
+        new CreateLogToFile(this).create(
+          configuration.toFile,
+          aplicationParameters
+        )
+      ]
     );
     this.configured = true;
     this.flushToPersistence();
@@ -205,73 +206,5 @@ export class ApplicationLogger implements ILogWriter {
     } else {
       this.buffer.push(postArguments);
     }
-  }
-
-  /**
-   * Contrói o log para console.
-   */
-  private createLogWriterToConsole(
-    configuration: LogConfiguration
-  ): ILogWriter {
-    const logWriter = new LogWriterToConsole();
-    return this.configureLogWriter(logWriter, configuration);
-  }
-
-  /**
-   * Contrói o log para persistir em arquivo.
-   */
-  private createLogWriterToFile(
-    configuration: LogToFileConfiguration,
-    aplicationParameters: ApplicationParameters
-  ): ILogWriter {
-    const logWriter = new LogWriterToFile();
-
-    logWriter.file = path.join(
-      process.cwd(),
-      configuration.fileTemplate.querystring({
-        appName: aplicationParameters.applicationName,
-        timestamp: aplicationParameters.startupTime.format({
-          mask: 'y-M-d-h-m-s'
-        }),
-        instanceId: aplicationParameters.applicationInstanceIdentifier
-      })
-    );
-
-    Logger.post(
-      '{logInstance} log instance sending data to file: {file}',
-      {
-        logInstance: logWriter.constructor.name,
-        file: logWriter.file
-      },
-      LogLevel.Debug,
-      ApplicationLogger.logContext
-    );
-
-    return this.configureLogWriter(logWriter, configuration);
-  }
-
-  /**
-   * Configura uma instância de log.
-   */
-  private configureLogWriter(
-    logWriter: ILogWriter,
-    configuration: LogConfiguration
-  ): ILogWriter {
-    Logger.post(
-      'Setting minimum logging level for {logStream} to {logLevel}.',
-      {
-        logStream: logWriter.constructor.name,
-        logLevel: configuration.minimumLevel
-      },
-      LogLevel.Debug,
-      ApplicationLogger.logContext
-    );
-
-    logWriter.enabled = configuration.enabled;
-    logWriter.minimumLevel = configuration.minimumLevelValue;
-    logWriter.defaultValues = this.defaultValues;
-    logWriter.customFactoryMessage = this.customFactoryMessage.bind(this);
-
-    return logWriter;
   }
 }

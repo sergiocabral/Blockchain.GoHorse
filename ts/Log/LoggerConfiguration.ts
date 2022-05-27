@@ -1,6 +1,6 @@
 import { JsonLoader } from '@sergiocabral/helper';
 import { LogConfiguration } from './LogConfiguration';
-import { LogToFileConfiguration } from './LogToFileConfiguration';
+import { LogToFileConfiguration } from './File/LogToFileConfiguration';
 
 /**
  * Configurações do logger da aplicação.

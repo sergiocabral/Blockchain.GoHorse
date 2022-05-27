@@ -1,6 +1,6 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { LogConfiguration } from './LogConfiguration';
-import { Definition } from '../Definition';
+import { LogConfiguration } from '../LogConfiguration';
+import { Definition } from '../../Definition';
 
 /**
  * Nível de configuração de log.
