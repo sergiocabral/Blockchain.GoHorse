@@ -88,22 +88,23 @@ export class ApplicationLogger implements ILogWriter {
   /**
    * Configura o log com base no JSON e parâmetros da aplicação.
    * @param configuration JSON de configuração.
-   * @param aplicationParameters Parâmetros da aplicação.
+   * @param applicationParameters Parâmetros da aplicação.
    */
   public configure(
     configuration: LoggerConfiguration,
-    aplicationParameters: ApplicationParameters
+    applicationParameters: ApplicationParameters
   ): void {
+    const createLogParameters = { logWriterBase: this, applicationParameters };
     this.writers.push(
       ...[
-        new CreateLogToConsole(this).create(
-          configuration.toConsole,
-          aplicationParameters
-        ),
-        new CreateLogToFile(this).create(
-          configuration.toFile,
-          aplicationParameters
-        )
+        new CreateLogToConsole().create({
+          configuration: configuration.toConsole,
+          ...createLogParameters
+        }),
+        new CreateLogToFile().create({
+          configuration: configuration.toFile,
+          ...createLogParameters
+        })
       ]
     );
     this.configured = true;

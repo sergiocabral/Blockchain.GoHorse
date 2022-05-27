@@ -1,6 +1,6 @@
-import { ApplicationParameters } from '../Core/ApplicationParameters';
 import { LogConfiguration } from './LogConfiguration';
 import { ILogWriter, Logger, LogLevel } from '@sergiocabral/helper';
+import { ICreateLogParameters } from './ICreateLogParameters';
 
 /**
  * Classe capaz de criar uma instância de log.
@@ -12,58 +12,49 @@ export abstract class CreateLog<TLogConfiguration extends LogConfiguration> {
   private static logContext2 = 'CreateLog';
 
   /**
-   * Construtor.
-   * @param logWriterBase LogWriter base.
-   */
-  public constructor(private logWriterBase: ILogWriter) {}
-
-  /**
    * Cria uma instância de log.
-   * @param configuration
-   * @param aplicationParameters
+   * @param parameters Parâmetros de configuração.
    */
   public create(
-    configuration: TLogConfiguration,
-    aplicationParameters: ApplicationParameters
+    parameters: ICreateLogParameters<TLogConfiguration>
   ): ILogWriter {
-    return this.configure(
-      this.createInstance(configuration, aplicationParameters),
-      configuration
-    );
+    return this.configure(parameters, this.createInstance(parameters));
   }
 
   /**
    * Cria uma instância de log.
-   * @param configuration
-   * @param aplicationParameters
+   * @param parameters Parâmetros de configuração.
    */
   protected abstract createInstance(
-    configuration: TLogConfiguration,
-    aplicationParameters: ApplicationParameters
+    parameters: ICreateLogParameters<TLogConfiguration>
   ): ILogWriter;
 
   /**
    * Configura uma instância de log.
+   * @param parameters Parâmetros de configuração.
+   * @param logWriter Log writer que deve ser configurado.
    */
   private configure(
-    logWriter: ILogWriter,
-    configuration: LogConfiguration
+    parameters: ICreateLogParameters<TLogConfiguration>,
+    logWriter: ILogWriter
   ): ILogWriter {
     Logger.post(
       'Setting minimum logging level for {logStream} to {logLevel}.',
       {
         logStream: logWriter.constructor.name,
-        logLevel: configuration.minimumLevel
+        logLevel: parameters.configuration.minimumLevel
       },
       LogLevel.Debug,
       CreateLog.logContext2
     );
 
-    logWriter.enabled = configuration.enabled;
-    logWriter.minimumLevel = configuration.minimumLevelValue;
-    logWriter.defaultValues = this.logWriterBase.defaultValues;
+    logWriter.enabled = parameters.configuration.enabled;
+    logWriter.minimumLevel = parameters.configuration.minimumLevelValue;
+    logWriter.defaultValues = parameters.logWriterBase.defaultValues;
     logWriter.customFactoryMessage =
-      this.logWriterBase.customFactoryMessage?.bind(this.logWriterBase);
+      parameters.logWriterBase.customFactoryMessage?.bind(
+        parameters.logWriterBase
+      );
 
     return logWriter;
   }

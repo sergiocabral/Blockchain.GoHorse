@@ -1,9 +1,9 @@
 import { ILogWriter, Logger, LogLevel } from '@sergiocabral/helper';
 import { CreateLog } from '../CreateLog';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
-import { ApplicationParameters } from '../../Core/ApplicationParameters';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import path from 'path';
+import { ICreateLogParameters } from '../ICreateLogParameters';
 
 export class CreateLogToFile extends CreateLog<LogToFileConfiguration> {
   /**
@@ -13,21 +13,22 @@ export class CreateLogToFile extends CreateLog<LogToFileConfiguration> {
 
   /**
    * Cria uma instância de log.
+   * @param parameters Parâmetros de configuração.
    */
   protected override createInstance(
-    configuration: LogToFileConfiguration,
-    aplicationParameters: ApplicationParameters
+    parameters: ICreateLogParameters<LogToFileConfiguration>
   ): ILogWriter {
     const logWriter = new LogWriterToFile();
 
     logWriter.file = path.join(
       process.cwd(),
-      configuration.fileTemplate.querystring({
-        appName: aplicationParameters.applicationName,
-        timestamp: aplicationParameters.startupTime.format({
+      parameters.configuration.fileTemplate.querystring({
+        appName: parameters.applicationParameters.applicationName,
+        timestamp: parameters.applicationParameters.startupTime.format({
           mask: 'y-M-d-h-m-s'
         }),
-        instanceId: aplicationParameters.applicationInstanceIdentifier
+        instanceId:
+          parameters.applicationParameters.applicationInstanceIdentifier
       })
     );
 
