@@ -5,7 +5,7 @@ import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import path from 'path';
 import { ICreateLogParameters } from '../ICreateLogParameters';
 
-export class CreateLogToFile extends CreateLog<LogToFileConfiguration> {
+export class LogToFile extends CreateLog<LogToFileConfiguration> {
   /**
    * Contexto do log.
    */
@@ -39,7 +39,7 @@ export class CreateLogToFile extends CreateLog<LogToFileConfiguration> {
         file: logWriter.file
       },
       LogLevel.Debug,
-      CreateLogToFile.logContext
+      LogToFile.logContext
     );
 
     return logWriter;

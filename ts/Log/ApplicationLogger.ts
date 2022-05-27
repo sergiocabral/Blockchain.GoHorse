@@ -8,8 +8,8 @@ import {
 } from '@sergiocabral/helper';
 import { LoggerConfiguration } from './LoggerConfiguration';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
-import { CreateLogToConsole } from './Console/CreateLogToConsole';
-import { CreateLogToFile } from './File/CreateLogToFile';
+import { LogToConsole } from './Console/LogToConsole';
+import { LogToFile } from './File/LogToFile';
 
 /**
  * Argumentos da função post().
@@ -97,11 +97,11 @@ export class ApplicationLogger implements ILogWriter {
     const createLogParameters = { logWriterBase: this, applicationParameters };
     this.writers.push(
       ...[
-        new CreateLogToConsole().create({
+        new LogToConsole().create({
           configuration: configuration.toConsole,
           ...createLogParameters
         }),
-        new CreateLogToFile().create({
+        new LogToFile().create({
           configuration: configuration.toFile,
           ...createLogParameters
         })
