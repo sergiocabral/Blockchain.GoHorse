@@ -57,7 +57,9 @@ export class Translation {
     if (packageJsonFiles.length === 0) {
       throw new InvalidExecutionError('package.json file not found.');
     }
-    const rootDirectory = path.dirname(packageJsonFiles[0]);
+    const rootDirectory = path.dirname(
+      packageJsonFiles[packageJsonFiles.length - 1]
+    );
 
     Logger.post(
       'Root directory for translation is "{rootDirectory}".',
