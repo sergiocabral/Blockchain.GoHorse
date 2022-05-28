@@ -2,25 +2,25 @@
   "name": "@gohorse/npm-application",
   "version": "3.1.2",
   "description": "GoHorse is a Git-based blockchain. Library with features for building executable applications.",
-  "bin": "./js/index.js",
-  "main": "./js/index.js",
-  "types": "./js/index.d.ts",
+  "bin": "js/index.js",
+  "main": "js/index.js",
+  "types": "js/index.d.ts",
   "scripts": {
-    "format": "prettier --write \"./ts/**/*.ts\" \"./test/**/*.ts\" \"./js/**/*.js\"",
-    "lint": "eslint \"./ts/**/*.ts\"",
+    "format": "prettier --write \"ts/**/*.ts\" \"test/**/*.ts\" \"js/**/*.js\" \"translat*.json\"",
+    "lint": "eslint \"ts/**/*.ts\"",
     "format+lint": "npm run format && npm run lint",
-    "test": "jest --config ./jest.config.ts",
+    "test": "jest --config jest.config.ts",
     "build": "tsc",
     "build:prod": "npm run build && npm run format+lint && npm run test",
-    "start": "ts-node ./ts/index.ts /id=*",
-    "stop": "ts-node ./ts/index.ts /id=* /stop",
+    "start": "ts-node ts/index.ts /id=*",
+    "stop": "ts-node ts/index.ts /id=* /stop",
     "prepare": "npm run build",
     "version": "npm run build:prod && git add --all",
     "postversion": "git push -u origin HEAD && git push origin --tags"
   },
   "files": [
-    "./js/**/*",
-    "./translat*.json"
+    "js/**/*",
+    "translat*.json"
   ],
   "repository": {
     "type": "git",
