@@ -1,4 +1,5 @@
 import {
+  HelperList,
   HelperNodeJs,
   HelperText,
   InvalidExecutionError,
@@ -68,14 +69,51 @@ export class Translation {
   private static readonly defaultConfiguration = new TranslateConfiguration();
 
   /**
-   * Carrega a lista de arquivos com traduções.
+   * Carrega a lista de diretórios que serão usados na pesquisa por arquivos de tradução.
    */
-  private static getFiles(filesPrefix: string): ITranslationFile[] {
+  private static getDirectories(): string[] {
     const packageJsonFiles = HelperNodeJs.getAllPreviousPackagesFiles();
     if (packageJsonFiles.length === 0) {
       throw new InvalidExecutionError('package.json file not found.');
     }
 
+    if (
+      !packageJsonFiles[0].includes(Definition.DIRECTORY_NAME_FOR_NODE_MODULES)
+    ) {
+      throw new InvalidExecutionError(
+        Definition.DIRECTORY_NAME_FOR_NODE_MODULES + ' directory not found.'
+      );
+    }
+
+    let nodeModulesPath = packageJsonFiles[0];
+    while (
+      path.dirname(nodeModulesPath) !==
+      Definition.DIRECTORY_NAME_FOR_NODE_MODULES
+    ) {
+      nodeModulesPath = path.dirname(nodeModulesPath);
+    }
+
+    const goHorsePath = `${nodeModulesPath}${path.sep}${Definition.DIRECTORY_NAME_FOR_GOHORSE}`;
+    if (!fs.existsSync(goHorsePath)) {
+      throw new InvalidExecutionError(
+        Definition.DIRECTORY_NAME_FOR_GOHORSE + ' directory not found.'
+      );
+    }
+
+    const directories = fs
+      .readdirSync(goHorsePath)
+      .map(entry => `${goHorsePath}${path.sep}${entry}`)
+      .filter(path => fs.statSync(path).isDirectory());
+
+    directories.push(fs.realpathSync(process.cwd()));
+
+    return HelperList.unique(directories);
+  }
+
+  /**
+   * Carrega a lista de arquivos com traduções.
+   */
+  private static getFiles(filesPrefix: string): ITranslationFile[] {
     const result: ITranslationFile[] = [];
 
     const regexTranslationFile = new RegExp(
@@ -83,22 +121,19 @@ export class Translation {
       'i'
     );
 
-    const rootDirectories = packageJsonFiles.map(packageJsonFile =>
-      path.dirname(packageJsonFile)
-    );
-    for (const rootDirectory of rootDirectories) {
+    for (const directory of this.getDirectories()) {
       Logger.post(
-        'Reading files in the application root directory: {directoryPath}',
-        { directoryPath: rootDirectory },
+        'Reading files in the directory: {directoryPath}',
+        { directoryPath: directory },
         LogLevel.Verbose,
         Translation.logContext
       );
 
       const files: ITranslationFile[] = fs
-        .readdirSync(rootDirectory)
+        .readdirSync(directory)
         .filter(file => regexTranslationFile.test(file))
         .map(file => {
-          const filePath = path.resolve(rootDirectory, file);
+          const filePath = path.resolve(directory, file);
           const language = (regexTranslationFile.exec(file) ?? [])[1] ?? '';
 
           return {
