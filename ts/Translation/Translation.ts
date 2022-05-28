@@ -6,6 +6,7 @@ import {
   ITranslate,
   Logger,
   LogLevel,
+  Message,
   Translate,
   TranslateSet
 } from '@sergiocabral/helper';
@@ -15,6 +16,7 @@ import path from 'path';
 import { ITranslationFile } from './ITranslationFile';
 import { TranslateConfiguration } from './TranslateConfiguration';
 import { Definition } from '../Definition';
+import { ReloadConfiguration } from '@gohorse/npm-core';
 
 /**
  * Serviço de tradução.
@@ -26,16 +28,37 @@ export class Translation {
   private static logContext = 'Translation';
 
   /**
-   * Carrega as traduções da aplicação.
-   * @param configuration Configurações de idioma.
+   * Construtor.
+   * @param getConfiguration Configurações de idioma.
    * @param filesPrefix Prefixo dos arquivos de tradução.
    */
-  public static async load(
-    configuration: TranslateConfiguration,
-    filesPrefix: string = Definition.TRANSLATE_FILE_PREFIX
-  ): Promise<ITranslate> {
+  public constructor(
+    public getConfiguration: () => TranslateConfiguration,
+    public filesPrefix: string = Definition.TRANSLATE_FILE_PREFIX
+  ) {
+    void this.reload();
+    Message.subscribe(
+      ReloadConfiguration,
+      this.handleReloadConfiguration.bind(this)
+    );
+  }
+
+  /**
+   * Serviço de tradução.
+   */
+  private translate?: ITranslate = Translate.default;
+
+  /**
+   * Carrega as traduções da aplicação.
+   */
+  public async reload(): Promise<ITranslate> {
+    if (this.translate !== undefined) {
+      this.translate.deleteAll();
+    }
+
     const setAsDefault = true;
-    const translate = new Translate(
+    const configuration = this.getConfiguration();
+    this.translate = new Translate(
       configuration.selected ??
         Translation.defaultConfiguration.selected ??
         undefined,
@@ -45,10 +68,10 @@ export class Translation {
       setAsDefault
     );
 
-    const translations = Translation.getFiles(filesPrefix);
+    const translations = Translation.getFiles(this.filesPrefix);
     let translationLoadedCount = 0;
     for (const translation of translations) {
-      if (await Translation.loadTranslation(translation, translate)) {
+      if (await Translation.loadTranslation(translation, this.translate)) {
         translationLoadedCount++;
       }
     }
@@ -60,7 +83,14 @@ export class Translation {
       Translation.logContext
     );
 
-    return translate;
+    return this.translate;
+  }
+
+  /**
+   * Handle: ReloadConfiguration
+   */
+  private async handleReloadConfiguration(): Promise<void> {
+    await this.reload();
   }
 
   /**
