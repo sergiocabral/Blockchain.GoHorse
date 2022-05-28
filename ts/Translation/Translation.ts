@@ -27,9 +27,11 @@ export class Translation {
   /**
    * Carrega as traduções da aplicação.
    * @param configuration Configurações de idioma.
+   * @param filesPrefix Prefixo dos arquivos de tradução.
    */
   public static async load(
-    configuration: TranslateConfiguration
+    configuration: TranslateConfiguration,
+    filesPrefix: string = Definition.TRANSLATE_FILE_PREFIX
   ): Promise<ITranslate> {
     const setAsDefault = true;
     const translate = new Translate(
@@ -42,7 +44,7 @@ export class Translation {
       setAsDefault
     );
 
-    const translations = Translation.getFiles();
+    const translations = Translation.getFiles(filesPrefix);
     for (const translation of translations) {
       await Translation.loadTranslation(translation, translate);
     }
@@ -56,19 +58,9 @@ export class Translation {
   private static readonly defaultConfiguration = new TranslateConfiguration();
 
   /**
-   * Expressão regular para testar um arquivo de tradução e capturar o idioma.
-   */
-  private static regexTranslationFile = new RegExp(
-    `^${HelperText.escapeRegExp(
-      Definition.TRANSLATE_FILE_PREFIX
-    )}.*\\.([^.]*)\\.json$`,
-    'i'
-  );
-
-  /**
    * Carrega a lista de arquivos com traduções.
    */
-  private static getFiles(): ITranslationFile[] {
+  private static getFiles(filesPrefix: string): ITranslationFile[] {
     const packageJsonFiles = HelperNodeJs.getAllPreviousPackagesFiles();
     if (packageJsonFiles.length === 0) {
       throw new InvalidExecutionError('package.json file not found.');
@@ -84,14 +76,16 @@ export class Translation {
       Translation.logContext
     );
 
-    const files = fs
+    const regexTranslationFile = new RegExp(
+      `^${HelperText.escapeRegExp(filesPrefix)}.*\\.([^.]*)\\.json$`,
+      'i'
+    );
+    const files: ITranslationFile[] = fs
       .readdirSync(rootDirectory)
-      .filter(file => Translation.regexTranslationFile.test(file))
+      .filter(file => regexTranslationFile.test(file))
       .map(file => {
         const filePath = path.resolve(rootDirectory, file);
-        const language = (
-          (Translation.regexTranslationFile.exec(file) ?? [])[1] ?? ''
-        ).substring(1);
+        const language = (regexTranslationFile.exec(file) ?? [])[1] ?? '';
 
         return {
           language,

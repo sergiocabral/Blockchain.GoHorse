@@ -13,5 +13,5 @@ export class Definition {
    * Prefixo dos arquivos de tradução.
    * São os arquivos que serão localizados em disco e carregados.
    */
-  public static readonly TRANSLATE_FILE_PREFIX = 'translate';
+  public static readonly TRANSLATE_FILE_PREFIX = 'translation';
 }
