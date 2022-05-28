@@ -13,7 +13,7 @@ import { ApplicationParameters } from '../Core/ApplicationParameters';
 import { LogToConsole } from './Console/LogToConsole';
 import { LogToFile } from './File/LogToFile';
 import { IApplicationLoggerToStream } from './IApplicationLoggerToStream';
-import { ReloadConfiguration } from '@gohorse/npm-core';
+import { ConfigurationReloaded } from '@gohorse/npm-core';
 
 /**
  * Argumentos da função post().
@@ -53,8 +53,8 @@ export class ApplicationLogger implements ILogWriter {
     ];
 
     Message.subscribe(
-      ReloadConfiguration,
-      this.handleReloadConfiguration.bind(this)
+      ConfigurationReloaded,
+      this.handleConfigurationReloaded.bind(this)
     );
   }
 
@@ -233,9 +233,9 @@ export class ApplicationLogger implements ILogWriter {
   }
 
   /**
-   * Handle: ReloadConfiguration
+   * Handle: ConfigurationReloaded
    */
-  private handleReloadConfiguration(): void {
+  private handleConfigurationReloaded(): void {
     for (const logger of this.loggers) {
       logger.configure();
     }

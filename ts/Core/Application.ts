@@ -21,7 +21,11 @@ import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../BusMessage/MessageRouter';
 import * as os from 'os';
-import { ReloadConfiguration, TerminateApplication } from '@gohorse/npm-core';
+import {
+  ConfigurationReloaded,
+  ReloadConfiguration,
+  TerminateApplication
+} from '@gohorse/npm-core';
 import { Translation } from '@gohorse/npm-i18n';
 
 /**
@@ -535,8 +539,10 @@ Application
    * Handle: ReloadConfiguration
    */
   private async handleReloadConfiguration(): Promise<void> {
+    let success = false;
     try {
       await this.loadConfiguration();
+      success = true;
     } catch (error) {
       Logger.post(
         'An error occurred while reloading configuration: {error}',
@@ -544,6 +550,10 @@ Application
         LogLevel.Warning,
         Application.logContext2
       );
+    }
+
+    if (success) {
+      await new ConfigurationReloaded().sendAsync();
     }
   }
 
