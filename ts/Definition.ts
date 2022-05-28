@@ -24,4 +24,9 @@ export class Definition {
    * Nome padrão do diretório dos pacotes @gohorse.
    */
   public static readonly DIRECTORY_NAME_FOR_GOHORSE = '@gohorse';
+
+  /**
+   * Nome padrão do diretório que contém os arquivos JavaScript
+   */
+  public static readonly DIRECTORY_NAME_FOR_JAVASCRIPT = 'js';
 }
