@@ -1,9 +1,9 @@
 import { JsonLoader, LogLevel } from '@sergiocabral/helper';
 
 /**
- * Nível de configuração de log.
+ * Configurações do logger.
  */
-export class LogConfiguration extends JsonLoader {
+export abstract class LoggerToStreamConfiguration extends JsonLoader {
   /**
    * Sinaliza que o log está ativo.
    */
@@ -34,8 +34,8 @@ export class LogConfiguration extends JsonLoader {
     );
 
     errors.push(
-      ...JsonLoader.mustBeBoolean<LogConfiguration>(this, 'enabled'),
-      ...JsonLoader.mustBeInTheSet<LogConfiguration>(
+      ...JsonLoader.mustBeBoolean<LoggerToStreamConfiguration>(this, 'enabled'),
+      ...JsonLoader.mustBeInTheSet<LoggerToStreamConfiguration>(
         this,
         'minimumLevel',
         namesOfLogLevel,

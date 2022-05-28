@@ -325,15 +325,22 @@ export abstract class Application<
 
     if (errors.length === 0) {
       Logger.post(
-        'The application ended successfully.',
-        undefined,
+        '"{applicationName}" application (id "{applicationId}") ended successfully.',
+        {
+          applicationId: ApplicationParameters.applicationId,
+          applicationName: this.constructor.name
+        },
         LogLevel.Information,
         Application.logContext2
       );
     } else {
       Logger.post(
-        'The application ended with {count} error(s).',
-        { count: errors.length },
+        '"{applicationName}" application (id "{applicationId}") ended with {count} error(s).',
+        {
+          applicationId: ApplicationParameters.applicationId,
+          applicationName: this.constructor.name,
+          count: errors.length
+        },
         LogLevel.Error,
         Application.logContext2
       );

@@ -1,11 +1,11 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { LogConfiguration } from '../LogConfiguration';
+import { LoggerToStreamConfiguration } from '../LoggerToStreamConfiguration';
 import { Definition } from '../../Definition';
 
 /**
- * Nível de configuração de log.
+ * Configurações do logger.
  */
-export class LogToFileConfiguration extends LogConfiguration {
+export class LogToFileConfiguration extends LoggerToStreamConfiguration {
   /**
    * Template para o nome do arquivo gravado.
    */

@@ -1,12 +1,34 @@
-import { LogConfiguration } from '../LogConfiguration';
-import { ILogWriter, LogWriterToConsole } from '@sergiocabral/helper';
-import { CreateLog } from '../CreateLog';
+import { LogWriterToConsole } from '@sergiocabral/helper';
+import { ApplicationLoggerToStream } from '../ApplicationLoggerToStream';
+import { LogToConsoleConfiguration } from './LogToConsoleConfiguration';
 
-export class LogToConsole extends CreateLog<LogConfiguration> {
+export class LogToConsole extends ApplicationLoggerToStream<
+  LogWriterToConsole,
+  LogToConsoleConfiguration
+> {
   /**
-   * Cria uma instância de log.
+   * Contexto do log.
    */
-  protected override createInstance(): ILogWriter {
+  private static logContext = 'LogToConsole';
+
+  /**
+   * Tipo (nome) do fluxo.
+   */
+  public override get type(): string {
+    return LogToConsole.logContext;
+  }
+
+  /**
+   * Cria a instância do logger.
+   */
+  protected override createInstance(): LogWriterToConsole {
     return new LogWriterToConsole();
+  }
+
+  /**
+   * Configura a instância do logger.
+   */
+  protected override configureInstance(): void {
+    // Nada a fazer.
   }
 }

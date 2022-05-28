@@ -1,29 +1,43 @@
-import { ILogWriter, Logger, LogLevel } from '@sergiocabral/helper';
-import { CreateLog } from '../CreateLog';
+import { Logger, LogLevel } from '@sergiocabral/helper';
+import { ApplicationLoggerToStream } from '../ApplicationLoggerToStream';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
 import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import path from 'path';
-import { ICreateLogParameters } from '../ICreateLogParameters';
+import { ApplicationParameters } from '../../Core/ApplicationParameters';
 
-export class LogToFile extends CreateLog<LogToFileConfiguration> {
+export class LogToFile extends ApplicationLoggerToStream<
+  LogWriterToFile,
+  LogToFileConfiguration
+> {
   /**
    * Contexto do log.
    */
-  private static logContext = 'CreateLogToFile';
+  private static logContext = 'LogToFile';
 
   /**
-   * Cria uma instância de log.
-   * @param parameters Parâmetros de configuração.
+   * Tipo (nome) do fluxo.
    */
-  protected override createInstance(
-    parameters: ICreateLogParameters<LogToFileConfiguration>
-  ): ILogWriter {
-    const configuration = parameters.getConfiguration();
-    const applicationParameters = parameters.getApplicationParameters();
+  public override get type(): string {
+    return LogToFile.logContext;
+  }
 
-    const logWriter = new LogWriterToFile();
+  /**
+   * Cria a instância do logger.
+   */
+  protected override createInstance(): LogWriterToFile {
+    return new LogWriterToFile();
+  }
 
-    logWriter.file = path.join(
+  /**
+   * Configura a instância do logger.
+   * @param configuration Configuração.
+   * @param applicationParameters Parâmetros da aplicação.
+   */
+  protected override configureInstance(
+    configuration: LogToFileConfiguration,
+    applicationParameters: ApplicationParameters
+  ): void {
+    this.instance.file = path.join(
       process.cwd(),
       configuration.fileTemplate.querystring({
         appName: applicationParameters.applicationName,
@@ -35,15 +49,13 @@ export class LogToFile extends CreateLog<LogToFileConfiguration> {
     );
 
     Logger.post(
-      '{logInstance} log instance sending data to file: {file}',
+      'Setting logger "{logWriterType}" to send data to file: {filePath}.',
       {
-        logInstance: logWriter.constructor.name,
-        file: logWriter.file
+        logWriterType: this.type,
+        filePath: this.instance.file
       },
       LogLevel.Debug,
       LogToFile.logContext
     );
-
-    return logWriter;
   }
 }

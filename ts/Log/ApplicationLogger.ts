@@ -5,12 +5,15 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
-  LogWriterToConsole
+  LogWriterToConsole,
+  Message
 } from '@sergiocabral/helper';
 import { LoggerConfiguration } from './LoggerConfiguration';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import { LogToConsole } from './Console/LogToConsole';
 import { LogToFile } from './File/LogToFile';
+import { IApplicationLoggerToStream } from './IApplicationLoggerToStream';
+import { ReloadConfiguration } from '@gohorse/npm-core';
 
 /**
  * Argumentos da função post().
@@ -29,18 +32,41 @@ type PostArguments = [
 export class ApplicationLogger implements ILogWriter {
   /**
    * Construtor.
-   * @param getConfiguration JSON de configuração.
+   * @param getConfiguration Configuração.
    * @param getApplicationParameters Parâmetros da aplicação.
    */
   public constructor(
     public getConfiguration: () => LoggerConfiguration,
     public getApplicationParameters: () => ApplicationParameters
-  ) {}
+  ) {
+    this.loggers = [
+      new LogToConsole(
+        this,
+        () => this.getConfiguration().toConsole,
+        this.getApplicationParameters
+      ),
+      new LogToFile(
+        this,
+        () => this.getConfiguration().toFile,
+        this.getApplicationParameters
+      )
+    ];
+
+    Message.subscribe(
+      ReloadConfiguration,
+      this.handleReloadConfiguration.bind(this)
+    );
+  }
 
   /**
    * Sinaliza que o Logger com seus Writers foram configurados.
    */
   private configured = false;
+
+  /**
+   * Lista de loggers.
+   */
+  private readonly loggers: IApplicationLoggerToStream[];
 
   /**
    * Sinaliza se o log está ativo ou não para postar.
@@ -103,25 +129,7 @@ export class ApplicationLogger implements ILogWriter {
     if (this.configured) {
       throw new InvalidExecutionError('Already configured.');
     }
-
-    const createLogParameters = {
-      logWriterBase: this,
-      getApplicationParameters: this.getApplicationParameters
-    };
-
-    this.writers.push(
-      ...[
-        new LogToConsole().create({
-          getConfiguration: () => this.getConfiguration().toConsole,
-          ...createLogParameters
-        }),
-        new LogToFile().create({
-          getConfiguration: () => this.getConfiguration().toFile,
-          ...createLogParameters
-        })
-      ]
-    );
-
+    this.writers.push(...this.loggers.map(logger => logger.create().instance));
     this.configured = true;
     this.flushToPersistence();
   }
@@ -221,6 +229,15 @@ export class ApplicationLogger implements ILogWriter {
       }
     } else {
       this.buffer.push(postArguments);
+    }
+  }
+
+  /**
+   * Handle: ReloadConfiguration
+   */
+  private handleReloadConfiguration(): void {
+    for (const logger of this.loggers) {
+      logger.configure();
     }
   }
 }
