@@ -45,7 +45,7 @@ export class Translation {
   /**
    * Serviço de tradução.
    */
-  private translate?: ITranslate = Translate.default;
+  private translate?: ITranslate;
 
   /**
    * Carrega as traduções da aplicação.
