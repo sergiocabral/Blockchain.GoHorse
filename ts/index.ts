@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import { ConfigurationReloaded } from './BusMessage/Application/Message/ConfigurationReloaded';
+import { ConfigurationReloaded } from './BusMessage/Event/ConfigurationReloaded';
 import { ReloadConfiguration } from './BusMessage/Application/Message/ReloadConfiguration';
 import { TerminateApplication } from './BusMessage/Application/Message/TerminateApplication';
 
