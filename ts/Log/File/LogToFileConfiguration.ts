@@ -9,7 +9,7 @@ export class LogToFileConfiguration extends LogConfiguration {
   /**
    * Template para o nome do arquivo gravado.
    */
-  public fileTemplate = `${Definition.ENVIRONMENT_FILE_PREFIX}.{appName}.{timestamp}.{instanceId}.log`;
+  public fileTemplate = `${Definition.ENVIRONMENT_FILE_PREFIX}.{appName}.{timestamp}.{appId}.log`;
 
   /**
    * Lista de erros presentes na configuração atual
