@@ -45,13 +45,16 @@ export class Translation {
     );
 
     const translations = Translation.getFiles(filesPrefix);
+    let translationLoadedCount = 0;
     for (const translation of translations) {
-      await Translation.loadTranslation(translation, translate);
+      if (await Translation.loadTranslation(translation, translate)) {
+        translationLoadedCount++;
+      }
     }
 
     Logger.post(
       'Total translation files loaded: {count}',
-      { count: translations.length },
+      { count: translationLoadedCount },
       LogLevel.Verbose,
       Translation.logContext
     );
@@ -121,24 +124,27 @@ export class Translation {
    * Carrega as traduções da aplicação.
    */
   private static async loadTranslation(
-    translation: ITranslationFile,
+    translationFile: ITranslationFile,
     service: ITranslate
-  ): Promise<void> {
+  ): Promise<boolean> {
     return new Promise(resolve => {
+      let success = false;
       try {
-        const content = fs.readFileSync(translation.path).toString();
+        const content = fs.readFileSync(translationFile.path).toString();
         const translationSet = JSON.parse(content) as TranslateSet;
 
         service.load(
           translationSet,
-          translation.language || service.selectedLanguage
+          translationFile.language || service.selectedLanguage
         );
+
+        success = true;
 
         Logger.post(
           'The "{filePath}" translation file was loaded for "{languageCultureName}" language.',
           {
-            filePath: translation.path,
-            languageCultureName: translation.language
+            filePath: translationFile.path,
+            languageCultureName: translationFile.language
           },
           LogLevel.Debug,
           Translation.logContext
@@ -148,14 +154,14 @@ export class Translation {
           'An error occurred loading translation "{filePath}" file of "{languageCultureName}" language. Error: {error}',
           {
             error: HelperText.formatError(error),
-            filePath: translation.path,
-            languageCultureName: translation.language
+            filePath: translationFile.path,
+            languageCultureName: translationFile.language
           },
           LogLevel.Warning,
           Translation.logContext
         );
       }
-      resolve();
+      resolve(success);
     });
   }
 }
