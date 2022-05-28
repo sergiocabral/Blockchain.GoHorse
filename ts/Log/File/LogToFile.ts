@@ -18,16 +18,19 @@ export class LogToFile extends CreateLog<LogToFileConfiguration> {
   protected override createInstance(
     parameters: ICreateLogParameters<LogToFileConfiguration>
   ): ILogWriter {
+    const configuration = parameters.getConfiguration();
+    const applicationParameters = parameters.getApplicationParameters();
+
     const logWriter = new LogWriterToFile();
 
     logWriter.file = path.join(
       process.cwd(),
-      parameters.configuration.fileTemplate.querystring({
-        appName: parameters.applicationParameters.applicationName,
-        timestamp: parameters.applicationParameters.startupTime.format({
+      configuration.fileTemplate.querystring({
+        appName: applicationParameters.applicationName,
+        timestamp: applicationParameters.startupTime.format({
           mask: 'y-M-d-h-m-s'
         }),
-        appId: parameters.applicationParameters.applicationId
+        appId: applicationParameters.applicationId
       })
     );
 

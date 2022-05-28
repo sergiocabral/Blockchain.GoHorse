@@ -62,7 +62,10 @@ export abstract class Application<
    * Construtor.
    */
   public constructor() {
-    Logger.defaultLogger = this.logger = new ApplicationLogger();
+    Logger.defaultLogger = this.logger = new ApplicationLogger(
+      () => this.configuration.logger,
+      () => this.parameters
+    );
 
     Logger.post(
       '"{applicationName}" application instance created with id "{applicationId}".',
@@ -481,7 +484,7 @@ Application
    * Configura o serviço de log.
    */
   private configureLogger(): void {
-    this.logger.configure(this.configuration.logger, this.parameters);
+    this.logger.configure();
     this.logger.defaultValues['applicationInstanceId'] =
       this.parameters.applicationId;
     this.logger.defaultValues['applicationName'] =

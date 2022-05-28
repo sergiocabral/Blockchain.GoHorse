@@ -2,6 +2,7 @@ import {
   ILogMessage,
   ILogWriter,
   InvalidDataError,
+  InvalidExecutionError,
   Logger,
   LogLevel,
   LogWriterToConsole
@@ -26,6 +27,16 @@ type PostArguments = [
  * Logger da aplicação.
  */
 export class ApplicationLogger implements ILogWriter {
+  /**
+   * Construtor.
+   * @param getConfiguration JSON de configuração.
+   * @param getApplicationParameters Parâmetros da aplicação.
+   */
+  public constructor(
+    public getConfiguration: () => LoggerConfiguration,
+    public getApplicationParameters: () => ApplicationParameters
+  ) {}
+
   /**
    * Sinaliza que o Logger com seus Writers foram configurados.
    */
@@ -87,26 +98,30 @@ export class ApplicationLogger implements ILogWriter {
 
   /**
    * Configura o log com base no JSON e parâmetros da aplicação.
-   * @param configuration JSON de configuração.
-   * @param applicationParameters Parâmetros da aplicação.
    */
-  public configure(
-    configuration: LoggerConfiguration,
-    applicationParameters: ApplicationParameters
-  ): void {
-    const createLogParameters = { logWriterBase: this, applicationParameters };
+  public configure(): void {
+    if (this.configured) {
+      throw new InvalidExecutionError('Already configured.');
+    }
+
+    const createLogParameters = {
+      logWriterBase: this,
+      getApplicationParameters: this.getApplicationParameters
+    };
+
     this.writers.push(
       ...[
         new LogToConsole().create({
-          configuration: configuration.toConsole,
+          getConfiguration: () => this.getConfiguration().toConsole,
           ...createLogParameters
         }),
         new LogToFile().create({
-          configuration: configuration.toFile,
+          getConfiguration: () => this.getConfiguration().toFile,
           ...createLogParameters
         })
       ]
     );
+
     this.configured = true;
     this.flushToPersistence();
   }

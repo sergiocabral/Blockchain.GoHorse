@@ -38,18 +38,20 @@ export abstract class CreateLog<TLogConfiguration extends LogConfiguration> {
     parameters: ICreateLogParameters<TLogConfiguration>,
     logWriter: ILogWriter
   ): ILogWriter {
+    const configuration = parameters.getConfiguration();
+
     Logger.post(
       'Setting minimum logging level for {logStream} to {logLevel}.',
       {
         logStream: logWriter.constructor.name,
-        logLevel: parameters.configuration.minimumLevel
+        logLevel: configuration.minimumLevel
       },
       LogLevel.Debug,
       CreateLog.logContext2
     );
 
-    logWriter.enabled = parameters.configuration.enabled;
-    logWriter.minimumLevel = parameters.configuration.minimumLevelValue;
+    logWriter.enabled = configuration.enabled;
+    logWriter.minimumLevel = configuration.minimumLevelValue;
     logWriter.defaultValues = parameters.logWriterBase.defaultValues;
     logWriter.customFactoryMessage =
       parameters.logWriterBase.customFactoryMessage?.bind(

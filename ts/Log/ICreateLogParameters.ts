@@ -16,10 +16,10 @@ export interface ICreateLogParameters<
   /**
    * Configurações do log writer que será criado.
    */
-  configuration: TLogConfiguration;
+  getConfiguration: () => TLogConfiguration;
 
   /**
    * Parâmetros da aplicação.
    */
-  applicationParameters: ApplicationParameters;
+  getApplicationParameters: () => ApplicationParameters;
 }
