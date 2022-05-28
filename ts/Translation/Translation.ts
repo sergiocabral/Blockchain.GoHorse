@@ -144,7 +144,7 @@ export class Translation {
 
       Logger.post(
         'Translation files found: {count}',
-        { count: result.length },
+        { count: files.length },
         LogLevel.Verbose,
         Translation.logContext
       );
