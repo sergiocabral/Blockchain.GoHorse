@@ -49,6 +49,13 @@ export class Translation {
       await Translation.loadTranslation(translation, translate);
     }
 
+    Logger.post(
+      'Total translation files loaded: {count}',
+      { count: translations.length },
+      LogLevel.Verbose,
+      Translation.logContext
+    );
+
     return translate;
   }
 
@@ -65,42 +72,49 @@ export class Translation {
     if (packageJsonFiles.length === 0) {
       throw new InvalidExecutionError('package.json file not found.');
     }
-    const rootDirectory = path.dirname(
-      packageJsonFiles[packageJsonFiles.length - 1]
-    );
 
-    Logger.post(
-      'Root directory for translation is: {directoryPath}',
-      { directoryPath: rootDirectory },
-      LogLevel.Debug,
-      Translation.logContext
-    );
+    const result: ITranslationFile[] = [];
 
     const regexTranslationFile = new RegExp(
       `^${HelperText.escapeRegExp(filesPrefix)}.*\\.([^.]*)\\.json$`,
       'i'
     );
-    const files: ITranslationFile[] = fs
-      .readdirSync(rootDirectory)
-      .filter(file => regexTranslationFile.test(file))
-      .map(file => {
-        const filePath = path.resolve(rootDirectory, file);
-        const language = (regexTranslationFile.exec(file) ?? [])[1] ?? '';
 
-        return {
-          language,
-          path: filePath
-        };
-      });
-
-    Logger.post(
-      'Translation files found: {count}',
-      { count: files.length },
-      LogLevel.Debug,
-      Translation.logContext
+    const rootDirectories = packageJsonFiles.map(packageJsonFile =>
+      path.dirname(packageJsonFile)
     );
+    for (const rootDirectory of rootDirectories) {
+      Logger.post(
+        'Reading files in the application root directory: {directoryPath}',
+        { directoryPath: rootDirectory },
+        LogLevel.Verbose,
+        Translation.logContext
+      );
 
-    return files;
+      const files: ITranslationFile[] = fs
+        .readdirSync(rootDirectory)
+        .filter(file => regexTranslationFile.test(file))
+        .map(file => {
+          const filePath = path.resolve(rootDirectory, file);
+          const language = (regexTranslationFile.exec(file) ?? [])[1] ?? '';
+
+          return {
+            language,
+            path: filePath
+          };
+        });
+
+      Logger.post(
+        'Translation files found: {count}',
+        { count: result.length },
+        LogLevel.Verbose,
+        Translation.logContext
+      );
+
+      result.push(...files);
+    }
+
+    return result;
   }
 
   /**
