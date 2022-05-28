@@ -10,7 +10,7 @@
     "lint": "eslint \"./ts/**/*.ts\"",
     "format+lint": "npm run format && npm run lint",
     "test": "jest --config ./jest.config.ts",
-    "build": "tsc",
+    "build": "tsc && copyfiles --flat ./**/translat*.json ./js",
     "build:prod": "npm run build && npm run format+lint && npm run test",
     "start": "ts-node ./ts/index.ts",
     "prepare": "npm run build",
@@ -18,8 +18,7 @@
     "postversion": "git push -u origin HEAD && git push origin --tags"
   },
   "files": [
-    "./js/**/*",
-    "./translat*.json"
+    "./js/**/*"
   ],
   "repository": {
     "type": "git",
@@ -48,6 +47,7 @@
     "@types/node": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
