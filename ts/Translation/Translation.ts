@@ -53,6 +53,13 @@ export class Translation {
    */
   public async reload(): Promise<ITranslate> {
     if (this.translate !== undefined) {
+      Logger.post(
+        'Discarding previous translations to perform a new load.',
+        undefined,
+        LogLevel.Debug,
+        Translation.logContext
+      );
+
       this.translate.deleteAll();
     }
 
