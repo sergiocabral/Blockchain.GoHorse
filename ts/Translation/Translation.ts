@@ -102,10 +102,7 @@ export class Translation {
 
     const directories = fs
       .readdirSync(goHorsePath)
-      .map(
-        entry =>
-          `${goHorsePath}${path.sep}${entry}${path.sep}${Definition.DIRECTORY_NAME_FOR_JAVASCRIPT}`
-      )
+      .map(entry => `${goHorsePath}${path.sep}${entry}`)
       .filter(path => fs.statSync(path).isDirectory());
 
     directories.push(fs.realpathSync(process.cwd()));
