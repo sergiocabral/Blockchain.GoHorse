@@ -176,9 +176,10 @@ export class Translation {
         success = true;
 
         Logger.post(
-          'The "{filePath}" translation file was loaded for "{languageCultureName}" language.',
+          'The "{filePath}" translation file with {sizeBytes} bytes was loaded for "{languageCultureName}" language.',
           {
             filePath: translationFile.path,
+            sizeBytes: fs.statSync(translationFile.path).size,
             languageCultureName: translationFile.language
           },
           LogLevel.Debug,
