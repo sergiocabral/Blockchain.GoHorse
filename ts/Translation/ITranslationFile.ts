@@ -3,7 +3,7 @@
  */
 export interface ITranslationFile {
   /**
-   * Idioma
+   * Idioma.
    */
   language: string;
 
