@@ -192,7 +192,7 @@ export abstract class Application<
     try {
       await this.loadConfiguration();
       this.configureLogger();
-      await Translation.load(this.configuration.language);
+      void new Translation(() => this.configuration.language);
 
       await goAhead();
       await this.stop();
