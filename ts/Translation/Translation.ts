@@ -13,6 +13,7 @@ import fs from 'fs';
 import path from 'path';
 import { ITranslationFile } from './ITranslationFile';
 import { TranslateConfiguration } from './TranslateConfiguration';
+import { Definition } from '../Definition';
 
 /**
  * Serviço de tradução.
@@ -55,10 +56,19 @@ export class Translation {
   private static readonly defaultConfiguration = new TranslateConfiguration();
 
   /**
+   * Expressão regular para testar um arquivo de tradução e capturar o idioma.
+   */
+  private static regexTranslationFile = new RegExp(
+    `^${HelperText.escapeRegExp(
+      Definition.TRANSLATE_FILE_PREFIX
+    )}.*\\.([^.]*)\\.json$`,
+    'i'
+  );
+
+  /**
    * Carrega a lista de arquivos com traduções.
    */
   private static getFiles(): ITranslationFile[] {
-    const regexTranslationFile = /^translation(\..*|)\.json/i;
     const packageJsonFiles = HelperNodeJs.getAllPreviousPackagesFiles();
     if (packageJsonFiles.length === 0) {
       throw new InvalidExecutionError('package.json file not found.');
@@ -76,11 +86,11 @@ export class Translation {
 
     const files = fs
       .readdirSync(rootDirectory)
-      .filter(file => regexTranslationFile.test(file))
+      .filter(file => Translation.regexTranslationFile.test(file))
       .map(file => {
         const filePath = path.resolve(rootDirectory, file);
         const language = (
-          (regexTranslationFile.exec(file) ?? [])[1] ?? ''
+          (Translation.regexTranslationFile.exec(file) ?? [])[1] ?? ''
         ).substring(1);
 
         return {
