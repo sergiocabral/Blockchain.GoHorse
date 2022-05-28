@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@gohorse/npm-core": "^2.1.0",
-    "@gohorse/npm-i18n": "^1.3.1",
+    "@gohorse/npm-i18n": "^1.4.2",
     "@sergiocabral/helper": "^9.0.0",
     "tslib": "^2.4.0"
   }
