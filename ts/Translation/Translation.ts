@@ -87,7 +87,7 @@ export class Translation {
 
     let nodeModulesPath = packageJsonFiles[0];
     while (
-      path.dirname(nodeModulesPath) !==
+      path.basename(nodeModulesPath) !==
       Definition.DIRECTORY_NAME_FOR_NODE_MODULES
     ) {
       nodeModulesPath = path.dirname(nodeModulesPath);
