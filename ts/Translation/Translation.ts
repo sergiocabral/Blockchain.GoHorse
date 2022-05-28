@@ -16,7 +16,7 @@ import path from 'path';
 import { ITranslationFile } from './ITranslationFile';
 import { TranslateConfiguration } from './TranslateConfiguration';
 import { Definition } from '../Definition';
-import { ReloadConfiguration } from '@gohorse/npm-core';
+import { ConfigurationReloaded } from '@gohorse/npm-core';
 
 /**
  * Serviço de tradução.
@@ -37,8 +37,8 @@ export class Translation {
     public filesPrefix: string = Definition.TRANSLATE_FILE_PREFIX
   ) {
     Message.subscribe(
-      ReloadConfiguration,
-      this.handleReloadConfiguration.bind(this)
+      ConfigurationReloaded,
+      this.handleConfigurationReloaded.bind(this)
     );
   }
 
@@ -93,9 +93,9 @@ export class Translation {
   }
 
   /**
-   * Handle: ReloadConfiguration
+   * Handle: ConfigurationReloaded
    */
-  private async handleReloadConfiguration(): Promise<void> {
+  private async handleConfigurationReloaded(): Promise<void> {
     if (this.translate !== undefined) {
       await this.load();
     }
