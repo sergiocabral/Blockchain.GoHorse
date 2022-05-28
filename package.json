@@ -2,15 +2,15 @@
   "name": "@gohorse/npm-application",
   "version": "3.1.2",
   "description": "GoHorse is a Git-based blockchain. Library with features for building executable applications.",
-  "bin": "js/index.js",
-  "main": "js/index.js",
-  "types": "js/index.d.ts",
+  "bin": "./js/index.js",
+  "main": "./js/index.js",
+  "types": "./js/index.d.ts",
   "scripts": {
-    "format": "prettier --write \"ts/**/*.ts\" \"test/**/*.ts\" \"js/**/*.js\"",
-    "lint": "eslint \"ts/**/*.ts\"",
+    "format": "prettier --write \"./ts/**/*.ts\" \"./test/**/*.ts\" \"./js/**/*.js\"",
+    "lint": "eslint \"./ts/**/*.ts\"",
     "format+lint": "npm run format && npm run lint",
-    "test": "jest --config jest.config.ts",
-    "build": "tsc && copyfiles --flat ./**/translat*.json ./js",
+    "test": "jest --config ./jest.config.ts",
+    "build": "tsc",
     "build:prod": "npm run build && npm run format+lint && npm run test",
     "start": "ts-node ./ts/index.ts /id=*",
     "stop": "ts-node ./ts/index.ts /id=* /stop",
@@ -19,7 +19,8 @@
     "postversion": "git push -u origin HEAD && git push origin --tags"
   },
   "files": [
-    "js/**/*"
+    "./js/**/*",
+    "./translat*.json"
   ],
   "repository": {
     "type": "git",
@@ -48,7 +49,6 @@
     "@types/node": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
-    "copyfiles": "^2.4.1",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
