@@ -22,6 +22,7 @@ import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../BusMessage/MessageRouter';
 import * as os from 'os';
 import { ReloadConfiguration, TerminateApplication } from '@gohorse/npm-core';
+import { Translation } from '@gohorse/npm-i18n';
 
 /**
  * Estados de execução de uma aplicação.
@@ -191,6 +192,7 @@ export abstract class Application<
     try {
       await this.loadConfiguration();
       this.configureLogger();
+      await Translation.load(this.configuration.language);
 
       await goAhead();
       await this.stop();
