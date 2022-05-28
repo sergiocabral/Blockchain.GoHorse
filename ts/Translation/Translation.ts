@@ -36,7 +36,6 @@ export class Translation {
     public getConfiguration: () => TranslateConfiguration,
     public filesPrefix: string = Definition.TRANSLATE_FILE_PREFIX
   ) {
-    void this.reload();
     Message.subscribe(
       ReloadConfiguration,
       this.handleReloadConfiguration.bind(this)
@@ -51,7 +50,7 @@ export class Translation {
   /**
    * Carrega as traduções da aplicação.
    */
-  public async reload(): Promise<ITranslate> {
+  public async load(): Promise<ITranslate> {
     if (this.translate !== undefined) {
       Logger.post(
         'Discarding previous translations to perform a new load.',
@@ -97,7 +96,9 @@ export class Translation {
    * Handle: ReloadConfiguration
    */
   private async handleReloadConfiguration(): Promise<void> {
-    await this.reload();
+    if (this.translate !== undefined) {
+      await this.load();
+    }
   }
 
   /**
