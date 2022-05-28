@@ -3,17 +3,17 @@
  */
 export enum ApplicationExecutionMode {
   /**
-   * Início normal da instância.
+   * Início normal da aplicação.
    */
-  StartMe = 'start instance',
+  StartApplication = 'start application',
 
   /**
-   * Finaliza outras instâncias.
+   * Finaliza outras aplicações.
    */
-  KillApplication = 'kill other instances',
+  TerminateApplication = 'terminate other applications',
 
   /**
-   * Recarrega configuração das outras instâncias.
+   * Recarrega configuração das outras aplicações.
    */
-  ReloadConfiguration = 'reload configuration of other instances'
+  ReloadConfiguration = 'reload configuration of other applications'
 }

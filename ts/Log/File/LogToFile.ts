@@ -27,8 +27,7 @@ export class LogToFile extends CreateLog<LogToFileConfiguration> {
         timestamp: parameters.applicationParameters.startupTime.format({
           mask: 'y-M-d-h-m-s'
         }),
-        instanceId:
-          parameters.applicationParameters.applicationInstanceIdentifier
+        instanceId: parameters.applicationParameters.applicationId
       })
     );
 

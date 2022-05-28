@@ -141,9 +141,9 @@ export class ApplicationLogger implements ILogWriter {
    * Função para personalizar a exibição de uma mensagem de log.
    */
   public customFactoryMessage(message: ILogMessage): string {
-    return `${
-      ApplicationParameters.applicationInstanceIdentifier
-    }: ${message.timestamp.format({ mask: 'universal' })} [${
+    return `${ApplicationParameters.applicationId}: ${message.timestamp.format({
+      mask: 'universal'
+    })} [${
       LogLevel[message.level] + (message.section ? ': ' + message.section : '')
     }] ${message.message}`;
   }

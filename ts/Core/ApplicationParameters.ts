@@ -11,6 +11,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
+import { Generate } from '@gohorse/npm-core';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -49,22 +50,22 @@ export class ApplicationParameters extends CommandLine {
     );
 
     Logger.post(
-      'Initial directory as: {inicialDirectory}',
-      { inicialDirectory: this.inicialDirectory },
+      'Initial directory as: {directoryPath}',
+      { directoryPath: this.inicialDirectory },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
-      'Application directory as: {applicationDirectory}',
-      { applicationDirectory: this.applicationDirectory },
+      'Application directory as: {directoryPath}',
+      { directoryPath: this.applicationDirectory },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
-      'Command line: {commandLine}',
-      { commandLine: this.toString() },
+      'Command line: {commandLineContent}',
+      { commandLineContent: this.toString() },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
@@ -101,18 +102,13 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
-  public static readonly applicationInstanceIdentifier: string =
-    'i' +
-    Buffer.from(Math.random().toString())
-      .toString('base64')
-      .replace(/[\W_]/g, '')
-      .substring(10, 15);
+  public static readonly applicationId: string = Generate.id('i');
 
   /**
    * Identificador para a instância da aplicação atualmente em execução.
    */
-  public get applicationInstanceIdentifier(): string {
-    return ApplicationParameters.applicationInstanceIdentifier;
+  public get applicationId(): string {
+    return ApplicationParameters.applicationId;
   }
 
   /**
@@ -170,18 +166,16 @@ export class ApplicationParameters extends CommandLine {
   /**
    * Caminho do arquivo que sinaliza que a aplicação está em execução.
    */
-  public get runningFlagFile(): string {
-    return ApplicationParameters.getRunningFlagFile(
-      this.applicationInstanceIdentifier
-    );
+  public get applicationFlagFile(): string {
+    return ApplicationParameters.getApplicationFlagFile(this.applicationId);
   }
 
   /**
    * Constrói o nome do arquivo de sinalização.
    * @param id Identificador.
    */
-  public static getRunningFlagFile(id: string) {
-    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.${id}.${Definition.RUNNING_FILE_SUFFIX}`;
+  public static getApplicationFlagFile(id: string) {
+    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.${id}.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`;
     return path.join(ApplicationParameters.inicialDirectory, name);
   }
 
@@ -189,20 +183,21 @@ export class ApplicationParameters extends CommandLine {
    * Determina se um arquivo é um sinalizador de execução.
    * Armazena o id no primeiro grupo;
    */
-  public static readonly regexRunningFlagFileId: RegExp = new RegExp(
+  public static readonly regexApplicationFlagFileId: RegExp = new RegExp(
     HelperText.escapeRegExp(
       `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.`
     ) +
       '([^\\W_]+)' +
-      HelperText.escapeRegExp(`.${Definition.RUNNING_FILE_SUFFIX}`) +
+      HelperText.escapeRegExp(`.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`) +
       '$'
   );
 
   /**
    * Extrai o id de um  arquivo é um sinalizador de execução.
    */
-  public static getRunningFlagFileId(file: string): string | undefined {
-    const regexMatch = ApplicationParameters.regexRunningFlagFileId.exec(file);
+  public static getApplicationFlagFileId(filePath: string): string | undefined {
+    const regexMatch =
+      ApplicationParameters.regexApplicationFlagFileId.exec(filePath);
     if (regexMatch && regexMatch.length > 1) {
       return regexMatch[1];
     }

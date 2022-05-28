@@ -3,33 +3,36 @@ import {
   EmptyError,
   FileSystemMonitoring,
   HelperNumeric,
+  HelperText,
+  IMessage,
   InvalidArgumentError,
   InvalidExecutionError,
   Logger,
   LogLevel,
-  Message,
   sha256
 } from '@sergiocabral/helper';
-import { MessageToInstance } from './MessageToInstance';
-import { KillApplication } from './KillApplication';
-import { ReloadConfiguration } from './ReloadConfiguration';
-import { IMessageToInstance } from './IMessageToInstance';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import fs from 'fs';
 import { IFileSystemMonitoringEventData } from '@sergiocabral/helper/js/IO/FileSystem/IFileSystemMonitoringEventData';
 import * as os from 'os';
 import { Definition } from '../Definition';
+import {
+  ApplicationMessage,
+  IApplicationMessage,
+  ReloadConfiguration,
+  TerminateApplication
+} from '@gohorse/npm-core';
 
 /**
  * Tipo para o construtor de Message
  */
-type MessageToInstanceConstructor = new (
-  fromInstanceId: string,
-  toInstanceId: string
-) => MessageToInstance;
+type ApplicationMessageConstructor = new (
+  fromApplicationId: string,
+  toApplicationId: string
+) => ApplicationMessage;
 
 /**
- * Roteamento de mensagens entre instâncias.
+ * Roteamento de mensagens entre aplicações.
  */
 export class MessageRouter {
   /**
@@ -41,9 +44,9 @@ export class MessageRouter {
    * Menagens conhecidas
    */
   private static wellKnowMessages: Array<
-    [ApplicationExecutionMode, MessageToInstanceConstructor]
+    [ApplicationExecutionMode, ApplicationMessageConstructor]
   > = [
-    [ApplicationExecutionMode.KillApplication, KillApplication],
+    [ApplicationExecutionMode.TerminateApplication, TerminateApplication],
     [ApplicationExecutionMode.ReloadConfiguration, ReloadConfiguration]
   ];
 
@@ -53,10 +56,10 @@ export class MessageRouter {
    */
   public constructor(private fileMessageMonitoring: FileSystemMonitoring) {
     fileMessageMonitoring.onDeleted.add(
-      this.onDeletedRunningFlagFile.bind(this)
+      this.onDeletedApplicationFlagFile.bind(this)
     );
     fileMessageMonitoring.onModified.add(
-      this.onModifiedRunningFlagFile.bind(this)
+      this.onModifiedApplicationFlagFile.bind(this)
     );
   }
 
@@ -77,15 +80,17 @@ export class MessageRouter {
     return HelperNumeric.min(
       lastUnixDate,
       new Date()
-        .addSeconds(-Definition.DELAY_TOLERANCE_IN_SECONDS_FOR_READING_MESSAGES)
+        .addSeconds(-Definition.DELAY_TOLERANCE_FOR_READING_MESSAGES_IN_SECONDS)
         .getTime()
     );
   }
 
   /**
-   * Evento ao excluir o arquivo de sinalização de execução.
+   * Evento: Ao excluir o arquivo de sinalização de execução.
+   * @param success Sucesso da operação.
+   * @param data Dados associados ao evento.
    */
-  private async onDeletedRunningFlagFile(
+  private async onDeletedApplicationFlagFile(
     success: boolean,
     data?: IFileSystemMonitoringEventData
   ): Promise<void> {
@@ -93,25 +98,25 @@ export class MessageRouter {
       throw new InvalidExecutionError('Expected onDeleted with success.');
     }
     Logger.post(
-      'The message file was deleted: {path}',
+      'The message file was deleted: {filePath}',
       {
-        path: data.before.realpath
+        filePath: data.before.realpath
       },
       LogLevel.Debug,
       MessageRouter.logContext
     );
-    await new KillApplication(
-      ApplicationParameters.applicationInstanceIdentifier,
-      ApplicationParameters.applicationInstanceIdentifier
+    await new TerminateApplication(
+      ApplicationParameters.applicationId,
+      ApplicationParameters.applicationId
     ).sendAsync();
   }
 
   /**
-   * Evento ao modificar o arquivo de sinalização de execução.
+   * Evento: Ao modificar o arquivo de sinalização de execução.
    * @param success Sucesso da operação.
    * @param data Dados associados ao evento.
    */
-  private async onModifiedRunningFlagFile(
+  private async onModifiedApplicationFlagFile(
     success: boolean,
     data?: IFileSystemMonitoringEventData
   ): Promise<void> {
@@ -119,9 +124,9 @@ export class MessageRouter {
       throw new InvalidExecutionError('Expected onModified with success.');
     }
     Logger.post(
-      'The message file was modified: {path}',
+      'The message file was modified: {filePath}',
       {
-        path: data.after.realpath
+        filePath: data.after.realpath
       },
       LogLevel.Verbose,
       MessageRouter.logContext
@@ -130,11 +135,11 @@ export class MessageRouter {
     const messages = this.readMessagesFromFile(data.after.realpath);
     for (const message of messages) {
       Logger.post(
-        'Message "{messageType}" (id: "{messageId}") received from the instance id "{instanceId}". Submitting for processing in this instance.',
+        'Message "{applicationMessageType}" (id: "{applicationMessageId}") received from the application id "{applicationId}". Submitting for processing in this instance.',
         {
-          messageId: message.identifier,
-          messageType: message.type,
-          instanceId: message.fromInstanceId
+          applicationId: message.fromApplicationId,
+          applicationMessageId: message.id,
+          applicationMessageType: message.type
         },
         LogLevel.Debug,
         MessageRouter.logContext
@@ -148,8 +153,8 @@ export class MessageRouter {
    */
   private readMessagesFromFile(
     file: string
-  ): Array<Message & IMessageToInstance> {
-    const result = Array<Message & IMessageToInstance>();
+  ): Array<IMessage & IApplicationMessage> {
+    const result = Array<IMessage & IApplicationMessage>();
     const lastReadUnixDate = this.getMessageHistoryLastUnixDate();
     const regexEndOfLine = /[\n\r]/;
     const fileContent = fs.readFileSync(file).toString();
@@ -179,7 +184,7 @@ export class MessageRouter {
   private readMessageFromFileLine(
     fileLine: string,
     minUnixDate: number
-  ): (Message & IMessageToInstance) | undefined {
+  ): (IMessage & IApplicationMessage) | undefined {
     const hash = sha256(fileLine);
     let alreadyProcessed = this.messageHistory[hash] !== undefined;
     if (alreadyProcessed) {
@@ -195,10 +200,10 @@ export class MessageRouter {
     const unixDate = new Date(match[1]).getTime();
     if (isNaN(unixDate)) {
       Logger.post(
-        'Error reading message. Invalid date "{invalidDate}" in file line: {line}',
+        'Error reading message. Invalid date "{invalidValue}" in file line: {fileLineContent}',
         {
-          invalidDate: match[1],
-          line: fileLine
+          invalidValue: match[1],
+          fileLineContent: fileLine
         },
         LogLevel.Warning,
         MessageRouter.logContext
@@ -219,13 +224,13 @@ export class MessageRouter {
       return undefined;
     }
 
-    alreadyProcessed = this.messageHistory[message.identifier] !== undefined;
+    alreadyProcessed = this.messageHistory[message.id] !== undefined;
     if (alreadyProcessed) {
       Logger.post(
-        'Error reading message. Message id "{messageId}" has already been processed previously: {line}',
+        'Error reading message. Message id "{applicationMessageId}" has already been processed previously: {fileLineContent}',
         {
-          messageId: message.identifier,
-          line: fileLine
+          applicationMessageId: message.id,
+          fileLineContent: fileLine
         },
         LogLevel.Warning,
         MessageRouter.logContext
@@ -233,17 +238,14 @@ export class MessageRouter {
 
       return undefined;
     }
-    this.messageHistory[message.identifier] = unixDate;
+    this.messageHistory[message.id] = unixDate;
 
-    if (
-      message.toInstanceId !==
-      ApplicationParameters.applicationInstanceIdentifier
-    ) {
+    if (message.toApplicationId !== ApplicationParameters.applicationId) {
       Logger.post(
-        'Error reading message. Message addressed to another instance of id "{instanceId}": {line}',
+        'Error reading message. Message addressed to another application of id "{applicationId}": {fileLineContent}',
         {
-          instanceId: message.toInstanceId,
-          line: fileLine
+          applicationId: message.toApplicationId,
+          fileLineContent: fileLine
         },
         LogLevel.Warning,
         MessageRouter.logContext
@@ -259,22 +261,22 @@ export class MessageRouter {
    * Valida um conteúdo e entrega a instância de uma mensagem.
    */
   public static parse(
-    content: string
-  ): (Message & IMessageToInstance) | undefined {
+    jsonContent: string
+  ): (IMessage & IApplicationMessage) | undefined {
     try {
-      const json = JSON.parse(content) as Partial<IMessageToInstance>;
+      const json = JSON.parse(jsonContent) as Partial<IApplicationMessage>;
 
       if (
         Object.keys(json).includes('name') ||
-        json.identifier === undefined ||
+        json.id === undefined ||
         json.type === undefined ||
-        json.fromInstanceId === undefined ||
-        json.toInstanceId === undefined
+        json.fromApplicationId === undefined ||
+        json.toApplicationId === undefined
       ) {
         Logger.post(
-          'Error reading message. Invalid fields in JSON: {content}',
+          'Error reading message. Invalid fields in JSON: {jsonContent}',
           {
-            content
+            jsonContent
           },
           LogLevel.Warning,
           MessageRouter.logContext
@@ -288,10 +290,10 @@ export class MessageRouter {
       );
       if (messageConstructor === undefined) {
         Logger.post(
-          'Error reading message. Invalid type "{messageType}" in message: {content}',
+          'Error reading message. Invalid type "{applicationMessageType}" in message: {jsonContent}',
           {
-            messageType: json.type,
-            content
+            applicationMessageType: json.type,
+            jsonContent
           },
           LogLevel.Warning,
           MessageRouter.logContext
@@ -301,15 +303,15 @@ export class MessageRouter {
       }
 
       return Object.assign(
-        new messageConstructor[1](json.fromInstanceId, json.toInstanceId),
+        new messageConstructor[1](json.fromApplicationId, json.toApplicationId),
         json
       );
     } catch (error) {
       Logger.post(
-        'Error reading message. Error "{error}" when parsing JSON: {content}',
+        'Error reading message. Error "{error}" when parsing JSON: {jsonContent}',
         {
-          error,
-          content
+          error: HelperText.formatError(error),
+          jsonContent
         },
         LogLevel.Warning,
         MessageRouter.logContext
@@ -326,7 +328,7 @@ export class MessageRouter {
     executionMode: ApplicationExecutionMode,
     fromInstanceId: string,
     toInstanceId: string
-  ): IMessageToInstance {
+  ): IApplicationMessage {
     const wellKnowMessage = MessageRouter.wellKnowMessages.find(
       item => item[0] === executionMode
     );
@@ -343,7 +345,7 @@ export class MessageRouter {
   /**
    * Envia uma mensagem.
    */
-  public static async send(message: IMessageToInstance): Promise<void> {
+  public static async send(message: IApplicationMessage): Promise<void> {
     return new Promise<void>(resolve => {
       const messageClone = JSON.parse(JSON.stringify(message)) as Record<
         string,
@@ -352,16 +354,16 @@ export class MessageRouter {
       delete messageClone['name'];
       const fileContent =
         `${new Date().toISOString()} ${JSON.stringify(messageClone)}` + os.EOL;
-      const instanceFile = ApplicationParameters.getRunningFlagFile(
-        message.toInstanceId
+      const instanceFile = ApplicationParameters.getApplicationFlagFile(
+        message.toApplicationId
       );
 
       Logger.post(
-        'Send message "{messageType}" to instance "{instanceId}" appending into file: {instanceFile}.',
+        'Send message "{applicationMessageType}" to instance "{applicationId}" appending into file: {filePath}.',
         {
-          messageType: message.type,
-          instanceId: message.toInstanceId,
-          instanceFile
+          applicationMessageType: message.type,
+          applicationId: message.toApplicationId,
+          filePath: instanceFile
         },
         LogLevel.Debug,
         MessageRouter.logContext
@@ -390,7 +392,7 @@ export class MessageRouter {
     let affectedCount = 0;
     for (const toInstanceId of toInstanceIds) {
       let toInstanceFile =
-        ApplicationParameters.getRunningFlagFile(toInstanceId);
+        ApplicationParameters.getApplicationFlagFile(toInstanceId);
       if (fs.existsSync(toInstanceFile)) {
         toInstanceFile = fs.realpathSync(toInstanceFile);
         affectedCount++;
@@ -404,9 +406,9 @@ export class MessageRouter {
         await MessageRouter.send(message);
       } else {
         Logger.post(
-          'Instance "{instanceId}" is not running to receive messages.',
+          'Instance "{applicationId}" is not running to receive messages.',
           {
-            instanceId: toInstanceId
+            applicationId: toInstanceId
           },
           LogLevel.Warning,
           MessageRouter.logContext

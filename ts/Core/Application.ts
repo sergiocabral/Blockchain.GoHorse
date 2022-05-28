@@ -19,10 +19,9 @@ import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
-import { MessageRouter } from '../MessageBetweenInstances/MessageRouter';
+import { MessageRouter } from '../BusMessage/MessageRouter';
 import * as os from 'os';
-import { KillApplication } from '../MessageBetweenInstances/KillApplication';
-import { ReloadConfiguration } from '../MessageBetweenInstances/ReloadConfiguration';
+import { ReloadConfiguration, TerminateApplication } from '@gohorse/npm-core';
 
 /**
  * Estados de execução de uma aplicação.
@@ -65,40 +64,43 @@ export abstract class Application<
     Logger.defaultLogger = this.logger = new ApplicationLogger();
 
     Logger.post(
-      '"{type}" application instance created with id "{id}".',
+      '"{applicationName}" application instance created with id "{applicationId}".',
       {
-        id: ApplicationParameters.applicationInstanceIdentifier,
-        type: this.constructor.name
+        applicationId: ApplicationParameters.applicationId,
+        applicationName: this.constructor.name
       },
-      LogLevel.Debug,
+      LogLevel.Information,
       Application.logContext2
     );
 
     this.parameters = new ApplicationParameters(process.argv);
 
-    const runningFlagFileMonitoringStarted = false;
-    this.runningFlagFileMonitoring = new FileSystemMonitoring(
-      this.parameters.runningFlagFile,
-      Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-      runningFlagFileMonitoringStarted
+    const applicationFlagFileMonitoringStarted = false;
+    this.applicationFlagFileMonitoring = new FileSystemMonitoring(
+      this.parameters.applicationFlagFile,
+      Definition.INTERVAL_BETWEEN_CHECKING_APPLICATION_FLAG_FILE_IN_SECONDS,
+      applicationFlagFileMonitoringStarted
     );
 
-    this.runningFlagFileMessageRouter = new MessageRouter(
-      this.runningFlagFileMonitoring
+    this.applicationFlagFileMessageRouter = new MessageRouter(
+      this.applicationFlagFileMonitoring
     );
 
     this.executionMode = this.parameters.hasArgumentName(
-      Definition.ARGUMENT_STOP
+      Definition.COMMAND_LINE_ARGUMENT_STOP
     )
-      ? ApplicationExecutionMode.KillApplication
-      : this.parameters.hasArgumentName(Definition.ARGUMENT_RELOAD)
+      ? ApplicationExecutionMode.TerminateApplication
+      : this.parameters.hasArgumentName(Definition.COMMAND_LINE_ARGUMENT_RELOAD)
       ? ApplicationExecutionMode.ReloadConfiguration
-      : ApplicationExecutionMode.StartMe;
+      : ApplicationExecutionMode.StartApplication;
 
-    Message.subscribe(KillApplication, this.onHandleKill.bind(this));
+    Message.subscribe(
+      TerminateApplication,
+      this.handleTerminateApplication.bind(this)
+    );
     Message.subscribe(
       ReloadConfiguration,
-      this.onHandleReloadConfiguration.bind(this)
+      this.handleReloadConfiguration.bind(this)
     );
   }
 
@@ -147,12 +149,12 @@ export abstract class Application<
   /**
    * Monitoramento do arquivo de sinalização de execução.
    */
-  private readonly runningFlagFileMonitoring: FileSystemMonitoring;
+  private readonly applicationFlagFileMonitoring: FileSystemMonitoring;
 
   /**
    * Tratamento de mensagem recebidas pelo arquivo de monitoramento.
    */
-  public readonly runningFlagFileMessageRouter: MessageRouter;
+  public readonly applicationFlagFileMessageRouter: MessageRouter;
 
   /**
    * Logger principal da aplicação.
@@ -173,16 +175,16 @@ export abstract class Application<
     this.aplicationState = 'running';
 
     Logger.post(
-      'Application started in mode: {mode}',
+      'Application started in mode: {applicationExecutionMode}',
       {
-        mode: this.executionMode
+        applicationExecutionMode: this.executionMode
       },
       LogLevel.Debug,
       Application.logContext2
     );
 
     const goAhead =
-      this.executionMode === ApplicationExecutionMode.StartMe
+      this.executionMode === ApplicationExecutionMode.StartApplication
         ? this.executeThisInstance.bind(this)
         : this.sendMessageToOtherInstances.bind(this);
 
@@ -202,7 +204,7 @@ export abstract class Application<
    * Inicia a aplicação.
    */
   private async executeThisInstance(): Promise<void> {
-    this.createRunningFlagFile();
+    this.createApplicationFlagFile();
     await this.onStart();
   }
 
@@ -212,7 +214,7 @@ export abstract class Application<
    */
   private async sendMessageToOtherInstances(): Promise<void> {
     let instanceIds = this.parameters
-      .getArgumentValues(Definition.ARGUMENT_INSTANCE_ID)
+      .getArgumentValues(Definition.COMMAND_LINE_ARGUMENT_INSTANCE_ID)
       .filter(value => value !== undefined)
       .join(',')
       .split(',')
@@ -221,37 +223,37 @@ export abstract class Application<
 
     if (instanceIds.length === 0) {
       Logger.post(
-        `It is necessary to inform the id of the instance that will be affected. Use \`${Definition.ARGUMENT_INSTANCE_ID}=instanceId1,instanceId2,instanceId3\` to specify the instances or \`${Definition.ARGUMENT_INSTANCE_ID}=${Definition.ARGUMENT_VALUE_FOR_ALL}\` to affect all.`,
+        `It is necessary to inform the id of the application that will be affected. Use \`${Definition.COMMAND_LINE_ARGUMENT_INSTANCE_ID}=applicationId1,applicationId2,applicationId3\` to specify the applications or \`${Definition.COMMAND_LINE_ARGUMENT_INSTANCE_ID}=${Definition.COMMAND_LINE_VALUE_ALL}\` to affect all.`,
         undefined,
         LogLevel.Error,
         Application.logContext2
       );
 
       const runingInstances = Application.getRunningInstances();
-      const runingIds = Object.keys(runingInstances).join(',');
-      if (runingIds !== '') {
+      const runingIds = Object.keys(runingInstances);
+      if (runingIds.length > 0) {
         Logger.post(
-          `Instances currently running: {runingIds}`,
+          `Applications currently running: {applicationIdList}`,
           {
-            runingIds
+            applicationIdList: runingIds
           },
           LogLevel.Information,
           Application.logContext2
         );
       } else {
         Logger.post(
-          `But there is no instance currently running.`,
+          `But there is no application currently running.`,
           undefined,
           LogLevel.Information,
           Application.logContext2
         );
       }
     } else {
-      const affectAll = instanceIds.includes(Definition.ARGUMENT_VALUE_FOR_ALL);
+      const affectAll = instanceIds.includes(Definition.COMMAND_LINE_VALUE_ALL);
 
       if (affectAll) {
         Logger.post(
-          `Affecting all instances because of ${Definition.ARGUMENT_VALUE_FOR_ALL}.`,
+          `Affecting all applications because of ${Definition.COMMAND_LINE_VALUE_ALL}.`,
           undefined,
           LogLevel.Debug,
           Application.logContext2
@@ -264,26 +266,26 @@ export abstract class Application<
 
       instanceIds = HelperList.unique(
         instanceIds.filter(
-          instanceId => instanceId !== Definition.ARGUMENT_VALUE_FOR_ALL
+          instanceId => instanceId !== Definition.COMMAND_LINE_VALUE_ALL
         )
       );
 
       if (instanceIds.length > 0) {
         const affectedCount = await MessageRouter.factoryAndSend(
           this.executionMode,
-          this.parameters.applicationInstanceIdentifier,
+          this.parameters.applicationId,
           instanceIds
         );
 
         Logger.post(
-          'Total instances affected: {affectedCount}',
-          { affectedCount },
+          'Total applications affected: {count}',
+          { count: affectedCount },
           LogLevel.Debug,
           Application.logContext2
         );
       } else {
         Logger.post(
-          'No instances have been found to be affected.',
+          'No applications have been found to be affected.',
           undefined,
           LogLevel.Information,
           Application.logContext2
@@ -303,7 +305,7 @@ export abstract class Application<
     this.aplicationState = 'stoping';
 
     try {
-      this.deleteRunningFlagFile();
+      this.deleteApplicationFlagFile();
     } catch (error) {
       errors.push(error);
     }
@@ -320,7 +322,7 @@ export abstract class Application<
       Logger.post(
         'The application ended successfully.',
         undefined,
-        LogLevel.Debug,
+        LogLevel.Information,
         Application.logContext2
       );
     } else {
@@ -350,18 +352,18 @@ export abstract class Application<
    * Cria um arquivo em disco que sinaliza que esta instância está em execução.
    * A remoção do arquivo resulta na finalização da aplicação.
    */
-  private createRunningFlagFile(): void {
+  private createApplicationFlagFile(): void {
     Logger.post(
-      'Creating application instance execution flag file: {path}',
+      'Creating application instance execution flag file: {filePath}',
       {
-        path: this.parameters.runningFlagFile
+        filePath: this.parameters.applicationFlagFile
       },
       LogLevel.Debug,
       Application.logContext2
     );
 
     HelperFileSystem.createRecursive(
-      this.parameters.runningFlagFile,
+      this.parameters.applicationFlagFile,
       `
 FLAG FILE
 
@@ -371,19 +373,20 @@ If this file no longer exists, the application is terminated.
 
 Application
  - Name: ${this.parameters.applicationName} 
- - Instance: ${this.parameters.applicationInstanceIdentifier}
+ - Id: ${this.parameters.applicationId}
 `.trim() +
         os.EOL +
         os.EOL
     );
 
-    this.runningFlagFileMonitoring.start();
+    this.applicationFlagFileMonitoring.start();
 
     Logger.post(
-      'Monitoring every {seconds} seconds for the presence of the application instance execution flag file: {path}',
+      'Monitoring every {timeSeconds} seconds for the presence of the application instance execution flag file: {filePath}',
       {
-        seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-        path: this.parameters.runningFlagFile
+        timeSeconds:
+          Definition.INTERVAL_BETWEEN_CHECKING_APPLICATION_FLAG_FILE_IN_SECONDS,
+        filePath: this.parameters.applicationFlagFile
       },
       LogLevel.Debug,
       Application.logContext2
@@ -393,30 +396,29 @@ Application
   /**
    * Apaga o arquivo que sinaliza a execução da instância.
    */
-  private deleteRunningFlagFile(): void {
-    if (this.runningFlagFileMonitoring.isActive) {
-      this.runningFlagFileMonitoring.stop();
+  private deleteApplicationFlagFile(): void {
+    if (this.applicationFlagFileMonitoring.isActive) {
+      this.applicationFlagFileMonitoring.stop();
       Logger.post(
-        'Stopped monitoring for the presence of the application instance execution flag file: {path}',
+        'Stopped monitoring for the presence of the application instance execution flag file: {filePath}',
         {
-          seconds: Definition.INTERVAL_BETWEEN_CHECKING_FLAG_FILE_IN_SECONDS,
-          path: this.parameters.runningFlagFile
+          filePath: this.parameters.applicationFlagFile
         },
         LogLevel.Debug,
         Application.logContext2
       );
     }
 
-    if (fs.existsSync(this.parameters.runningFlagFile)) {
+    if (fs.existsSync(this.parameters.applicationFlagFile)) {
       Logger.post(
-        'Deleting application instance execution flag file: {path}',
+        'Deleting application instance execution flag file: {filePath}',
         {
-          path: this.parameters.runningFlagFile
+          filePath: this.parameters.applicationFlagFile
         },
         LogLevel.Debug,
         Application.logContext2
       );
-      fs.unlinkSync(this.parameters.runningFlagFile);
+      fs.unlinkSync(this.parameters.applicationFlagFile);
     }
   }
 
@@ -452,7 +454,7 @@ Application
         Logger.post(
           'Application configuration loaded.',
           undefined,
-          LogLevel.Debug,
+          LogLevel.Verbose,
           Application.logContext2
         );
 
@@ -460,11 +462,11 @@ Application
       } else {
         reject(
           new InvalidArgumentError(
-            'Invalid JSON for {className} in "{file}" file:\n{errors}'.querystring(
+            'Invalid JSON for "{configurationType}" in "{filePath}" file:\n{errorContent}'.querystring(
               {
-                file: this.parameters.configurationFile,
-                className: this.constructor.name,
-                errors: errors.map(error => `- ${error}`).join('\n')
+                filePath: this.parameters.configurationFile,
+                configurationType: this.constructor.name,
+                errorContent: errors.map(error => `- ${error}`).join('\n')
               }
             )
           )
@@ -479,7 +481,7 @@ Application
   private configureLogger(): void {
     this.logger.configure(this.configuration.logger, this.parameters);
     this.logger.defaultValues['applicationInstanceId'] =
-      this.parameters.applicationInstanceIdentifier;
+      this.parameters.applicationId;
     this.logger.defaultValues['applicationName'] =
       this.parameters.applicationName;
     this.logger.defaultValues['applicationVersion'] =
@@ -513,14 +515,14 @@ Application
   /**
    * Handle: Kill
    */
-  private async onHandleKill(): Promise<void> {
+  private async handleTerminateApplication(): Promise<void> {
     await this.stop();
   }
 
   /**
    * Handle: ReloadConfiguration
    */
-  private async onHandleReloadConfiguration(): Promise<void> {
+  private async handleReloadConfiguration(): Promise<void> {
     try {
       await this.loadConfiguration();
     } catch (error) {
@@ -539,7 +541,7 @@ Application
   public static getRunningInstances(): Record<string, string> {
     return fs
       .readdirSync(ApplicationParameters.inicialDirectory)
-      .map(file => ApplicationParameters.regexRunningFlagFileId.exec(file))
+      .map(file => ApplicationParameters.regexApplicationFlagFileId.exec(file))
       .reduce<Record<string, string>>((result, regexMatch) => {
         if (regexMatch !== null) {
           result[regexMatch[1]] = regexMatch[0];
