@@ -6,7 +6,7 @@
   "main": "./js/index.js",
   "types": "./js/index.d.ts",
   "scripts": {
-    "format": "prettier --write \"./ts/**/*.ts\" \"./test/**/*.ts\" \"./js/**/*.js\"",
+    "format": "prettier --write \"./ts/**/*.ts\" \"./test/**/*.ts\" \"./js/**/*.js\" \"./translat*.json\"",
     "lint": "eslint \"./ts/**/*.ts\"",
     "format+lint": "npm run format && npm run lint",
     "test": "jest --config ./jest.config.ts",
