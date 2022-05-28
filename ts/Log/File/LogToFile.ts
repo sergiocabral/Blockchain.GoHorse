@@ -1,7 +1,6 @@
-import { Logger, LogLevel } from '@sergiocabral/helper';
+import { Logger, LogLevel, LogWriterToFile } from '@sergiocabral/helper';
 import { ApplicationLoggerToStream } from '../ApplicationLoggerToStream';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
-import { LogWriterToFile } from '@sergiocabral/helper/js/Log/LogWriterToFile';
 import path from 'path';
 import { ApplicationParameters } from '../../Core/ApplicationParameters';
 

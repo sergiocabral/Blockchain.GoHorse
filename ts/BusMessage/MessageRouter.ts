@@ -4,6 +4,7 @@ import {
   FileSystemMonitoring,
   HelperNumeric,
   HelperText,
+  IFileSystemMonitoringEventData,
   IMessage,
   InvalidArgumentError,
   InvalidExecutionError,
@@ -13,7 +14,6 @@ import {
 } from '@sergiocabral/helper';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import fs from 'fs';
-import { IFileSystemMonitoringEventData } from '@sergiocabral/helper/js/IO/FileSystem/IFileSystemMonitoringEventData';
 import * as os from 'os';
 import { Definition } from '../Definition';
 import {
