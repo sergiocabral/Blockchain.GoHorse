@@ -1,5 +1,6 @@
 import {
   HelperNodeJs,
+  HelperText,
   InvalidExecutionError,
   ITranslate,
   Logger,
@@ -17,6 +18,11 @@ import { TranslateConfiguration } from './TranslateConfiguration';
  * Serviço de tradução.
  */
 export class Translation {
+  /**
+   * Contexto do log.
+   */
+  private static logContext = 'Translation';
+
   /**
    * Carrega as traduções da aplicação.
    * @param configuration Configurações de idioma.
@@ -62,10 +68,10 @@ export class Translation {
     );
 
     Logger.post(
-      'Root directory for translation is "{rootDirectory}".',
-      { rootDirectory },
-      LogLevel.Verbose,
-      'Translation'
+      'Root directory for translation is: {directoryPath}',
+      { directoryPath: rootDirectory },
+      LogLevel.Debug,
+      Translation.logContext
     );
 
     const files = fs
@@ -86,8 +92,8 @@ export class Translation {
     Logger.post(
       'Translation files found: {count}',
       { count: files.length },
-      LogLevel.Verbose,
-      'Translation'
+      LogLevel.Debug,
+      Translation.logContext
     );
 
     return files;
@@ -111,24 +117,24 @@ export class Translation {
         );
 
         Logger.post(
-          'The "{file}" translation file was loaded for "{language}" language',
+          'The "{filePath}" translation file was loaded for "{languageCultureName}" language.',
           {
-            file: translation.path,
-            language: translation.language
+            filePath: translation.path,
+            languageCultureName: translation.language
           },
-          LogLevel.Verbose,
-          Translation.name
+          LogLevel.Debug,
+          Translation.logContext
         );
       } catch (error: unknown) {
         Logger.post(
-          'An error occurred loading translation "{file}" file of "{language}" language. Error: {error}',
+          'An error occurred loading translation "{filePath}" file of "{languageCultureName}" language. Error: {error}',
           {
-            error,
-            file: translation.path,
-            language: translation.language
+            error: HelperText.formatError(error),
+            filePath: translation.path,
+            languageCultureName: translation.language
           },
           LogLevel.Warning,
-          Translation.name
+          Translation.logContext
         );
       }
       resolve();
