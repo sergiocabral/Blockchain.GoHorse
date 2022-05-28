@@ -19,7 +19,7 @@
   },
   "files": [
     "./js/**/*",
-    "./translat*.json"
+    "./*.json"
   ],
   "repository": {
     "type": "git",
