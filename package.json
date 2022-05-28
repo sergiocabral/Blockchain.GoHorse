@@ -18,8 +18,7 @@
     "postversion": "git push -u origin HEAD && git push origin --tags"
   },
   "files": [
-    "./js/**/*",
-    "./translation.pt-BR.json"
+    "translation.pt-BR.json"
   ],
   "repository": {
     "type": "git",
