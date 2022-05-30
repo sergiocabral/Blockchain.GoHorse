@@ -12,6 +12,7 @@ import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplicationParameters } from './IApplicationParameters';
+import { GlobalDefinition } from '@gohorse/npm-core';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -200,7 +201,7 @@ export class ApplicationParameters
    * @param id Identificador.
    */
   public static getFlagFile(id: string) {
-    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.${id}.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`;
+    const name = `${GlobalDefinition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.${id}.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`;
     return path.join(ApplicationParameters.startupDirectory, name);
   }
 
@@ -210,7 +211,7 @@ export class ApplicationParameters
    */
   public static readonly regexFlagFileId: RegExp = new RegExp(
     HelperText.escapeRegExp(
-      `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.`
+      `${GlobalDefinition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.`
     ) +
       '([^\\W_]+)' +
       HelperText.escapeRegExp(`.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`) +
