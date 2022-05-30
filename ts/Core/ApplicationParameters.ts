@@ -11,8 +11,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
-import { Generate } from '@gohorse/npm-core';
-import { IApplicationParameters } from './IApplicationParameters';
+import { Generate, IApplicationParameters } from '@gohorse/npm-core';
 
 /**
  * Parâmetros de execução da aplicação.
