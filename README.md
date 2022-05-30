@@ -10,6 +10,45 @@ Base library with general functionality for the other parts of the system.
 npm install @gohorse/npm-core
 ```
 
+## Logger variables
+
+Convention for naming values associated with log messages.
+
+- `path` : Disk path to files or directories.
+- `filePath` : Disk path to files.
+- `directoryPath` : Disk path to directories.
+
+Don't use `id`, `type`, `name`, etc. But describe it more fully as:
+
+- `applicationId`
+- `applicationName`
+- `applicationVersion`
+- `applicationExecutionMode`
+- `applicationMessageId`
+- `applicationMessageType`
+- `languageCultureName`
+
+Use "Content" suffix for text content:
+
+- `jsonContent`
+- `fileLineContent`
+- `commandLineContent`
+- `errorContent` : Stacktrace or similar error information. 
+
+Use "List" suffix for listings:
+
+- `applicationIdList`
+
+Values with units:
+
+- `timeSeconds`
+
+Other names used:
+
+- `error` : Error message formatted with `HelperText.formatError()`.
+- `count` : Any quantitative value.
+- `invalidValue` : Any invalid value.
+
 ## NPM Commands
 
 In the package.json file you have configured the following commands:
