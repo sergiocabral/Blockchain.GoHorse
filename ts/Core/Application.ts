@@ -74,18 +74,14 @@ export abstract class Application<
       new ApplicationLogger<LoggerConfiguration>(
         () => this.configuration.logger,
         () => this.parameters,
-        [
-          new LogToConsole(
-            this,
-            () => this.configuration.logger.toConsole,
-            () => this.parameters
-          ),
-          new LogToFile(
-            this,
-            () => this.configuration.logger.toFile,
-            () => this.parameters
-          )
-        ]
+        new LogToConsole(
+          () => this.configuration.logger.toConsole,
+          () => this.parameters
+        ),
+        new LogToFile(
+          () => this.configuration.logger.toFile,
+          () => this.parameters
+        )
       );
 
     const applicationId = Instance.id;
