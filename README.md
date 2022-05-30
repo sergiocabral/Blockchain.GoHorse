@@ -10,32 +10,6 @@ Library with implementation of displaying log messages in console standard outpu
 npm install @gohorse/npm-log-console
 ```
 
-## Creating a new NPM package
-
-Pay attention to these steps when creating an NPM package from this one.
-
-1. Review the file: `./package.json`
-   1. Change the name.
-   2. Change the description.
-   3. Change the homepage.
-   4. Will you need to add more packages with `npm install`?
-2. Review the file: `./README.md`
-   1. Change the title.
-   1. Change the description under the GoHorse logo.
-   2. Adjust package name in `npm install` command.
-   3. Remove the topic *"Creating a new NPM package"*.
-   4. Adjust the Author topic if necessary.
-   5. Need to add new topics with information about this new package?
-3. Review the file: `./.npmrc`
-   1. Adjust the prefix used to create `git tag`.
-4. Remove directory: `./ts/Dummy`
-   1. And don't forget to add your source code directories and files.
-5. Review this file: `./ts/index.ts`
-   1. Removes the invalid source code snippet.
-   2. If you are creating...
-      1. a library, make available the classes, interfaces, etc. in `export`.
-      2. an application, implement the execution and don't forget to make it possible to shut down with the `/stop` argument.
-
 ## NPM Commands
 
 In the package.json file you have configured the following commands:
