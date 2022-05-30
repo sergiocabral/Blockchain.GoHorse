@@ -12,11 +12,15 @@ import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { Generate } from '@gohorse/npm-core';
+import { IApplicationParameters } from './IApplicationParameters';
 
 /**
  * Parâmetros de execução da aplicação.
  */
-export class ApplicationParameters extends CommandLine {
+export class ApplicationParameters
+  extends CommandLine
+  implements IApplicationParameters
+{
   /**
    * Contexto do log.
    */
