@@ -17,7 +17,6 @@ import {
 import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
-import { ApplicationLogger } from '../Log/ApplicationLogger';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import { MessageRouter } from '../BusMessage/MessageRouter';
 import * as os from 'os';
@@ -28,6 +27,10 @@ import {
   TerminateApplication
 } from '@gohorse/npm-core';
 import { Translation } from '@gohorse/npm-i18n';
+import { ApplicationLogger } from '@gohorse/npm-log';
+import { LogToConsole } from '@gohorse/npm-log-console';
+import { LogToFile } from '@gohorse/npm-log-file';
+import { LoggerConfiguration } from '../Log/LoggerConfiguration';
 
 /**
  * Estados de execução de uma aplicação.
@@ -67,10 +70,23 @@ export abstract class Application<
    * Construtor.
    */
   public constructor() {
-    Logger.defaultLogger = this.logger = new ApplicationLogger(
-      () => this.configuration.logger,
-      () => this.parameters
-    );
+    Logger.defaultLogger = this.logger =
+      new ApplicationLogger<LoggerConfiguration>(
+        () => this.configuration.logger,
+        () => this.parameters,
+        [
+          new LogToConsole(
+            this,
+            () => this.configuration.logger.toConsole,
+            () => this.parameters
+          ),
+          new LogToFile(
+            this,
+            () => this.configuration.logger.toFile,
+            () => this.parameters
+          )
+        ]
+      );
 
     const applicationId = Instance.id;
     const applicationStartupTime = Instance.startupTime;
@@ -175,7 +191,7 @@ export abstract class Application<
   /**
    * Logger principal da aplicação.
    */
-  protected readonly logger: ApplicationLogger;
+  protected readonly logger: ApplicationLogger<LoggerConfiguration>;
 
   /**
    * Inicia a execução da aplicação.

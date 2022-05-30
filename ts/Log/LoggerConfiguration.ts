@@ -1,6 +1,6 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { LogToFileConfiguration } from './File/LogToFileConfiguration';
-import { LogToConsoleConfiguration } from './Console/LogToConsoleConfiguration';
+import { LogToConsoleConfiguration } from '@gohorse/npm-log-console';
+import { LogToFileConfiguration } from '@gohorse/npm-log-file';
 
 /**
  * Configurações do logger da aplicação.
