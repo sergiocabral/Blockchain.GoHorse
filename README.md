@@ -1,13 +1,13 @@
-# @gohorse/npm-template
+# @gohorse/npm-log-console
 
 GoHorse is a Git-based blockchain.
 
 [<img src="https://github.com/sergiocabral/App.GoHorse/raw/main/gohorse.png" width="75px;"/>](https://gohorse.dev/)
 
-This is a template for creating new NPM packages.
+Library with implementation of displaying log messages in console standard output
 
 ```bash
-npm install @gohorse/npm-template
+npm install @gohorse/npm-log-console
 ```
 
 ## Creating a new NPM package
