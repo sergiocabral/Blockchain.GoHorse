@@ -60,11 +60,11 @@
     "typescript": "^4.7.2"
   },
   "dependencies": {
-    "@gohorse/npm-core": "^3.2.0",
-    "@gohorse/npm-i18n": "^2.0.5",
-    "@gohorse/npm-log": "^1.0.0",
-    "@gohorse/npm-log-console": "^1.0.0",
-    "@gohorse/npm-log-file": "^1.0.0",
+    "@gohorse/npm-core": "^3.3.0",
+    "@gohorse/npm-i18n": "^2.0.7",
+    "@gohorse/npm-log": "^2.0.1",
+    "@gohorse/npm-log-console": "^1.0.1",
+    "@gohorse/npm-log-file": "^1.0.2",
     "@sergiocabral/helper": "^9.0.0",
     "tslib": "^2.4.0"
   }
