@@ -14,14 +14,4 @@ export class Definition {
    * São os arquivos que serão localizados em disco e carregados.
    */
   public static readonly TRANSLATE_FILE_PREFIX = 'translation';
-
-  /**
-   * Nome padrão do diretório node_modules do NodeJS.
-   */
-  public static readonly DIRECTORY_NAME_FOR_NODE_MODULES = 'node_modules';
-
-  /**
-   * Nome padrão do diretório dos pacotes @gohorse.
-   */
-  public static readonly DIRECTORY_NAME_FOR_GOHORSE = '@gohorse';
 }

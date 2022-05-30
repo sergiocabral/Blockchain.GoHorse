@@ -16,7 +16,7 @@ import path from 'path';
 import { ITranslationFile } from './ITranslationFile';
 import { TranslateConfiguration } from './TranslateConfiguration';
 import { Definition } from '../Definition';
-import { ConfigurationReloaded } from '@gohorse/npm-core';
+import { ConfigurationReloaded, GlobalDefinition } from '@gohorse/npm-core';
 
 /**
  * Serviço de tradução.
@@ -116,25 +116,28 @@ export class Translation {
     }
 
     if (
-      !packageJsonFiles[0].includes(Definition.DIRECTORY_NAME_FOR_NODE_MODULES)
+      !packageJsonFiles[0].includes(
+        GlobalDefinition.DIRECTORY_NAME_FOR_NODE_MODULES
+      )
     ) {
       throw new InvalidExecutionError(
-        Definition.DIRECTORY_NAME_FOR_NODE_MODULES + ' directory not found.'
+        GlobalDefinition.DIRECTORY_NAME_FOR_NODE_MODULES +
+          ' directory not found.'
       );
     }
 
     let nodeModulesPath = packageJsonFiles[0];
     while (
       path.basename(nodeModulesPath) !==
-      Definition.DIRECTORY_NAME_FOR_NODE_MODULES
+      GlobalDefinition.DIRECTORY_NAME_FOR_NODE_MODULES
     ) {
       nodeModulesPath = path.dirname(nodeModulesPath);
     }
 
-    const goHorsePath = `${nodeModulesPath}${path.sep}${Definition.DIRECTORY_NAME_FOR_GOHORSE}`;
+    const goHorsePath = `${nodeModulesPath}${path.sep}${GlobalDefinition.DIRECTORY_NAME_FOR_GOHORSE}`;
     if (!fs.existsSync(goHorsePath)) {
       throw new InvalidExecutionError(
-        Definition.DIRECTORY_NAME_FOR_GOHORSE + ' directory not found.'
+        GlobalDefinition.DIRECTORY_NAME_FOR_GOHORSE + ' directory not found.'
       );
     }
 
