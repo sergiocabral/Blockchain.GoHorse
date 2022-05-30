@@ -24,12 +24,10 @@ export abstract class ApplicationLoggerToStream<
 
   /**
    *
-   * @param applicationLogger Logger principal da instância em execução.
    * @param getConfiguration Configurações do log writer que será criado
    * @param getInstanceParameters Parâmetros da instância em execução
    */
   public constructor(
-    private readonly applicationLogger: ILogWriter,
     private readonly getConfiguration: () => TLogConfiguration,
     private readonly getInstanceParameters: () => IInstanceParameters
   ) {}
@@ -67,6 +65,20 @@ export abstract class ApplicationLoggerToStream<
       throw new EmptyError('Must first create() and configure().');
     }
     return this.instanceValue;
+  }
+
+  /**
+   * Logger base para configurar esta instância.
+   */
+  private baseLogger?: ILogWriter;
+
+  /**
+   * Define um logger base para configurar esta instância.
+   * Serão atribuídas à instância as referências `customFactoryMessage` e `defaultValues` do logger base.
+   */
+  public setBaseLogger(baseLogger: ILogWriter | undefined): this {
+    this.baseLogger = baseLogger;
+    return this;
   }
 
   /**
@@ -136,10 +148,12 @@ export abstract class ApplicationLoggerToStream<
     );
     this.instanceValue.enabled = configuration.enabled;
 
-    this.instanceValue.defaultValues = this.applicationLogger.defaultValues;
+    if (this.baseLogger !== undefined) {
+      this.instanceValue.defaultValues = this.baseLogger.defaultValues;
 
-    this.instanceValue.customFactoryMessage =
-      this.applicationLogger.customFactoryMessage?.bind(this.applicationLogger);
+      this.instanceValue.customFactoryMessage =
+        this.baseLogger.customFactoryMessage?.bind(this.baseLogger);
+    }
 
     return this;
   }

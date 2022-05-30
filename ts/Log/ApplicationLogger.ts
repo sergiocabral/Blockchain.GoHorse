@@ -37,18 +37,28 @@ export class ApplicationLogger<TLoggerConfiguration extends JsonLoader>
    * Construtor.
    * @param getConfiguration Configuração.
    * @param getInstanceParameters Parâmetros da instância.
-   * @param loggers
+   * @param loggers Lista das implementações de loggers
    */
   public constructor(
     public getConfiguration: () => TLoggerConfiguration,
     public getInstanceParameters: () => IInstanceParameters,
-    private readonly loggers: IApplicationLoggerToStream[]
+    ...loggers: IApplicationLoggerToStream[]
   ) {
+    this.loggers = loggers;
+    for (const logger of this.loggers) {
+      logger.setBaseLogger(this);
+    }
+
     Message.subscribe(
       ConfigurationReloaded,
       this.handleConfigurationReloaded.bind(this)
     );
   }
+
+  /**
+   * Lista das implementações de loggers.
+   */
+  private readonly loggers: IApplicationLoggerToStream[];
 
   /**
    * Sinaliza que o Logger com seus Writers foram configurados.
