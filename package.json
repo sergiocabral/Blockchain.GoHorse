@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-core",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "GoHorse is a Git-based blockchain. Base library with general functionality for the other parts of the system.",
   "bin": "js/index.js",
   "main": "js/index.js",
