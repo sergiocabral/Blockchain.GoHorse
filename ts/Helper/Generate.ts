@@ -1,4 +1,5 @@
 import { InvalidArgumentError } from '@sergiocabral/helper';
+import { Definition } from '../Definition';
 
 /**
  * Gerador de informações.
@@ -9,7 +10,10 @@ export class Generate {
    * @param prefix Prefixo do id.
    * @param length COmprimento.
    */
-  public static id(prefix = '', length = 5): string {
+  public static id(
+    prefix = '',
+    length = Definition.GENERATE_ID_DEFAULT_LENGTH
+  ): string {
     if (length <= 0) {
       throw new InvalidArgumentError('Length must be greater than zero.');
     }
