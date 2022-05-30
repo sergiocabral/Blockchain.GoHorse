@@ -23,6 +23,7 @@ import { MessageRouter } from '../BusMessage/MessageRouter';
 import * as os from 'os';
 import {
   ConfigurationReloaded,
+  Instance,
   ReloadConfiguration,
   TerminateApplication
 } from '@gohorse/npm-core';
@@ -71,21 +72,28 @@ export abstract class Application<
       () => this.parameters
     );
 
+    const applicationId = Instance.id;
+    const applicationStartupTime = Instance.startupTime;
+
     Logger.post(
       '"{applicationName}" application instance created with id "{applicationId}".',
       {
-        applicationId: ApplicationParameters.applicationId,
+        applicationId: applicationId,
         applicationName: this.constructor.name
       },
       LogLevel.Information,
       Application.logContext2
     );
 
-    this.parameters = new ApplicationParameters(process.argv);
+    this.parameters = new ApplicationParameters(
+      applicationId,
+      applicationStartupTime,
+      process.argv
+    );
 
     const applicationFlagFileMonitoringStarted = false;
     this.applicationFlagFileMonitoring = new FileSystemMonitoring(
-      this.parameters.applicationFlagFile,
+      this.parameters.flagFile,
       Definition.INTERVAL_BETWEEN_CHECKING_APPLICATION_FLAG_FILE_IN_SECONDS,
       applicationFlagFileMonitoringStarted
     );
@@ -282,7 +290,7 @@ export abstract class Application<
       if (instanceIds.length > 0) {
         const affectedCount = await MessageRouter.factoryAndSend(
           this.executionMode,
-          this.parameters.applicationId,
+          this.parameters.id,
           instanceIds
         );
 
@@ -331,7 +339,7 @@ export abstract class Application<
       Logger.post(
         '"{applicationName}" application (id "{applicationId}") ended successfully.',
         {
-          applicationId: ApplicationParameters.applicationId,
+          applicationId: this.parameters.id,
           applicationName: this.constructor.name
         },
         LogLevel.Information,
@@ -341,7 +349,7 @@ export abstract class Application<
       Logger.post(
         '"{applicationName}" application (id "{applicationId}") ended with {count} error(s).',
         {
-          applicationId: ApplicationParameters.applicationId,
+          applicationId: this.parameters.id,
           applicationName: this.constructor.name,
           count: errors.length
         },
@@ -372,14 +380,14 @@ export abstract class Application<
     Logger.post(
       'Creating application instance execution flag file: {filePath}',
       {
-        filePath: this.parameters.applicationFlagFile
+        filePath: this.parameters.flagFile
       },
       LogLevel.Debug,
       Application.logContext2
     );
 
     HelperFileSystem.createRecursive(
-      this.parameters.applicationFlagFile,
+      this.parameters.flagFile,
       `
 FLAG FILE
 
@@ -388,8 +396,8 @@ It also serves as a channel for receiving messages.
 If this file no longer exists, the application is terminated.
 
 Application
- - Name: ${this.parameters.applicationName} 
- - Id: ${this.parameters.applicationId}
+ - Name: ${this.parameters.packageName} 
+ - Id: ${this.parameters.id}
 `.trim() +
         os.EOL +
         os.EOL
@@ -402,7 +410,7 @@ Application
       {
         timeSeconds:
           Definition.INTERVAL_BETWEEN_CHECKING_APPLICATION_FLAG_FILE_IN_SECONDS,
-        filePath: this.parameters.applicationFlagFile
+        filePath: this.parameters.flagFile
       },
       LogLevel.Debug,
       Application.logContext2
@@ -418,23 +426,23 @@ Application
       Logger.post(
         'Stopped monitoring for the presence of the application instance execution flag file: {filePath}',
         {
-          filePath: this.parameters.applicationFlagFile
+          filePath: this.parameters.flagFile
         },
         LogLevel.Debug,
         Application.logContext2
       );
     }
 
-    if (fs.existsSync(this.parameters.applicationFlagFile)) {
+    if (fs.existsSync(this.parameters.flagFile)) {
       Logger.post(
         'Deleting application instance execution flag file: {filePath}',
         {
-          filePath: this.parameters.applicationFlagFile
+          filePath: this.parameters.flagFile
         },
         LogLevel.Debug,
         Application.logContext2
       );
-      fs.unlinkSync(this.parameters.applicationFlagFile);
+      fs.unlinkSync(this.parameters.flagFile);
     }
   }
 
@@ -496,12 +504,10 @@ Application
    */
   private configureLogger(): void {
     this.logger.configure();
-    this.logger.defaultValues['applicationInstanceId'] =
-      this.parameters.applicationId;
-    this.logger.defaultValues['applicationName'] =
-      this.parameters.applicationName;
+    this.logger.defaultValues['applicationInstanceId'] = this.parameters.id;
+    this.logger.defaultValues['applicationName'] = this.parameters.packageName;
     this.logger.defaultValues['applicationVersion'] =
-      this.parameters.applicationVersion;
+      this.parameters.packageVersion;
   }
 
   /**
@@ -562,8 +568,8 @@ Application
    */
   public static getRunningInstances(): Record<string, string> {
     return fs
-      .readdirSync(ApplicationParameters.inicialDirectory)
-      .map(file => ApplicationParameters.regexApplicationFlagFileId.exec(file))
+      .readdirSync(ApplicationParameters.startupDirectory)
+      .map(file => ApplicationParameters.regexFlagFileId.exec(file))
       .reduce<Record<string, string>>((result, regexMatch) => {
         if (regexMatch !== null) {
           result[regexMatch[1]] = regexMatch[0];

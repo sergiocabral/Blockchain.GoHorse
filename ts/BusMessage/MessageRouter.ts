@@ -19,6 +19,7 @@ import { Definition } from '../Definition';
 import {
   ApplicationMessage,
   IApplicationMessage,
+  Instance,
   ReloadConfiguration,
   TerminateApplication
 } from '@gohorse/npm-core';
@@ -105,10 +106,7 @@ export class MessageRouter {
       LogLevel.Debug,
       MessageRouter.logContext
     );
-    await new TerminateApplication(
-      ApplicationParameters.applicationId,
-      ApplicationParameters.applicationId
-    ).sendAsync();
+    await new TerminateApplication(Instance.id, Instance.id).sendAsync();
   }
 
   /**
@@ -240,7 +238,7 @@ export class MessageRouter {
     }
     this.messageHistory[message.id] = unixDate;
 
-    if (message.toApplicationId !== ApplicationParameters.applicationId) {
+    if (message.toApplicationId !== Instance.id) {
       Logger.post(
         'Error reading message. Message addressed to another application of id "{applicationId}": {fileLineContent}',
         {
@@ -354,7 +352,7 @@ export class MessageRouter {
       delete messageClone['name'];
       const fileContent =
         `${new Date().toISOString()} ${JSON.stringify(messageClone)}` + os.EOL;
-      const instanceFile = ApplicationParameters.getApplicationFlagFile(
+      const instanceFile = ApplicationParameters.getFlagFile(
         message.toApplicationId
       );
 
@@ -391,8 +389,7 @@ export class MessageRouter {
 
     let affectedCount = 0;
     for (const toInstanceId of toInstanceIds) {
-      let toInstanceFile =
-        ApplicationParameters.getApplicationFlagFile(toInstanceId);
+      let toInstanceFile = ApplicationParameters.getFlagFile(toInstanceId);
       if (fs.existsSync(toInstanceFile)) {
         toInstanceFile = fs.realpathSync(toInstanceFile);
         affectedCount++;

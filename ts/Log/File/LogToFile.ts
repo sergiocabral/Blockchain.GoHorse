@@ -39,11 +39,11 @@ export class LogToFile extends ApplicationLoggerToStream<
     this.instance.file = path.join(
       process.cwd(),
       configuration.fileTemplate.querystring({
-        appName: applicationParameters.applicationName,
+        appName: applicationParameters.packageName,
         timestamp: applicationParameters.startupTime.format({
           mask: 'y-M-d-h-m-s'
         }),
-        appId: applicationParameters.applicationId
+        appId: applicationParameters.id
       })
     );
 

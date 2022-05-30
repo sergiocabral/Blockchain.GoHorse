@@ -27,7 +27,7 @@ export class SampleApp extends Application<SampleAppConfiguration> {
       SampleApp.logContext
     );
 
-    const appName = this.parameters.applicationName;
+    const appName = this.parameters.packageName;
 
     console.info(`      ____`);
     console.info(`     /  __\\           ____`);

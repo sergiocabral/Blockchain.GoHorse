@@ -11,7 +11,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
-import { Generate, IApplicationParameters } from '@gohorse/npm-core';
+import { IApplicationParameters } from './IApplicationParameters';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -27,9 +27,15 @@ export class ApplicationParameters
 
   /**
    * Construtor.
+   * @param id Identificador
+   * @param startupTime Data e hora da execução
    * @param commandLine Argumentos da linha de comando.
    */
-  constructor(commandLine: string | string[]) {
+  constructor(
+    public readonly id: string,
+    public readonly startupTime: Date,
+    commandLine: string | string[]
+  ) {
     super(Array.isArray(commandLine) ? commandLine.join(' ') : commandLine, {
       caseInsensitiveForName: true,
       caseInsensitiveForValue: false,
@@ -45,8 +51,8 @@ export class ApplicationParameters
     Logger.post(
       'Application "{applicationName}" v{applicationVersion}',
       {
-        applicationName: this.applicationName,
-        applicationVersion: this.applicationVersion
+        applicationName: this.packageName,
+        applicationVersion: this.packageVersion
       },
       LogLevel.Debug,
       ApplicationParameters.logContext
@@ -54,14 +60,14 @@ export class ApplicationParameters
 
     Logger.post(
       'Initial directory as: {directoryPath}',
-      { directoryPath: this.inicialDirectory },
+      { directoryPath: this.startupDirectory },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
       'Application directory as: {directoryPath}',
-      { directoryPath: this.applicationDirectory },
+      { directoryPath: this.packageDirectory },
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
@@ -75,54 +81,44 @@ export class ApplicationParameters
   }
 
   /**
-   * Diretório da aplicação.
+   * Diretório de onde foi executado.
    */
-  public static readonly applicationDirectory: string = path.dirname(
-    HelperFileSystem.findFilesOut(__dirname, 'package.json', 1)[0]
-  );
-
-  /**
-   * Diretório da aplicação.
-   */
-  public get applicationDirectory(): string {
-    return ApplicationParameters.applicationDirectory;
+  public get startupDirectory(): string {
+    return ApplicationParameters.startupDirectory;
   }
 
   /**
-   * Diretório inicial de execução da aplicação.
+   * Diretório de onde foi executado.
    */
-  public static readonly inicialDirectory: string = fs.realpathSync(
+  public static readonly startupDirectory: string = fs.realpathSync(
     process.cwd()
   );
 
   /**
-   * Diretório inicial de execução da aplicação.
+   * Diretório do pacote npm.
    */
-  public get inicialDirectory(): string {
-    return ApplicationParameters.inicialDirectory;
+  public get packageDirectory(): string {
+    return ApplicationParameters.packageDirectory;
   }
 
   /**
-   * Identificador para a instância da aplicação atualmente em execução.
+   * Diretório do pacote npm.
    */
-  public static readonly applicationId: string = Generate.id('i');
+  public static readonly packageDirectory: string = path.dirname(
+    HelperFileSystem.findFilesOut(__dirname, 'package.json', 1)[0]
+  );
 
   /**
-   * Identificador para a instância da aplicação atualmente em execução.
+   * Nome do pacote npm.
    */
-  public get applicationId(): string {
-    return ApplicationParameters.applicationId;
+  public get packageName(): string {
+    return ApplicationParameters.packageName;
   }
 
   /**
-   * Data e hora da execução
+   * Nome do pacote npm.
    */
-  public readonly startupTime = new Date();
-
-  /**
-   * Nome a aplicação.
-   */
-  public static get applicationName(): string {
+  public static get packageName(): string {
     if (ApplicationParameters.packageJson.name === undefined) {
       throw new InvalidDataError('Cannot found application name');
     }
@@ -135,16 +131,16 @@ export class ApplicationParameters
   }
 
   /**
-   * Nome a aplicação.
+   * Versão do pacote npm.
    */
-  public get applicationName(): string {
-    return ApplicationParameters.applicationName;
+  public get packageVersion(): string {
+    return ApplicationParameters.packageVersion;
   }
 
   /**
-   * Versão da aplicação.
+   * Versão do pacote npm.
    */
-  public static get applicationVersion(): string {
+  public static get packageVersion(): string {
     if (ApplicationParameters.packageJson.version === undefined) {
       throw new InvalidDataError('Cannot found application version');
     }
@@ -152,59 +148,10 @@ export class ApplicationParameters
   }
 
   /**
-   * Versão da aplicação.
+   * JSON do arquivo package.json do npm.
    */
-  public get applicationVersion(): string {
-    return ApplicationParameters.applicationVersion;
-  }
-
-  /**
-   * Caminho do arquivo de configuração.
-   */
-  public get configurationFile(): string {
-    const name = `env.${this.applicationName}.json`;
-    return path.join(this.inicialDirectory, name);
-  }
-
-  /**
-   * Caminho do arquivo que sinaliza que a aplicação está em execução.
-   */
-  public get applicationFlagFile(): string {
-    return ApplicationParameters.getApplicationFlagFile(this.applicationId);
-  }
-
-  /**
-   * Constrói o nome do arquivo de sinalização.
-   * @param id Identificador.
-   */
-  public static getApplicationFlagFile(id: string) {
-    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.${id}.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`;
-    return path.join(ApplicationParameters.inicialDirectory, name);
-  }
-
-  /**
-   * Determina se um arquivo é um sinalizador de execução.
-   * Armazena o id no primeiro grupo;
-   */
-  public static readonly regexApplicationFlagFileId: RegExp = new RegExp(
-    HelperText.escapeRegExp(
-      `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.applicationName}.`
-    ) +
-      '([^\\W_]+)' +
-      HelperText.escapeRegExp(`.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`) +
-      '$'
-  );
-
-  /**
-   * Extrai o id de um  arquivo é um sinalizador de execução.
-   */
-  public static getApplicationFlagFileId(filePath: string): string | undefined {
-    const regexMatch =
-      ApplicationParameters.regexApplicationFlagFileId.exec(filePath);
-    if (regexMatch && regexMatch.length > 1) {
-      return regexMatch[1];
-    }
-    return undefined;
+  public get packageJson(): IPackageJson {
+    return ApplicationParameters.packageJson;
   }
 
   /**
@@ -213,13 +160,13 @@ export class ApplicationParameters
   private static packageJsonValue?: IPackageJson;
 
   /**
-   * Nome da aplicação a ser executada.
+   * JSON do arquivo package.json do npm.
    */
   public static get packageJson(): IPackageJson {
     if (ApplicationParameters.packageJsonValue === undefined) {
       const mark = /^@gohorse\//;
       const applications = HelperNodeJs.getAllPreviousPackagesJson(
-        ApplicationParameters.applicationDirectory
+        ApplicationParameters.packageDirectory
       ).filter(packageJson =>
         HelperText.matchFilter(String(packageJson.Value.name), mark)
       );
@@ -234,9 +181,50 @@ export class ApplicationParameters
   }
 
   /**
-   * Nome da aplicação a ser executada.
+   * Caminho do arquivo de configuração.
    */
-  public get packageJson(): IPackageJson {
-    return ApplicationParameters.packageJson;
+  public get configurationFile(): string {
+    const name = `env.${this.packageName}.json`;
+    return path.join(this.startupDirectory, name);
+  }
+  /**
+   * Caminho do arquivo que sinaliza que a aplicação está em execução e
+   * recebe mensagens de outras instâncias.
+   */
+  public get flagFile(): string {
+    return ApplicationParameters.getFlagFile(this.id);
+  }
+
+  /**
+   * Constrói o nome do arquivo de sinalização.
+   * @param id Identificador.
+   */
+  public static getFlagFile(id: string) {
+    const name = `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.${id}.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`;
+    return path.join(ApplicationParameters.startupDirectory, name);
+  }
+
+  /**
+   * Determina se um arquivo é um sinalizador de execução.
+   * Armazena o id no primeiro grupo;
+   */
+  public static readonly regexFlagFileId: RegExp = new RegExp(
+    HelperText.escapeRegExp(
+      `${Definition.ENVIRONMENT_FILE_PREFIX}.${ApplicationParameters.packageName}.`
+    ) +
+      '([^\\W_]+)' +
+      HelperText.escapeRegExp(`.${Definition.APPLICATION_FLAG_FILE_SUFFIX}`) +
+      '$'
+  );
+
+  /**
+   * Extrai o id de um  arquivo é um sinalizador de execução.
+   */
+  public static getIdFromFlagFile(filePath: string): string | undefined {
+    const regexMatch = ApplicationParameters.regexFlagFileId.exec(filePath);
+    if (regexMatch && regexMatch.length > 1) {
+      return regexMatch[1];
+    }
+    return undefined;
   }
 }

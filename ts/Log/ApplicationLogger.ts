@@ -13,7 +13,7 @@ import { ApplicationParameters } from '../Core/ApplicationParameters';
 import { LogToConsole } from './Console/LogToConsole';
 import { LogToFile } from './File/LogToFile';
 import { IApplicationLoggerToStream } from './IApplicationLoggerToStream';
-import { ConfigurationReloaded } from '@gohorse/npm-core';
+import { ConfigurationReloaded, Instance } from '@gohorse/npm-core';
 
 /**
  * Argumentos da função post().
@@ -164,7 +164,7 @@ export class ApplicationLogger implements ILogWriter {
    * Função para personalizar a exibição de uma mensagem de log.
    */
   public customFactoryMessage(message: ILogMessage): string {
-    return `${ApplicationParameters.applicationId}: ${message.timestamp.format({
+    return `${Instance.id}: ${message.timestamp.format({
       mask: 'universal'
     })} [${
       LogLevel[message.level] + (message.section ? ': ' + message.section : '')
