@@ -13,6 +13,8 @@ import { Generate } from './Helper/Generate';
 import { IInstanceParameters } from './Instance/IInstanceParameters';
 import { Instance } from './Instance/Instance';
 
+import { GlobalDefinition } from './GlobalDefinition';
+
 export {
   ReloadConfiguration,
   TerminateApplication,
@@ -21,5 +23,6 @@ export {
   ConfigurationReloaded,
   Generate,
   IInstanceParameters,
-  Instance
+  Instance,
+  GlobalDefinition
 };
