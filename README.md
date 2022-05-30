@@ -34,7 +34,7 @@ Pay attention to these steps when creating an NPM package from this one.
    1. Removes the invalid source code snippet.
    2. If you are creating...
       1. a library, make available the classes, interfaces, etc. in `export`.
-      2. an application, implement the execution and don't forget to make it possible to shut down with the `--stop` argument.
+      2. an application, implement the execution and don't forget to make it possible to shut down with the `/stop` argument.
 
 ## NPM Commands
 
