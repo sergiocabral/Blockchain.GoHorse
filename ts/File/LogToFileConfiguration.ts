@@ -1,6 +1,6 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { Definition } from '../Definition';
 import { LoggerToStreamConfiguration } from '@gohorse/npm-log';
+import { GlobalDefinition } from '@gohorse/npm-core';
 
 /**
  * Configurações do logger.
@@ -9,7 +9,7 @@ export class LogToFileConfiguration extends LoggerToStreamConfiguration {
   /**
    * Template para o nome do arquivo gravado.
    */
-  public fileTemplate = `${Definition.ENVIRONMENT_FILE_PREFIX}.{appName}.{timestamp}.{appId}.log`;
+  public fileTemplate = `${GlobalDefinition.ENVIRONMENT_FILE_PREFIX}.{appName}.{timestamp}.{appId}.log`;
 
   /**
    * Lista de erros presentes na configuração atual
