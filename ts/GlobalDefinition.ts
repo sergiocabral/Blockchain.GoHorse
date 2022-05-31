@@ -16,4 +16,10 @@ export class GlobalDefinition {
    * Nome padrão do diretório dos pacotes @gohorse.
    */
   public static readonly DIRECTORY_NAME_FOR_GOHORSE = '@gohorse';
+
+  /**
+   * Password padrão gravado em hard-coded para qualquer serviço.
+   */
+  public static readonly WELL_KNOWN_PASSWORD =
+    'nMr889$&6Qp!fiQmfs3TxXzCqBkbFBeCH5YftG5d2TddPRUrEXsp$@vB#4cEGiJaF&77z%9!xtmnC#6FTY^zp@BNuDwDiZF#bfxGAF$NML!8SyACKHx$YnTM^Yf3$ifN';
 }
