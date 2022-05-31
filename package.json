@@ -60,7 +60,8 @@
     "typescript": "^4.7.2"
   },
   "dependencies": {
-    "@gohorse/npm-core": "^3.3.0",
+    "@elastic/elasticsearch": "^8.2.1",
+    "@gohorse/npm-core": "^3.5.0",
     "@gohorse/npm-i18n": "^2.0.7",
     "@gohorse/npm-log": "^2.0.1",
     "@gohorse/npm-log-console": "^1.0.1",
