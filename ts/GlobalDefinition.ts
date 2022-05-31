@@ -18,6 +18,11 @@ export class GlobalDefinition {
   public static readonly DIRECTORY_NAME_FOR_GOHORSE = '@gohorse';
 
   /**
+   * Domínio de internet relacionado aos pacotes gohorse.
+   */
+  public static readonly INTERNET_DOMAIN_FOR_GOHORSE = 'gohorse.dev';
+
+  /**
    * Password padrão gravado em hard-coded para qualquer serviço.
    */
   public static readonly WELL_KNOWN_PASSWORD =
