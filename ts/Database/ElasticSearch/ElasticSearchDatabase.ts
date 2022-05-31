@@ -11,6 +11,6 @@ export class ElasticSearchDatabase extends Database implements IDatabaseJson {
    */
   public save(document: Record<string, unknown>): void {
     void document;
-    // TODO: Implementar ElasticSearchDatabase.save
+    // TODO: Implementar ElasticSearchDatabase.save - https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/installation.html
   }
 }

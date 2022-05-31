@@ -11,6 +11,6 @@ export class RedisDatabase extends Database implements IDatabaseJson {
    */
   public save(document: Record<string, unknown>): void {
     void document;
-    // TODO: Implementar RedisDatabase.save
+    // TODO: Implementar RedisDatabase.save - https://www.npmjs.com/package/redis
   }
 }

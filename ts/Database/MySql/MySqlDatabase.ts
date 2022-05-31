@@ -13,6 +13,6 @@ export class MySqlDatabase extends Database implements IDatabaseSql {
   public save(values: Record<string, unknown>, table: string): void {
     void values;
     void table;
-    // TODO: Implementar MySqlDatabase.save
+    // TODO: Implementar MySqlDatabase.save - https://www.npmjs.com/package/mysql
   }
 }
