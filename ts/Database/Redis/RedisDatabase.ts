@@ -19,12 +19,32 @@ export class RedisDatabase
   }
 
   /**
-   * Configura a conexão
+   * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public override configureConnection(
+  public override resetConnection(
     configuration: RedisDatabaseConfiguration
   ): void {
     void configuration;
-    // TODO: Implementar RedisDatabase.configureConnection
+    // TODO: Implementar RedisDatabase.resetConnection
+  }
+
+  /**
+   * Fecha a conexão
+   */
+  public override closeConnection(
+    configuration: RedisDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar RedisDatabase.closeConnection
+  }
+
+  /**
+   * Abre a conexão
+   */
+  public override openConnection(
+    configuration: RedisDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar RedisDatabase.openConnection
   }
 }

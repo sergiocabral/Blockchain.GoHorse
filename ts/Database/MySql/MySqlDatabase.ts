@@ -21,12 +21,32 @@ export class MySqlDatabase
   }
 
   /**
-   * Configura a conexão
+   * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public override configureConnection(
+  public override resetConnection(
     configuration: MySqlDatabaseConfiguration
   ): void {
     void configuration;
-    // TODO: Implementar MySqlDatabase.configureConnection
+    // TODO: Implementar MySqlDatabase.resetConnection
+  }
+
+  /**
+   * Fecha a conexão
+   */
+  public override closeConnection(
+    configuration: MySqlDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar MySqlDatabase.closeConnection
+  }
+
+  /**
+   * Abre a conexão
+   */
+  public override openConnection(
+    configuration: MySqlDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar MySqlDatabase.openConnection
   }
 }

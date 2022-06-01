@@ -21,12 +21,32 @@ export class SqlServerDatabase
   }
 
   /**
-   * Configura a conexão
+   * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public override configureConnection(
+  public override resetConnection(
     configuration: SqlServerDatabaseConfiguration
   ): void {
     void configuration;
-    // TODO: Implementar SqlServerDatabase.configureConnection
+    // TODO: Implementar SqlServerDatabase.resetConnection
+  }
+
+  /**
+   * Fecha a conexão
+   */
+  public override closeConnection(
+    configuration: SqlServerDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar SqlServerDatabase.closeConnection
+  }
+
+  /**
+   * Abre a conexão
+   */
+  public override openConnection(
+    configuration: SqlServerDatabaseConfiguration
+  ): void {
+    void configuration;
+    // TODO: Implementar SqlServerDatabase.openConnection
   }
 }

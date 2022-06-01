@@ -1,8 +1,15 @@
 import { IDatabase } from './IDatabase';
 import { ConnectionState } from '@sergiocabral/helper/js/Type/Connection/ConnectionState';
 import { DatabaseConfiguration } from './DatabaseConfiguration';
-import { Message } from '@sergiocabral/helper';
+import {
+  InvalidExecutionError,
+  Message,
+  NotImplementedError
+} from '@sergiocabral/helper';
 import { ConfigurationReloaded } from '@gohorse/npm-core';
+import { Definition } from './Definition';
+
+// TODO: Escrever logs para Database
 
 /**
  * Classe base para conexão com o banco de dados
@@ -14,9 +21,11 @@ export abstract class Database<
   /**
    * Construtor.
    * @param getConfiguration Configuração.
+   * @param whenConnectionFailsIgnoreAndSetConnectionClosed Em caso de falha na conexão ignorar e definir o estado como conexão fechada.
    */
   public constructor(
-    protected readonly getConfiguration: () => TDatabaseConfiguration
+    protected readonly getConfiguration: () => TDatabaseConfiguration,
+    private readonly whenConnectionFailsIgnoreAndSetConnectionClosed = false
   ) {
     Message.subscribe(
       ConfigurationReloaded,
@@ -30,6 +39,21 @@ export abstract class Database<
   private connectionState: ConnectionState = ConnectionState.Closed;
 
   /**
+   * Última configuração utilizada.
+   */
+  private lastConfiguration?: TDatabaseConfiguration;
+
+  /**
+   * Configuração.
+   */
+  private get configuration(): TDatabaseConfiguration {
+    if (this.lastConfiguration === undefined) {
+      this.lastConfiguration = this.getConfiguration();
+    }
+    return this.lastConfiguration;
+  }
+
+  /**
    * Estado da conexão.
    */
   public get state(): ConnectionState {
@@ -39,28 +63,109 @@ export abstract class Database<
   /**
    * Fecha a conexão.
    */
-  public close(): void {
-    // TODO: Implementar close.
+  public async close(): Promise<void> {
+    if (this.connectionState === ConnectionState.Ready) {
+      this.connectionState = ConnectionState.Switching;
+      try {
+        await this.closeConnection(this.configuration);
+        this.connectionState = ConnectionState.Closed;
+      } catch (error) {
+        await this.connectionFail(error);
+      }
+    } else {
+      throw new InvalidExecutionError('Expected connection state as Ready.');
+    }
   }
 
   /**
    * Abre a conexão.
    */
-  public open(): void {
-    // TODO: Implementar open.
+  public async open(): Promise<void> {
+    if (this.connectionState === ConnectionState.Closed) {
+      this.connectionState = ConnectionState.Switching;
+      try {
+        await this.openConnection(this.configuration);
+        this.connectionState = ConnectionState.Ready;
+      } catch (error) {
+        await this.connectionFail(error);
+      }
+    } else {
+      throw new InvalidExecutionError('Expected connection state as Closed.');
+    }
   }
 
   /**
-   * Configura a conexão
+   * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public abstract configureConnection(
+  public abstract resetConnection(
     configuration: TDatabaseConfiguration
   ): Promise<void> | void;
+
+  /**
+   * Fecha a conexão.
+   */
+  public abstract closeConnection(
+    configuration: TDatabaseConfiguration
+  ): Promise<void> | void;
+
+  /**
+   * Abre a conexão.
+   */
+  public abstract openConnection(
+    configuration: TDatabaseConfiguration
+  ): Promise<void> | void;
+
+  /**
+   * Trata uma falha de conexão.
+   */
+  private async connectionFail(error: unknown): Promise<void> {
+    if (this.whenConnectionFailsIgnoreAndSetConnectionClosed) {
+      await this.resetConnection(this.configuration);
+      this.connectionState = ConnectionState.Closed;
+    } else {
+      throw error;
+    }
+  }
+
+  /**
+   * Timeout para nova tentativa de carregamento por causa de ConnectionState.Switching
+   */
+  private handleConfigurationReloadedTimeout?: NodeJS.Timeout;
 
   /**
    * Handle: ConfigurationReloaded
    */
   private async handleConfigurationReloaded(): Promise<void> {
-    await this.configureConnection(this.getConfiguration());
+    const configuration = this.getConfiguration();
+
+    if (
+      this.handleConfigurationReloadedTimeout === undefined &&
+      this.lastConfiguration !== undefined &&
+      JSON.stringify(this.lastConfiguration) === JSON.stringify(configuration)
+    ) {
+      return;
+    }
+
+    clearTimeout(this.handleConfigurationReloadedTimeout);
+    this.handleConfigurationReloadedTimeout = undefined;
+
+    this.lastConfiguration = configuration;
+
+    switch (this.state) {
+      case ConnectionState.Closed:
+        return;
+      case ConnectionState.Switching:
+        this.handleConfigurationReloadedTimeout = setTimeout(
+          () => void this.handleConfigurationReloaded(),
+          Definition.TIME_TO_RECHECK_CONNECTION_STATUS_IN_MILLISECONDS
+        );
+        break;
+      case ConnectionState.Ready:
+        await this.close();
+        await this.open();
+        break;
+      default:
+        throw new NotImplementedError('Invalid connection state.');
+    }
   }
 }
