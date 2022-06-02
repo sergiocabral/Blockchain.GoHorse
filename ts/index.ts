@@ -9,6 +9,7 @@ import { ApplicationMessage } from './BusMessage/Application/ApplicationMessage'
 import { ConfigurationReloaded } from './BusMessage/Event/ConfigurationReloaded';
 
 import { Generate } from './Helper/Generate';
+import { Get } from './Helper/Get';
 
 import { IInstanceParameters } from './Instance/IInstanceParameters';
 import { Instance } from './Instance/Instance';
@@ -22,6 +23,7 @@ export {
   ApplicationMessage,
   ConfigurationReloaded,
   Generate,
+  Get,
   IInstanceParameters,
   Instance,
   GlobalDefinition

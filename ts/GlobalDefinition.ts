@@ -1,6 +1,8 @@
 /**
  * Definições globais hard-coded.
  */
+import { HelperCryptography } from '@sergiocabral/helper';
+
 export class GlobalDefinition {
   /**
    * Prefixo dos arquivos de ambiente.
@@ -25,6 +27,10 @@ export class GlobalDefinition {
   /**
    * Password padrão gravado em hard-coded para qualquer serviço.
    */
-  public static readonly WELL_KNOWN_PASSWORD =
-    'nMr889$&6Qp!fiQmfs3TxXzCqBkbFBeCH5YftG5d2TddPRUrEXsp$@vB#4cEGiJaF&77z%9!xtmnC#6FTY^zp@BNuDwDiZF#bfxGAF$NML!8SyACKHx$YnTM^Yf3$ifN';
+  public static readonly WELL_KNOWN_PASSWORD = Buffer.from(
+    HelperCryptography.hashSha256(
+      'nMr889$&6Qp!fiQmfs3TxXzCqBkbFBeCH5YftG5d2TddPRUrEXsp$@vB#4cEGiJaF&77z%9!xtmnC#6FTY^zp@BNuDwDiZF#bfxGAF$NML!8SyACKHx$YnTM^Yf3$ifN'
+    ),
+    'hex'
+  ).toString('base64');
 }
