@@ -2,6 +2,7 @@ import { ApplicationExecutionMode } from '../Core/ApplicationExecutionMode';
 import {
   EmptyError,
   FileSystemMonitoring,
+  HelperCryptography,
   HelperNumeric,
   HelperText,
   IFileSystemMonitoringEventData,
@@ -9,8 +10,7 @@ import {
   InvalidArgumentError,
   InvalidExecutionError,
   Logger,
-  LogLevel,
-  sha256
+  LogLevel
 } from '@sergiocabral/helper';
 import { ApplicationParameters } from '../Core/ApplicationParameters';
 import fs from 'fs';
@@ -183,7 +183,7 @@ export class MessageRouter {
     fileLine: string,
     minUnixDate: number
   ): (IMessage & IApplicationMessage) | undefined {
-    const hash = sha256(fileLine);
+    const hash = HelperCryptography.hashSha256(fileLine);
     let alreadyProcessed = this.messageHistory[hash] !== undefined;
     if (alreadyProcessed) {
       return undefined;
