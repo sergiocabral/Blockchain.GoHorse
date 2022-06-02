@@ -10,9 +10,8 @@ export class Get {
    */
   public static password(input: string): string {
     if (input === GlobalDefinition.WELL_KNOWN_PASSWORD) {
-      input = Buffer.from(HelperCryptography.hashSha256(input), 'hex').toString(
-        'base64'
-      );
+      const hash = HelperCryptography.hashSha256(input);
+      input = Buffer.from(hash, 'hex').toString('base64');
     }
     return input;
   }
