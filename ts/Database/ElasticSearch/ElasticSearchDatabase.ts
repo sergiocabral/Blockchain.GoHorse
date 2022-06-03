@@ -1,5 +1,5 @@
 import { Database } from '../Database';
-import { IDatabaseJson } from '../IDatabaseJson';
+import { IDatabasePushOnly } from '../IDatabasePushOnly';
 import { ElasticSearchDatabaseConfiguration } from './ElasticSearchDatabaseConfiguration';
 import { Client } from '@elastic/elasticsearch';
 import { ClientOptions } from '@elastic/elasticsearch/lib/client';
@@ -13,7 +13,7 @@ import { ResponseError } from '@elastic/transport/lib/errors';
  */
 export class ElasticSearchDatabase
   extends Database<ElasticSearchDatabaseConfiguration>
-  implements IDatabaseJson
+  implements IDatabasePushOnly
 {
   /**
    * Cliente do banco de dados.
@@ -21,12 +21,13 @@ export class ElasticSearchDatabase
   private client?: Client;
 
   /**
-   * Grava um documento.
-   * @param document Documento JSON.
+   * Grava um conjuntos de valores.
+   * @param values Valores.
    */
-  public save(document: Record<string, unknown>): void {
-    void document;
-    // TODO: Implementar ElasticSearchDatabase.save - https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/installation.html
+  push(values: Record<string, unknown>): Promise<this> | this {
+    // TODO: Implementar ElasticSearchDatabase.push
+    void values;
+    return this;
   }
 
   /**

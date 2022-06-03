@@ -1,5 +1,5 @@
 import { Database } from '../Database';
-import { IDatabaseJson } from '../IDatabaseJson';
+import { IDatabasePushOnly } from '../IDatabasePushOnly';
 import { RedisDatabaseConfiguration } from './RedisDatabaseConfiguration';
 
 /**
@@ -7,15 +7,16 @@ import { RedisDatabaseConfiguration } from './RedisDatabaseConfiguration';
  */
 export class RedisDatabase
   extends Database<RedisDatabaseConfiguration>
-  implements IDatabaseJson
+  implements IDatabasePushOnly
 {
   /**
-   * Grava um documento.
-   * @param document Documento JSON.
+   * Grava um conjuntos de valores.
+   * @param values Valores.
    */
-  public save(document: Record<string, unknown>): void {
-    void document;
-    // TODO: Implementar RedisDatabase.save - https://www.npmjs.com/package/redis
+  push(values: Record<string, unknown>): Promise<this> | this {
+    // TODO: Implementar RedisDatabase.push - https://www.npmjs.com/package/redis
+    void values;
+    return this;
   }
 
   /**

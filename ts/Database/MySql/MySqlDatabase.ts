@@ -1,23 +1,22 @@
 import { Database } from '../Database';
-import { IDatabaseSql } from '../IDatabaseSql';
 import { MySqlDatabaseConfiguration } from './MySqlDatabaseConfiguration';
+import { IDatabasePushOnly } from '../IDatabasePushOnly';
 
 /**
  * Conexão com o banco de dados MySql.
  */
 export class MySqlDatabase
   extends Database<MySqlDatabaseConfiguration>
-  implements IDatabaseSql
+  implements IDatabasePushOnly
 {
   /**
-   * Grava um conjunto de valores em uma tabela.
-   * @param values Campos e valores.
-   * @param table Nome da tabela.
+   * Grava um conjuntos de valores.
+   * @param values Valores.
    */
-  public save(values: Record<string, unknown>, table: string): void {
+  push(values: Record<string, unknown>): Promise<this> | this {
+    // TODO: Implementar MySqlDatabase.push - https://www.npmjs.com/package/mysql
     void values;
-    void table;
-    // TODO: Implementar MySqlDatabase.save - https://www.npmjs.com/package/mysql
+    return this;
   }
 
   /**

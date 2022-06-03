@@ -1,12 +1,12 @@
 import { ILogWriter, LogLevel } from '@sergiocabral/helper';
-import { LogToDatabaseJsonConfiguration } from './LogToDatabaseJsonConfiguration';
+import { LogToDatabasePushOnlyConfiguration } from './LogToDatabasePushOnlyConfiguration';
 import { ApplicationLoggerToStream } from '@gohorse/npm-log';
 import { IInstanceParameters } from '@gohorse/npm-core';
-import { IDatabaseJson } from '../../Database/IDatabaseJson';
+import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
 
-export class LogToDatabaseJson extends ApplicationLoggerToStream<
+export class LogToDatabasePushOnly extends ApplicationLoggerToStream<
   ILogWriter,
-  LogToDatabaseJsonConfiguration
+  LogToDatabasePushOnlyConfiguration
 > {
   /**
    * Contexto do log.
@@ -20,9 +20,9 @@ export class LogToDatabaseJson extends ApplicationLoggerToStream<
    * @param database Conexão com banco de dados.
    */
   public constructor(
-    getConfiguration: () => LogToDatabaseJsonConfiguration,
+    getConfiguration: () => LogToDatabasePushOnlyConfiguration,
     getInstanceParameters: () => IInstanceParameters,
-    private readonly database: IDatabaseJson
+    private readonly database: IDatabasePushOnly
   ) {
     super(getConfiguration, getInstanceParameters);
   }
@@ -31,7 +31,7 @@ export class LogToDatabaseJson extends ApplicationLoggerToStream<
    * Tipo (nome) do fluxo.
    */
   public override get type(): string {
-    return LogToDatabaseJson.logContext;
+    return LogToDatabasePushOnly.logContext;
   }
 
   /**
@@ -55,7 +55,7 @@ export class LogToDatabaseJson extends ApplicationLoggerToStream<
    * @param instanceParameters Parâmetros da instância em execução.
    */
   protected override configureInstance(
-    configuration: LogToDatabaseJsonConfiguration,
+    configuration: LogToDatabasePushOnlyConfiguration,
     instanceParameters: IInstanceParameters
   ): void {
     void configuration;

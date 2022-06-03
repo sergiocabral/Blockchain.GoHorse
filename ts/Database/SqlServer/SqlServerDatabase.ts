@@ -1,23 +1,22 @@
 import { Database } from '../Database';
-import { IDatabaseSql } from '../IDatabaseSql';
 import { SqlServerDatabaseConfiguration } from './SqlServerDatabaseConfiguration';
+import { IDatabasePushOnly } from '../IDatabasePushOnly';
 
 /**
  * Conexão com o banco de dados SqlServer.
  */
 export class SqlServerDatabase
   extends Database<SqlServerDatabaseConfiguration>
-  implements IDatabaseSql
+  implements IDatabasePushOnly
 {
   /**
-   * Grava um conjunto de valores em uma tabela.
-   * @param values Campos e valores.
-   * @param table Nome da tabela.
+   * Grava um conjuntos de valores.
+   * @param values Valores.
    */
-  public save(values: Record<string, unknown>, table: string): void {
+  push(values: Record<string, unknown>): Promise<this> | this {
+    // TODO: Implementar SqlServerDatabase.push - https://docs.microsoft.com/pt-br/sql/connect/node-js/step-3-proof-of-concept-connecting-to-sql-using-node-js?view=sql-server-ver16
     void values;
-    void table;
-    // TODO: Implementar SqlServerDatabase.save - https://docs.microsoft.com/pt-br/sql/connect/node-js/step-3-proof-of-concept-connecting-to-sql-using-node-js?view=sql-server-ver16
+    return this;
   }
 
   /**
