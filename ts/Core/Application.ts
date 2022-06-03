@@ -30,7 +30,9 @@ import { Translation } from '@gohorse/npm-i18n';
 import { ApplicationLogger } from '@gohorse/npm-log';
 import { LogToConsole } from '@gohorse/npm-log-console';
 import { LogToFile } from '@gohorse/npm-log-file';
-import { LoggerConfiguration } from '../Log/LoggerConfiguration';
+import { ApplicationLoggerConfiguration } from './ApplicationLoggerConfiguration';
+import { LogToDatabase } from '../Log/Database/LogToDatabase';
+import { ElasticSearchDatabase } from '../Database/ElasticSearch/ElasticSearchDatabase';
 
 /**
  * Estados de execução de uma aplicação.
@@ -70,19 +72,38 @@ export abstract class Application<
    * Construtor.
    */
   public constructor() {
+    // TODO: Reimplementar ElasticSearchDatabase
+    const elasticSearchDatabase = new ElasticSearchDatabase(
+      () => this.configuration.database.elasticsearch
+    );
+
+    const defaultLogLevel =
+      Logger.defaultLogger?.defaultLogLevel ?? LogLevel.Debug;
+    const getParameters = () => this.parameters;
+
     Logger.defaultLogger = this.logger =
-      new ApplicationLogger<LoggerConfiguration>(
+      new ApplicationLogger<ApplicationLoggerConfiguration>(
         () => this.configuration.logger,
-        () => this.parameters,
+        getParameters,
         new LogToConsole(
           () => this.configuration.logger.toConsole,
-          () => this.parameters
+          getParameters,
+          defaultLogLevel
         ),
         new LogToFile(
           () => this.configuration.logger.toFile,
-          () => this.parameters
+          getParameters,
+          defaultLogLevel
+        ),
+        new LogToDatabase(
+          elasticSearchDatabase,
+          () => this.configuration.logger.toDatabase,
+          getParameters,
+          defaultLogLevel
         )
       );
+
+    setTimeout(() => void elasticSearchDatabase.open(), 1000);
 
     const applicationId = Instance.id;
     const applicationStartupTime = Instance.startupTime;
@@ -187,7 +208,7 @@ export abstract class Application<
   /**
    * Logger principal da aplicação.
    */
-  protected readonly logger: ApplicationLogger<LoggerConfiguration>;
+  protected readonly logger: ApplicationLogger<ApplicationLoggerConfiguration>;
 
   /**
    * Inicia a execução da aplicação.

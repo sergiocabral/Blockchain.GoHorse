@@ -9,9 +9,7 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * Nome do Index.
    */
-  public indexPrefixPattern?:
-    | string
-    | null = `${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}-{appName}-{date}`;
+  public indexPrefixPattern = `${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}-{appName}-{date}`;
 
   /**
    * Servidor.

@@ -22,7 +22,7 @@ export class Definition {
   /**
    * Serviço padrão do elasticsearch. Usuário.
    */
-  public static readonly DEFAULT_ELASTICSEARCH_USER = 'guest';
+  public static readonly DEFAULT_ELASTICSEARCH_USER = `guest.${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}`;
 
   /**
    * Serviço padrão do elasticsearch. Password.

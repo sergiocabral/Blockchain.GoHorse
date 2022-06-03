@@ -4,8 +4,12 @@ import { ElasticSearchDatabaseConfiguration } from './ElasticSearchDatabaseConfi
 import { Client } from '@elastic/elasticsearch';
 import { ClientOptions } from '@elastic/elasticsearch/lib/client';
 import { Definition } from './Definition';
-import { HttpStatusCode } from '@sergiocabral/helper';
-import { Get } from '@gohorse/npm-core';
+import {
+  EmptyError,
+  HttpStatusCode,
+  PrimitiveValueType
+} from '@sergiocabral/helper';
+import { Generate, Get, Instance } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
 
 /**
@@ -18,15 +22,38 @@ export class ElasticSearchDatabase
   /**
    * Cliente do banco de dados.
    */
-  private client?: Client;
+  private clientValue?: Client;
+
+  /**
+   * Cliente do banco de dados.
+   */
+  private get client(): Client {
+    if (this.clientValue === undefined) {
+      throw new EmptyError('Client was not created.');
+    }
+    return this.clientValue;
+  }
 
   /**
    * Grava um conjuntos de valores.
-   * @param values Valores.
+   * @param values Campos e valores.
+   * @param extra Valores extra em formato para JSON
    */
-  push(values: Record<string, unknown>): Promise<this> | this {
-    // TODO: Implementar ElasticSearchDatabase.push
-    void values;
+  public async push(
+    values: Record<string, PrimitiveValueType | undefined>,
+    extra: Record<string, PrimitiveValueType | undefined> | PrimitiveValueType[]
+  ): Promise<this> {
+    await this.client.index({
+      index: `${this.configuration.indexPrefixPattern.querystring({
+        appName: Instance.name,
+        date: new Date().format({ mask: 'y-M-d' })
+      })}`.slugify(),
+      id: Generate.id('', 20),
+      body: {
+        ...values,
+        extra
+      }
+    });
     return this;
   }
 
@@ -41,9 +68,9 @@ export class ElasticSearchDatabase
    * Fecha a conexão
    */
   protected override async closeConnection(): Promise<void> {
-    if (this.client !== undefined) {
-      await this.client.close();
-      this.client = undefined;
+    if (this.clientValue !== undefined) {
+      await this.clientValue.close();
+      this.clientValue = undefined;
     }
   }
 
@@ -61,10 +88,11 @@ export class ElasticSearchDatabase
         username: configuration.username,
         password: Get.password(configuration.password ?? '')
       };
+      console.log(options.auth);
     }
-    this.client = new Client(options);
+    this.clientValue = new Client(options);
     try {
-      await this.client.ping();
+      await this.clientValue.ping();
     } catch (error: unknown) {
       const connected =
         error instanceof ResponseError &&

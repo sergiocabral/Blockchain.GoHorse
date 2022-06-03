@@ -46,7 +46,7 @@ export abstract class Database<
   /**
    * Configuração.
    */
-  private get configuration(): TDatabaseConfiguration {
+  protected get configuration(): TDatabaseConfiguration {
     if (this.lastConfiguration === undefined) {
       this.lastConfiguration = this.getConfiguration();
     }

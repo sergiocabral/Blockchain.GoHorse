@@ -1,6 +1,7 @@
 import { Database } from '../Database';
 import { SqlServerDatabaseConfiguration } from './SqlServerDatabaseConfiguration';
 import { IDatabasePushOnly } from '../IDatabasePushOnly';
+import { PrimitiveValueType } from '@sergiocabral/helper';
 
 /**
  * Conexão com o banco de dados SqlServer.
@@ -11,11 +12,16 @@ export class SqlServerDatabase
 {
   /**
    * Grava um conjuntos de valores.
-   * @param values Valores.
+   * @param values Campos e valores.
+   * @param extra Valores extra em formato para JSON
    */
-  push(values: Record<string, unknown>): Promise<this> | this {
+  public push(
+    values: Record<string, PrimitiveValueType | undefined>,
+    extra: Record<string, PrimitiveValueType | undefined> | PrimitiveValueType[]
+  ): Promise<this> | this {
     // TODO: Implementar SqlServerDatabase.push - https://docs.microsoft.com/pt-br/sql/connect/node-js/step-3-proof-of-concept-connecting-to-sql-using-node-js?view=sql-server-ver16
     void values;
+    void extra;
     return this;
   }
 
