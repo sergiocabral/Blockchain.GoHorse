@@ -1,4 +1,4 @@
-import { ApplicationExecutionMode } from '../Core/ApplicationExecutionMode';
+import { ApplicationExecutionMode } from './ApplicationExecutionMode';
 import {
   EmptyError,
   FileSystemMonitoring,
@@ -12,7 +12,7 @@ import {
   Logger,
   LogLevel
 } from '@sergiocabral/helper';
-import { ApplicationParameters } from '../Core/ApplicationParameters';
+import { ApplicationParameters } from './ApplicationParameters';
 import fs from 'fs';
 import * as os from 'os';
 import { Definition } from '../Definition';
@@ -35,11 +35,11 @@ type ApplicationMessageConstructor = new (
 /**
  * Roteamento de mensagens entre aplicações.
  */
-export class MessageRouter {
+export class ApplicationMessageRouter {
   /**
    * Contexto do log.
    */
-  private static logContext = 'MessageRouter';
+  private static logContext = 'ApplicationMessageRouter';
 
   /**
    * Menagens conhecidas
@@ -104,7 +104,7 @@ export class MessageRouter {
         filePath: data.before.realpath
       },
       LogLevel.Debug,
-      MessageRouter.logContext
+      ApplicationMessageRouter.logContext
     );
     await new TerminateApplication(Instance.id, Instance.id).sendAsync();
   }
@@ -127,7 +127,7 @@ export class MessageRouter {
         filePath: data.after.realpath
       },
       LogLevel.Verbose,
-      MessageRouter.logContext
+      ApplicationMessageRouter.logContext
     );
 
     const messages = this.readMessagesFromFile(data.after.realpath);
@@ -140,7 +140,7 @@ export class MessageRouter {
           applicationMessageType: message.type
         },
         LogLevel.Debug,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
       await message.sendAsync();
     }
@@ -190,7 +190,7 @@ export class MessageRouter {
     }
     this.messageHistory[hash] = Number.MIN_SAFE_INTEGER;
 
-    const match = fileLine.match(MessageRouter.regexLineWithMessage);
+    const match = fileLine.match(ApplicationMessageRouter.regexLineWithMessage);
     if (match === null) {
       return undefined;
     }
@@ -204,7 +204,7 @@ export class MessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
 
       return undefined;
@@ -217,7 +217,7 @@ export class MessageRouter {
     }
 
     const messageAsText = match[2];
-    const message = MessageRouter.parse(messageAsText);
+    const message = ApplicationMessageRouter.parse(messageAsText);
     if (message === undefined) {
       return undefined;
     }
@@ -231,7 +231,7 @@ export class MessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
 
       return undefined;
@@ -246,7 +246,7 @@ export class MessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
 
       return undefined;
@@ -277,13 +277,13 @@ export class MessageRouter {
             jsonContent
           },
           LogLevel.Warning,
-          MessageRouter.logContext
+          ApplicationMessageRouter.logContext
         );
 
         return undefined;
       }
 
-      const messageConstructor = MessageRouter.wellKnowMessages.find(
+      const messageConstructor = ApplicationMessageRouter.wellKnowMessages.find(
         data => data[1].name === json.type
       );
       if (messageConstructor === undefined) {
@@ -294,7 +294,7 @@ export class MessageRouter {
             jsonContent
           },
           LogLevel.Warning,
-          MessageRouter.logContext
+          ApplicationMessageRouter.logContext
         );
 
         return undefined;
@@ -312,7 +312,7 @@ export class MessageRouter {
           jsonContent
         },
         LogLevel.Warning,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
 
       return undefined;
@@ -327,7 +327,7 @@ export class MessageRouter {
     fromInstanceId: string,
     toInstanceId: string
   ): IApplicationMessage {
-    const wellKnowMessage = MessageRouter.wellKnowMessages.find(
+    const wellKnowMessage = ApplicationMessageRouter.wellKnowMessages.find(
       item => item[0] === executionMode
     );
 
@@ -364,7 +364,7 @@ export class MessageRouter {
           filePath: instanceFile
         },
         LogLevel.Debug,
-        MessageRouter.logContext
+        ApplicationMessageRouter.logContext
       );
 
       fs.appendFileSync(instanceFile, fileContent);
@@ -394,13 +394,13 @@ export class MessageRouter {
         toInstanceFile = fs.realpathSync(toInstanceFile);
         affectedCount++;
 
-        const message = MessageRouter.factory(
+        const message = ApplicationMessageRouter.factory(
           executionMode,
           fromInstanceId,
           toInstanceId
         );
 
-        await MessageRouter.send(message);
+        await ApplicationMessageRouter.send(message);
       } else {
         Logger.post(
           'Instance "{applicationId}" is not running to receive messages.',
@@ -408,7 +408,7 @@ export class MessageRouter {
             applicationId: toInstanceId
           },
           LogLevel.Warning,
-          MessageRouter.logContext
+          ApplicationMessageRouter.logContext
         );
       }
     }

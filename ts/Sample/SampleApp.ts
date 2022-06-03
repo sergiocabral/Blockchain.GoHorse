@@ -1,4 +1,4 @@
-import { Application } from '../Core/Application';
+import { Application } from '../Application/Application';
 import { SampleAppConfiguration } from './SampleAppConfiguration';
 import { Logger, LogLevel } from '@sergiocabral/helper';
 

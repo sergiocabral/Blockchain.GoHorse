@@ -11,7 +11,7 @@ import {
 } from '@sergiocabral/helper';
 import { Generate, Get } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
-import { ApplicationParameters } from '../../Core/ApplicationParameters';
+import { ApplicationParameters } from '../../Application/ApplicationParameters';
 
 /**
  * Conexão com o banco de dados ElasticSearch.

@@ -18,7 +18,7 @@ import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplication } from './IApplication';
 import { ApplicationExecutionMode } from './ApplicationExecutionMode';
-import { MessageRouter } from '../BusMessage/MessageRouter';
+import { ApplicationMessageRouter } from './ApplicationMessageRouter';
 import * as os from 'os';
 import {
   ConfigurationReloaded,
@@ -105,7 +105,7 @@ export abstract class Application<
       applicationFlagFileMonitoringStarted
     );
 
-    this.applicationFlagFileMessageRouter = new MessageRouter(
+    this.applicationFlagFileMessageRouter = new ApplicationMessageRouter(
       this.applicationFlagFileMonitoring
     );
 
@@ -177,7 +177,7 @@ export abstract class Application<
   /**
    * Tratamento de mensagem recebidas pelo arquivo de monitoramento.
    */
-  public readonly applicationFlagFileMessageRouter: MessageRouter;
+  public readonly applicationFlagFileMessageRouter: ApplicationMessageRouter;
 
   /**
    * Gerencia os banco de dados da aplicação.
@@ -301,7 +301,7 @@ export abstract class Application<
       );
 
       if (instanceIds.length > 0) {
-        const affectedCount = await MessageRouter.factoryAndSend(
+        const affectedCount = await ApplicationMessageRouter.factoryAndSend(
           this.executionMode,
           this.parameters.id,
           instanceIds
