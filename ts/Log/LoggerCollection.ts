@@ -9,7 +9,7 @@ import {
   LogWriterToConsole,
   Message
 } from '@sergiocabral/helper';
-import { IApplicationLoggerToStream } from './IApplicationLoggerToStream';
+import { ILoggerToStream } from './ILoggerToStream';
 import {
   ConfigurationReloaded,
   IInstanceParameters,
@@ -28,9 +28,9 @@ type PostArguments = [
 ];
 
 /**
- * Logger da instância em execução.
+ * Coleção de loggers da instância em execução.
  */
-export class ApplicationLogger<TLoggerConfiguration extends JsonLoader>
+export class LoggerCollection<TLoggerConfiguration extends JsonLoader>
   implements ILogWriter
 {
   /**
@@ -42,7 +42,7 @@ export class ApplicationLogger<TLoggerConfiguration extends JsonLoader>
   public constructor(
     public getConfiguration: () => TLoggerConfiguration,
     public getInstanceParameters: () => IInstanceParameters,
-    ...loggers: IApplicationLoggerToStream[]
+    ...loggers: ILoggerToStream[]
   ) {
     this.loggers = loggers;
     for (const logger of this.loggers) {
@@ -58,7 +58,7 @@ export class ApplicationLogger<TLoggerConfiguration extends JsonLoader>
   /**
    * Lista das implementações de loggers.
    */
-  private readonly loggers: IApplicationLoggerToStream[];
+  private readonly loggers: ILoggerToStream[];
 
   /**
    * Sinaliza que o Logger com seus Writers foram configurados.

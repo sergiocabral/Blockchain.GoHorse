@@ -1,11 +1,9 @@
 import { ILogWriter } from '@sergiocabral/helper';
 
 /**
- * Representa um logger da instância em execução para determinada fluxo de mensagens de log.
+ * Representa um logger para determinada fluxo de mensagens de log.
  */
-export interface IApplicationLoggerToStream<
-  TLogWriter extends ILogWriter = ILogWriter
-> {
+export interface ILoggerToStream<TLogWriter extends ILogWriter = ILogWriter> {
   /**
    * Tipo (nome) do fluxo.
    */

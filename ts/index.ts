@@ -1,13 +1,13 @@
 #! /usr/bin/env node
 
-import { ApplicationLogger } from './Log/ApplicationLogger';
-import { ApplicationLoggerToStream } from './Log/ApplicationLoggerToStream';
-import { IApplicationLoggerToStream } from './Log/IApplicationLoggerToStream';
+import { LoggerCollection } from './Log/LoggerCollection';
+import { LoggerToStream } from './Log/LoggerToStream';
+import { ILoggerToStream } from './Log/ILoggerToStream';
 import { LoggerToStreamConfiguration } from './Log/LoggerToStreamConfiguration';
 
 export {
-  ApplicationLogger,
-  ApplicationLoggerToStream,
-  IApplicationLoggerToStream,
+  LoggerCollection,
+  LoggerToStream,
+  ILoggerToStream,
   LoggerToStreamConfiguration
 };

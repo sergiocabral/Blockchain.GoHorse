@@ -6,21 +6,21 @@ import {
   Logger,
   LogLevel
 } from '@sergiocabral/helper';
-import { IApplicationLoggerToStream } from './IApplicationLoggerToStream';
+import { ILoggerToStream } from './ILoggerToStream';
 import { IInstanceParameters } from '@gohorse/npm-core';
 
 /**
- * Logger da instância em execução para determinada fluxo de mensagens de log.
+ * Logger para determinada fluxo de mensagens de log.
  */
-export abstract class ApplicationLoggerToStream<
+export abstract class LoggerToStream<
   TLogWriter extends ILogWriter,
   TLogConfiguration extends LoggerToStreamConfiguration
-> implements IApplicationLoggerToStream<TLogWriter>
+> implements ILoggerToStream<TLogWriter>
 {
   /**
    * Contexto do log.
    */
-  private static logContext2 = 'ApplicationLoggerStream';
+  private static logContext2 = 'LoggerToStream';
 
   /**
    *
@@ -97,7 +97,7 @@ export abstract class ApplicationLoggerToStream<
         logWriterType: this.type
       },
       LogLevel.Verbose,
-      ApplicationLoggerToStream.logContext2
+      LoggerToStream.logContext2
     );
 
     this.instanceValue = this.createInstance();
@@ -120,7 +120,7 @@ export abstract class ApplicationLoggerToStream<
         logWriterType: this.type
       },
       LogLevel.Verbose,
-      ApplicationLoggerToStream.logContext2
+      LoggerToStream.logContext2
     );
 
     const configuration = this.getConfiguration();
@@ -135,7 +135,7 @@ export abstract class ApplicationLoggerToStream<
         value: this.defaultLogLevel
       },
       LogLevel.Debug,
-      ApplicationLoggerToStream.logContext2
+      LoggerToStream.logContext2
     );
     this.instanceValue.defaultLogLevel = this.defaultLogLevel;
 
@@ -146,7 +146,7 @@ export abstract class ApplicationLoggerToStream<
         value: configuration.minimumLevel
       },
       LogLevel.Debug,
-      ApplicationLoggerToStream.logContext2
+      LoggerToStream.logContext2
     );
     this.instanceValue.minimumLevel = configuration.minimumLevelValue;
 
@@ -157,7 +157,7 @@ export abstract class ApplicationLoggerToStream<
         value: configuration.enabled
       },
       LogLevel.Debug,
-      ApplicationLoggerToStream.logContext2
+      LoggerToStream.logContext2
     );
     this.instanceValue.enabled = configuration.enabled;
 
