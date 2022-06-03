@@ -97,21 +97,21 @@ export abstract class Database<
   /**
    * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public abstract resetConnection(
+  protected abstract resetConnection(
     configuration: TDatabaseConfiguration
   ): Promise<void> | void;
 
   /**
    * Fecha a conexão.
    */
-  public abstract closeConnection(
+  protected abstract closeConnection(
     configuration: TDatabaseConfiguration
   ): Promise<void> | void;
 
   /**
    * Abre a conexão.
    */
-  public abstract openConnection(
+  protected abstract openConnection(
     configuration: TDatabaseConfiguration
   ): Promise<void> | void;
 
@@ -120,7 +120,11 @@ export abstract class Database<
    */
   private async connectionFail(error: unknown): Promise<void> {
     if (this.whenConnectionFailsIgnoreAndSetConnectionClosed) {
-      await this.resetConnection(this.configuration);
+      try {
+        await this.resetConnection(this.configuration);
+      } catch (error) {
+        // Não devia acontecer esse erro.
+      }
       this.connectionState = ConnectionState.Closed;
     } else {
       throw error;

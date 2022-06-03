@@ -1,5 +1,6 @@
 import { DatabaseConfiguration } from '../DatabaseConfiguration';
 import { Definition } from './Definition';
+import { GlobalDefinition } from '@gohorse/npm-core';
 
 /**
  * Configuração para conexão com o banco de dados ElasticSearch
@@ -8,7 +9,9 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * Nome do Index.
    */
-  public indexPrefixPattern?: string | null = `{appName}.{timestamp}.`;
+  public indexPrefixPattern?:
+    | string
+    | null = `${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}-{appName}-{date}`;
 
   /**
    * Servidor.

@@ -23,7 +23,7 @@ export class MySqlDatabase
   /**
    * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public override resetConnection(
+  protected override resetConnection(
     configuration: MySqlDatabaseConfiguration
   ): void {
     void configuration;
@@ -33,7 +33,7 @@ export class MySqlDatabase
   /**
    * Fecha a conexão
    */
-  public override closeConnection(
+  protected override closeConnection(
     configuration: MySqlDatabaseConfiguration
   ): void {
     void configuration;
@@ -43,7 +43,7 @@ export class MySqlDatabase
   /**
    * Abre a conexão
    */
-  public override openConnection(
+  protected override openConnection(
     configuration: MySqlDatabaseConfiguration
   ): void {
     void configuration;

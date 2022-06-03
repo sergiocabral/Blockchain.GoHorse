@@ -21,7 +21,7 @@ export class RedisDatabase
   /**
    * Força a finalização de qualquer conexão aberta e redefine a instância da conexão.
    */
-  public override resetConnection(
+  protected override resetConnection(
     configuration: RedisDatabaseConfiguration
   ): void {
     void configuration;
@@ -31,7 +31,7 @@ export class RedisDatabase
   /**
    * Fecha a conexão
    */
-  public override closeConnection(
+  protected override closeConnection(
     configuration: RedisDatabaseConfiguration
   ): void {
     void configuration;
@@ -41,7 +41,7 @@ export class RedisDatabase
   /**
    * Abre a conexão
    */
-  public override openConnection(
+  protected override openConnection(
     configuration: RedisDatabaseConfiguration
   ): void {
     void configuration;
