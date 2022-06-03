@@ -55,19 +55,19 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.0",
     "prettier": "^2.6.2",
-    "ts-jest": "^28.0.3",
+    "ts-jest": "^28.0.4",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.2"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.2.1",
     "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^3.6.2",
-    "@gohorse/npm-i18n": "^2.0.11",
-    "@gohorse/npm-log": "^2.0.6",
-    "@gohorse/npm-log-console": "^1.0.4",
-    "@gohorse/npm-log-file": "^1.0.5",
+    "@gohorse/npm-core": "^3.6.4",
+    "@gohorse/npm-i18n": "^2.0.13",
+    "@gohorse/npm-log": "^2.0.9",
+    "@gohorse/npm-log-console": "^1.0.7",
+    "@gohorse/npm-log-file": "^1.0.8",
     "tslib": "^2.4.0",
-    "@sergiocabral/helper": "^10.1.1"
+    "@sergiocabral/helper": "^10.2.0"
   }
 }
