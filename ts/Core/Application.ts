@@ -27,12 +27,8 @@ import {
   TerminateApplication
 } from '@gohorse/npm-core';
 import { Translation } from '@gohorse/npm-i18n';
-import { ApplicationLogger } from '@gohorse/npm-log';
-import { LogToConsole } from '@gohorse/npm-log-console';
-import { LogToFile } from '@gohorse/npm-log-file';
-import { ApplicationLoggerConfiguration } from './ApplicationLoggerConfiguration';
-import { LogToDatabase } from '../Log/Database/LogToDatabase';
-import { ElasticSearchDatabase } from '../Database/ElasticSearch/ElasticSearchDatabase';
+import { ApplicationLogger } from './ApplicationLogger';
+import { ApplicationDatabase } from './ApplicationDatabase';
 
 /**
  * Estados de execução de uma aplicação.
@@ -72,38 +68,16 @@ export abstract class Application<
    * Construtor.
    */
   public constructor() {
-    // TODO: Reimplementar ElasticSearchDatabase
-    const elasticSearchDatabase = new ElasticSearchDatabase(
-      () => this.configuration.database.elasticsearch
+    this.database = new ApplicationDatabase(
+      () => this.configuration.database,
+      () => this.parameters
     );
 
-    const defaultLogLevel =
-      Logger.defaultLogger?.defaultLogLevel ?? LogLevel.Debug;
-    const getParameters = () => this.parameters;
-
-    Logger.defaultLogger = this.logger =
-      new ApplicationLogger<ApplicationLoggerConfiguration>(
-        () => this.configuration.logger,
-        getParameters,
-        new LogToConsole(
-          () => this.configuration.logger.toConsole,
-          getParameters,
-          defaultLogLevel
-        ),
-        new LogToFile(
-          () => this.configuration.logger.toFile,
-          getParameters,
-          defaultLogLevel
-        ),
-        new LogToDatabase(
-          elasticSearchDatabase,
-          () => this.configuration.logger.toDatabase,
-          getParameters,
-          defaultLogLevel
-        )
-      );
-
-    setTimeout(() => void elasticSearchDatabase.open(), 1000);
+    this.logger = new ApplicationLogger(
+      () => this.configuration.logger,
+      () => this.parameters,
+      this.database.elasticsearch
+    );
 
     const applicationId = Instance.id;
     const applicationStartupTime = Instance.startupTime;
@@ -206,9 +180,14 @@ export abstract class Application<
   public readonly applicationFlagFileMessageRouter: MessageRouter;
 
   /**
-   * Logger principal da aplicação.
+   * Gerencia os banco de dados da aplicação.
    */
-  protected readonly logger: ApplicationLogger<ApplicationLoggerConfiguration>;
+  protected readonly database: ApplicationDatabase;
+
+  /**
+   * Logger da aplicação que gerencia múltiplos loggers.
+   */
+  protected readonly logger: ApplicationLogger;
 
   /**
    * Inicia a execução da aplicação.
@@ -239,8 +218,9 @@ export abstract class Application<
 
     try {
       await this.loadConfiguration();
-      this.configureLogger();
+      this.logger.configure();
       await new Translation(() => this.configuration.language).load();
+      await this.database.open();
 
       await goAhead();
       await this.stop();
@@ -533,17 +513,6 @@ Application
   }
 
   /**
-   * Configura o serviço de log.
-   */
-  private configureLogger(): void {
-    this.logger.configure();
-    this.logger.defaultValues['applicationInstanceId'] = this.parameters.id;
-    this.logger.defaultValues['applicationName'] = this.parameters.packageName;
-    this.logger.defaultValues['applicationVersion'] =
-      this.parameters.packageVersion;
-  }
-
-  /**
    * Libera os recursos.
    */
   private async dispose(errors: unknown[]): Promise<unknown[]> {
@@ -558,13 +527,17 @@ Application
       Application.logContext2
     );
 
-    return (
+    const results = (
       await HelperObject.triggerEvent(
         this.onDispose,
         errors.length === 0,
         errors
       )
     ).filter(error => Boolean(error));
+
+    await this.database.close();
+
+    return results;
   }
 
   /**

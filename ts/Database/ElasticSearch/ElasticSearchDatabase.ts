@@ -14,7 +14,7 @@ import { ResponseError } from '@elastic/transport/lib/errors';
 import { ApplicationParameters } from '../../Core/ApplicationParameters';
 
 /**
- * Conexão com o banco de dados DatabaseJson.
+ * Conexão com o banco de dados ElasticSearch.
  */
 export class ElasticSearchDatabase
   extends Database<ElasticSearchDatabaseConfiguration>

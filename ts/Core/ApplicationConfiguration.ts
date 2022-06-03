@@ -1,7 +1,7 @@
 import { TranslateConfiguration } from '@gohorse/npm-i18n';
 import { IOError, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
 import fs from 'fs';
-import { ApplicationLoggerConfiguration } from './ApplicationLoggerConfiguration';
+import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
 
 /**
@@ -21,7 +21,10 @@ export class ApplicationConfiguration extends JsonLoader {
   /**
    * Configurações de log.
    */
-  public logger = new ApplicationLoggerConfiguration().setName('logger', this);
+  public logger = new ApplicationLoggerCollectionConfiguration().setName(
+    'logger',
+    this
+  );
 
   /**
    * Configurações de banco de dados.

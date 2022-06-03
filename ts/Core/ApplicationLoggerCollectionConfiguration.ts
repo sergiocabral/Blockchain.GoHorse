@@ -6,7 +6,7 @@ import { LogToDatabaseConfiguration } from '../Log/Database/LogToDatabaseConfigu
 /**
  * Configurações do logger da aplicação.
  */
-export class ApplicationLoggerConfiguration extends JsonLoader {
+export class ApplicationLoggerCollectionConfiguration extends JsonLoader {
   /**
    * Log para console.
    */

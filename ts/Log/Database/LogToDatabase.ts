@@ -6,12 +6,12 @@ import {
   PrimitiveValueType
 } from '@sergiocabral/helper';
 import { LogToDatabaseConfiguration } from './LogToDatabaseConfiguration';
-import { ApplicationLoggerToStream } from '@gohorse/npm-log';
 import { Generate, IInstanceParameters } from '@gohorse/npm-core';
 import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
 import { ILogMessageAndData } from '@sergiocabral/helper/js/Log/ILogMessageAndData';
+import { LoggerToStream } from '@gohorse/npm-log';
 
-export class LogToDatabase extends ApplicationLoggerToStream<
+export class LogToDatabase extends LoggerToStream<
   LogWriterToPersistent,
   LogToDatabaseConfiguration
 > {
@@ -106,7 +106,7 @@ export class LogToDatabase extends ApplicationLoggerToStream<
   ): Record<string, PrimitiveValueType | undefined> {
     const divisor = String.fromCharCode(0);
 
-    // TODO: Reimplementar formatValues
+    // TODO: Reimplementar formatValues npm-core com um tipo de flattern
 
     const getValue = (value: unknown): string | undefined => {
       if (
