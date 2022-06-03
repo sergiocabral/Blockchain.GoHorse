@@ -26,10 +26,12 @@ export abstract class ApplicationLoggerToStream<
    *
    * @param getConfiguration Configurações do log writer que será criado
    * @param getInstanceParameters Parâmetros da instância em execução
+   * @param defaultLogLevel Nível padrão de log quando não informado
    */
   public constructor(
     private readonly getConfiguration: () => TLogConfiguration,
-    private readonly getInstanceParameters: () => IInstanceParameters
+    private readonly getInstanceParameters: () => IInstanceParameters,
+    private readonly defaultLogLevel: LogLevel
   ) {}
 
   /**
@@ -125,6 +127,17 @@ export abstract class ApplicationLoggerToStream<
     const instanceParameters = this.getInstanceParameters();
 
     this.configureInstance(configuration, instanceParameters);
+
+    Logger.post(
+      'Setting logger "{logWriterType}" default level: {value}.',
+      {
+        logWriterType: this.type,
+        value: this.defaultLogLevel
+      },
+      LogLevel.Debug,
+      ApplicationLoggerToStream.logContext2
+    );
+    this.instanceValue.defaultLogLevel = this.defaultLogLevel;
 
     Logger.post(
       'Setting logger "{logWriterType}" minimum level: {value}.',
