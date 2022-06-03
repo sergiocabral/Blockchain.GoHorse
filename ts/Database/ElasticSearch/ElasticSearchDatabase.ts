@@ -9,8 +9,9 @@ import {
   HttpStatusCode,
   PrimitiveValueType
 } from '@sergiocabral/helper';
-import { Generate, Get, Instance } from '@gohorse/npm-core';
+import { Generate, Get } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
+import { ApplicationParameters } from '../../Core/ApplicationParameters';
 
 /**
  * Conexão com o banco de dados DatabaseJson.
@@ -45,7 +46,7 @@ export class ElasticSearchDatabase
   ): Promise<this> {
     await this.client.index({
       index: `${this.configuration.indexPrefixPattern.querystring({
-        appName: Instance.name,
+        appName: ApplicationParameters.packageName,
         date: new Date().format({ mask: 'y-M-d' })
       })}`.slugify(),
       id: Generate.id('', 20),
