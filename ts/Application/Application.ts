@@ -1,5 +1,5 @@
 import { ApplicationParameters } from './ApplicationParameters';
-import { ApplicationConfiguration } from './ApplicationConfiguration';
+import { ApplicationConfiguration } from './Configuration/ApplicationConfiguration';
 import {
   EmptyError,
   FileSystemMonitoring,
@@ -16,9 +16,9 @@ import {
 } from '@sergiocabral/helper';
 import fs from 'fs';
 import { Definition } from '../Definition';
-import { IApplication } from './IApplication';
-import { ApplicationExecutionMode } from './ApplicationExecutionMode';
-import { ApplicationMessageRouter } from './ApplicationMessageRouter';
+import { IApplication } from './Type/IApplication';
+import { ApplicationExecutionMode } from './Type/ApplicationExecutionMode';
+import { ApplicationFlagFileMessageRouter } from './ApplicationFlagFileMessageRouter';
 import * as os from 'os';
 import {
   ConfigurationReloaded,
@@ -29,11 +29,7 @@ import {
 import { Translation } from '@gohorse/npm-i18n';
 import { ApplicationLogger } from './ApplicationLogger';
 import { ApplicationDatabase } from './ApplicationDatabase';
-
-/**
- * Estados de execução de uma aplicação.
- */
-type AplicationState = 'running' | 'stoping' | 'stoped';
+import { AplicationState } from './Type/ApplicationState';
 
 /**
  * Esboço de uma aplicação executável.
@@ -105,9 +101,8 @@ export abstract class Application<
       applicationFlagFileMonitoringStarted
     );
 
-    this.applicationFlagFileMessageRouter = new ApplicationMessageRouter(
-      this.applicationFlagFileMonitoring
-    );
+    this.applicationFlagFileMessageRouter =
+      new ApplicationFlagFileMessageRouter(this.applicationFlagFileMonitoring);
 
     this.executionMode = this.parameters.hasArgumentName(
       Definition.COMMAND_LINE_ARGUMENT_STOP
@@ -156,13 +151,13 @@ export abstract class Application<
    * Sinaliza se a aplicação está em execução.
    */
   public get isRunning(): boolean {
-    return this.aplicationState !== 'stoped';
+    return this.aplicationState !== AplicationState.Stoped;
   }
 
   /**
    * Estado de execução da aplicação.
    */
-  private aplicationState: AplicationState = 'stoped';
+  private aplicationState: AplicationState = AplicationState.Stoped;
 
   /**
    * Modo de execução da aplicação.
@@ -177,7 +172,7 @@ export abstract class Application<
   /**
    * Tratamento de mensagem recebidas pelo arquivo de monitoramento.
    */
-  public readonly applicationFlagFileMessageRouter: ApplicationMessageRouter;
+  public readonly applicationFlagFileMessageRouter: ApplicationFlagFileMessageRouter;
 
   /**
    * Gerencia os banco de dados da aplicação.
@@ -194,13 +189,13 @@ export abstract class Application<
    */
   public async run(): Promise<void> {
     if (
-      this.aplicationState === 'running' ||
-      this.aplicationState === 'stoping'
+      this.aplicationState === AplicationState.Running ||
+      this.aplicationState === AplicationState.Stoping
     ) {
       throw new InvalidExecutionError('Already started or stoping.');
     }
 
-    this.aplicationState = 'running';
+    this.aplicationState = AplicationState.Running;
 
     Logger.post(
       'Application started in mode: {applicationExecutionMode}',
@@ -301,11 +296,12 @@ export abstract class Application<
       );
 
       if (instanceIds.length > 0) {
-        const affectedCount = await ApplicationMessageRouter.factoryAndSend(
-          this.executionMode,
-          this.parameters.id,
-          instanceIds
-        );
+        const affectedCount =
+          await ApplicationFlagFileMessageRouter.factoryAndSend(
+            this.executionMode,
+            this.parameters.id,
+            instanceIds
+          );
 
         Logger.post(
           'Total applications affected: {count}',
@@ -329,10 +325,10 @@ export abstract class Application<
    * @param errors Erros durante a execução.
    */
   private async stop(...errors: unknown[]): Promise<void> {
-    if (this.aplicationState !== 'running') {
+    if (this.aplicationState !== AplicationState.Running) {
       return;
     }
-    this.aplicationState = 'stoping';
+    this.aplicationState = AplicationState.Stoping;
 
     try {
       this.deleteApplicationFlagFile();
@@ -382,7 +378,7 @@ export abstract class Application<
       }
     }
 
-    this.aplicationState = 'stoped';
+    this.aplicationState = AplicationState.Stoped;
   }
 
   /**

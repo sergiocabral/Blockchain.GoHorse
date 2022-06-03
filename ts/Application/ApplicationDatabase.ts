@@ -1,5 +1,5 @@
-import { IApplicationParameters } from './IApplicationParameters';
-import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
+import { IApplicationParameters } from './Type/IApplicationParameters';
+import { ApplicationDatabaseConfiguration } from './Configuration/ApplicationDatabaseConfiguration';
 import { ElasticSearchDatabase } from '../Database/ElasticSearch/ElasticSearchDatabase';
 import { IDatabase } from '../Database/IDatabase';
 

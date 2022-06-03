@@ -1,4 +1,4 @@
-import { ApplicationExecutionMode } from './ApplicationExecutionMode';
+import { ApplicationExecutionMode } from './Type/ApplicationExecutionMode';
 import {
   EmptyError,
   FileSystemMonitoring,
@@ -35,7 +35,7 @@ type ApplicationMessageConstructor = new (
 /**
  * Roteamento de mensagens entre aplicações.
  */
-export class ApplicationMessageRouter {
+export class ApplicationFlagFileMessageRouter {
   /**
    * Contexto do log.
    */
@@ -104,7 +104,7 @@ export class ApplicationMessageRouter {
         filePath: data.before.realpath
       },
       LogLevel.Debug,
-      ApplicationMessageRouter.logContext
+      ApplicationFlagFileMessageRouter.logContext
     );
     await new TerminateApplication(Instance.id, Instance.id).sendAsync();
   }
@@ -127,7 +127,7 @@ export class ApplicationMessageRouter {
         filePath: data.after.realpath
       },
       LogLevel.Verbose,
-      ApplicationMessageRouter.logContext
+      ApplicationFlagFileMessageRouter.logContext
     );
 
     const messages = this.readMessagesFromFile(data.after.realpath);
@@ -140,7 +140,7 @@ export class ApplicationMessageRouter {
           applicationMessageType: message.type
         },
         LogLevel.Debug,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
       await message.sendAsync();
     }
@@ -190,7 +190,9 @@ export class ApplicationMessageRouter {
     }
     this.messageHistory[hash] = Number.MIN_SAFE_INTEGER;
 
-    const match = fileLine.match(ApplicationMessageRouter.regexLineWithMessage);
+    const match = fileLine.match(
+      ApplicationFlagFileMessageRouter.regexLineWithMessage
+    );
     if (match === null) {
       return undefined;
     }
@@ -204,7 +206,7 @@ export class ApplicationMessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
 
       return undefined;
@@ -217,7 +219,7 @@ export class ApplicationMessageRouter {
     }
 
     const messageAsText = match[2];
-    const message = ApplicationMessageRouter.parse(messageAsText);
+    const message = ApplicationFlagFileMessageRouter.parse(messageAsText);
     if (message === undefined) {
       return undefined;
     }
@@ -231,7 +233,7 @@ export class ApplicationMessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
 
       return undefined;
@@ -246,7 +248,7 @@ export class ApplicationMessageRouter {
           fileLineContent: fileLine
         },
         LogLevel.Warning,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
 
       return undefined;
@@ -277,15 +279,16 @@ export class ApplicationMessageRouter {
             jsonContent
           },
           LogLevel.Warning,
-          ApplicationMessageRouter.logContext
+          ApplicationFlagFileMessageRouter.logContext
         );
 
         return undefined;
       }
 
-      const messageConstructor = ApplicationMessageRouter.wellKnowMessages.find(
-        data => data[1].name === json.type
-      );
+      const messageConstructor =
+        ApplicationFlagFileMessageRouter.wellKnowMessages.find(
+          data => data[1].name === json.type
+        );
       if (messageConstructor === undefined) {
         Logger.post(
           'Error reading message. Invalid type "{applicationMessageType}" in message: {jsonContent}',
@@ -294,7 +297,7 @@ export class ApplicationMessageRouter {
             jsonContent
           },
           LogLevel.Warning,
-          ApplicationMessageRouter.logContext
+          ApplicationFlagFileMessageRouter.logContext
         );
 
         return undefined;
@@ -312,7 +315,7 @@ export class ApplicationMessageRouter {
           jsonContent
         },
         LogLevel.Warning,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
 
       return undefined;
@@ -327,9 +330,10 @@ export class ApplicationMessageRouter {
     fromInstanceId: string,
     toInstanceId: string
   ): IApplicationMessage {
-    const wellKnowMessage = ApplicationMessageRouter.wellKnowMessages.find(
-      item => item[0] === executionMode
-    );
+    const wellKnowMessage =
+      ApplicationFlagFileMessageRouter.wellKnowMessages.find(
+        item => item[0] === executionMode
+      );
 
     if (wellKnowMessage === undefined) {
       throw new InvalidArgumentError('Invalid executionMode');
@@ -364,7 +368,7 @@ export class ApplicationMessageRouter {
           filePath: instanceFile
         },
         LogLevel.Debug,
-        ApplicationMessageRouter.logContext
+        ApplicationFlagFileMessageRouter.logContext
       );
 
       fs.appendFileSync(instanceFile, fileContent);
@@ -394,13 +398,13 @@ export class ApplicationMessageRouter {
         toInstanceFile = fs.realpathSync(toInstanceFile);
         affectedCount++;
 
-        const message = ApplicationMessageRouter.factory(
+        const message = ApplicationFlagFileMessageRouter.factory(
           executionMode,
           fromInstanceId,
           toInstanceId
         );
 
-        await ApplicationMessageRouter.send(message);
+        await ApplicationFlagFileMessageRouter.send(message);
       } else {
         Logger.post(
           'Instance "{applicationId}" is not running to receive messages.',
@@ -408,7 +412,7 @@ export class ApplicationMessageRouter {
             applicationId: toInstanceId
           },
           LogLevel.Warning,
-          ApplicationMessageRouter.logContext
+          ApplicationFlagFileMessageRouter.logContext
         );
       }
     }

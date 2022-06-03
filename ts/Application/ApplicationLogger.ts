@@ -1,10 +1,10 @@
 import { LoggerCollection } from '@gohorse/npm-log';
-import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
+import { ApplicationLoggerCollectionConfiguration } from './Configuration/ApplicationLoggerCollectionConfiguration';
 import { Logger, LogLevel } from '@sergiocabral/helper';
 import { LogToConsole } from '@gohorse/npm-log-console';
 import { LogToFile } from '@gohorse/npm-log-file';
 import { LogToDatabase } from '../Log/Database/LogToDatabase';
-import { IApplicationParameters } from './IApplicationParameters';
+import { IApplicationParameters } from './Type/IApplicationParameters';
 import { IDatabasePushOnly } from '../Database/IDatabasePushOnly';
 import { ILoggerToStream } from '@gohorse/npm-log/js/Log/ILoggerToStream';
 

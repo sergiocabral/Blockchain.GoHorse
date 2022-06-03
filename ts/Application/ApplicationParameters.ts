@@ -11,7 +11,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { Definition } from '../Definition';
-import { IApplicationParameters } from './IApplicationParameters';
+import { IApplicationParameters } from './Type/IApplicationParameters';
 import { GlobalDefinition } from '@gohorse/npm-core';
 
 /**

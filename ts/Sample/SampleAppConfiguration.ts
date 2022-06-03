@@ -1,4 +1,4 @@
-import { ApplicationConfiguration } from '../Application/ApplicationConfiguration';
+import { ApplicationConfiguration } from '../Application/Configuration/ApplicationConfiguration';
 
 /**
  * Configurações da aplicação.

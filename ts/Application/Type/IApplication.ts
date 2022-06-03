@@ -1,6 +1,6 @@
 import { ResultEvent } from '@sergiocabral/helper';
-import { ApplicationConfiguration } from './ApplicationConfiguration';
-import { ApplicationParameters } from './ApplicationParameters';
+import { ApplicationConfiguration } from '../Configuration/ApplicationConfiguration';
+import { ApplicationParameters } from '../ApplicationParameters';
 
 /**
  * Representa uma aplicação executável.
