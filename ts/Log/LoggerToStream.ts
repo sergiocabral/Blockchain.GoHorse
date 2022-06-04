@@ -151,10 +151,10 @@ export abstract class LoggerToStream<
     this.instanceValue.minimumLevel = configuration.minimumLevelValue;
 
     Logger.post(
-      'Setting logger "{logWriterType}" enabled: {active}.',
+      'Setting logger "{logWriterType}" enabled: {enabled}.',
       {
         logWriterType: this.type,
-        active: configuration.enabled
+        enabled: configuration.enabled
       },
       LogLevel.Debug,
       LoggerToStream.logContext2
