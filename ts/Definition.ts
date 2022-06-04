@@ -46,4 +46,10 @@ export class Definition {
    * Mensagens com data mais antigas que isso, mesmo que postadas recentemente, serão ignoradas.
    */
   public static readonly DELAY_TOLERANCE_FOR_READING_MESSAGES_IN_SECONDS = 10;
+
+  /**
+   * Nome para identificar dados de log no banco de dados.
+   * Usado para compor nome de tabela no SQL ou de índice no ElasticSearch.
+   */
+  public static readonly DATABASE_LOGGER_NAME = 'logger';
 }

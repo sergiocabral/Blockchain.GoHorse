@@ -11,14 +11,17 @@ export class ApplicationDatabase {
    * Construtor.
    * @param getConfiguration Configurações.
    * @param getParameters Parâmetros da instância.
+   * @param loggerName Nome do logger para identificar dados no banco de dados.
    */
   public constructor(
     private readonly getConfiguration: () => ApplicationDatabaseConfiguration,
-    private readonly getParameters: () => IApplicationParameters
+    private readonly getParameters: () => IApplicationParameters,
+    private readonly loggerName: string
   ) {
     this.elasticsearch = new ElasticSearchDatabase(
       () => this.getConfiguration().elasticsearch
     );
+    this.elasticsearch.pushOnlyIndexSuffix = `-[${loggerName}]`;
   }
 
   /**

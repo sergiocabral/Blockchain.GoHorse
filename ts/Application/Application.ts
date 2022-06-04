@@ -66,7 +66,8 @@ export abstract class Application<
   public constructor() {
     this.database = new ApplicationDatabase(
       () => this.configuration.database,
-      () => this.parameters
+      () => this.parameters,
+      Definition.DATABASE_LOGGER_NAME
     );
 
     this.logger = new ApplicationLogger(

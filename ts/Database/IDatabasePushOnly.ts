@@ -5,12 +5,12 @@ import { IConnectionState, PrimitiveValueType } from '@sergiocabral/helper';
  */
 export interface IDatabasePushOnly extends IConnectionState {
   /**
-   * Grava um conjuntos de valores.
+   * Grava um conjuntos de valores em única via, tipo log.
    * @param values Campos e valores.
-   * @param extra Valores extra em formato para JSON
+   * @param extra Valores extra
    */
   push(
-    values: Record<string, PrimitiveValueType | undefined>,
-    extra: Record<string, PrimitiveValueType | undefined> | PrimitiveValueType[]
+    values: Record<string, PrimitiveValueType | Date | undefined>,
+    extra?: unknown
   ): Promise<this> | this;
 }

@@ -3,15 +3,16 @@ import { IDatabasePushOnly } from '../IDatabasePushOnly';
 import { ElasticSearchDatabaseConfiguration } from './ElasticSearchDatabaseConfiguration';
 import { Client } from '@elastic/elasticsearch';
 import { ClientOptions } from '@elastic/elasticsearch/lib/client';
-import { Definition } from './Definition';
 import {
   EmptyError,
+  HelperObject,
   HttpStatusCode,
   PrimitiveValueType
 } from '@sergiocabral/helper';
-import { Generate, Get } from '@gohorse/npm-core';
+import { Get } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
 import { ApplicationParameters } from '../../Application/ApplicationParameters';
+import { Definition } from './Definition';
 
 /**
  * Conexão com o banco de dados ElasticSearch.
@@ -36,25 +37,47 @@ export class ElasticSearchDatabase
   }
 
   /**
-   * Grava um conjuntos de valores.
+   * Sufixo adicionado ao final do index para dados recebidos via interface IDatabasePushOnly
+   */
+  public pushOnlyIndexSuffix = '';
+
+  /**
+   * Grava um conjuntos de valores em única via, tipo log.
    * @param values Campos e valores.
-   * @param extra Valores extra em formato para JSON
+   * @param extra Valores extra
+   * @param indexSuffix Sufixo do índice no ElasticSearch
    */
   public async push(
-    values: Record<string, PrimitiveValueType | undefined>,
-    extra: Record<string, PrimitiveValueType | undefined> | PrimitiveValueType[]
+    values: Record<string, PrimitiveValueType | Date | undefined>,
+    extra?: unknown,
+    indexSuffix?: string
   ): Promise<this> {
-    await this.client.index({
-      index: `${this.configuration.indexPrefixPattern.querystring({
-        appName: ApplicationParameters.packageName,
-        date: new Date().format({ mask: 'y-M-d' })
-      })}`.slugify(),
-      id: Generate.id('', 20),
-      body: {
-        ...values,
-        extra
-      }
+    indexSuffix = indexSuffix ?? this.pushOnlyIndexSuffix;
+    const index = (
+      this.configuration.indexPrefixPattern + indexSuffix
+    ).querystring({
+      appName: ApplicationParameters.packageName,
+      date: new Date().format({ mask: 'y-M-d' })
     });
+
+    const separator = '__';
+
+    const body: Record<string, unknown> = {
+      ...HelperObject.flattenWithSafeType(values, separator),
+      context: HelperObject.flattenWithSafeType(extra, separator)
+    };
+
+    for (const key in body) {
+      if (key.endsWith(separator + 'date')) {
+        delete body[key];
+      }
+    }
+
+    await this.client.index({
+      index,
+      body
+    });
+
     return this;
   }
 
@@ -89,7 +112,6 @@ export class ElasticSearchDatabase
         username: configuration.username,
         password: Get.password(configuration.password ?? '')
       };
-      console.log(options.auth);
     }
     this.clientValue = new Client(options);
     try {

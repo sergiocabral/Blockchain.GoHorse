@@ -1,12 +1,6 @@
-import {
-  HelperObject,
-  Logger,
-  LogLevel,
-  LogWriterToPersistent,
-  PrimitiveValueType
-} from '@sergiocabral/helper';
+import { Logger, LogLevel, LogWriterToPersistent } from '@sergiocabral/helper';
 import { LogToDatabaseConfiguration } from './LogToDatabaseConfiguration';
-import { Generate, IInstanceParameters } from '@gohorse/npm-core';
+import { IInstanceParameters } from '@gohorse/npm-core';
 import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
 import { ILogMessageAndData } from '@sergiocabral/helper/js/Log/ILogMessageAndData';
 import { LoggerToStream } from '@gohorse/npm-log';
@@ -67,10 +61,10 @@ export class LogToDatabase extends LoggerToStream<
     void instanceParameters;
 
     Logger.post(
-      'Setting logger "{logWriterType}" waitInMillisecondsOnError: {value}.',
+      'Setting logger "{logWriterType}" waitInMillisecondsOnError: {timeMilliSeconds}.',
       {
         logWriterType: this.type,
-        value: configuration.waitInMillisecondsOnError
+        timeMilliSeconds: configuration.waitInMillisecondsOnError
       },
       LogLevel.Debug,
       LogToDatabase.logContext
@@ -87,71 +81,13 @@ export class LogToDatabase extends LoggerToStream<
   ): Promise<void> {
     await this.database.push(
       {
-        id: Generate.id('l', 19),
-        timestamp: messageAndData.logMessage.timestamp.toISOString(),
+        timestamp: messageAndData.logMessage.timestamp,
         messageTemplate: messageAndData.messageTemplate,
-        level: messageAndData.logMessage.level,
+        level: LogLevel[messageAndData.logMessage.level],
         section: messageAndData.logMessage.section,
         message: messageAndData.logMessage.message
       },
-      LogToDatabase.formatValues(messageAndData.values)
+      messageAndData.values
     );
-  }
-
-  /**
-   * Formata um conjunto de valores para ser gravados no banco de dados como JSON.
-   */
-  private static formatValues(
-    values: unknown
-  ): Record<string, PrimitiveValueType | undefined> {
-    const divisor = String.fromCharCode(0);
-
-    // TODO: Reimplementar formatValues npm-core com um tipo de flattern
-
-    const getValue = (value: unknown): string | undefined => {
-      if (
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        typeof value === 'boolean'
-      ) {
-        return String(value);
-      } else if (value === null || value === undefined) {
-        return undefined;
-      } else if (value instanceof Date) {
-        return value.toISOString();
-      } else if (Array.isArray(value)) {
-        return value.map(item => getValue(item)).join(divisor);
-      } else {
-        return HelperObject.toText(value, 0);
-      }
-    };
-
-    if (Array.isArray(values)) {
-      return values
-        .map(item => getValue(item))
-        .join(divisor)
-        .split(divisor)
-        .filter(item => item !== undefined)
-        .reduce((result, item, index) => {
-          result[index.toString()] = item;
-          return result;
-        }, {} as Record<string, PrimitiveValueType | undefined>);
-    } else if (
-      values !== undefined &&
-      values !== null &&
-      typeof values === 'object'
-    ) {
-      const dictionary = values as Record<
-        string,
-        PrimitiveValueType | undefined
-      >;
-      for (const key in dictionary) {
-        dictionary[key] = getValue(dictionary[key]);
-      }
-      return dictionary;
-    } else {
-      const value = getValue(values);
-      return value !== undefined ? { value } : {};
-    }
   }
 }
