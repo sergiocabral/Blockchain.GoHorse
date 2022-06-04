@@ -49,13 +49,8 @@ Other names used:
 - `error` : Error message formatted with `HelperText.formatError()`.
 - `invalidValue` : Any invalid value.
 - `count` : Any quantitative value.
-- `enable` : Signaling enabled and disabled.
+- `enabled` : Signaling enabled and disabled.
 - `logLevel` : Logging level.
-
-Below prohibited names in ElasticSearch:
-
-- `value`
-- `enabled`
 
 ## NPM Commands
 
