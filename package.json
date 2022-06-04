@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-i18n",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "description": "GoHorse is a Git-based blockchain. Library with functionality for internationalization.",
   "bin": "js/index.js",
   "main": "js/index.js",
