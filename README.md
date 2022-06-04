@@ -42,12 +42,20 @@ Use "List" suffix for listings:
 Values with units:
 
 - `timeSeconds`
+- `timeMilliSeconds`
 
 Other names used:
 
 - `error` : Error message formatted with `HelperText.formatError()`.
-- `count` : Any quantitative value.
 - `invalidValue` : Any invalid value.
+- `count` : Any quantitative value.
+- `enable` : Signaling enabled and disabled.
+- `logLevel` : Logging level.
+
+Below prohibited names in ElasticSearch:
+
+- `value`
+- `enabled`
 
 ## NPM Commands
 
