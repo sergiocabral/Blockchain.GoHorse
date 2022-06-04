@@ -1,8 +1,8 @@
+import { LoggerToStream } from '@gohorse/npm-log';
 import { LogWriterToConsole } from '@sergiocabral/helper';
 import { LogToConsoleConfiguration } from './LogToConsoleConfiguration';
-import { ApplicationLoggerToStream } from '@gohorse/npm-log';
 
-export class LogToConsole extends ApplicationLoggerToStream<
+export class LogToConsole extends LoggerToStream<
   LogWriterToConsole,
   LogToConsoleConfiguration
 > {
