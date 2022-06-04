@@ -50,10 +50,10 @@ export class ApplicationParameters
     });
 
     Logger.post(
-      'Application "{applicationName}" v{applicationVersion}',
+      'NPM package "{packageName}" v{packageVersion}',
       {
-        applicationName: this.packageName,
-        applicationVersion: this.packageVersion
+        packageName: this.packageName,
+        packageVersion: this.packageVersion
       },
       LogLevel.Debug,
       ApplicationParameters.logContext

@@ -69,9 +69,9 @@ export class ApplicationLogger {
   public configure(): void {
     const parameters = this.getParameters();
     this.logger.configure();
-    this.logger.defaultValues['applicationInstanceId'] = parameters.id;
-    this.logger.defaultValues['applicationName'] = parameters.packageName;
-    this.logger.defaultValues['applicationVersion'] = parameters.packageVersion;
+    this.logger.defaultValues['instanceId'] = parameters.id;
+    this.logger.defaultValues['packageName'] = parameters.packageName;
+    this.logger.defaultValues['packageVersion'] = parameters.packageVersion;
   }
 
   /**

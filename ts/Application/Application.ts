@@ -76,13 +76,13 @@ export abstract class Application<
       this.database.elasticsearch
     );
 
-    const applicationId = Instance.id;
-    const applicationStartupTime = Instance.startupTime;
+    const instanceId = Instance.id;
+    const instanceStartupTime = Instance.startupTime;
 
     Logger.post(
-      '"{applicationName}" application instance created with id "{applicationId}".',
+      '"{applicationName}" application instance created with id "{instanceId}".',
       {
-        applicationId: applicationId,
+        instanceId,
         applicationName: this.constructor.name
       },
       LogLevel.Information,
@@ -90,8 +90,8 @@ export abstract class Application<
     );
 
     this.parameters = new ApplicationParameters(
-      applicationId,
-      applicationStartupTime,
+      instanceId,
+      instanceStartupTime,
       process.argv
     );
 
@@ -347,9 +347,9 @@ export abstract class Application<
 
     if (errors.length === 0) {
       Logger.post(
-        '"{applicationName}" application (id "{applicationId}") ended successfully.',
+        '"{applicationName}" application (id "{instanceId}") ended successfully.',
         {
-          applicationId: this.parameters.id,
+          instanceId: this.parameters.id,
           applicationName: this.constructor.name
         },
         LogLevel.Information,
@@ -357,9 +357,9 @@ export abstract class Application<
       );
     } else {
       Logger.post(
-        '"{applicationName}" application (id "{applicationId}") ended with {count} error(s).',
+        '"{applicationName}" application (id "{instanceId}") ended with {count} error(s).',
         {
-          applicationId: this.parameters.id,
+          instanceId: this.parameters.id,
           applicationName: this.constructor.name,
           count: errors.length
         },

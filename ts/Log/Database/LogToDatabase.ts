@@ -81,11 +81,11 @@ export class LogToDatabase extends LoggerToStream<
   ): Promise<void> {
     await this.database.push(
       {
-        timestamp: messageAndData.logMessage.timestamp,
-        messageTemplate: messageAndData.messageTemplate,
-        level: LogLevel[messageAndData.logMessage.level],
-        section: messageAndData.logMessage.section,
-        message: messageAndData.logMessage.message
+        logTimestamp: messageAndData.logMessage.timestamp,
+        logMessage: messageAndData.logMessage.message,
+        logMessageTemplate: messageAndData.messageTemplate,
+        logLevel: LogLevel[messageAndData.logMessage.level],
+        logSection: messageAndData.logMessage.section
       },
       messageAndData.values
     );

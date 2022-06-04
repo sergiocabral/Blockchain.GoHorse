@@ -64,7 +64,7 @@ export class ElasticSearchDatabase
 
     const body: Record<string, unknown> = {
       ...HelperObject.flattenWithSafeType(values, separator),
-      context: HelperObject.flattenWithSafeType(extra, separator)
+      field: HelperObject.flattenWithSafeType(extra, separator)
     };
 
     for (const key in body) {
