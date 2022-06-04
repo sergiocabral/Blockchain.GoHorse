@@ -1,10 +1,10 @@
 import { Logger, LogLevel, LogWriterToFile } from '@sergiocabral/helper';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
 import path from 'path';
-import { ApplicationLoggerToStream } from '@gohorse/npm-log';
 import { IInstanceParameters } from '@gohorse/npm-core';
+import { LoggerToStream } from '@gohorse/npm-log';
 
-export class LogToFile extends ApplicationLoggerToStream<
+export class LogToFile extends LoggerToStream<
   LogWriterToFile,
   LogToFileConfiguration
 > {
