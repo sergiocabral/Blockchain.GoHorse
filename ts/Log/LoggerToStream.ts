@@ -129,10 +129,10 @@ export abstract class LoggerToStream<
     this.configureInstance(configuration, instanceParameters);
 
     Logger.post(
-      'Setting logger "{logWriterType}" default level: {value}.',
+      'Setting logger "{logWriterType}" default level: {logLevel}.',
       {
         logWriterType: this.type,
-        value: this.defaultLogLevel
+        logLevel: LogLevel[this.defaultLogLevel]
       },
       LogLevel.Debug,
       LoggerToStream.logContext2
@@ -140,10 +140,10 @@ export abstract class LoggerToStream<
     this.instanceValue.defaultLogLevel = this.defaultLogLevel;
 
     Logger.post(
-      'Setting logger "{logWriterType}" minimum level: {value}.',
+      'Setting logger "{logWriterType}" minimum level: {logLevel}.',
       {
         logWriterType: this.type,
-        value: configuration.minimumLevel
+        logLevel: LogLevel[configuration.minimumLevelValue]
       },
       LogLevel.Debug,
       LoggerToStream.logContext2
@@ -151,10 +151,10 @@ export abstract class LoggerToStream<
     this.instanceValue.minimumLevel = configuration.minimumLevelValue;
 
     Logger.post(
-      'Setting logger "{logWriterType}" enabled: {value}.',
+      'Setting logger "{logWriterType}" enabled: {enabled}.',
       {
         logWriterType: this.type,
-        value: configuration.enabled
+        enabled: configuration.enabled
       },
       LogLevel.Debug,
       LoggerToStream.logContext2
