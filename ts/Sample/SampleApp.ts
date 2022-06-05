@@ -1,6 +1,7 @@
 import { Application } from '../Application/Application';
 import { SampleAppConfiguration } from './SampleAppConfiguration';
 import { Logger, LogLevel } from '@sergiocabral/helper';
+import { GlobalDefinition } from '@gohorse/npm-core';
 
 /**
  * Aplicação vazia de exemplo.
@@ -47,7 +48,6 @@ export class SampleApp extends Application<SampleAppConfiguration> {
     const steps = parseInt(
       this.parameters.getArgumentName(/^\/?\d+$/)?.replace('/', '') ?? '15'
     );
-    const interval = 1000;
 
     return new Promise<void>(resolve => {
       let step = 0;
@@ -63,7 +63,10 @@ export class SampleApp extends Application<SampleAppConfiguration> {
         if (step === steps) {
           resolve();
         } else {
-          this.timeout = setTimeout(loop, interval);
+          this.timeout = setTimeout(
+            loop,
+            GlobalDefinition.TIME_OF_ONE_SECOND_IN_MILLISECONDS
+          );
         }
       };
       loop();

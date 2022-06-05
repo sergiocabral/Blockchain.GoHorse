@@ -5,7 +5,7 @@ import {
   LogWriterToPersistent
 } from '@sergiocabral/helper';
 import { LogToDatabaseConfiguration } from './LogToDatabaseConfiguration';
-import { IInstanceParameters } from '@gohorse/npm-core';
+import { GlobalDefinition, IInstanceParameters } from '@gohorse/npm-core';
 import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
 import { LoggerToStream } from '@gohorse/npm-log';
 
@@ -75,8 +75,8 @@ export class LogToDatabase extends LoggerToStream<
     );
     this.instance.waitInMillisecondsOnError =
       configuration.waitInMillisecondsOnError;
-    const oneSecond = 1000;
-    this.instance.waitInMillisecondsIfNotReady = oneSecond;
+    this.instance.waitInMillisecondsIfNotReady =
+      GlobalDefinition.TIME_OF_ONE_SECOND_IN_MILLISECONDS;
   }
 
   /**
