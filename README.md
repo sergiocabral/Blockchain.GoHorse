@@ -20,7 +20,9 @@ Convention for naming values associated with log messages.
 
 Don't use `id`, `type`, `name`, etc. But describe it more fully as:
 
-- `applicationId`
+- `instanceId`
+- `toInstanceId`
+- `fromInstanceId`
 - `applicationName`
 - `applicationVersion`
 - `applicationExecutionMode`
