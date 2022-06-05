@@ -60,6 +60,6 @@
   },
   "dependencies": {
     "tslib": "^2.4.0",
-    "@sergiocabral/helper": "^11.1.0"
+    "@sergiocabral/helper": "^11.2.0"
   }
 }
