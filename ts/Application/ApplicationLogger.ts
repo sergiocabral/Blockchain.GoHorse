@@ -68,10 +68,10 @@ export class ApplicationLogger {
    */
   public configure(): void {
     const parameters = this.getParameters();
-    this.logger.configure();
     this.logger.defaultValues['instanceId'] = parameters.id;
     this.logger.defaultValues['packageName'] = parameters.packageName;
     this.logger.defaultValues['packageVersion'] = parameters.packageVersion;
+    this.logger.configure();
   }
 
   /**
