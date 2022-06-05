@@ -13,6 +13,7 @@ import fs from 'fs';
 import { Definition } from '../Definition';
 import { IApplicationParameters } from './Type/IApplicationParameters';
 import { GlobalDefinition } from '@gohorse/npm-core';
+import { IApplication } from './Type/IApplication';
 
 /**
  * Parâmetros de execução da aplicação.
@@ -28,11 +29,13 @@ export class ApplicationParameters
 
   /**
    * Construtor.
-   * @param id Identificador
-   * @param startupTime Data e hora da execução
+   * @param application Aplicação.
+   * @param id Identificador.
+   * @param startupTime Data e hora da execução.
    * @param commandLine Argumentos da linha de comando.
    */
   constructor(
+    public readonly application: IApplication,
     public readonly id: string,
     public readonly startupTime: Date,
     commandLine: string | string[]
@@ -180,6 +183,11 @@ export class ApplicationParameters
     }
     return ApplicationParameters.packageJsonValue;
   }
+
+  /**
+   * Nome da aplicação.
+   */
+  public readonly applicationName: string = this.application.constructor.name;
 
   /**
    * Caminho do arquivo de configuração.

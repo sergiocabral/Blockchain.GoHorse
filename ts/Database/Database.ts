@@ -1,15 +1,13 @@
 import { IDatabase } from './IDatabase';
-import { ConnectionState } from '@sergiocabral/helper/js/Type/Connection/ConnectionState';
 import { DatabaseConfiguration } from './DatabaseConfiguration';
 import {
+  ConnectionState,
   InvalidExecutionError,
   Message,
   NotImplementedError
 } from '@sergiocabral/helper';
 import { ConfigurationReloaded } from '@gohorse/npm-core';
 import { Definition } from './Definition';
-
-// TODO: Escrever logs para Database
 
 /**
  * Classe base para conexão com o banco de dados

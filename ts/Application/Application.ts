@@ -90,6 +90,7 @@ export abstract class Application<
     );
 
     this.parameters = new ApplicationParameters(
+      this,
       instanceId,
       instanceStartupTime,
       process.argv

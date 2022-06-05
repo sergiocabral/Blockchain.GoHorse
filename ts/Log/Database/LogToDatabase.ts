@@ -1,8 +1,12 @@
-import { Logger, LogLevel, LogWriterToPersistent } from '@sergiocabral/helper';
+import {
+  Logger,
+  LogLevel,
+  ILogMessageAndData,
+  LogWriterToPersistent
+} from '@sergiocabral/helper';
 import { LogToDatabaseConfiguration } from './LogToDatabaseConfiguration';
 import { IInstanceParameters } from '@gohorse/npm-core';
 import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
-import { ILogMessageAndData } from '@sergiocabral/helper/js/Log/ILogMessageAndData';
 import { LoggerToStream } from '@gohorse/npm-log';
 
 export class LogToDatabase extends LoggerToStream<

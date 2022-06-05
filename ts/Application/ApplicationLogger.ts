@@ -1,4 +1,4 @@
-import { LoggerCollection } from '@gohorse/npm-log';
+import { ILoggerToStream, LoggerCollection } from '@gohorse/npm-log';
 import { ApplicationLoggerCollectionConfiguration } from './Configuration/ApplicationLoggerCollectionConfiguration';
 import { Logger, LogLevel } from '@sergiocabral/helper';
 import { LogToConsole } from '@gohorse/npm-log-console';
@@ -6,7 +6,6 @@ import { LogToFile } from '@gohorse/npm-log-file';
 import { LogToDatabase } from '../Log/Database/LogToDatabase';
 import { IApplicationParameters } from './Type/IApplicationParameters';
 import { IDatabasePushOnly } from '../Database/IDatabasePushOnly';
-import { ILoggerToStream } from '@gohorse/npm-log/js/Log/ILoggerToStream';
 
 /**
  * Gerencia o logger da aplicação.
@@ -69,6 +68,7 @@ export class ApplicationLogger {
   public configure(): void {
     const parameters = this.getParameters();
     this.logger.defaultValues['instanceId'] = parameters.id;
+    this.logger.defaultValues['applicationName'] = parameters.applicationName;
     this.logger.defaultValues['packageName'] = parameters.packageName;
     this.logger.defaultValues['packageVersion'] = parameters.packageVersion;
     this.logger.configure();
