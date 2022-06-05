@@ -133,9 +133,9 @@ export class ApplicationFlagFileMessageRouter {
     const messages = this.readMessagesFromFile(data.after.realpath);
     for (const message of messages) {
       Logger.post(
-        'Message "{applicationMessageType}" (id: "{applicationMessageId}") received from the application id "{applicationId}". Submitting for processing in this instance.',
+        'Message "{applicationMessageType}" (id: "{applicationMessageId}") received from the application id "{fromInstanceId}". Submitting for processing in this instance.',
         {
-          applicationId: message.fromApplicationId,
+          fromInstanceId: message.fromInstanceId,
           applicationMessageId: message.id,
           applicationMessageType: message.type
         },
@@ -240,11 +240,11 @@ export class ApplicationFlagFileMessageRouter {
     }
     this.messageHistory[message.id] = unixDate;
 
-    if (message.toApplicationId !== Instance.id) {
+    if (message.toInstanceId !== Instance.id) {
       Logger.post(
-        'Error reading message. Message addressed to another application of id "{applicationId}": {fileLineContent}',
+        'Error reading message. Message addressed to another application of id "{toInstanceId}": {fileLineContent}',
         {
-          applicationId: message.toApplicationId,
+          toInstanceId: message.toInstanceId,
           fileLineContent: fileLine
         },
         LogLevel.Warning,
@@ -270,8 +270,8 @@ export class ApplicationFlagFileMessageRouter {
         Object.keys(json).includes('name') ||
         json.id === undefined ||
         json.type === undefined ||
-        json.fromApplicationId === undefined ||
-        json.toApplicationId === undefined
+        json.fromInstanceId === undefined ||
+        json.toInstanceId === undefined
       ) {
         Logger.post(
           'Error reading message. Invalid fields in JSON: {jsonContent}',
@@ -304,7 +304,7 @@ export class ApplicationFlagFileMessageRouter {
       }
 
       return Object.assign(
-        new messageConstructor[1](json.fromApplicationId, json.toApplicationId),
+        new messageConstructor[1](json.fromInstanceId, json.toInstanceId),
         json
       );
     } catch (error) {
@@ -357,14 +357,14 @@ export class ApplicationFlagFileMessageRouter {
       const fileContent =
         `${new Date().toISOString()} ${JSON.stringify(messageClone)}` + os.EOL;
       const instanceFile = ApplicationParameters.getFlagFile(
-        message.toApplicationId
+        message.toInstanceId
       );
 
       Logger.post(
-        'Send message "{applicationMessageType}" to instance "{applicationId}" appending into file: {filePath}.',
+        'Send message "{applicationMessageType}" to instance "{toInstanceId}" appending into file: {filePath}.',
         {
           applicationMessageType: message.type,
-          applicationId: message.toApplicationId,
+          toInstanceId: message.toInstanceId,
           filePath: instanceFile
         },
         LogLevel.Debug,
@@ -407,9 +407,9 @@ export class ApplicationFlagFileMessageRouter {
         await ApplicationFlagFileMessageRouter.send(message);
       } else {
         Logger.post(
-          'Instance "{applicationId}" is not running to receive messages.',
+          'Instance "{toInstanceId}" is not running to receive messages.',
           {
-            applicationId: toInstanceId
+            toInstanceId
           },
           LogLevel.Warning,
           ApplicationFlagFileMessageRouter.logContext
