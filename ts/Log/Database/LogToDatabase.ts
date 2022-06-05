@@ -75,6 +75,8 @@ export class LogToDatabase extends LoggerToStream<
     );
     this.instance.waitInMillisecondsOnError =
       configuration.waitInMillisecondsOnError;
+    const oneSecond = 1000;
+    this.instance.waitInMillisecondsIfNotReady = oneSecond;
   }
 
   /**
