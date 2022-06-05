@@ -15,10 +15,10 @@ export interface IApplicationMessage {
   /**
    * Remetente.
    */
-  fromApplicationId: string;
+  fromInstanceId: string;
 
   /**
    * Destinatário.
    */
-  toApplicationId: string;
+  toInstanceId: string;
 }

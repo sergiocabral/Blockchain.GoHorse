@@ -21,12 +21,12 @@ export abstract class ApplicationMessage
 
   /**
    * Construtor.
-   * @param fromApplicationId Remetente.
-   * @param toApplicationId Destinatário.
+   * @param fromInstanceId Remetente.
+   * @param toInstanceId Destinatário.
    */
   public constructor(
-    public readonly fromApplicationId: string,
-    public readonly toApplicationId: string
+    public readonly fromInstanceId: string,
+    public readonly toInstanceId: string
   ) {
     super();
   }
