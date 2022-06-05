@@ -18,10 +18,12 @@ export class Generate {
       throw new InvalidArgumentError('Length must be greater than zero.');
     }
     const generate = () =>
-      Buffer.from(Math.random().toString())
+      Buffer.from(
+        Number(Math.random().toString().substring(2)).toString(16),
+        'hex'
+      )
         .toString('base64')
-        .replace(/[\W_]/g, '')
-        .substring(10, 15);
+        .replace(/\W/g, '');
 
     let id = '';
     while (id.length < length) {
