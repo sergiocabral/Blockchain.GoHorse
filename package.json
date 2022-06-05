@@ -45,7 +45,7 @@
   "homepage": "https://github.com/sergiocabral/Blockchain.GoHorse/tree/npm-log-console",
   "devDependencies": {
     "@types/jest": "^28.1.1",
-    "@types/node": "^17.0.39",
+    "@types/node": "^17.0.40",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
     "eslint": "^8.17.0",
@@ -59,9 +59,9 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@gohorse/npm-core": "^4.0.0",
-    "@gohorse/npm-log": "^3.0.9",
+    "@gohorse/npm-core": "^4.0.1",
+    "@gohorse/npm-log": "^3.0.10",
     "tslib": "^2.4.0",
-    "@sergiocabral/helper": "^11.0.0"
+    "@sergiocabral/helper": "^11.1.0"
   }
 }
