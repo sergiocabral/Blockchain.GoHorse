@@ -1,6 +1,7 @@
 import { DatabaseConfiguration } from '../DatabaseConfiguration';
 import { Definition } from './Definition';
 import { GlobalDefinition } from '@gohorse/npm-core';
+import { JsonLoader } from '@sergiocabral/helper';
 
 /**
  * Configuração para conexão com o banco de dados ElasticSearch
@@ -22,7 +23,7 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
   public port = Definition.DEFAULT_ELASTICSEARCH_PORT;
 
   /**
-   * Protocolo.
+   * Protocolo HTTP ou HTTPS.
    */
   public protocol = Definition.DEFAULT_ELASTICSEARCH_PROTOCOL;
 
@@ -35,4 +36,46 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
    * Senha.
    */
   public password?: string | null = Definition.DEFAULT_ELASTICSEARCH_PASSWORD;
+
+  /**
+   * Lista de erros presentes na configuração atual
+   */
+  public override errors(): string[] {
+    const errors = Array<string>();
+
+    errors.push(
+      ...JsonLoader.mustBeString<ElasticSearchDatabaseConfiguration>(
+        this,
+        'indexPrefixPattern'
+      ),
+      ...JsonLoader.mustBeString<ElasticSearchDatabaseConfiguration>(
+        this,
+        'server'
+      ),
+      ...JsonLoader.mustBeIntegerGreaterThan<ElasticSearchDatabaseConfiguration>(
+        this,
+        'port',
+        0
+      ),
+      ...JsonLoader.mustBeInTheSet<ElasticSearchDatabaseConfiguration>(
+        this,
+        'protocol',
+        ['http', 'https'],
+        'value and type',
+        false
+      ),
+      ...JsonLoader.mustBeStringOrNotInformed<ElasticSearchDatabaseConfiguration>(
+        this,
+        'username'
+      ),
+      ...JsonLoader.mustBeStringOrNotInformed<ElasticSearchDatabaseConfiguration>(
+        this,
+        'password'
+      )
+    );
+
+    errors.push(...super.errors());
+
+    return errors;
+  }
 }

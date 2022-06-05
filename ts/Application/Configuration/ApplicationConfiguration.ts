@@ -4,6 +4,8 @@ import fs from 'fs';
 import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
 
+// TODO: Criar um JSON replacer para os nomes de variáveis
+
 /**
  * Configurações da aplicação.
  */

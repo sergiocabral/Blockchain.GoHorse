@@ -2,6 +2,7 @@ import { IApplicationParameters } from './Type/IApplicationParameters';
 import { ApplicationDatabaseConfiguration } from './Configuration/ApplicationDatabaseConfiguration';
 import { ElasticSearchDatabase } from '../Database/ElasticSearch/ElasticSearchDatabase';
 import { IDatabase } from '../Database/IDatabase';
+import { ConnectionState } from '@sergiocabral/helper';
 
 /**
  * Gerencia os banco de dados da aplicação.
@@ -41,7 +42,11 @@ export class ApplicationDatabase {
    */
   public async open(): Promise<void> {
     for (const database of this.databases) {
-      await database.open();
+      try {
+        await database.open();
+      } catch (error) {
+        // TODO: Prosseguir sem conexão
+      }
     }
   }
 
@@ -50,7 +55,9 @@ export class ApplicationDatabase {
    */
   public async close(): Promise<void> {
     for (const database of this.databases) {
-      await database.close();
+      if (database.state === ConnectionState.Ready) {
+        await database.close();
+      }
     }
   }
 }

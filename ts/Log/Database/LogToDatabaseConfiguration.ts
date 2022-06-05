@@ -8,7 +8,7 @@ export class LogToDatabaseConfiguration extends LoggerToStreamConfiguration {
   /**
    * Espera em milissegundos em caso de erro antes da próxima tentativa de envio dos dados.
    */
-  public waitInMillisecondsOnError = 1000;
+  public waitInMillisecondsOnError = 10000; // TODO: Ao conectar sempre espera esse tempo, deveria ser apenas em caso de falha
 
   /**
    * Lista de erros presentes na configuração atual
