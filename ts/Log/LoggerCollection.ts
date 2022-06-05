@@ -6,6 +6,7 @@ import {
   JsonLoader,
   Logger,
   LogLevel,
+  LogWriter,
   LogWriterToConsole,
   Message
 } from '@sergiocabral/helper';
@@ -178,7 +179,7 @@ export class LoggerCollection<TLoggerConfiguration extends JsonLoader>
     this.flush(postArguments =>
       logWriterToConsole.post(
         postArguments[0],
-        postArguments[1],
+        LogWriter.mergeValues(postArguments[1], this.defaultValues),
         postArguments[2],
         postArguments[3],
         postArguments[4]
@@ -218,7 +219,7 @@ export class LoggerCollection<TLoggerConfiguration extends JsonLoader>
       for (const logWriters of this.writers) {
         logWriters.post(
           postArguments[0],
-          postArguments[1],
+          LogWriter.mergeValues(postArguments[1], this.defaultValues),
           postArguments[2],
           postArguments[3],
           postArguments[4]
