@@ -50,4 +50,50 @@ export class GlobalDefinition {
    */
   public static readonly WELL_KNOWN_PASSWORD =
     'nMr889$&6Qp!fiQmfs3TxXzCqBkbFBeCH5YftG5d2TddPRUrEXsp$@vB#4cEGiJaF&77z%9!xtmnC#6FTY^zp@BNuDwDiZF#bfxGAF$NML!8SyACKHx$YnTM^Yf3$ifN';
+
+  /**
+   * Conjunto de nomes de variáveis em mensagens de log.
+   * Utilizado para realizar substituição por valores em tempo real.
+   */
+  public static readonly LOGGER_VARIABLE = {
+    /**
+     * Data atual.
+     */
+    DATE: 'date',
+
+    /**
+     * Hora atual.
+     */
+    TIME: 'time',
+
+    /**
+     * Data e hora atual.
+     */
+    DATETIME: 'datetime',
+
+    /**
+     * Id da instância em execução.
+     */
+    INSTANCE_ID: 'instanceId',
+
+    /**
+     * Id da instância em execução.
+     */
+    INSTANCE_STARTUP_TIME: 'instanceStartupTime',
+
+    /**
+     * Nome do pacote NPM.
+     */
+    PACKAGE_NAME: 'packageName',
+
+    /**
+     * Versão do pacote NPM.
+     */
+    PACKAGE_VERSION: 'packageVersion',
+
+    /**
+     * Nome da aplicação.
+     */
+    APPLICATION_NAME: 'applicationName'
+  };
 }
