@@ -48,12 +48,12 @@ export class Definition {
     INSTANCE_STARTUP_DATETIME: '{instanceStartupDatetime}',
 
     /**
-     * Nome da aplicação em execução.
+     * Nome do pacote NPM em execução.
      */
     PACKAGE_NAME: '{packageName}',
 
     /**
-     * Nome da aplicação em execução.
+     * Versão do pacote NPM em execução.
      */
     PACKAGE_VERSION: '{packageVersion}',
 

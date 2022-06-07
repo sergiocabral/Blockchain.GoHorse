@@ -66,5 +66,3 @@ export class TemplateStringCore extends TemplateString {
     }
   }
 }
-
-new TemplateStringCore();
