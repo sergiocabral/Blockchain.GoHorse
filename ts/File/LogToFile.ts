@@ -1,7 +1,7 @@
 import { Logger, LogLevel, LogWriterToFile } from '@sergiocabral/helper';
 import { LogToFileConfiguration } from './LogToFileConfiguration';
 import path from 'path';
-import { IInstanceParameters } from '@gohorse/npm-core';
+import { IInstanceParameters, TemplateString } from '@gohorse/npm-core';
 import { LoggerToStream } from '@gohorse/npm-log';
 
 export class LogToFile extends LoggerToStream<
@@ -36,15 +36,11 @@ export class LogToFile extends LoggerToStream<
     configuration: LogToFileConfiguration,
     instanceParameters: IInstanceParameters
   ): void {
+    void instanceParameters;
+
     this.instance.file = path.join(
       process.cwd(),
-      configuration.fileTemplate.querystring({
-        appName: instanceParameters.packageName,
-        timestamp: instanceParameters.startupTime.format({
-          mask: 'y-M-d-h-m-s'
-        }),
-        appId: instanceParameters.id
-      })
+      TemplateString.replace(configuration.fileTemplate)
     );
 
     Logger.post(
