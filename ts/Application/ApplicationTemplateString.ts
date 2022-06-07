@@ -5,7 +5,7 @@ import { IApplicationParameters } from './Type/IApplicationParameters';
 /**
  * Responsável pelas substituições de nomes de variáveis em templates de texto: npm-application
  */
-export class TemplateStringApplication extends TemplateString {
+export class ApplicationTemplateString extends TemplateString {
   /**
    * Nome do pacote NPM em execução.
    */
