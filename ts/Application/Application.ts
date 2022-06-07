@@ -30,6 +30,8 @@ import { Translation } from '@gohorse/npm-i18n';
 import { ApplicationLogger } from './ApplicationLogger';
 import { ApplicationDatabase } from './ApplicationDatabase';
 import { AplicationState } from './Type/ApplicationState';
+import { CoreTemplateString } from '@gohorse/npm-core/js/Template/CoreTemplateString';
+import { ApplicationTemplateString } from './ApplicationTemplateString';
 
 /**
  * Esboço de uma aplicação executável.
@@ -214,6 +216,7 @@ export abstract class Application<
         : this.sendMessageToOtherInstances.bind(this);
 
     try {
+      this.loadTemplateString();
       await this.loadConfiguration();
       this.logger.configure();
       await new Translation(() => this.configuration.language).load();
@@ -455,6 +458,14 @@ Application
       );
       fs.unlinkSync(this.parameters.flagFile);
     }
+  }
+
+  /**
+   * Carrega as instâncias para substituição de template string.
+   */
+  private loadTemplateString(): void {
+    new CoreTemplateString();
+    new ApplicationTemplateString(this.parameters);
   }
 
   /**
