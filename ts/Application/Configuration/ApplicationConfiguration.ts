@@ -139,6 +139,8 @@ export class ApplicationConfiguration extends JsonLoader {
         ApplicationConfiguration.logContext
       );
 
+      // TODO: Gravar senhas criptografadas.
+
       fs.writeFileSync(
         filePath,
         JSON.stringify(configuration, undefined, '  ')

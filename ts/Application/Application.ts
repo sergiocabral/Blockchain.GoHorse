@@ -464,8 +464,8 @@ Application
    * Carrega as instâncias para substituição de template string.
    */
   private loadTemplateString(): void {
-    new CoreTemplateString();
-    new ApplicationTemplateString(this.parameters);
+    void new CoreTemplateString();
+    void new ApplicationTemplateString(this.parameters);
   }
 
   /**
