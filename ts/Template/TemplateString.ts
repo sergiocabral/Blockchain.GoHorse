@@ -1,8 +1,7 @@
 import {
   HelperText,
   InvalidDataError,
-  InvalidExecutionError,
-  ShouldNeverHappenError
+  InvalidExecutionError
 } from '@sergiocabral/helper';
 
 /**
@@ -62,6 +61,13 @@ export abstract class TemplateString {
    * Construtor.
    */
   public constructor() {
+    if (
+      TemplateString.instances.some(
+        instance => instance.constructor === this.constructor
+      )
+    ) {
+      throw new InvalidExecutionError('Cannot created more than one time.');
+    }
     TemplateString.instances.push(this);
     this.keys = this.getKeys();
   }
@@ -79,16 +85,10 @@ export abstract class TemplateString {
     const construtorBody = this.constructor
       .toString()
       .match(regexConstrutorBody);
-    if (construtorBody === null || construtorBody.length !== 1) {
-      throw new ShouldNeverHappenError();
+    if (construtorBody !== null && construtorBody.length === 1) {
+      const regexProperty = /(?<=this\.)[A-Z\d_]+/gs;
+      return construtorBody[0].match(regexProperty) ?? [];
     }
-
-    const regexProperty = /(?<=this\.)[A-Z\d_]+/gs;
-    const keys = construtorBody[0].match(regexProperty);
-    if (keys === null) {
-      throw new ShouldNeverHappenError();
-    }
-
-    return keys;
+    return [];
   }
 }

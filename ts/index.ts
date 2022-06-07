@@ -19,8 +19,6 @@ import { TemplateStringCore } from './Template/TemplateStringCore';
 
 import { GlobalDefinition } from './GlobalDefinition';
 
-void new TemplateStringCore();
-
 export {
   ReloadConfiguration,
   TerminateApplication,

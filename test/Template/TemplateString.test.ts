@@ -21,6 +21,12 @@ class TemplateStringTestCreated extends TemplateString {
   }
 }
 
+class TemplateStringTestCreated2 extends TemplateString {
+  protected keyToValue(key: string): string {
+    return '';
+  }
+}
+
 class TemplateStringTestInvalidKey extends TemplateString {
   public TEMPLATE_KEY_INVALID = 'withou brackets';
   protected keyToValue(key: string): string {
@@ -94,5 +100,21 @@ describe('Class: TemplateString', () => {
     // Assert, Then
 
     expect(getter).toThrowError(InvalidDataError);
+  });
+  test('Não deve permitir instanciar mais de uma vez', () => {
+    // Arrange, Given
+    // Act, When
+
+    const create = () => new TemplateStringTestCreated();
+    const create2 = () => new TemplateStringTestCreated2();
+
+    // Assert, Then
+
+    expect(create).not.toThrow();
+    expect(create2).not.toThrow();
+    expect(create).toThrowError(InvalidExecutionError);
+    expect(create2).toThrowError(InvalidExecutionError);
+    expect(create).toThrowError(InvalidExecutionError);
+    expect(create2).toThrowError(InvalidExecutionError);
   });
 });
