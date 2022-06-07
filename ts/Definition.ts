@@ -50,16 +50,16 @@ export class Definition {
     /**
      * Nome da aplicação em execução.
      */
-    PACKAGE_NAME: '{packageName }',
+    PACKAGE_NAME: '{packageName}',
 
     /**
      * Nome da aplicação em execução.
      */
-    PACKAGE_VERSION: '{packageVersion }',
+    PACKAGE_VERSION: '{packageVersion}',
 
     /**
      * Nome da aplicação em execução.
      */
-    APPLICATION_NAME: '{applicationName }'
+    APPLICATION_NAME: '{applicationName}'
   };
 }
