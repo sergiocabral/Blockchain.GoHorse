@@ -50,7 +50,7 @@ export abstract class TemplateString {
           template = HelperText.replaceAll(
             template,
             keyIntoTemplate,
-            instance.keyToValue(key)
+            instance.keyToValue(keyIntoTemplate)
           );
         }
       }
