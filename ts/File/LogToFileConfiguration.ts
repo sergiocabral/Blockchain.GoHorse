@@ -1,4 +1,4 @@
-import { JsonLoader } from '@sergiocabral/helper';
+import { JsonLoader, LogLevel } from '@sergiocabral/helper';
 import { LoggerToStreamConfiguration } from '@gohorse/npm-log';
 import { GlobalDefinition, TemplateString } from '@gohorse/npm-core';
 
@@ -6,6 +6,11 @@ import { GlobalDefinition, TemplateString } from '@gohorse/npm-core';
  * Configurações do logger.
  */
 export class LogToFileConfiguration extends LoggerToStreamConfiguration {
+  /**
+   * Nível mínimo aceito para postar a mensagem do log.
+   */
+  public override minimumLevel = LogLevel[LogLevel.Verbose];
+
   /**
    * Template para o nome do arquivo gravado.
    */
