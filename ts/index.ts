@@ -14,7 +14,12 @@ import { Get } from './Helper/Get';
 import { IInstanceParameters } from './Instance/IInstanceParameters';
 import { Instance } from './Instance/Instance';
 
+import { TemplateString } from './Template/TemplateString';
+import { TemplateStringCore } from './Template/TemplateStringCore';
+
 import { GlobalDefinition } from './GlobalDefinition';
+
+void new TemplateStringCore();
 
 export {
   ReloadConfiguration,
@@ -26,5 +31,7 @@ export {
   Get,
   IInstanceParameters,
   Instance,
+  TemplateString,
+  TemplateStringCore,
   GlobalDefinition
 };
