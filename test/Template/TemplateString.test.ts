@@ -29,6 +29,9 @@ class TemplateStringTestInvalidKey extends TemplateString {
 }
 
 describe('Class: TemplateString', () => {
+  beforeEach(() => {
+    (TemplateString as unknown as Record<string, unknown[]>).instances.length = 0;
+  });
   test('Se localizar instância nunca criada deve falhar', () => {
     // Arrange, Given
     // Act, When
