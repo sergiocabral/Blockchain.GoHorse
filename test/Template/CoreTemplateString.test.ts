@@ -1,7 +1,7 @@
-import { TemplateString, TemplateStringCore } from '../../ts';
+import { TemplateString, CoreTemplateString } from '../../ts';
 import { HelperText } from '@sergiocabral/helper';
 
-describe('Class: TemplateStringCore', () => {
+describe('Class: CoreTemplateString', () => {
   beforeEach(() => {
     (
       TemplateString as unknown as Record<string, unknown[]>
@@ -20,7 +20,7 @@ describe('Class: TemplateStringCore', () => {
     // Act, When
 
     const firstReaded = TemplateString.replace(templateString);
-    new TemplateStringCore();
+    new CoreTemplateString();
     const secondReaded = TemplateString.replace(templateString);
 
     // Assert, Then

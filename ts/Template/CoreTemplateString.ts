@@ -5,7 +5,7 @@ import { NotImplementedError } from '@sergiocabral/helper';
 /**
  * Responsável pelas substituições de nomes de variáveis em templates de texto: npm-core
  */
-export class TemplateStringCore extends TemplateString {
+export class CoreTemplateString extends TemplateString {
   /**
    * Data atual.
    */

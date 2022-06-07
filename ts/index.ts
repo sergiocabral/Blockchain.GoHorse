@@ -14,8 +14,8 @@ import { Get } from './Helper/Get';
 import { IInstanceParameters } from './Instance/IInstanceParameters';
 import { Instance } from './Instance/Instance';
 
+import { CoreTemplateString } from './Template/CoreTemplateString';
 import { TemplateString } from './Template/TemplateString';
-import { TemplateStringCore } from './Template/TemplateStringCore';
 
 import { GlobalDefinition } from './GlobalDefinition';
 
@@ -30,6 +30,6 @@ export {
   IInstanceParameters,
   Instance,
   TemplateString,
-  TemplateStringCore,
+  CoreTemplateString,
   GlobalDefinition
 };
