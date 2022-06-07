@@ -9,9 +9,8 @@ import {
   HttpStatusCode,
   PrimitiveValueType
 } from '@sergiocabral/helper';
-import { Get } from '@gohorse/npm-core';
+import { Get, TemplateString } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
-import { ApplicationParameters } from '../../Application/ApplicationParameters';
 import { Definition } from './Definition';
 
 /**
@@ -53,12 +52,9 @@ export class ElasticSearchDatabase
     indexSuffix?: string
   ): Promise<this> {
     indexSuffix = indexSuffix ?? this.pushOnlyIndexSuffix;
-    const index = (
+    const index = TemplateString.replace(
       this.configuration.indexPrefixTemplate + indexSuffix
-    ).querystring({
-      appName: ApplicationParameters.packageName,
-      date: new Date().format({ mask: 'y-M-d' })
-    });
+    ).toLowerCase();
 
     const separator = '__';
 
