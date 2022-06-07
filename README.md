@@ -29,6 +29,7 @@ Don't use `id`, `type`, `name`, etc. But describe it more fully as:
 - `applicationMessageId`
 - `applicationMessageType`
 - `languageCultureName`
+- `className`
 
 Use "Content" suffix for text content:
 
@@ -40,6 +41,7 @@ Use "Content" suffix for text content:
 Use "List" suffix for listings:
 
 - `applicationIdList`
+- `keyList`
 
 Values with units:
 
