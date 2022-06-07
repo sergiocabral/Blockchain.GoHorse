@@ -54,7 +54,7 @@ export class ElasticSearchDatabase
   ): Promise<this> {
     indexSuffix = indexSuffix ?? this.pushOnlyIndexSuffix;
     const index = (
-      this.configuration.indexPrefixPattern + indexSuffix
+      this.configuration.indexPrefixTemplate + indexSuffix
     ).querystring({
       appName: ApplicationParameters.packageName,
       date: new Date().format({ mask: 'y-M-d' })

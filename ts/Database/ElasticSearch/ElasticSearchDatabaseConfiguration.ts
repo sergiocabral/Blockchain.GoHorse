@@ -1,6 +1,6 @@
 import { DatabaseConfiguration } from '../DatabaseConfiguration';
 import { Definition } from './Definition';
-import { GlobalDefinition } from '@gohorse/npm-core';
+import { GlobalDefinition, TemplateString } from '@gohorse/npm-core';
 import { JsonLoader } from '@sergiocabral/helper';
 
 /**
@@ -10,7 +10,7 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
   /**
    * Nome do Index.
    */
-  public indexPrefixPattern = `[${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}]-[{date}]-[{appName}]`;
+  public indexPrefixTemplate = `[${GlobalDefinition.INTERNET_DOMAIN_FOR_GOHORSE}]-[${TemplateString.VARIABLE.DATE}]-[${TemplateString.VARIABLE.APPLICATION_NAME}]`;
 
   /**
    * Servidor.
@@ -46,7 +46,7 @@ export class ElasticSearchDatabaseConfiguration extends DatabaseConfiguration {
     errors.push(
       ...JsonLoader.mustBeString<ElasticSearchDatabaseConfiguration>(
         this,
-        'indexPrefixPattern'
+        'indexPrefixTemplate'
       ),
       ...JsonLoader.mustBeString<ElasticSearchDatabaseConfiguration>(
         this,
