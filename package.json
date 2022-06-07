@@ -47,8 +47,8 @@
   "devDependencies": {
     "@types/jest": "^28.1.1",
     "@types/node": "^17.0.40",
-    "@typescript-eslint/eslint-plugin": "^5.27.0",
-    "@typescript-eslint/parser": "^5.27.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
@@ -62,11 +62,11 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.2.1",
     "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^4.2.0",
-    "@gohorse/npm-i18n": "^2.0.23",
-    "@gohorse/npm-log": "^3.0.13",
-    "@gohorse/npm-log-console": "^1.0.20",
-    "@gohorse/npm-log-file": "^1.0.20",
+    "@gohorse/npm-core": "^4.4.0",
+    "@gohorse/npm-i18n": "^2.0.26",
+    "@gohorse/npm-log": "^3.0.16",
+    "@gohorse/npm-log-console": "^1.0.21",
+    "@gohorse/npm-log-file": "^1.1.0",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.2.0"
   }
