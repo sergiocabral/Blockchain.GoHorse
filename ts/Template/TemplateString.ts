@@ -1,7 +1,9 @@
 import {
   HelperText,
   InvalidDataError,
-  InvalidExecutionError
+  InvalidExecutionError,
+  Logger,
+  LogLevel
 } from '@sergiocabral/helper';
 import { Definition } from '../Definition';
 
@@ -9,6 +11,11 @@ import { Definition } from '../Definition';
  * Responsável pelas substituições de nomes de variáveis em templates de texto.
  */
 export abstract class TemplateString {
+  /**
+   * Contexto para logger.
+   */
+  public static logContext = 'TemplateString';
+
   /**
    * Instâncias
    */
@@ -61,7 +68,7 @@ export abstract class TemplateString {
   /**
    * Chaves presentes na instância.
    */
-  private keys: string[];
+  private readonly keys: string[];
 
   /**
    * Construtor.
@@ -76,6 +83,16 @@ export abstract class TemplateString {
     }
     TemplateString.instances.push(this);
     this.keys = this.getKeys();
+    Logger.post(
+      'Created "{className}" class for template string with {count} keys: {keyList}',
+      {
+        className: this.constructor.name,
+        count: this.keys.length,
+        keyList: this.keys
+      },
+      LogLevel.Debug,
+      TemplateString.logContext
+    );
   }
 
   /**
