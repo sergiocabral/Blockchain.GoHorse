@@ -12,7 +12,7 @@ export abstract class LoggerToStreamConfiguration extends JsonLoader {
   /**
    * Nível mínimo aceito para postar a mensagem do log.
    */
-  public minimumLevel = LogLevel[LogLevel.Verbose];
+  public minimumLevel = LogLevel[LogLevel.Information];
 
   /**
    * Nível mínimo aceito para postar a mensagem do log.
