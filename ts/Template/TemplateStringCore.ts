@@ -9,39 +9,38 @@ export class TemplateStringCore extends TemplateString {
   /**
    * Data atual.
    */
-  public readonly DATE = TemplateStringCore.VARIABLE.DATE;
+  public readonly DATE = TemplateString.VARIABLE.DATE;
 
   /**
    * Hora atual.
    */
-  public readonly TIME = TemplateStringCore.VARIABLE.TIME;
+  public readonly TIME = TemplateString.VARIABLE.TIME;
 
   /**
    * Data e hora atual.
    */
-  public readonly DATETIME = TemplateStringCore.VARIABLE.DATETIME;
+  public readonly DATETIME = TemplateString.VARIABLE.DATETIME;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_ID = TemplateStringCore.VARIABLE.INSTANCE_ID;
+  public readonly INSTANCE_ID = TemplateString.VARIABLE.INSTANCE_ID;
 
   /**
    * Id da instância em execução.
    */
   public readonly INSTANCE_STARTUP_DATE =
-    TemplateStringCore.VARIABLE.INSTANCE_STARTUP_DATE;
+    TemplateString.VARIABLE.INSTANCE_STARTUP_DATE;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_STARTUP_TIME = TemplateStringCore.VARIABLE.TIME;
+  public readonly INSTANCE_STARTUP_TIME = TemplateString.VARIABLE.TIME;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_STARTUP_DATETIME =
-    TemplateStringCore.VARIABLE.DATETIME;
+  public readonly INSTANCE_STARTUP_DATETIME = TemplateString.VARIABLE.DATETIME;
 
   /**
    * Converte uma chave para valor.
