@@ -206,7 +206,7 @@ export abstract class Application<
       {
         applicationExecutionMode: this.executionMode
       },
-      LogLevel.Debug,
+      LogLevel.Information,
       Application.logContext2
     );
 
@@ -309,9 +309,9 @@ export abstract class Application<
           );
 
         Logger.post(
-          'Total applications affected: {count}',
-          { count: affectedCount },
-          LogLevel.Debug,
+          'Total applications affected: {count} ({toInstanceIdList})',
+          { count: affectedCount, toInstanceIdList: instanceIds },
+          LogLevel.Information,
           Application.logContext2
         );
       } else {

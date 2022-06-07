@@ -361,7 +361,17 @@ export class ApplicationFlagFileMessageRouter {
       );
 
       Logger.post(
-        'Send message "{applicationMessageType}" to instance "{toInstanceId}" appending into file: {filePath}.',
+        'Send message "{applicationMessageType}" to instance "{toInstanceId}".',
+        {
+          applicationMessageType: message.type,
+          toInstanceId: message.toInstanceId
+        },
+        LogLevel.Information,
+        ApplicationFlagFileMessageRouter.logContext
+      );
+
+      Logger.post(
+        'Appending message "{applicationMessageType}" into file: {filePath}.',
         {
           applicationMessageType: message.type,
           toInstanceId: message.toInstanceId,
