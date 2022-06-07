@@ -64,9 +64,9 @@
     "@elastic/transport": "^8.2.0",
     "@gohorse/npm-core": "^5.0.1",
     "@gohorse/npm-i18n": "^2.0.30",
-    "@gohorse/npm-log": "^3.0.20",
-    "@gohorse/npm-log-console": "^1.0.25",
-    "@gohorse/npm-log-file": "^1.1.4",
+    "@gohorse/npm-log": "^3.1.0",
+    "@gohorse/npm-log-console": "^1.1.0",
+    "@gohorse/npm-log-file": "^1.2.0",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.2.0"
   }
