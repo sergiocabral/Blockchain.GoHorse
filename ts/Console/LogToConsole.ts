@@ -29,6 +29,6 @@ export class LogToConsole extends LoggerToStream<
    * Configura a instância do logger.
    */
   protected override configureInstance(): void {
-    // Nada a fazer.
+    // Nothing to do.
   }
 }
