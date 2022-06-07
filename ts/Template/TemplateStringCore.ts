@@ -3,43 +3,45 @@ import { Instance } from '../Instance/Instance';
 import { NotImplementedError } from '@sergiocabral/helper';
 
 /**
- * Nome das variáveis utilizadas em templates de queristring.
+ * Responsável pelas substituições de nomes de variáveis em templates de texto: npm-core
  */
 export class TemplateStringCore extends TemplateString {
   /**
    * Data atual.
    */
-  public readonly DATE = '{date}';
+  public readonly DATE = TemplateStringCore.VARIABLE.DATE;
 
   /**
    * Hora atual.
    */
-  public readonly TIME = '{time}';
+  public readonly TIME = TemplateStringCore.VARIABLE.TIME;
 
   /**
    * Data e hora atual.
    */
-  public readonly DATETIME = '{datetime}';
+  public readonly DATETIME = TemplateStringCore.VARIABLE.DATETIME;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_ID = '{instanceId}';
+  public readonly INSTANCE_ID = TemplateStringCore.VARIABLE.INSTANCE_ID;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_STARTUP_DATE = '{instanceStartupDate}';
+  public readonly INSTANCE_STARTUP_DATE =
+    TemplateStringCore.VARIABLE.INSTANCE_STARTUP_DATE;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_STARTUP_TIME = '{instanceStartupTime}';
+  public readonly INSTANCE_STARTUP_TIME = TemplateStringCore.VARIABLE.TIME;
 
   /**
    * Id da instância em execução.
    */
-  public readonly INSTANCE_STARTUP_DATETIME = '{instanceStartupDatetime}';
+  public readonly INSTANCE_STARTUP_DATETIME =
+    TemplateStringCore.VARIABLE.DATETIME;
 
   /**
    * Converte uma chave para valor.

@@ -3,15 +3,21 @@ import {
   InvalidDataError,
   InvalidExecutionError
 } from '@sergiocabral/helper';
+import { Definition } from '../Definition';
 
 /**
- * Nome das variáveis utilizadas em templates de queristring.
+ * Responsável pelas substituições de nomes de variáveis em templates de texto.
  */
 export abstract class TemplateString {
   /**
    * Instâncias
    */
   private static readonly instances: TemplateString[] = [];
+
+  /**
+   * Lista unificada para todos os pacotes contendo nomes de variáveis usadas em template de texto.
+   */
+  public static VARIABLE = Definition.TEMPLATE_STRING_VARIABLES;
 
   /**
    * Retorna a instância correspondente ao tipo.
