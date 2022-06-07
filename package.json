@@ -62,11 +62,11 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.2.1",
     "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^4.5.0",
-    "@gohorse/npm-i18n": "^2.0.27",
-    "@gohorse/npm-log": "^3.0.17",
-    "@gohorse/npm-log-console": "^1.0.22",
-    "@gohorse/npm-log-file": "^1.1.1",
+    "@gohorse/npm-core": "^4.5.1",
+    "@gohorse/npm-i18n": "^2.0.28",
+    "@gohorse/npm-log": "^3.0.18",
+    "@gohorse/npm-log-console": "^1.0.23",
+    "@gohorse/npm-log-file": "^1.1.2",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.2.0"
   }
