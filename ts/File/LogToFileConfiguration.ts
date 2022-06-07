@@ -9,7 +9,7 @@ export class LogToFileConfiguration extends LoggerToStreamConfiguration {
   /**
    * Template para o nome do arquivo gravado.
    */
-  public fileTemplate = `${GlobalDefinition.ENVIRONMENT_FILE_PREFIX}.{${TemplateString.VARIABLE.APPLICATION_NAME}}.{${TemplateString.VARIABLE.DATETIME}}.{${TemplateString.VARIABLE.INSTANCE_ID}}.log`;
+  public fileTemplate = `${GlobalDefinition.ENVIRONMENT_FILE_PREFIX}.${TemplateString.VARIABLE.APPLICATION_NAME}.${TemplateString.VARIABLE.DATETIME}.${TemplateString.VARIABLE.INSTANCE_ID}.log`;
 
   /**
    * Lista de erros presentes na configuração atual
