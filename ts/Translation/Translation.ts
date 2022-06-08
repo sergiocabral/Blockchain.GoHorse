@@ -228,9 +228,10 @@ export class Translation {
         );
       } catch (error: unknown) {
         Logger.post(
-          'An error occurred loading translation "{filePath}" file of "{languageCultureName}" language. Error: {error}',
+          'An error occurred loading translation "{filePath}" file of "{languageCultureName}" language. Error: {errorDescription}',
           {
-            error: HelperText.formatError(error),
+            errorDescription: HelperText.formatError(error),
+            error,
             filePath: translationFile.path,
             languageCultureName: translationFile.language
           },
