@@ -158,10 +158,11 @@ export abstract class Database<
    */
   private async connectionFail(error: unknown): Promise<void> {
     Logger.post(
-      'The connection to the database of type "{className}" had an error: {error}',
+      'The connection to the database of type "{className}" had an error: {errorDescription}',
       {
         className: this.constructor.name,
-        error: HelperText.formatError(error)
+        errorDescription: HelperText.formatError(error),
+        error
       },
       this.whenConnectionFailsIgnoreAndSetConnectionClosed
         ? LogLevel.Error
@@ -170,9 +171,10 @@ export abstract class Database<
     );
     if (this.whenConnectionFailsIgnoreAndSetConnectionClosed) {
       Logger.post(
-        'The connection to the database of type "{className}" allows the error to be ignored. The connection will be reset.',
+        'The connection to the database of type "{className}" allows the error to be ignored. The connection will be reset to {connectionState} state.',
         {
-          className: this.constructor.name
+          className: this.constructor.name,
+          connectionState: ConnectionState[ConnectionState.Closed]
         },
         LogLevel.Information,
         Database.logContext2
@@ -180,19 +182,21 @@ export abstract class Database<
       try {
         await this.resetConnection(this.configuration);
         Logger.post(
-          'The connection to the database of type "{className}" was reset without any problems.',
+          'The connection to the database of type "{className}" has been reset to {connectionState} state.',
           {
-            className: this.constructor.name
+            className: this.constructor.name,
+            connectionState: ConnectionState[ConnectionState.Closed]
           },
           LogLevel.Verbose,
           Database.logContext2
         );
       } catch (error) {
         Logger.post(
-          'When trying to reset the connection to the database of type "{className}" an error occurred: {error}',
+          'When trying to reset the connection to the database of type "{className}" an error occurred: {errorDescription}',
           {
             className: this.constructor.name,
-            error: HelperText.formatError(error)
+            errorDescription: HelperText.formatError(error),
+            error
           },
           LogLevel.Critical,
           Database.logContext2

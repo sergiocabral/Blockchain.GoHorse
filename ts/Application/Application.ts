@@ -11,8 +11,7 @@ import {
   InvalidExecutionError,
   Logger,
   LogLevel,
-  Message,
-  ResultEvent
+  Message
 } from '@sergiocabral/helper';
 import fs from 'fs';
 import { Definition } from '../Definition';
@@ -21,6 +20,7 @@ import { ApplicationExecutionMode } from './Type/ApplicationExecutionMode';
 import { ApplicationFlagFileMessageRouter } from './ApplicationFlagFileMessageRouter';
 import * as os from 'os';
 import {
+  ApplicationTerminated,
   ConfigurationReloaded,
   Instance,
   ReloadConfiguration,
@@ -125,11 +125,6 @@ export abstract class Application<
       this.handleReloadConfiguration.bind(this)
     );
   }
-
-  /**
-   * Evento ao finalizar a aplicação e liberar recursos.
-   */
-  public onDispose: Set<ResultEvent> = new Set<ResultEvent>();
 
   /**
    * Configurações da aplicação.
@@ -347,7 +342,17 @@ export abstract class Application<
       errors.push(error);
     }
 
-    errors.push(...(await this.dispose(errors)));
+    try {
+      await this.dispose();
+    } catch (error) {
+      errors.push(error);
+    }
+
+    try {
+      await this.database.close();
+    } catch (error) {
+      errors.push(error);
+    }
 
     if (errors.length === 0) {
       Logger.post(
@@ -524,29 +529,33 @@ Application
   /**
    * Libera os recursos.
    */
-  private async dispose(errors: unknown[]): Promise<unknown[]> {
-    if (this.onDispose.size === 0) {
-      return [];
-    }
-
+  private async dispose(): Promise<void> {
     Logger.post(
       'Disposing resources.',
       undefined,
       LogLevel.Debug,
       Application.logContext2
     );
-
-    const results = (
-      await HelperObject.triggerEvent(
-        this.onDispose,
-        errors.length === 0,
-        errors
-      )
-    ).filter(error => Boolean(error));
-
-    await this.database.close();
-
-    return results;
+    try {
+      await new ApplicationTerminated().sendAsync();
+      Logger.post(
+        'Resources disposed without errors.',
+        undefined,
+        LogLevel.Verbose,
+        Application.logContext2
+      );
+    } catch (error) {
+      Logger.post(
+        'An error occurred while releasing resources.: {errorDescription}',
+        {
+          errorDescription: HelperText.formatError(error),
+          error
+        },
+        LogLevel.Critical,
+        Application.logContext2
+      );
+      throw error;
+    }
   }
 
   /**
@@ -566,8 +575,8 @@ Application
       success = true;
     } catch (error) {
       Logger.post(
-        'An error occurred while reloading configuration: {error}',
-        { error: HelperText.formatError(error) },
+        'An error occurred while reloading configuration: {errorDescription}',
+        { errorDescription: HelperText.formatError(error), error },
         LogLevel.Warning,
         Application.logContext2
       );

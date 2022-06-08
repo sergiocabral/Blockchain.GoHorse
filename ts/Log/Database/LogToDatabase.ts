@@ -1,11 +1,16 @@
 import {
+  ILogMessageAndData,
   Logger,
   LogLevel,
-  ILogMessageAndData,
-  LogWriterToPersistent
+  LogWriterToPersistent,
+  Message
 } from '@sergiocabral/helper';
 import { LogToDatabaseConfiguration } from './LogToDatabaseConfiguration';
-import { GlobalDefinition, IInstanceParameters } from '@gohorse/npm-core';
+import {
+  ApplicationTerminated,
+  GlobalDefinition,
+  IInstanceParameters
+} from '@gohorse/npm-core';
 import { IDatabasePushOnly } from '../../Database/IDatabasePushOnly';
 import { LoggerToStream } from '@gohorse/npm-log';
 
@@ -34,6 +39,10 @@ export class LogToDatabase extends LoggerToStream<
     private readonly waitInMillisecondsOnError?: number
   ) {
     super(getConfiguration, getInstanceParameters, defaultLogLevel);
+    Message.subscribe(
+      ApplicationTerminated,
+      this.handleApplicationTerminated.bind(this)
+    );
   }
 
   /**
@@ -44,13 +53,18 @@ export class LogToDatabase extends LoggerToStream<
   }
 
   /**
+   * Instância do logger.
+   */
+  private logWriterToPersistent?: LogWriterToPersistent;
+
+  /**
    * Cria a instância do logger.
    */
   protected override createInstance(): LogWriterToPersistent {
-    return new LogWriterToPersistent(
+    return (this.logWriterToPersistent = new LogWriterToPersistent(
       this.database,
       this.saveToPersistent.bind(this)
-    );
+    ));
   }
 
   /**
@@ -95,5 +109,24 @@ export class LogToDatabase extends LoggerToStream<
       },
       messageAndData.values
     );
+  }
+
+  /**
+   * Handle: ApplicationTerminated
+   */
+  private async handleApplicationTerminated(): Promise<void> {
+    if (this.logWriterToPersistent !== undefined) {
+      Logger.post(
+        'The application has been terminated. This log instance "{className}" will be disabled. Pending messages will be flushed if possible or discarded.',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Debug,
+        LogToDatabase.logContext
+      );
+      this.logWriterToPersistent.enabled = false;
+      await this.logWriterToPersistent.flush();
+      this.logWriterToPersistent.discard();
+    }
   }
 }

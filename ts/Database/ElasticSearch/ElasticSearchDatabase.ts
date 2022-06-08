@@ -149,8 +149,11 @@ export class ElasticSearchDatabase
       httpResponseStatusCode = error.statusCode;
     }
     Logger.post(
-      'There was a satisfactory response from PING with the HTTP code {httpStatusCode}.',
-      { httpStatusCode: httpResponseStatusCode },
+      'There was a satisfactory response from PING with the HTTP code {httpStatusCode} {httpStatusName}.',
+      {
+        httpStatusCode: httpResponseStatusCode,
+        httpStatusName: HttpStatusCode[httpResponseStatusCode]
+      },
       LogLevel.Verbose,
       ElasticSearchDatabase.logContext
     );

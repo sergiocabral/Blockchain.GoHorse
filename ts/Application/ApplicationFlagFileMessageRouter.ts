@@ -309,9 +309,10 @@ export class ApplicationFlagFileMessageRouter {
       );
     } catch (error) {
       Logger.post(
-        'Error reading message. Error "{error}" when parsing JSON: {jsonContent}',
+        'Error reading message. Error "{errorDescription}" when parsing JSON: {jsonContent}',
         {
-          error: HelperText.formatError(error),
+          errorDescription: HelperText.formatError(error),
+          error,
           jsonContent
         },
         LogLevel.Warning,

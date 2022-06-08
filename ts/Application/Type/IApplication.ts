@@ -1,4 +1,3 @@
-import { ResultEvent } from '@sergiocabral/helper';
 import { ApplicationConfiguration } from '../Configuration/ApplicationConfiguration';
 import { ApplicationParameters } from '../ApplicationParameters';
 
@@ -15,11 +14,6 @@ export interface IApplication {
    * Parâmetros de execução da aplicação.
    */
   get parameters(): ApplicationParameters;
-
-  /**
-   * Evento ao finalizar a aplicação e liberar recursos.
-   */
-  get onDispose(): Set<ResultEvent>;
 
   /**
    * Sinaliza se a aplicação está em execução.
