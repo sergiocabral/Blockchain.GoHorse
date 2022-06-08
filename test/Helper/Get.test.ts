@@ -21,7 +21,7 @@ describe('Class: Get', () => {
 
       const input = GlobalDefinition.WELL_KNOWN_PASSWORD;
       const expectedOutput = Buffer.from(
-        HelperCryptography.hashSha256(input),
+        HelperCryptography.hash(input, 'sha256'),
         'hex'
       ).toString('base64');
 
