@@ -14,6 +14,7 @@ npm install @gohorse/npm-core
 
 Convention for naming values associated with log messages.
 
+- `url` : Endereço de internet contendo um protocolo como http, ftp, ws, etc.
 - `path` : Disk path to files or directories.
 - `filePath` : Disk path to files.
 - `directoryPath` : Disk path to directories.
@@ -30,6 +31,7 @@ Don't use `id`, `type`, `name`, etc. But describe it more fully as:
 - `applicationMessageType`
 - `languageCultureName`
 - `className`
+- `authenticationMode`
 
 Use "Content" suffix for text content:
 
@@ -55,6 +57,7 @@ Other names used:
 - `count` : Any quantitative value.
 - `enabled` : Signaling enabled and disabled.
 - `logLevel` : Logging level.
+- `httpStatusCode` : Código de status HTTP.
 
 ## NPM Commands
 
