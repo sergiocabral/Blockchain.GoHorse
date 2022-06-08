@@ -7,6 +7,8 @@ import {
   EmptyError,
   HelperObject,
   HttpStatusCode,
+  Logger,
+  LogLevel,
   PrimitiveValueType
 } from '@sergiocabral/helper';
 import { Get, TemplateString } from '@gohorse/npm-core';
@@ -20,6 +22,11 @@ export class ElasticSearchDatabase
   extends Database<ElasticSearchDatabaseConfiguration>
   implements IDatabasePushOnly
 {
+  /**
+   * Contenxto de log.
+   */
+  private static logContext = 'ElasticSearchDatabase';
+
   /**
    * Cliente do banco de dados.
    */
@@ -109,9 +116,29 @@ export class ElasticSearchDatabase
         password: Get.password(configuration.password ?? '')
       };
     }
+    Logger.post(
+      'Connecting ({authenticationMode}) to an ElasticSearch database at address: {url}',
+      {
+        url: options.node,
+        authenticationMode:
+          options.auth !== undefined
+            ? 'with username and password'
+            : 'without username and password'
+      },
+      LogLevel.Debug,
+      ElasticSearchDatabase.logContext
+    );
     this.clientValue = new Client(options);
+    let httpResponseStatusCode: number;
     try {
+      Logger.post(
+        'Sending a PING to make sure the connection has been established.',
+        undefined,
+        LogLevel.Verbose,
+        ElasticSearchDatabase.logContext
+      );
       await this.clientValue.ping();
+      httpResponseStatusCode = 200;
     } catch (error: unknown) {
       const connected =
         error instanceof ResponseError &&
@@ -119,6 +146,13 @@ export class ElasticSearchDatabase
       if (!connected) {
         throw error;
       }
+      httpResponseStatusCode = error.statusCode;
     }
+    Logger.post(
+      'There was a satisfactory response from PING with the HTTP code {httpStatusCode}.',
+      { httpStatusCode: httpResponseStatusCode },
+      LogLevel.Verbose,
+      ElasticSearchDatabase.logContext
+    );
   }
 }

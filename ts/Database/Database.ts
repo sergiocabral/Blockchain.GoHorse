@@ -2,7 +2,10 @@ import { IDatabase } from './IDatabase';
 import { DatabaseConfiguration } from './DatabaseConfiguration';
 import {
   ConnectionState,
+  HelperText,
   InvalidExecutionError,
+  Logger,
+  LogLevel,
   Message,
   NotImplementedError
 } from '@sergiocabral/helper';
@@ -16,6 +19,11 @@ export abstract class Database<
   TDatabaseConfiguration extends DatabaseConfiguration
 > implements IDatabase
 {
+  /**
+   * Contexto do log.
+   */
+  private static logContext2 = 'Database';
+
   /**
    * Construtor.
    * @param getConfiguration Configuração.
@@ -64,9 +72,25 @@ export abstract class Database<
   public async close(): Promise<void> {
     if (this.connectionState === ConnectionState.Ready) {
       this.connectionState = ConnectionState.Switching;
+      Logger.post(
+        'Closing database connection of type "{className}".',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Information,
+        Database.logContext2
+      );
       try {
         await this.closeConnection(this.configuration);
         this.connectionState = ConnectionState.Closed;
+        Logger.post(
+          'Database connection of type "{className}" closed successfully.',
+          {
+            className: this.constructor.name
+          },
+          LogLevel.Verbose,
+          Database.logContext2
+        );
       } catch (error) {
         await this.connectionFail(error);
       }
@@ -81,9 +105,25 @@ export abstract class Database<
   public async open(): Promise<void> {
     if (this.connectionState === ConnectionState.Closed) {
       this.connectionState = ConnectionState.Switching;
+      Logger.post(
+        'Opening database connection of type "{className}".',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Information,
+        Database.logContext2
+      );
       try {
         await this.openConnection(this.configuration);
         this.connectionState = ConnectionState.Ready;
+        Logger.post(
+          'Database connection of type "{className}" opened successfully.',
+          {
+            className: this.constructor.name
+          },
+          LogLevel.Verbose,
+          Database.logContext2
+        );
       } catch (error) {
         await this.connectionFail(error);
       }
@@ -117,11 +157,46 @@ export abstract class Database<
    * Trata uma falha de conexão.
    */
   private async connectionFail(error: unknown): Promise<void> {
+    Logger.post(
+      'The connection to the database of type "{className}" had an error: {error}',
+      {
+        className: this.constructor.name,
+        error: HelperText.formatError(error)
+      },
+      this.whenConnectionFailsIgnoreAndSetConnectionClosed
+        ? LogLevel.Error
+        : LogLevel.Critical,
+      Database.logContext2
+    );
     if (this.whenConnectionFailsIgnoreAndSetConnectionClosed) {
+      Logger.post(
+        'The connection to the database of type "{className}" allows the error to be ignored. The connection will be reset.',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Information,
+        Database.logContext2
+      );
       try {
         await this.resetConnection(this.configuration);
+        Logger.post(
+          'The connection to the database of type "{className}" was reset without any problems.',
+          {
+            className: this.constructor.name
+          },
+          LogLevel.Verbose,
+          Database.logContext2
+        );
       } catch (error) {
-        // Não devia acontecer esse erro.
+        Logger.post(
+          'When trying to reset the connection to the database of type "{className}" an error occurred: {error}',
+          {
+            className: this.constructor.name,
+            error: HelperText.formatError(error)
+          },
+          LogLevel.Critical,
+          Database.logContext2
+        );
       }
       this.connectionState = ConnectionState.Closed;
     } else {
@@ -145,6 +220,14 @@ export abstract class Database<
       this.lastConfiguration !== undefined &&
       JSON.stringify(this.lastConfiguration) === JSON.stringify(configuration)
     ) {
+      Logger.post(
+        'Although the configuration have been reloaded, the connection data to the database of type "{className}" has not changed. Nothing will be done.',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Verbose,
+        Database.logContext2
+      );
       return;
     }
 
@@ -155,14 +238,40 @@ export abstract class Database<
 
     switch (this.state) {
       case ConnectionState.Closed:
+        Logger.post(
+          'Although the configuration have been reloaded and modified, the connection to the database of type "{className}" is closed. Nothing will be done.',
+          {
+            className: this.constructor.name
+          },
+          LogLevel.Verbose,
+          Database.logContext2
+        );
         return;
       case ConnectionState.Switching:
+        Logger.post(
+          'Although the configuration have been reloaded and modified, the database connection of type "{className}" is performing a state change. It will wait {timeMilliSeconds} milliseconds for a next check.',
+          {
+            className: this.constructor.name,
+            timeMilliSeconds:
+              Definition.TIME_TO_RECHECK_CONNECTION_STATUS_IN_MILLISECONDS
+          },
+          LogLevel.Verbose,
+          Database.logContext2
+        );
         this.handleConfigurationReloadedTimeout = setTimeout(
           () => void this.handleConfigurationReloaded(),
           Definition.TIME_TO_RECHECK_CONNECTION_STATUS_IN_MILLISECONDS
         );
         break;
       case ConnectionState.Ready:
+        Logger.post(
+          'The configuration have been reloaded and modified and the connection to the database of type "{className}" will be restarted.',
+          {
+            className: this.constructor.name
+          },
+          LogLevel.Information,
+          Database.logContext2
+        );
         await this.close();
         await this.open();
         break;
