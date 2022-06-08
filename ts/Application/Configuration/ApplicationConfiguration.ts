@@ -3,6 +3,7 @@ import { IOError, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
 import fs from 'fs';
 import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
+import { ApplicationEncryptConfiguration } from './ApplicationEncryptConfiguration';
 
 /**
  * Configurações da aplicação.
@@ -12,6 +13,14 @@ export class ApplicationConfiguration extends JsonLoader {
    * Contexto de log.
    */
   private static logContext = 'ApplicationConfiguration';
+
+  /**
+   * Habilita a criptografia dos dados sensíveis no JSON.
+   */
+  public encryptThisJson = new ApplicationEncryptConfiguration().setName(
+    'encryptThisJson',
+    this
+  ); // TODO: Gravar senhas criptografadas.
 
   /**
    * Configurações de idioma.
@@ -138,8 +147,6 @@ export class ApplicationConfiguration extends JsonLoader {
         LogLevel.Debug,
         ApplicationConfiguration.logContext
       );
-
-      // TODO: Gravar senhas criptografadas.
 
       fs.writeFileSync(
         filePath,
