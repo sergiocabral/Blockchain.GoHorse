@@ -183,7 +183,7 @@ export class ApplicationFlagFileMessageRouter {
     fileLine: string,
     minUnixDate: number
   ): (IMessage & IApplicationMessage) | undefined {
-    const hash = HelperCryptography.hashSha256(fileLine);
+    const hash = HelperCryptography.hash(fileLine, 'sha256');
     let alreadyProcessed = this.messageHistory[hash] !== undefined;
     if (alreadyProcessed) {
       return undefined;
