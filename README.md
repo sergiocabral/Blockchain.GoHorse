@@ -52,7 +52,8 @@ Values with units:
 
 Other names used:
 
-- `error` : Error message formatted with `HelperText.formatError()`.
+- `errorDescription` : Error message formatted with `HelperText.formatError()`.
+- `errorObject` : Error raw object.
 - `invalidValue` : Any invalid value.
 - `count` : Any quantitative value.
 - `enabled` : Signaling enabled and disabled.
