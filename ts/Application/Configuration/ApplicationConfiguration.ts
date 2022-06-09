@@ -4,6 +4,7 @@ import fs from 'fs';
 import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
 import { ApplicationEncryptConfiguration } from './ApplicationEncryptConfiguration';
+import { Json } from '../../Helper/Json';
 
 /**
  * Configurações da aplicação.
@@ -20,7 +21,7 @@ export class ApplicationConfiguration extends JsonLoader {
   public encryptThisJson = new ApplicationEncryptConfiguration().setName(
     'encryptThisJson',
     this
-  ); // TODO: Gravar senhas criptografadas.
+  );
 
   /**
    * Configurações de idioma.
@@ -67,7 +68,19 @@ export class ApplicationConfiguration extends JsonLoader {
       configuration = new typeConstructor();
       fs.writeFileSync(
         filePath,
-        JSON.stringify(configuration, undefined, '  ')
+        JSON.stringify(
+          ApplicationEncryptConfiguration.encrypt(
+            configuration as unknown as Json,
+            configuration.encryptThisJson.password,
+            keyPath =>
+              ApplicationConfiguration.needToEncrypt(
+                keyPath,
+                configuration.encryptThisJson
+              )
+          ),
+          undefined,
+          '  '
+        )
       );
     } catch (error: unknown) {
       throw new IOError(
@@ -122,7 +135,13 @@ export class ApplicationConfiguration extends JsonLoader {
 
     let fileContentAsJson: unknown;
     try {
-      fileContentAsJson = JSON.parse(fileContent);
+      fileContentAsJson = JSON.parse(fileContent) as Record<string, unknown>;
+      fileContentAsJson = ApplicationEncryptConfiguration.decrypt(
+        fileContentAsJson as Json,
+        (fileContentAsJson as Partial<ApplicationConfiguration> | undefined)
+          ?.encryptThisJson?.password,
+        keyPath => ApplicationConfiguration.needToDecrypt(keyPath)
+      );
     } catch (error: unknown) {
       throw new IOError(
         'Cannot parse the "{configurationType}" configuration from file: {filePath}'.querystring(
@@ -150,7 +169,19 @@ export class ApplicationConfiguration extends JsonLoader {
 
       fs.writeFileSync(
         filePath,
-        JSON.stringify(configuration, undefined, '  ')
+        JSON.stringify(
+          ApplicationEncryptConfiguration.encrypt(
+            configuration as unknown as Json,
+            configuration.encryptThisJson.password,
+            keyPath =>
+              ApplicationConfiguration.needToEncrypt(
+                keyPath,
+                configuration.encryptThisJson
+              )
+          ),
+          undefined,
+          '  '
+        )
       );
     } catch (error: unknown) {
       throw new IOError(
@@ -165,5 +196,30 @@ export class ApplicationConfiguration extends JsonLoader {
     }
 
     return configuration;
+  }
+
+  /**
+   * Verifica se uma chave do JSON deve ser criptografada.
+   * @param keyPath Caminho do JSON.
+   * @param encryptConfiguration Informações sobre a criptografia dos dados sensíveis no JSON.
+   */
+  private static needToEncrypt(
+    keyPath: string,
+    encryptConfiguration: ApplicationEncryptConfiguration
+  ): boolean {
+    return (
+      encryptConfiguration.enabled &&
+      !keyPath.startsWith('encryptThisJson.') &&
+      (encryptConfiguration.allFields ||
+        ApplicationEncryptConfiguration.regexSensitiveFields.test(keyPath))
+    );
+  }
+
+  /**
+   * Verifica se uma chave do JSON deve ser descriptografada
+   * @param keyPath Caminho do JSON
+   */
+  private static needToDecrypt(keyPath: string): boolean {
+    return !keyPath.startsWith('encryptThisJson.');
   }
 }
