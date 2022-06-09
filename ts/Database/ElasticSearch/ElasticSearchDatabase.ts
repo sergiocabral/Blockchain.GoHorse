@@ -13,7 +13,6 @@ import {
 } from '@sergiocabral/helper';
 import { Get, TemplateString } from '@gohorse/npm-core';
 import { ResponseError } from '@elastic/transport/lib/errors';
-import { Definition } from './Definition';
 
 /**
  * Conexão com o banco de dados ElasticSearch.
@@ -108,7 +107,7 @@ export class ElasticSearchDatabase
     configuration: ElasticSearchDatabaseConfiguration
   ): Promise<void> {
     const options: ClientOptions = {
-      node: `${Definition.DEFAULT_ELASTICSEARCH_PROTOCOL}://${Definition.DEFAULT_ELASTICSEARCH_SERVER}:${Definition.DEFAULT_ELASTICSEARCH_PORT}`
+      node: `${configuration.protocol}://${configuration.server}:${configuration.port}`
     };
     if (typeof configuration.username === 'string') {
       options.auth = {
