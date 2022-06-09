@@ -1,5 +1,5 @@
 import { JsonLoader } from '@sergiocabral/helper';
-import { ElasticSearchDatabaseConfiguration } from '../../Database/ElasticSearch/ElasticSearchDatabaseConfiguration';
+import { ElasticSearchDatabaseConfiguration } from '@gohorse/npm-database-elaticsearch';
 
 /**
  * Configurações dos bancos de dados da aplicação.

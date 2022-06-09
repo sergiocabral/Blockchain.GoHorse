@@ -3,9 +3,9 @@ import { ApplicationLoggerCollectionConfiguration } from './Configuration/Applic
 import { Logger, LogLevel } from '@sergiocabral/helper';
 import { LogToConsole } from '@gohorse/npm-log-console';
 import { LogToFile } from '@gohorse/npm-log-file';
-import { LogToDatabase } from '../Log/Database/LogToDatabase';
 import { IApplicationParameters } from './Type/IApplicationParameters';
-import { IDatabasePushOnly } from '../Database/IDatabasePushOnly';
+import { IDatabasePushOnly } from '@gohorse/npm-database';
+import { LogToDatabase } from '@gohorse/npm-log-database';
 
 /**
  * Gerencia o logger da aplicação.

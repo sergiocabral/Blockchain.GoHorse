@@ -60,14 +60,15 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.2.1",
-    "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^5.1.2",
-    "@gohorse/npm-i18n": "^2.0.34",
-    "@gohorse/npm-log": "^3.1.4",
-    "@gohorse/npm-log-console": "^1.1.7",
-    "@gohorse/npm-log-file": "^1.2.4",
-    "tslib": "^2.4.0",
-    "@sergiocabral/helper": "^11.5.0"
+    "@gohorse/npm-core": "^5.1.3",
+    "@gohorse/npm-database": "^1.0.2",
+    "@gohorse/npm-database-elaticsearch": "^1.0.1",
+    "@gohorse/npm-i18n": "^2.0.35",
+    "@gohorse/npm-log": "^3.1.5",
+    "@gohorse/npm-log-console": "^1.1.8",
+    "@gohorse/npm-log-database": "^2.0.2",
+    "@gohorse/npm-log-file": "^1.2.5",
+    "@sergiocabral/helper": "^11.5.0",
+    "tslib": "^2.4.0"
   }
 }

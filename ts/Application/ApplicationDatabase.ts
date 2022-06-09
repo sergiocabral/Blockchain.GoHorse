@@ -1,8 +1,8 @@
 import { IApplicationParameters } from './Type/IApplicationParameters';
 import { ApplicationDatabaseConfiguration } from './Configuration/ApplicationDatabaseConfiguration';
-import { ElasticSearchDatabase } from '../Database/ElasticSearch/ElasticSearchDatabase';
-import { IDatabase } from '../Database/IDatabase';
 import { ConnectionState, Logger, LogLevel } from '@sergiocabral/helper';
+import { ElasticSearchDatabase } from '@gohorse/npm-database-elaticsearch';
+import { IDatabase } from '@gohorse/npm-database';
 
 /**
  * Gerencia os banco de dados da aplicação.
