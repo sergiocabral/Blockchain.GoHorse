@@ -73,10 +73,10 @@ export class EncryptThisJsonConfiguration extends JsonLoader {
     configuration: EncryptThisJsonConfiguration
   ): Json {
     Logger.post(
-      'Encryption in JSON configuration file enabled: {enabled}. Regular expression patterns if enabled: {fieldList}',
+      'Encryption in JSON configuration file enabled: {enabled}. Regular expression patterns if enabled: {fieldRegexList}',
       {
         enabled: configuration.enabled,
-        fieldList: configuration.fields
+        fieldRegexList: configuration.fields
       },
       LogLevel.Debug,
       EncryptThisJsonConfiguration.logContext
