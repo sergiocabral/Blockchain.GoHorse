@@ -44,6 +44,7 @@ Use "List" suffix for listings:
 
 - `applicationIdList`
 - `keyList`
+- `fieldRegexList`
 
 Values with units:
 
