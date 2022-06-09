@@ -6,34 +6,35 @@ import {
 } from '@sergiocabral/helper';
 import { CipherAlgorithm } from './CipherAlgorithm';
 import * as crypto from 'crypto';
-import { JsonValue } from './JsonValue';
 import { Cipher, Decipher } from 'crypto';
+import { JsonValue } from './JsonValue';
+import { CryptographyDirection } from './CryptographyDirection';
 
 export class HelperCryptography2 {
   /**
    * Algoritmo padrão.
    */
-  private static defaultAlgorithm: CipherAlgorithm = 'aes-256-cbc';
+  public static defaultSymmetricAlgorithm: CipherAlgorithm = 'aes-256-cbc';
 
   /**
    * Algoritmo padrão.
    */
-  private static defaultAlgorithmKeyBytesLength = 32;
+  public static defaultSymmetricAlgorithmKeyLengthInBytes = 32;
 
   /**
    * Vetor de inicialização.
    */
-  private static defaultAlgorithmIV = Buffer.alloc(16, 0);
+  public static defaultInitializationVector = Buffer.alloc(16, 0);
 
   /**
    * Des/criptografa o JSON.
-   * @param mode Criptografa ou descriptografa
+   * @param mode Direção da criptografia
    * @param json JSON.
    * @param password Senha utilizada.
    * @param needToApplyEncryption Valida se é necessário aplicar criptografia.
    */
   public static json(
-    mode: 'encrypt' | 'decrypt',
+    mode: CryptographyDirection,
     json: Json,
     password: string,
     needToApplyEncryption?: (
@@ -48,29 +49,29 @@ export class HelperCryptography2 {
       const keyFromPassword = crypto.scryptSync(
         password,
         keyPath,
-        HelperCryptography2.defaultAlgorithmKeyBytesLength
+        HelperCryptography2.defaultSymmetricAlgorithmKeyLengthInBytes
       );
 
       let cipherDecipher: Cipher | Decipher;
 
       switch (mode) {
-        case 'encrypt':
+        case CryptographyDirection.Encrypt:
           cipherDecipher = crypto.createCipheriv(
-            HelperCryptography2.defaultAlgorithm,
+            HelperCryptography2.defaultSymmetricAlgorithm,
             keyFromPassword,
-            HelperCryptography2.defaultAlgorithmIV
+            HelperCryptography2.defaultInitializationVector
           );
           return (
             cipherDecipher
               .update(JSON.stringify(value), 'utf8', 'base64')
               .toString() + cipherDecipher.final('base64').toString()
           );
-        case 'decrypt':
+        case CryptographyDirection.Decrypt:
           try {
             cipherDecipher = crypto.createDecipheriv(
-              HelperCryptography2.defaultAlgorithm,
+              HelperCryptography2.defaultSymmetricAlgorithm,
               keyFromPassword,
-              HelperCryptography2.defaultAlgorithmIV
+              HelperCryptography2.defaultInitializationVector
             );
             return JSON.parse(
               cipherDecipher

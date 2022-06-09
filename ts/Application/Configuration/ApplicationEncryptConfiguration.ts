@@ -2,6 +2,7 @@ import { HelperText, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
 import { Generate } from '@gohorse/npm-core';
 import { HelperCryptography2 } from '../../Helper/HelperCryptography2';
 import { Json } from '../../Helper/Json';
+import { CryptographyDirection } from '../../Helper/CryptographyDirection';
 
 /**
  * Informações sobre a criptografia dos dados sensíveis no JSON.
@@ -85,7 +86,7 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
     );
 
     return HelperCryptography2.json(
-      'encrypt',
+      CryptographyDirection.Encrypt,
       content,
       configuration.password ?? '',
       keyPath =>
@@ -101,7 +102,7 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
     configuration?: Partial<ApplicationEncryptConfiguration>
   ): Json {
     return HelperCryptography2.json(
-      'decrypt',
+      CryptographyDirection.Decrypt,
       content,
       configuration?.password ?? ''
     );
