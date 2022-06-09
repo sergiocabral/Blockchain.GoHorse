@@ -3,7 +3,7 @@ import { IOError, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
 import fs from 'fs';
 import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
-import { ApplicationEncryptConfiguration } from './ApplicationEncryptConfiguration';
+import { EncryptThisJsonConfiguration } from './EncryptThisJsonConfiguration';
 import { Json } from '../../Helper/Json';
 
 /**
@@ -18,8 +18,8 @@ export class ApplicationConfiguration extends JsonLoader {
   /**
    * Habilita a criptografia dos dados sensíveis no JSON.
    */
-  public encryptThisJson = new ApplicationEncryptConfiguration().setName(
-    'encryptThisJson',
+  public encryptThisJson = new EncryptThisJsonConfiguration().setName(
+    EncryptThisJsonConfiguration.fieldName,
     this
   );
 
@@ -69,7 +69,7 @@ export class ApplicationConfiguration extends JsonLoader {
       fs.writeFileSync(
         filePath,
         JSON.stringify(
-          ApplicationEncryptConfiguration.encrypt(
+          EncryptThisJsonConfiguration.encrypt(
             configuration as unknown as Json,
             configuration.encryptThisJson
           ),
@@ -131,7 +131,7 @@ export class ApplicationConfiguration extends JsonLoader {
     let fileContentAsJson: unknown;
     try {
       fileContentAsJson = JSON.parse(fileContent) as Record<string, unknown>;
-      fileContentAsJson = ApplicationEncryptConfiguration.decrypt(
+      fileContentAsJson = EncryptThisJsonConfiguration.decrypt(
         fileContentAsJson as Json,
         (fileContentAsJson as Partial<ApplicationConfiguration> | undefined)
           ?.encryptThisJson
@@ -164,7 +164,7 @@ export class ApplicationConfiguration extends JsonLoader {
       fs.writeFileSync(
         filePath,
         JSON.stringify(
-          ApplicationEncryptConfiguration.encrypt(
+          EncryptThisJsonConfiguration.encrypt(
             configuration as unknown as Json,
             configuration.encryptThisJson
           ),

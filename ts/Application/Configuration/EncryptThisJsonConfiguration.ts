@@ -1,4 +1,4 @@
-import { HelperText, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
+import { JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
 import { Generate } from '@gohorse/npm-core';
 import { HelperCryptography2 } from '../../Helper/HelperCryptography2';
 import { Json } from '../../Helper/Json';
@@ -7,11 +7,16 @@ import { CryptographyDirection } from '../../Helper/CryptographyDirection';
 /**
  * Informações sobre a criptografia dos dados sensíveis no JSON.
  */
-export class ApplicationEncryptConfiguration extends JsonLoader {
+export class EncryptThisJsonConfiguration extends JsonLoader {
   /**
    * Contexto de log.
    */
   private static logContext = 'ApplicationEncryptConfiguration';
+
+  /**
+   * Nome sugerido para ser usado no arquivo JSON de configuração.
+   */
+  public static fieldName = 'encryptThisJson';
 
   /**
    * Sinaliza que a criptografia está ativa.
@@ -21,7 +26,13 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
   /**
    * Criptografa todos os campos.
    */
-  public allFields = false;
+  public fields: string[] = [
+    '\\.server$',
+    '\\.port$',
+    '\\.protocol$',
+    '\\.username$',
+    '\\.password$'
+  ];
 
   /**
    * Password usado na criptografia.
@@ -35,21 +46,18 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
     const errors = Array<string>();
 
     errors.push(
-      ...JsonLoader.mustBeBoolean<ApplicationEncryptConfiguration>(
-        this,
-        'enabled'
-      )
+      ...JsonLoader.mustBeBoolean<EncryptThisJsonConfiguration>(this, 'enabled')
     );
     errors.push(
-      ...JsonLoader.mustBeStringOrNotInformed<ApplicationEncryptConfiguration>(
+      ...JsonLoader.mustBeStringOrNotInformed<EncryptThisJsonConfiguration>(
         this,
         'password'
       )
     );
     errors.push(
-      ...JsonLoader.mustBeBoolean<ApplicationEncryptConfiguration>(
+      ...JsonLoader.mustBeListOfString<EncryptThisJsonConfiguration>(
         this,
-        'allFields'
+        'fields'
       )
     );
     errors.push(...super.errors());
@@ -58,31 +66,20 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
   }
 
   /**
-   * Lista de campos que contem dados sensíveis.
-   */
-  public static regexSensitiveFields = new RegExp(
-    `(?:^|\\.)(${['server', 'port', 'protocol', 'username', 'password']
-      .map(field => HelperText.escapeRegExp(field))
-      .join('|')})$`
-  );
-
-  /**
    * Criptografa um JSON.
    */
   public static encrypt(
     content: Json,
-    configuration: ApplicationEncryptConfiguration
+    configuration: EncryptThisJsonConfiguration
   ): Json {
     Logger.post(
-      'Encryption in JSON configuration file enabled: {enabled}. Mode if enabled: {encryptionMode}.',
+      'Encryption in JSON configuration file enabled: {enabled}. Regular expression patterns if enabled: {fieldList}',
       {
         enabled: configuration.enabled,
-        encryptionMode: configuration.allFields
-          ? 'all fields'
-          : 'sensitive fields'
+        fieldList: configuration.fields
       },
       LogLevel.Debug,
-      ApplicationEncryptConfiguration.logContext
+      EncryptThisJsonConfiguration.logContext
     );
 
     return HelperCryptography2.json(
@@ -90,7 +87,7 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
       content,
       configuration.password ?? '',
       keyPath =>
-        ApplicationEncryptConfiguration.needToEncrypt(keyPath, configuration)
+        EncryptThisJsonConfiguration.needToEncrypt(keyPath, configuration)
     );
   }
 
@@ -99,7 +96,7 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
    */
   public static decrypt(
     content: Json,
-    configuration?: Partial<ApplicationEncryptConfiguration>
+    configuration?: Partial<EncryptThisJsonConfiguration>
   ): Json {
     return HelperCryptography2.json(
       CryptographyDirection.Decrypt,
@@ -115,19 +112,21 @@ export class ApplicationEncryptConfiguration extends JsonLoader {
    */
   public static needToEncrypt(
     keyPath: string,
-    encryptConfiguration: ApplicationEncryptConfiguration
+    encryptConfiguration: EncryptThisJsonConfiguration
   ): boolean {
     const needToEncrypt =
       encryptConfiguration.enabled &&
-      !keyPath.startsWith('encryptThisJson.') &&
-      (encryptConfiguration.allFields ||
-        ApplicationEncryptConfiguration.regexSensitiveFields.test(keyPath));
+      !keyPath.startsWith(`${EncryptThisJsonConfiguration.fieldName}.`) &&
+      encryptConfiguration.fields.length > 0 &&
+      encryptConfiguration.fields.some(regex =>
+        new RegExp(regex).test(keyPath)
+      );
     if (needToEncrypt) {
       Logger.post(
         'Keeping JSON key encrypted: {jsonPath}',
         { jsonPath: keyPath },
         LogLevel.Verbose,
-        ApplicationEncryptConfiguration.logContext
+        EncryptThisJsonConfiguration.logContext
       );
     }
     return needToEncrypt;
