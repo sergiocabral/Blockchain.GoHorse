@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import { ElasticSearchDatabase } from './ElasticSearch/ElasticSearchDatabase';
-import { ElasticSearchDatabaseConfiguration } from './ElasticSearch/ElasticSearchDatabaseConfiguration';
+import { LogToDatabase } from './LogToDatabase/LogToDatabase';
+import { LogToDatabaseConfiguration } from './LogToDatabase/LogToDatabaseConfiguration';
 
-export { ElasticSearchDatabase, ElasticSearchDatabaseConfiguration };
+export { LogToDatabase, LogToDatabaseConfiguration };
