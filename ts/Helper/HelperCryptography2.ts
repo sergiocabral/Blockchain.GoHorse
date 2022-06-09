@@ -29,17 +29,17 @@ export class HelperCryptography2 {
    * Des/criptografa o JSON.
    * @param mode Criptografa ou descriptografa
    * @param json JSON.
-   * @param needToApplyEncryption Valida se é necessário aplicar criptografia.
    * @param password Senha utilizada.
+   * @param needToApplyEncryption Valida se é necessário aplicar criptografia.
    */
   public static json(
     mode: 'encrypt' | 'decrypt',
     json: Json,
-    needToApplyEncryption: (
+    password: string,
+    needToApplyEncryption?: (
       keyPath: string,
       keyValue: PrimitiveValueType | null
-    ) => boolean,
-    password: string
+    ) => boolean
   ): Json {
     const crypt = (
       keyPath: string,
@@ -95,7 +95,10 @@ export class HelperCryptography2 {
           typeof keyValue === 'number' ||
           typeof keyValue === 'boolean'
         ) {
-          if (needToApplyEncryption(keyPath, keyValue)) {
+          if (
+            needToApplyEncryption === undefined ||
+            needToApplyEncryption(keyPath, keyValue)
+          ) {
             jsonEntry[keyName] = crypt(keyPath, keyValue);
           }
         } else {

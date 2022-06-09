@@ -71,12 +71,7 @@ export class ApplicationConfiguration extends JsonLoader {
         JSON.stringify(
           ApplicationEncryptConfiguration.encrypt(
             configuration as unknown as Json,
-            configuration.encryptThisJson.password,
-            keyPath =>
-              ApplicationConfiguration.needToEncrypt(
-                keyPath,
-                configuration.encryptThisJson
-              )
+            configuration.encryptThisJson
           ),
           undefined,
           '  '
@@ -139,8 +134,7 @@ export class ApplicationConfiguration extends JsonLoader {
       fileContentAsJson = ApplicationEncryptConfiguration.decrypt(
         fileContentAsJson as Json,
         (fileContentAsJson as Partial<ApplicationConfiguration> | undefined)
-          ?.encryptThisJson?.password,
-        keyPath => ApplicationConfiguration.needToDecrypt(keyPath)
+          ?.encryptThisJson
       );
     } catch (error: unknown) {
       throw new IOError(
@@ -172,12 +166,7 @@ export class ApplicationConfiguration extends JsonLoader {
         JSON.stringify(
           ApplicationEncryptConfiguration.encrypt(
             configuration as unknown as Json,
-            configuration.encryptThisJson.password,
-            keyPath =>
-              ApplicationConfiguration.needToEncrypt(
-                keyPath,
-                configuration.encryptThisJson
-              )
+            configuration.encryptThisJson
           ),
           undefined,
           '  '
@@ -196,30 +185,5 @@ export class ApplicationConfiguration extends JsonLoader {
     }
 
     return configuration;
-  }
-
-  /**
-   * Verifica se uma chave do JSON deve ser criptografada.
-   * @param keyPath Caminho do JSON.
-   * @param encryptConfiguration Informações sobre a criptografia dos dados sensíveis no JSON.
-   */
-  private static needToEncrypt(
-    keyPath: string,
-    encryptConfiguration: ApplicationEncryptConfiguration
-  ): boolean {
-    return (
-      encryptConfiguration.enabled &&
-      !keyPath.startsWith('encryptThisJson.') &&
-      (encryptConfiguration.allFields ||
-        ApplicationEncryptConfiguration.regexSensitiveFields.test(keyPath))
-    );
-  }
-
-  /**
-   * Verifica se uma chave do JSON deve ser descriptografada
-   * @param keyPath Caminho do JSON
-   */
-  private static needToDecrypt(keyPath: string): boolean {
-    return !keyPath.startsWith('encryptThisJson.');
   }
 }
