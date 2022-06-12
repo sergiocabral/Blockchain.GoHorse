@@ -60,14 +60,14 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@gohorse/npm-core": "^5.1.4",
-    "@gohorse/npm-database": "^1.0.3",
-    "@gohorse/npm-database-elaticsearch": "^1.0.2",
-    "@gohorse/npm-i18n": "^2.0.36",
-    "@gohorse/npm-log": "^3.1.6",
-    "@gohorse/npm-log-console": "^1.1.9",
-    "@gohorse/npm-log-database": "^2.0.3",
-    "@gohorse/npm-log-file": "^1.2.6",
+    "@gohorse/npm-core": "^5.2.0",
+    "@gohorse/npm-database": "^1.0.4",
+    "@gohorse/npm-database-elaticsearch": "^1.0.4",
+    "@gohorse/npm-i18n": "^2.0.37",
+    "@gohorse/npm-log": "^3.1.7",
+    "@gohorse/npm-log-console": "^1.1.10",
+    "@gohorse/npm-log-database": "^2.0.5",
+    "@gohorse/npm-log-file": "^1.2.7",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.6.2"
   }
