@@ -59,8 +59,8 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@gohorse/npm-core": "^5.1.4",
-    "@gohorse/npm-log": "^3.1.6",
+    "@gohorse/npm-core": "^5.2.0",
+    "@gohorse/npm-log": "^3.1.7",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.6.2"
   }
