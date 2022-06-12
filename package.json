@@ -61,7 +61,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.2.1",
     "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^5.1.4",
+    "@gohorse/npm-core": "^5.2.0",
     "@gohorse/npm-database": "^1.0.3",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.6.2"
