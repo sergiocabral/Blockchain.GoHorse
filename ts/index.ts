@@ -6,6 +6,7 @@ import { TerminateApplication } from './BusMessage/Application/Message/Terminate
 import { IApplicationMessage } from './BusMessage/Application/IApplicationMessage';
 import { ApplicationMessage } from './BusMessage/Application/ApplicationMessage';
 
+import { ApplicationStarted } from './BusMessage/Event/ApplicationStarted';
 import { ApplicationTerminated } from './BusMessage/Event/ApplicationTerminated';
 import { ConfigurationReloaded } from './BusMessage/Event/ConfigurationReloaded';
 
@@ -25,6 +26,7 @@ export {
   TerminateApplication,
   IApplicationMessage,
   ApplicationMessage,
+  ApplicationStarted,
   ApplicationTerminated,
   ConfigurationReloaded,
   Generate,
