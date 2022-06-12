@@ -1,8 +1,14 @@
 import { IApplicationParameters } from './Type/IApplicationParameters';
 import { ApplicationDatabaseConfiguration } from './Configuration/ApplicationDatabaseConfiguration';
-import { ConnectionState, Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  ConnectionState,
+  Logger,
+  LogLevel,
+  Message
+} from '@sergiocabral/helper';
 import { ElasticSearchDatabase } from '@gohorse/npm-database-elaticsearch';
 import { IDatabase } from '@gohorse/npm-database';
+import { ConfigurationReloaded } from '@gohorse/npm-core';
 
 /**
  * Gerencia os banco de dados da aplicação.
@@ -30,6 +36,20 @@ export class ApplicationDatabase {
       elasticSearchDatabaseCanFail
     );
     this.elasticsearch.pushOnlyIndexSuffix = `-[${loggerName}]`;
+
+    Logger.post(
+      'Database connections available for use: {classList}',
+      {
+        classList: this.databases.map(database => database.constructor.name)
+      },
+      LogLevel.Debug,
+      ApplicationDatabase.logContext
+    );
+
+    Message.subscribe(
+      ConfigurationReloaded,
+      this.handleConfigurationReloaded.bind(this)
+    );
   }
 
   /**
@@ -48,16 +68,29 @@ export class ApplicationDatabase {
    * Abre as conexões.
    */
   public async open(): Promise<void> {
-    Logger.post(
-      'Opening a total of {count} database connection(s).',
-      {
-        count: this.databases.length
-      },
-      LogLevel.Debug,
-      ApplicationDatabase.logContext
+    const closedDatabases = this.databases.filter(
+      database => database.state === ConnectionState.Closed
     );
-    for (const database of this.databases) {
-      await database.open();
+    if (closedDatabases.length > 0) {
+      Logger.post(
+        'Opening a total of {count} database connection(s): {classList}',
+        {
+          count: closedDatabases.length,
+          classList: closedDatabases.map(database => database.constructor.name)
+        },
+        LogLevel.Debug,
+        ApplicationDatabase.logContext
+      );
+      for (const database of closedDatabases) {
+        await database.open();
+      }
+    } else {
+      Logger.post(
+        'There were no database connections to open.',
+        undefined,
+        LogLevel.Debug,
+        ApplicationDatabase.logContext
+      );
     }
   }
 
@@ -65,19 +98,36 @@ export class ApplicationDatabase {
    * Abre as conexões.
    */
   public async close(): Promise<void> {
-    const openedDatabases = this.databases.filter(
+    const opendedDatabases = this.databases.filter(
       database => database.state === ConnectionState.Ready
     );
-    Logger.post(
-      'Closing a total of {count} database connection(s).',
-      {
-        count: openedDatabases.length
-      },
-      LogLevel.Debug,
-      ApplicationDatabase.logContext
-    );
-    for (const database of openedDatabases) {
-      await database.close();
+    if (opendedDatabases.length > 0) {
+      Logger.post(
+        'Closing a total of {count} database connection(s): {classList}',
+        {
+          count: opendedDatabases.length,
+          classList: opendedDatabases.map(database => database.constructor.name)
+        },
+        LogLevel.Debug,
+        ApplicationDatabase.logContext
+      );
+      for (const database of opendedDatabases) {
+        await database.close();
+      }
+    } else {
+      Logger.post(
+        'There were no database connections to close.',
+        undefined,
+        LogLevel.Debug,
+        ApplicationDatabase.logContext
+      );
     }
+  }
+
+  /**
+   * Handle: ConfigurationReloaded
+   */
+  private async handleConfigurationReloaded(): Promise<void> {
+    await this.open();
   }
 }
