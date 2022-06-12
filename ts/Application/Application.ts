@@ -20,6 +20,7 @@ import { ApplicationExecutionMode } from './Type/ApplicationExecutionMode';
 import { ApplicationFlagFileMessageRouter } from './ApplicationFlagFileMessageRouter';
 import * as os from 'os';
 import {
+  ApplicationStarted,
   ApplicationTerminated,
   ConfigurationReloaded,
   Instance,
@@ -216,6 +217,8 @@ export abstract class Application<
       this.logger.configure();
       await new Translation(() => this.configuration.language).load();
       await this.database.open();
+
+      await new ApplicationStarted().sendAsync();
 
       await goAhead();
       await this.stop();

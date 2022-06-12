@@ -8,7 +8,7 @@ import {
 } from '@sergiocabral/helper';
 import { ElasticSearchDatabase } from '@gohorse/npm-database-elaticsearch';
 import { IDatabase } from '@gohorse/npm-database';
-import { ConfigurationReloaded } from '@gohorse/npm-core';
+import { ApplicationStarted, ConfigurationReloaded } from '@gohorse/npm-core';
 
 /**
  * Gerencia os banco de dados da aplicação.
@@ -37,15 +37,10 @@ export class ApplicationDatabase {
     );
     this.elasticsearch.pushOnlyIndexSuffix = `-[${loggerName}]`;
 
-    Logger.post(
-      'Database connections available for use: {classList}',
-      {
-        classList: this.databases.map(database => database.constructor.name)
-      },
-      LogLevel.Debug,
-      ApplicationDatabase.logContext
+    Message.subscribe(
+      ApplicationStarted,
+      this.handleApplicationStarted.bind(this)
     );
-
     Message.subscribe(
       ConfigurationReloaded,
       this.handleConfigurationReloaded.bind(this)
@@ -122,6 +117,21 @@ export class ApplicationDatabase {
         ApplicationDatabase.logContext
       );
     }
+  }
+
+  /**
+   * Handle: ApplicationStarted
+   */
+  private handleApplicationStarted(): void {
+    Logger.post(
+      'There are a total of {count} database connection(s) configured in the application: {classList}',
+      {
+        count: this.databases.length,
+        classList: this.databases.map(database => database.constructor.name)
+      },
+      LogLevel.Verbose,
+      ApplicationDatabase.logContext
+    );
   }
 
   /**
