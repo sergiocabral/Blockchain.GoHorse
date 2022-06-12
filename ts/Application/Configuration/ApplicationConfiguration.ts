@@ -1,10 +1,15 @@
 import { TranslateConfiguration } from '@gohorse/npm-i18n';
-import { IOError, JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  IOError,
+  Json,
+  JsonLoader,
+  Logger,
+  LogLevel
+} from '@sergiocabral/helper';
 import fs from 'fs';
 import { ApplicationLoggerCollectionConfiguration } from './ApplicationLoggerCollectionConfiguration';
 import { ApplicationDatabaseConfiguration } from './ApplicationDatabaseConfiguration';
 import { EncryptThisJsonConfiguration } from './EncryptThisJsonConfiguration';
-import { Json } from '../../Helper/Json';
 
 /**
  * Configurações da aplicação.

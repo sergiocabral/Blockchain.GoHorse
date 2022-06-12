@@ -1,8 +1,12 @@
-import { JsonLoader, Logger, LogLevel } from '@sergiocabral/helper';
+import {
+  CryptographyDirection,
+  HelperCryptography,
+  Json,
+  JsonLoader,
+  Logger,
+  LogLevel
+} from '@sergiocabral/helper';
 import { Generate } from '@gohorse/npm-core';
-import { HelperCryptography2 } from '../../Helper/HelperCryptography2';
-import { Json } from '../../Helper/Json';
-import { CryptographyDirection } from '../../Helper/CryptographyDirection';
 
 /**
  * Informações sobre a criptografia dos dados sensíveis no JSON.
@@ -82,7 +86,7 @@ export class EncryptThisJsonConfiguration extends JsonLoader {
       EncryptThisJsonConfiguration.logContext
     );
 
-    return HelperCryptography2.json(
+    return HelperCryptography.json(
       CryptographyDirection.Encrypt,
       content,
       configuration.password ?? '',
@@ -98,7 +102,7 @@ export class EncryptThisJsonConfiguration extends JsonLoader {
     content: Json,
     configuration?: Partial<EncryptThisJsonConfiguration>
   ): Json {
-    return HelperCryptography2.json(
+    return HelperCryptography.json(
       CryptographyDirection.Decrypt,
       content,
       configuration?.password ?? ''
