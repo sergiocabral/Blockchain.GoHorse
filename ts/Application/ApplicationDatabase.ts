@@ -69,10 +69,10 @@ export class ApplicationDatabase {
     if (closedDatabases.length > 0) {
       Logger.post(
         'Opening a total of {count} database connection(s): {classList}',
-        {
+        () => ({
           count: closedDatabases.length,
           classList: closedDatabases.map(database => database.constructor.name)
-        },
+        }),
         LogLevel.Debug,
         ApplicationDatabase.logContext
       );
@@ -99,10 +99,10 @@ export class ApplicationDatabase {
     if (opendedDatabases.length > 0) {
       Logger.post(
         'Closing a total of {count} database connection(s): {classList}',
-        {
+        () => ({
           count: opendedDatabases.length,
           classList: opendedDatabases.map(database => database.constructor.name)
-        },
+        }),
         LogLevel.Debug,
         ApplicationDatabase.logContext
       );
@@ -125,10 +125,10 @@ export class ApplicationDatabase {
   private handleApplicationStarted(): void {
     Logger.post(
       'There are a total of {count} database connection(s) configured in the application: {classList}',
-      {
+      () => ({
         count: this.databases.length,
         classList: this.databases.map(database => database.constructor.name)
-      },
+      }),
       LogLevel.Verbose,
       ApplicationDatabase.logContext
     );

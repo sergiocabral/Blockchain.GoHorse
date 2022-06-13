@@ -54,31 +54,31 @@ export class ApplicationParameters
 
     Logger.post(
       'NPM package "{packageName}" v{packageVersion}',
-      {
+      () => ({
         packageName: this.packageName,
         packageVersion: this.packageVersion
-      },
+      }),
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
       'Initial directory as: {directoryPath}',
-      { directoryPath: this.startupDirectory },
+      () => ({ directoryPath: this.startupDirectory }),
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
       'Application directory as: {directoryPath}',
-      { directoryPath: this.packageDirectory },
+      () => ({ directoryPath: this.packageDirectory }),
       LogLevel.Debug,
       ApplicationParameters.logContext
     );
 
     Logger.post(
       'Command line: {commandLineContent}',
-      { commandLineContent: this.toString() },
+      () => ({ commandLineContent: this.toString() }),
       LogLevel.Debug,
       ApplicationParameters.logContext
     );

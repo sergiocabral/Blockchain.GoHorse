@@ -199,9 +199,9 @@ export abstract class Application<
 
     Logger.post(
       'Application started in mode: {applicationExecutionMode}',
-      {
+      () => ({
         applicationExecutionMode: this.executionMode
-      },
+      }),
       LogLevel.Information,
       Application.logContext2
     );
@@ -360,21 +360,21 @@ export abstract class Application<
     if (errors.length === 0) {
       Logger.post(
         '"{applicationName}" application (id "{instanceId}") ended successfully.',
-        {
+        () => ({
           instanceId: this.parameters.id,
           applicationName: this.constructor.name
-        },
+        }),
         LogLevel.Information,
         Application.logContext2
       );
     } else {
       Logger.post(
         '"{applicationName}" application (id "{instanceId}") ended with {count} error(s).',
-        {
+        () => ({
           instanceId: this.parameters.id,
           applicationName: this.constructor.name,
           count: errors.length
-        },
+        }),
         LogLevel.Error,
         Application.logContext2
       );
@@ -382,9 +382,10 @@ export abstract class Application<
       for (const error of errors) {
         Logger.post(
           HelperText.formatError(error),
-          {
-            error: HelperObject.toText(error)
-          },
+          () => ({
+            errorDescription: HelperObject.toText(error),
+            error: error
+          }),
           LogLevel.Fatal,
           Application.logContext2
         );
@@ -401,9 +402,9 @@ export abstract class Application<
   private createApplicationFlagFile(): void {
     Logger.post(
       'Creating application instance execution flag file: {filePath}',
-      {
+      () => ({
         filePath: this.parameters.flagFile
-      },
+      }),
       LogLevel.Debug,
       Application.logContext2
     );
@@ -429,11 +430,11 @@ Application
 
     Logger.post(
       'Monitoring every {timeSeconds} seconds for the presence of the application instance execution flag file: {filePath}',
-      {
+      () => ({
         timeSeconds:
           Definition.INTERVAL_BETWEEN_CHECKING_APPLICATION_FLAG_FILE_IN_SECONDS,
         filePath: this.parameters.flagFile
-      },
+      }),
       LogLevel.Debug,
       Application.logContext2
     );
@@ -447,9 +448,9 @@ Application
       this.applicationFlagFileMonitoring.stop();
       Logger.post(
         'Stopped monitoring for the presence of the application instance execution flag file: {filePath}',
-        {
+        () => ({
           filePath: this.parameters.flagFile
-        },
+        }),
         LogLevel.Debug,
         Application.logContext2
       );
@@ -458,9 +459,9 @@ Application
     if (fs.existsSync(this.parameters.flagFile)) {
       Logger.post(
         'Deleting application instance execution flag file: {filePath}',
-        {
+        () => ({
           filePath: this.parameters.flagFile
-        },
+        }),
         LogLevel.Debug,
         Application.logContext2
       );
@@ -550,10 +551,10 @@ Application
     } catch (error) {
       Logger.post(
         'An error occurred while releasing resources.: {errorDescription}',
-        {
+        () => ({
           errorDescription: HelperText.formatError(error),
           error
-        },
+        }),
         LogLevel.Critical,
         Application.logContext2
       );
@@ -579,7 +580,10 @@ Application
     } catch (error) {
       Logger.post(
         'An error occurred while reloading configuration: {errorDescription}',
-        { errorDescription: HelperText.formatError(error), error },
+        () => ({
+          errorDescription: HelperText.formatError(error),
+          error
+        }),
         LogLevel.Warning,
         Application.logContext2
       );

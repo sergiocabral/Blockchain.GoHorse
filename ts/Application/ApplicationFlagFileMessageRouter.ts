@@ -100,9 +100,9 @@ export class ApplicationFlagFileMessageRouter {
     }
     Logger.post(
       'The message file was deleted: {filePath}',
-      {
+      () => ({
         filePath: data.before.realpath
-      },
+      }),
       LogLevel.Debug,
       ApplicationFlagFileMessageRouter.logContext
     );
@@ -123,9 +123,9 @@ export class ApplicationFlagFileMessageRouter {
     }
     Logger.post(
       'The message file was modified: {filePath}',
-      {
+      () => ({
         filePath: data.after.realpath
-      },
+      }),
       LogLevel.Verbose,
       ApplicationFlagFileMessageRouter.logContext
     );
@@ -134,11 +134,11 @@ export class ApplicationFlagFileMessageRouter {
     for (const message of messages) {
       Logger.post(
         'Message "{applicationMessageType}" (id: "{applicationMessageId}") received from the application id "{fromInstanceId}". Submitting for processing in this instance.',
-        {
+        () => ({
           fromInstanceId: message.fromInstanceId,
           applicationMessageId: message.id,
           applicationMessageType: message.type
-        },
+        }),
         LogLevel.Debug,
         ApplicationFlagFileMessageRouter.logContext
       );
@@ -228,10 +228,10 @@ export class ApplicationFlagFileMessageRouter {
     if (alreadyProcessed) {
       Logger.post(
         'Error reading message. Message id "{applicationMessageId}" has already been processed previously: {fileLineContent}',
-        {
+        () => ({
           applicationMessageId: message.id,
           fileLineContent: fileLine
-        },
+        }),
         LogLevel.Warning,
         ApplicationFlagFileMessageRouter.logContext
       );
@@ -243,10 +243,10 @@ export class ApplicationFlagFileMessageRouter {
     if (message.toInstanceId !== Instance.id) {
       Logger.post(
         'Error reading message. Message addressed to another application of id "{toInstanceId}": {fileLineContent}',
-        {
+        () => ({
           toInstanceId: message.toInstanceId,
           fileLineContent: fileLine
-        },
+        }),
         LogLevel.Warning,
         ApplicationFlagFileMessageRouter.logContext
       );
@@ -292,10 +292,10 @@ export class ApplicationFlagFileMessageRouter {
       if (messageConstructor === undefined) {
         Logger.post(
           'Error reading message. Invalid type "{applicationMessageType}" in message: {jsonContent}',
-          {
+          () => ({
             applicationMessageType: json.type,
             jsonContent
-          },
+          }),
           LogLevel.Warning,
           ApplicationFlagFileMessageRouter.logContext
         );
@@ -310,11 +310,11 @@ export class ApplicationFlagFileMessageRouter {
     } catch (error) {
       Logger.post(
         'Error reading message. Error "{errorDescription}" when parsing JSON: {jsonContent}',
-        {
+        () => ({
           errorDescription: HelperText.formatError(error),
           error,
           jsonContent
-        },
+        }),
         LogLevel.Warning,
         ApplicationFlagFileMessageRouter.logContext
       );
@@ -363,21 +363,21 @@ export class ApplicationFlagFileMessageRouter {
 
       Logger.post(
         'Send message "{applicationMessageType}" to instance "{toInstanceId}".',
-        {
+        () => ({
           applicationMessageType: message.type,
           toInstanceId: message.toInstanceId
-        },
+        }),
         LogLevel.Information,
         ApplicationFlagFileMessageRouter.logContext
       );
 
       Logger.post(
         'Appending message "{applicationMessageType}" into file: {filePath}.',
-        {
+        () => ({
           applicationMessageType: message.type,
           toInstanceId: message.toInstanceId,
           filePath: instanceFile
-        },
+        }),
         LogLevel.Debug,
         ApplicationFlagFileMessageRouter.logContext
       );
