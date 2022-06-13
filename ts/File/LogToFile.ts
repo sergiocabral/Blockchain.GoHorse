@@ -45,10 +45,10 @@ export class LogToFile extends LoggerToStream<
 
     Logger.post(
       'Setting logger "{logWriterType}" to send data to file: {filePath}.',
-      {
+      () => ({
         logWriterType: this.type,
         filePath: this.instance.file
-      },
+      }),
       LogLevel.Debug,
       LogToFile.logContext
     );
