@@ -159,11 +159,11 @@ export abstract class Database<
   private async connectionFail(error: unknown): Promise<void> {
     Logger.post(
       'The connection to the database of type "{className}" had an error: {errorDescription}',
-      {
+      () => ({
         className: this.constructor.name,
         errorDescription: HelperText.formatError(error),
         error
-      },
+      }),
       this.whenConnectionFailsIgnoreAndSetConnectionClosed
         ? LogLevel.Error
         : LogLevel.Critical,
@@ -193,11 +193,11 @@ export abstract class Database<
       } catch (error) {
         Logger.post(
           'When trying to reset the connection to the database of type "{className}" an error occurred: {errorDescription}',
-          {
+          () => ({
             className: this.constructor.name,
             errorDescription: HelperText.formatError(error),
             error
-          },
+          }),
           LogLevel.Critical,
           Database.logContext2
         );
