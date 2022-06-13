@@ -218,23 +218,23 @@ export class Translation {
 
         Logger.post(
           'The "{filePath}" translation file with {sizeBytes} bytes was loaded for "{languageCultureName}" language.',
-          {
+          () => ({
             filePath: translationFile.path,
             sizeBytes: fs.statSync(translationFile.path).size,
             languageCultureName: translationFile.language
-          },
+          }),
           LogLevel.Debug,
           Translation.logContext
         );
       } catch (error: unknown) {
         Logger.post(
           'An error occurred loading translation "{filePath}" file of "{languageCultureName}" language. Error: {errorDescription}',
-          {
+          () => ({
             errorDescription: HelperText.formatError(error),
             error,
             filePath: translationFile.path,
             languageCultureName: translationFile.language
-          },
+          }),
           LogLevel.Warning,
           Translation.logContext
         );
