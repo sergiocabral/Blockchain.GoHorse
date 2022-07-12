@@ -30,7 +30,7 @@ import {
 import { Translation } from '@gohorse/npm-i18n';
 import { ApplicationLogger } from './ApplicationLogger';
 import { ApplicationDatabase } from './ApplicationDatabase';
-import { AplicationState } from './Type/ApplicationState';
+import { ApplicationState } from './Type/ApplicationState';
 import { CoreTemplateString } from '@gohorse/npm-core/js/Template/CoreTemplateString';
 import { ApplicationTemplateString } from './ApplicationTemplateString';
 
@@ -151,13 +151,13 @@ export abstract class Application<
    * Sinaliza se a aplicação está em execução.
    */
   public get isRunning(): boolean {
-    return this.aplicationState !== AplicationState.Stoped;
+    return this.aplicationState !== ApplicationState.Stoped;
   }
 
   /**
    * Estado de execução da aplicação.
    */
-  private aplicationState: AplicationState = AplicationState.Stoped;
+  private aplicationState: ApplicationState = ApplicationState.Stoped;
 
   /**
    * Modo de execução da aplicação.
@@ -189,13 +189,13 @@ export abstract class Application<
    */
   public async run(): Promise<void> {
     if (
-      this.aplicationState === AplicationState.Running ||
-      this.aplicationState === AplicationState.Stoping
+      this.aplicationState === ApplicationState.Running ||
+      this.aplicationState === ApplicationState.Stoping
     ) {
       throw new InvalidExecutionError('Already started or stoping.');
     }
 
-    this.aplicationState = AplicationState.Running;
+    this.aplicationState = ApplicationState.Running;
 
     Logger.post(
       'Application started in mode: {applicationExecutionMode}',
@@ -328,10 +328,10 @@ export abstract class Application<
    * @param errors Erros durante a execução.
    */
   private async stop(...errors: unknown[]): Promise<void> {
-    if (this.aplicationState !== AplicationState.Running) {
+    if (this.aplicationState !== ApplicationState.Running) {
       return;
     }
-    this.aplicationState = AplicationState.Stoping;
+    this.aplicationState = ApplicationState.Stoping;
 
     try {
       this.deleteApplicationFlagFile();
@@ -392,7 +392,7 @@ export abstract class Application<
       }
     }
 
-    this.aplicationState = AplicationState.Stoped;
+    this.aplicationState = ApplicationState.Stoped;
   }
 
   /**

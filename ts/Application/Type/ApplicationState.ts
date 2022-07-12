@@ -1,7 +1,7 @@
 /**
  * Estados de execução de uma aplicação.
  */
-export enum AplicationState {
+export enum ApplicationState {
   /**
    * Executando.
    */
