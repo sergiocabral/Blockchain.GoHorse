@@ -20,7 +20,7 @@ import { ApplicationTemplateString } from './Application/ApplicationTemplateStri
 import { SampleApp } from './Sample/SampleApp';
 import { SampleAppConfiguration } from './Sample/SampleAppConfiguration';
 
-void new SampleApp().run();
+// void new SampleApp().run(); // Esta linha deve ser usada apenas para testes nesta biblioteca.
 
 export {
   ApplicationConfiguration,
