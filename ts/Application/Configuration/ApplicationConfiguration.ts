@@ -1,5 +1,6 @@
 import { TranslateConfiguration } from '@gohorse/npm-i18n';
 import {
+  HelperCryptography,
   IOError,
   Json,
   JsonLoader,
@@ -190,5 +191,31 @@ export class ApplicationConfiguration extends JsonLoader {
     }
 
     return configuration;
+  }
+
+  /**
+   * Hashes of readed configurations.
+   */
+  private static readConfigurationHashes: Record<string, string> = {};
+
+  /**
+   * Read configuration if it has changed.
+   * @param getConfiguration Reloaded configuration.
+   */
+  public static readConfiguration<TConfiguration extends JsonLoader>(
+    getConfiguration: () => TConfiguration
+  ): TConfiguration | undefined {
+    const configuration = getConfiguration();
+    const configurationHash = HelperCryptography.hash(configuration);
+    const configurationKey = configuration.constructor.name;
+
+    const result =
+      configurationHash !== this.readConfigurationHashes[configurationKey]
+        ? configuration
+        : undefined;
+
+    this.readConfigurationHashes[configurationKey] = configurationHash;
+
+    return result;
   }
 }
