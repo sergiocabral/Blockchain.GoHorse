@@ -44,22 +44,22 @@
   },
   "homepage": "https://github.com/sergiocabral/Blockchain.GoHorse/tree/npm-template",
   "devDependencies": {
-    "@types/jest": "^28.1.1",
-    "@types/node": "^17.0.42",
-    "@typescript-eslint/eslint-plugin": "^5.28.0",
-    "@typescript-eslint/parser": "^5.28.0",
-    "eslint": "^8.17.0",
+    "@types/jest": "^29.0.1",
+    "@types/node": "^18.7.16",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^28.1.1",
-    "prettier": "^2.7.0",
-    "ts-jest": "^28.0.5",
-    "ts-node": "^10.8.1",
-    "typescript": "^4.7.3"
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^29.0.3",
+    "prettier": "^2.7.1",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.3"
   },
   "dependencies": {
     "tslib": "^2.4.0",
-    "@sergiocabral/helper": "^11.6.2"
+    "@sergiocabral/helper": "^11.9.2"
   }
 }
