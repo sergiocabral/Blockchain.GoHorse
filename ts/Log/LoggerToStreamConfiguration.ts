@@ -1,4 +1,4 @@
-import { JsonLoader, LogLevel } from '@sergiocabral/helper';
+import { HelperList, JsonLoader, LogLevel } from '@sergiocabral/helper';
 
 /**
  * Configurações do logger.
@@ -29,16 +29,12 @@ export abstract class LoggerToStreamConfiguration extends JsonLoader {
   public override errors(): string[] {
     const errors = Array<string>();
 
-    const namesOfLogLevel: string[] = Object.keys(LogLevel).filter(key =>
-      isNaN(parseInt(key))
-    );
-
     errors.push(
       ...JsonLoader.mustBeBoolean<LoggerToStreamConfiguration>(this, 'enabled'),
       ...JsonLoader.mustBeInTheSet<LoggerToStreamConfiguration>(
         this,
         'minimumLevel',
-        namesOfLogLevel,
+        HelperList.enumValues(LogLevel),
         'value and type',
         false
       )
