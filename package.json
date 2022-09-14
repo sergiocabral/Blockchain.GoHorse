@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-log-file",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "GoHorse is a Git-based blockchain. Library with implementation of the recording of log messages on disk file.",
   "bin": "js/index.js",
   "main": "js/index.js",
