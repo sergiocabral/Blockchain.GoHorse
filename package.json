@@ -59,10 +59,10 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.2.1",
+    "@elastic/elasticsearch": "^8.4.0",
     "@elastic/transport": "^8.2.0",
-    "@gohorse/npm-core": "^5.2.1",
-    "@gohorse/npm-database": "^1.0.5",
+    "@gohorse/npm-core": "^5.2.3",
+    "@gohorse/npm-database": "^1.0.6",
     "tslib": "^2.4.0",
     "@sergiocabral/helper": "^11.9.2"
   }
