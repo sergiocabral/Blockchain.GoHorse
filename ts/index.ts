@@ -20,7 +20,10 @@ import { ApplicationTemplateString } from './Application/ApplicationTemplateStri
 import { SampleApp } from './Sample/SampleApp';
 import { SampleAppConfiguration } from './Sample/SampleAppConfiguration';
 
-// void new SampleApp().run(); // Esta linha deve ser usada apenas para testes nesta biblioteca.
+const commandLine = process.argv.join(' ');
+if (commandLine.includes(ApplicationParameters.packageName)) {
+  void new SampleApp().run();
+}
 
 export {
   ApplicationConfiguration,
