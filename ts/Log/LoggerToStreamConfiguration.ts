@@ -34,7 +34,7 @@ export abstract class LoggerToStreamConfiguration extends JsonLoader {
       ...JsonLoader.mustBeInTheSet<LoggerToStreamConfiguration>(
         this,
         'minimumLevel',
-        HelperList.enumValues(LogLevel),
+        HelperList.enumKeys(LogLevel),
         'value and type',
         false
       )
