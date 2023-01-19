@@ -64,9 +64,9 @@
     "@gohorse/npm-database": "^1.0.7",
     "@gohorse/npm-database-elaticsearch": "^1.0.7",
     "@gohorse/npm-i18n": "^2.0.41",
-    "@gohorse/npm-log": "^3.1.9",
-    "@gohorse/npm-log-console": "^1.1.13",
-    "@gohorse/npm-log-database": "^2.0.9",
-    "@gohorse/npm-log-file": "^1.2.9"
+    "@gohorse/npm-log": "^3.1.11",
+    "@gohorse/npm-log-console": "^1.1.14",
+    "@gohorse/npm-log-database": "^2.0.10",
+    "@gohorse/npm-log-file": "^1.2.11"
   }
 }
