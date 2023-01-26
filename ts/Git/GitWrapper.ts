@@ -13,7 +13,7 @@ export class GitWrapper extends ApplicationWrapper {
   /**
    * Obter versão do Git.
    */
-  public async version(): Promise<string> {
+  public async getVersion(): Promise<string> {
     const output = await super.run('--version');
 
     if (output.exitCode !== 0) {
