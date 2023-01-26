@@ -1,11 +1,19 @@
 #! /usr/bin/env node
 
-import { Foo } from './Dummy/Foo';
+import { GitWrapper } from './Git/GitWrapper';
 
-export { Foo };
+import { IProcessExecutionOutput } from './ProcessExecution/IProcessExecutionOutput';
+import { ProcessExecution } from './ProcessExecution/ProcessExecution';
+import { ProcessExecutionOutput } from './ProcessExecution/ProcessExecutionOutput';
 
-/*
-This file cannot be compiled because it is a template.
-Read more in the "Creating a new NPM package" topic in the README.md file.
-To prevent and mistakenly publish in NPM the line below breaks the build.
-*/ cannot build
+import { ApplicationWrapper } from './Wrapper/ApplicationWrapper';
+import { IApplicationWrapper } from './Wrapper/IApplicationWrapper';
+
+export {
+  GitWrapper,
+  IProcessExecutionOutput,
+  ProcessExecution,
+  ProcessExecutionOutput,
+  ApplicationWrapper,
+  IApplicationWrapper
+};
