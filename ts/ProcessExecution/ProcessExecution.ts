@@ -2,6 +2,7 @@ import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { IProcessExecutionOutput } from './IProcessExecutionOutput';
 import { ProcessExecutionOutput } from './ProcessExecutionOutput';
 import { IProcessExecutionConfiguration } from './IProcessExecutionConfiguration';
+import { ProcessExecutionError } from './ProcessExecutionError';
 
 /**
  * Representa a excução de processo.
@@ -60,7 +61,7 @@ export class ProcessExecution {
       childProcess.on('error', (exitError: Error) => {
         this.isRunning = false;
         result.exitError = exitError;
-        reject(result);
+        reject(new ProcessExecutionError(result, exitError));
       });
     });
   }
