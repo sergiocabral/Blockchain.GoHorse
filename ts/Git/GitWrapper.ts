@@ -1,4 +1,4 @@
-import { ApplicationWrapper } from './ApplicationWrapper';
+import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { ProcessExecution } from '../CommandLine/ProcessExecution';
 
 /**
