@@ -1,8 +1,8 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
-import { ProcessExecution } from '../CommandLine/ProcessExecution';
+import { ProcessExecution } from '../ProcessExecution/ProcessExecution';
 
 /**
- * CommandLine para executar o Git.
+ * ProcessExecution para executar o Git.
  */
 export class GitWrapper extends ApplicationWrapper {
   /**
