@@ -33,4 +33,16 @@ export class GitWrapper extends ApplicationWrapper {
 
     return version[0];
   }
+
+  /**
+   * Determina se é um repositório válido.
+   */
+  public async isValidRepository(): Promise<boolean> {
+    const output = await super.run('status');
+    return (
+      output.exitCode === 0 &&
+      output.errorLines.length === 0 &&
+      !output.all.startsWith('fatal:')
+    );
+  }
 }
