@@ -22,11 +22,11 @@ export abstract class ApplicationWrapper implements IApplicationWrapper {
    * @param args Argumentos.
    */
   public async run(...args: string[]): Promise<IProcessExecutionOutput> {
-    const processExecution = new ProcessExecution(
-      this.path,
-      args,
-      this.workingDirectory
-    );
+    const processExecution = new ProcessExecution({
+      path: this.path,
+      workingDirectory: this.workingDirectory,
+      args
+    });
     return await processExecution.execute();
   }
 }

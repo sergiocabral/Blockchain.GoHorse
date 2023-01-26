@@ -1,6 +1,7 @@
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import { IProcessExecutionOutput } from './IProcessExecutionOutput';
 import { ProcessExecutionOutput } from './ProcessExecutionOutput';
+import { IProcessExecutionConfiguration } from './IProcessExecutionConfiguration';
 
 /**
  * Representa a excução de processo.
@@ -8,15 +9,9 @@ import { ProcessExecutionOutput } from './ProcessExecutionOutput';
 export class ProcessExecution {
   /**
    * Construtor.
-   * @param processName Caminho do processo.
-   * @param processArguments Argumentos de linha de comando
-   * @param workingDirectory Diretório de trabalho.
+   * @param configuration Parâmetros para execução da aplicação.
    */
-  public constructor(
-    public processName: string,
-    public processArguments: string[] = [],
-    public workingDirectory?: string
-  ) {}
+  public constructor(public configuration: IProcessExecutionConfiguration) {}
 
   /**
    * Sinaliza uma execução em andamento.
@@ -27,18 +22,22 @@ export class ProcessExecution {
    * Executa a linha de comando.
    * @return Saída do comando.
    */
-  public async execute(): Promise<IProcessExecutionOutput> {
+  public async execute(
+    configuration?: IProcessExecutionConfiguration
+  ): Promise<IProcessExecutionOutput> {
     return new Promise<IProcessExecutionOutput>((resolve, reject) => {
+      configuration = configuration ?? this.configuration;
+
       this.isRunning = true;
 
       const spawnOptions: SpawnOptionsWithoutStdio = {
-        cwd: this.workingDirectory ?? undefined,
+        cwd: this.configuration.workingDirectory,
         windowsHide: true
       };
 
       const childProcess = spawn(
-        this.processName,
-        this.processArguments,
+        configuration.path,
+        configuration.args,
         spawnOptions
       );
 
