@@ -80,4 +80,14 @@ export class GitWrapper extends ApplicationWrapper {
     const output = await super.run(...args);
     return GitWrapper.isSuccess(output);
   }
+
+  /**
+   * Adiciona arquivos no staging area.
+   * @param files Lista de arquivos.
+   */
+  public async addFiles(...files: string[]): Promise<boolean> {
+    const args: string[] = ['add'].concat(files);
+    const output = await super.run(...args);
+    return GitWrapper.isSuccess(output);
+  }
 }
