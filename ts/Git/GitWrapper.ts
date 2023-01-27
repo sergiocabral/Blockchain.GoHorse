@@ -7,6 +7,18 @@ import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOu
  */
 export class GitWrapper extends ApplicationWrapper {
   /**
+   * Verifica se o Git resultou em sucesso na sua execução.
+   * @param output Saída do Git.
+   */
+  private static isSuccess(output: IProcessExecutionOutput): boolean {
+    return (
+      output.exitCode === 0 &&
+      output.errorLines.length === 0 &&
+      !output.all.startsWith('fatal:')
+    );
+  }
+
+  /**
    * Caminho da aplicação.
    */
   public override readonly path = 'git';
@@ -67,17 +79,5 @@ export class GitWrapper extends ApplicationWrapper {
     }
     const output = await super.run(...args);
     return GitWrapper.isSuccess(output);
-  }
-
-  /**
-   * Verifica se o Git resultou em sucesso na sua execução.
-   * @param output Saída do Git.
-   */
-  private static isSuccess(output: IProcessExecutionOutput): boolean {
-    return (
-      output.exitCode === 0 &&
-      output.errorLines.length === 0 &&
-      !output.all.startsWith('fatal:')
-    );
   }
 }
