@@ -1,5 +1,6 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { InvalidExecutionError } from '@sergiocabral/helper';
+import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOutput';
 
 /**
  * ProcessExecution para executar o Git.
@@ -39,6 +40,27 @@ export class GitWrapper extends ApplicationWrapper {
    */
   public async isValidRepository(): Promise<boolean> {
     const output = await super.run('status');
+    return GitWrapper.isSuccess(output);
+  }
+
+  /**
+   * Cria um repositório.
+   * @param bare Sinaliza se é do tipo bare (sem árvore de arquivos)
+   */
+  public async createRepository(bare = false): Promise<boolean> {
+    const args: string[] = ['init'];
+    if (bare) {
+      args.push('--bare');
+    }
+    const output = await super.run(...args);
+    return GitWrapper.isSuccess(output);
+  }
+
+  /**
+   * Verifica se o Git resultou em sucesso na sua execução.
+   * @param output Saída do Git.
+   */
+  private static isSuccess(output: IProcessExecutionOutput): boolean {
     return (
       output.exitCode === 0 &&
       output.errorLines.length === 0 &&
