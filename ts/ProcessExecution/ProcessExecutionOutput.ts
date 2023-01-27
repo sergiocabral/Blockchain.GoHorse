@@ -1,5 +1,5 @@
 import { IProcessExecutionOutput } from './IProcessExecutionOutput';
-import { NotImplementedError } from '@sergiocabral/helper';
+import { HelperText, NotImplementedError } from '@sergiocabral/helper';
 import { env } from 'process';
 
 /**
@@ -12,19 +12,20 @@ export class ProcessExecutionOutput implements IProcessExecutionOutput {
    * @param type Tipo de postagem.
    */
   public put(output: string, type: 'standard' | 'error' = 'standard'): void {
+    const lines = HelperText.breakLines(output);
     switch (type) {
       case 'standard':
-        this.standardValue.push(output);
+        this.standardValue.push(...lines);
         break;
       case 'error':
-        this.errorValue.push(output);
+        this.errorValue.push(...lines);
         break;
       default:
         throw new NotImplementedError(
           'Type os output was not expected: ' + String(type)
         );
     }
-    this.allValue.push(output);
+    this.allValue.push(...lines);
   }
 
   /**
