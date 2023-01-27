@@ -90,4 +90,29 @@ export class GitWrapper extends ApplicationWrapper {
     const output = await super.run(...args);
     return GitWrapper.isSuccess(output);
   }
+
+  /**
+   * Commit.
+   * @param message Mensagem
+   * @param gpgSignature Assinatura GPG/PGP
+   */
+  public async commit(
+    message?: string,
+    gpgSignature?: string
+  ): Promise<boolean> {
+    const args: string[] = ['commit'];
+    args.push(`--allow-empty`);
+    if (gpgSignature !== undefined) {
+      args.push(`-S${gpgSignature}`);
+    }
+    if (message) {
+      args.push(`-m`);
+      args.push(message);
+    } else {
+      args.push('--allow-empty-message');
+      args.push('--no-edit');
+    }
+    const output = await super.run(...args);
+    return GitWrapper.isSuccess(output);
+  }
 }
