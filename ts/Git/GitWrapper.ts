@@ -12,6 +12,19 @@ export class GitWrapper extends ApplicationWrapper {
   public override readonly path = 'git';
 
   /**
+   * Determina se o Git está instalado.
+   */
+  public async isInstalled(): Promise<boolean> {
+    try {
+      const version = await this.getVersion();
+      const regexValidVersion = /^\d+\.\d+\.\d+/;
+      return regexValidVersion.test(version);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Obter versão do Git.
    */
   public async getVersion(): Promise<string> {
