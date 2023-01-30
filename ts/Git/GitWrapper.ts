@@ -10,12 +10,8 @@ export class GitWrapper extends ApplicationWrapper {
    * Verifica se o Git resultou em sucesso na sua execução.
    * @param output Saída do Git.
    */
-  private static isSuccess(output: IProcessExecutionOutput): boolean {
-    return (
-      output.exitCode === 0 &&
-      output.errorLines.length === 0 &&
-      !output.all.startsWith('fatal:')
-    );
+  protected override isSuccess(output: IProcessExecutionOutput): boolean {
+    return super.isSuccess(output) && !output.all.startsWith('fatal:');
   }
 
   /**
@@ -65,7 +61,7 @@ export class GitWrapper extends ApplicationWrapper {
    */
   public async isValidRepository(): Promise<boolean> {
     const output = await super.run('status');
-    return GitWrapper.isSuccess(output);
+    return this.isSuccess(output);
   }
 
   /**
@@ -78,7 +74,7 @@ export class GitWrapper extends ApplicationWrapper {
       args.push('--bare');
     }
     const output = await super.run(...args);
-    return GitWrapper.isSuccess(output);
+    return this.isSuccess(output);
   }
 
   /**
@@ -88,7 +84,7 @@ export class GitWrapper extends ApplicationWrapper {
   public async addFiles(...files: string[]): Promise<boolean> {
     const args: string[] = ['add'].concat(files);
     const output = await super.run(...args);
-    return GitWrapper.isSuccess(output);
+    return this.isSuccess(output);
   }
 
   /**
@@ -113,6 +109,6 @@ export class GitWrapper extends ApplicationWrapper {
       args.push('--no-edit');
     }
     const output = await super.run(...args);
-    return GitWrapper.isSuccess(output);
+    return this.isSuccess(output);
   }
 }
