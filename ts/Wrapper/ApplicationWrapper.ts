@@ -7,6 +7,14 @@ import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOu
  */
 export abstract class ApplicationWrapper implements IApplicationWrapper {
   /**
+   * Verifica se a aplicação resultou em sucesso na sua execução.
+   * @param output Saída do aplicação.
+   */
+  protected isSuccess(output: IProcessExecutionOutput): boolean {
+    return output.exitCode === 0 && output.errorLines.length === 0;
+  }
+
+  /**
    * Construtor.
    * @param workingDirectory Diretório de onde a aplicação é executada.
    */
