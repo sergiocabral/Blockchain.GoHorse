@@ -1,5 +1,6 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { InvalidExecutionError } from '@sergiocabral/helper';
+import { KeyInfo } from './KeyInfo';
 
 /**
  * ProcessExecution para executar o GPG.
@@ -45,5 +46,20 @@ export class GpgWrapper extends ApplicationWrapper {
     }
 
     return version[0];
+  }
+
+  /**
+   * Obter versão do Git.
+   */
+  public async listKeys(): Promise<KeyInfo[]> {
+    const output = await super.run('--list-keys');
+
+    if (!this.isSuccess(output)) {
+      throw new InvalidExecutionError(
+        'Gpg exit code did not result in success: ' + String(output.exitCode)
+      );
+    }
+
+    return KeyInfo.parse(output.all);
   }
 }
