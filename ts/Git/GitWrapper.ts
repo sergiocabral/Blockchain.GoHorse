@@ -38,9 +38,9 @@ export class GitWrapper extends ApplicationWrapper {
   public async getVersion(): Promise<string> {
     const output = await super.run('--version');
 
-    if (output.exitCode !== 0) {
+    if (!this.isSuccess(output)) {
       throw new InvalidExecutionError(
-        'Git exit code expected as zero but: ' + String(output.exitCode)
+        'Git exit code did not result in success: ' + String(output.exitCode)
       );
     }
 
