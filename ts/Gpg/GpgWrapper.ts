@@ -29,9 +29,9 @@ export class GpgWrapper extends ApplicationWrapper {
   public async getVersion(): Promise<string> {
     const output = await super.run('--version');
 
-    if (output.exitCode !== 0) {
+    if (!this.isSuccess(output)) {
       throw new InvalidExecutionError(
-        'Gpg exit code expected as zero but: ' + String(output.exitCode)
+        'Gpg exit code did not result in success: ' + String(output.exitCode)
       );
     }
 
