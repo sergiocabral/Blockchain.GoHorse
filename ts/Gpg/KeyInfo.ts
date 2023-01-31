@@ -6,7 +6,7 @@ export class KeyInfo {
    * Extrai o campo da saída do GPG: algoritmo.
    */
   private static extractFieldAlgorithm(output: string): string | undefined {
-    const regexToExtract = /(?<=pub\s+)\w+(?=\s)/;
+    const regexToExtract = /(?<=pub\s+)\w+[a-zA-Z](?=\d+\s)/;
 
     return (regexToExtract.exec(output) ?? [])[0];
   }
