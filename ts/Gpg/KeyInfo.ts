@@ -9,6 +9,8 @@ export class KeyInfo {
   public static parse(output: string): KeyInfo[] {
     const result: KeyInfo[] = [];
 
+    const timezoneOffset = new Date().getTimezoneOffset();
+
     const regexExtractExpires =
       /(?<=expires: )(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
 
@@ -26,8 +28,8 @@ export class KeyInfo {
           Number(expires.groups['year']),
           Number(expires.groups['month']) - 1,
           Number(expires.groups['day'])
-        );
-        // TODO: Escrever na lib @sergiocabral/helper algo para remover o timezone.
+        ).addMinutes(-timezoneOffset);
+
       }
 
       result.push(keyInfo);
