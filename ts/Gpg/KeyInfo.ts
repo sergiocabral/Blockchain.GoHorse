@@ -6,21 +6,21 @@ export class KeyInfo {
    * Extrai o campo da saída do GPG: expires.
    */
   private static extractFieldExpires(output: string): Date | undefined {
-    const regexExtractExpires =
+    const regexToExtract =
       /(?<=expires: )(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
 
     const timezoneOffset = new Date().getTimezoneOffset();
 
-    const expires = regexExtractExpires.exec(output);
+    const value = regexToExtract.exec(output);
     if (
-      expires !== null &&
-      expires.length > 0 &&
-      expires.groups !== undefined
+      value !== null &&
+      value.length > 0 &&
+      value.groups !== undefined
     ) {
       return new Date(
-        Number(expires.groups['year']),
-        Number(expires.groups['month']) - 1,
-        Number(expires.groups['day'])
+        Number(value.groups['year']),
+        Number(value.groups['month']) - 1,
+        Number(value.groups['day'])
       ).addMinutes(-timezoneOffset);
     }
 
