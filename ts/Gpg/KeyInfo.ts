@@ -3,6 +3,15 @@
  */
 export class KeyInfo {
   /**
+   * Extrai o campo da saída do GPG: algorithm.
+   */
+  private static extractFieldAlgorithm(output: string): string | undefined {
+    const regexToExtract = /(?<=pub\s+)\w+(?=\s)/;
+
+    return (regexToExtract.exec(output) ?? [])[0];
+  }
+
+  /**
    * Extrai o campo da saída do GPG: expires.
    */
   private static extractFieldExpires(output: string): Date | undefined {
@@ -12,11 +21,7 @@ export class KeyInfo {
     const timezoneOffset = new Date().getTimezoneOffset();
 
     const value = regexToExtract.exec(output);
-    if (
-      value !== null &&
-      value.length > 0 &&
-      value.groups !== undefined
-    ) {
+    if (value !== null && value.length > 0 && value.groups !== undefined) {
       return new Date(
         Number(value.groups['year']),
         Number(value.groups['month']) - 1,
@@ -38,6 +43,7 @@ export class KeyInfo {
     for (const block of blocks) {
       const keyInfo = new KeyInfo();
 
+      keyInfo.algorithm = KeyInfo.extractFieldAlgorithm(block);
       keyInfo.expires = KeyInfo.extractFieldExpires(block);
 
       result.push(keyInfo);
