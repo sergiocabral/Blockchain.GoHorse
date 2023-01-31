@@ -12,6 +12,20 @@ export class KeyInfo {
   }
 
   /**
+   * Extrai o campo da saída do GPG: tamanho da chave.
+   */
+  private static extractFieldKeySize(output: string): number | undefined {
+    const regexToExtract = /(?<=pub\s+\w+[a-zA-Z])\d+(?=\s)/;
+
+    const value = (regexToExtract.exec(output) ?? [])[0];
+    if (value !== undefined) {
+      return Number(value);
+    }
+
+    return undefined;
+  }
+
+  /**
    * Extrai o campo da saída do GPG: data de emissão.
    */
   private static extractFieldIssued(output: string): Date | undefined {
@@ -115,6 +129,7 @@ export class KeyInfo {
       const keyInfo = new KeyInfo();
 
       keyInfo.algorithm = KeyInfo.extractFieldAlgorithm(block);
+      keyInfo.keySize = KeyInfo.extractFieldKeySize(block);
       keyInfo.issued = KeyInfo.extractFieldIssued(block);
       keyInfo.expires = KeyInfo.extractFieldExpires(block);
       keyInfo.thumbprint = KeyInfo.extractFieldThumbprint(block);
@@ -131,6 +146,11 @@ export class KeyInfo {
    * Algoritmo.
    */
   public algorithm?: string;
+
+  /**
+   * Tamanho da chave.
+   */
+  public keySize?: number;
 
   /**
    * Data de emissão.
