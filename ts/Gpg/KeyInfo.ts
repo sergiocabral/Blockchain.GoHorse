@@ -3,7 +3,7 @@
  */
 export class KeyInfo {
   /**
-   * Extrai o campo da saída do GPG: algorithm.
+   * Extrai o campo da saída do GPG: algoritmo.
    */
   private static extractFieldAlgorithm(output: string): string | undefined {
     const regexToExtract = /(?<=pub\s+)\w+(?=\s)/;
@@ -12,7 +12,7 @@ export class KeyInfo {
   }
 
   /**
-   * Extrai o campo da saída do GPG: expires.
+   * Extrai o campo da saída do GPG: data de emissão.
    */
   private static extractFieldIssued(output: string): Date | undefined {
     const regexToExtract =
@@ -33,7 +33,7 @@ export class KeyInfo {
   }
 
   /**
-   * Extrai o campo da saída do GPG: expires.
+   * Extrai o campo da saída do GPG: data de expiração.
    */
   private static extractFieldExpires(output: string): Date | undefined {
     const regexToExtract =
