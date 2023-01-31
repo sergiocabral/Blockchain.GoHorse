@@ -69,6 +69,21 @@ export class KeyInfo {
   }
 
   /**
+   * Extrai o campo da saída do GPG: nome da pessoa
+   */
+  private static extractFieldFullName(output: string): string | undefined {
+    const regexToExtract = /^uid\s+\[[^\]]*]([^<]+)/m;
+
+    const valueExtracted = regexToExtract.exec(output);
+
+    if (valueExtracted !== null && valueExtracted.length === 2) {
+      return valueExtracted[1].trim();
+    }
+
+    return undefined;
+  }
+
+  /**
    * Faz um parse da saída do comando `gpg --list-keys`
    * @param output Output bruto do comando gpg
    */
@@ -88,6 +103,7 @@ export class KeyInfo {
       keyInfo.issued = KeyInfo.extractFieldIssued(block);
       keyInfo.expires = KeyInfo.extractFieldExpires(block);
       keyInfo.thumbprint = KeyInfo.extractFieldThumbprint(block);
+      keyInfo.fullName = KeyInfo.extractFieldFullName(block);
 
       result.push(keyInfo);
     }
@@ -114,4 +130,9 @@ export class KeyInfo {
    * Thumbprint da chave.
    */
   public thumbprint?: string;
+
+  /**
+   * Nome da pessoa.
+   */
+  public fullName?: string;
 }
