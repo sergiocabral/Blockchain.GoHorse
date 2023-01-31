@@ -54,6 +54,21 @@ export class KeyInfo {
   }
 
   /**
+   * Extrai o campo da saída do GPG: thumbprint.
+   */
+  private static extractFieldThumbprint(output: string): string | undefined {
+    const regexToExtract = /^\s+[0-9A-F]{20,}\s+$/m;
+
+    const thumbprint = (regexToExtract.exec(output) ?? [])[0];
+
+    if (thumbprint !== undefined) {
+      return thumbprint.trim();
+    }
+
+    return undefined;
+  }
+
+  /**
    * Faz um parse da saída do comando `gpg --list-keys`
    * @param output Output bruto do comando gpg
    */
@@ -72,6 +87,7 @@ export class KeyInfo {
       keyInfo.algorithm = KeyInfo.extractFieldAlgorithm(block);
       keyInfo.issued = KeyInfo.extractFieldIssued(block);
       keyInfo.expires = KeyInfo.extractFieldExpires(block);
+      keyInfo.thumbprint = KeyInfo.extractFieldThumbprint(block);
 
       result.push(keyInfo);
     }
@@ -93,4 +109,9 @@ export class KeyInfo {
    * Data de expiração.
    */
   public expires?: Date;
+
+  /**
+   * Thumbprint da chave.
+   */
+  public thumbprint?: string;
 }
