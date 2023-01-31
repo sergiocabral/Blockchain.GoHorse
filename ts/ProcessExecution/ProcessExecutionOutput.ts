@@ -1,6 +1,6 @@
 import { IProcessExecutionOutput } from './IProcessExecutionOutput';
 import { HelperText, NotImplementedError } from '@sergiocabral/helper';
-import { env } from 'process';
+import * as os from 'os';
 
 /**
  * Texto de saída após a execução de um processo.
@@ -111,6 +111,6 @@ export class ProcessExecutionOutput implements IProcessExecutionOutput {
    * @param lines Linhas.
    */
   private joinLines(lines: string[]): string {
-    return lines.join(env.EOL);
+    return lines.join(os.EOL);
   }
 }

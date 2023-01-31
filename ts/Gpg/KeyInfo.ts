@@ -60,8 +60,13 @@ export class KeyInfo {
   public static parse(output: string): KeyInfo[] {
     const result: KeyInfo[] = [];
 
-    const blocks = output.split('\n');
+    const regexEmptyLine = /(\r\n|\n\r|\r|\n)\s*\1/;
+    const blocks = output.split(regexEmptyLine);
     for (const block of blocks) {
+      if (!block.trim()) {
+        continue;
+      }
+
       const keyInfo = new KeyInfo();
 
       keyInfo.algorithm = KeyInfo.extractFieldAlgorithm(block);
