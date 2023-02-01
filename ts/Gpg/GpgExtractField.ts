@@ -81,10 +81,10 @@ export class GpgExtractField {
   public static keyThumbprint(output: string): string | undefined {
     const regexToExtract = /^\s+[0-9A-F]{20,}\s+$/m;
 
-    const thumbprint = (regexToExtract.exec(output) ?? [])[0];
+    const value = (regexToExtract.exec(output) ?? [])[0];
 
-    if (thumbprint !== undefined) {
-      return thumbprint.trim();
+    if (value !== undefined) {
+      return value.trim();
     }
 
     return undefined;
