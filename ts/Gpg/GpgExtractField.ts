@@ -6,9 +6,14 @@ export class GpgExtractField {
    * Nome do algoritmo.
    */
   public static keyAlgorithm(output: string): string | undefined {
-    const regexToExtract = /(?<=pub\s+)\w+[a-zA-Z](?=\d+\s)/;
+    const regexToExtract = /pub\s+(\w+[a-zA-Z])\d+/;
+    const extracted = regexToExtract.exec(output);
 
-    return (regexToExtract.exec(output) ?? [])[0];
+    if (extracted !== null && extracted.length === 2) {
+      return extracted[1];
+    }
+
+    return undefined;
   }
 
   /**
