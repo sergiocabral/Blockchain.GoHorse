@@ -52,7 +52,7 @@ export class GpgWrapper extends ApplicationWrapper {
    * Obter versão do Git.
    */
   public async listKeys(): Promise<KeyInfo[]> {
-    const output = await super.run('--list-keys');
+    const output = await super.run('--list-keys', '--keyid-format', 'long');
 
     if (!this.isSuccess(output)) {
       throw new InvalidExecutionError(
