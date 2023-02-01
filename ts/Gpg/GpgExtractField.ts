@@ -91,6 +91,34 @@ export class GpgExtractField {
   }
 
   /**
+   * Id da chave principal
+   */
+  public static mainKeyId(output: string): string | undefined {
+    const regexToExtract = /pub\s+\w+[a-zA-Z]\d+\W([0-9A-F]+)/;
+    const extracted = regexToExtract.exec(output);
+
+    if (extracted !== null && extracted.length === 2) {
+      return extracted[1];
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Id da sub chave
+   */
+  public static subKeyId(output: string): string | undefined {
+    const regexToExtract = /sub\s+\w+[a-zA-Z]\d+\W([0-9A-F]+)/;
+    const extracted = regexToExtract.exec(output);
+
+    if (extracted !== null && extracted.length === 2) {
+      return extracted[1];
+    }
+
+    return undefined;
+  }
+
+  /**
    * Nome da pessoa proprietária da chave.
    */
   public static keyOwnerName(output: string): string | undefined {
