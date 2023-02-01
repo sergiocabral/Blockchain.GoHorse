@@ -24,6 +24,8 @@ export class KeyInfo {
       keyInfo.keySize = GpgExtractField.keySize(block);
       keyInfo.keyIssued = GpgExtractField.keyIssued(block);
       keyInfo.keyExpires = GpgExtractField.keyExpires(block);
+      keyInfo.mainKeyId = GpgExtractField.mainKeyId(block);
+      keyInfo.subKeyId = GpgExtractField.subKeyId(block);
       keyInfo.keyThumbprint = GpgExtractField.keyThumbprint(block);
       keyInfo.ownerName = GpgExtractField.keyOwnerName(block);
       keyInfo.ownerEmail = GpgExtractField.keyOwnerEmail(block);
@@ -58,6 +60,16 @@ export class KeyInfo {
    * Thumbprint da chave.
    */
   public keyThumbprint?: string;
+
+  /**
+   * Id da chave principal
+   */
+  public mainKeyId?: string;
+
+  /**
+   * Id da sub chave
+   */
+  public subKeyId?: string;
 
   /**
    * Nome da pessoa.
