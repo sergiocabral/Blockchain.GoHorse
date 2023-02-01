@@ -20,11 +20,14 @@ export class GpgExtractField {
    * Tamanho da chave em bits.
    */
   public static keySize(output: string): number | undefined {
-    const regexToExtract = /(?<=pub\s+\w+[a-zA-Z])\d+(?=\s)/;
+    const regexToExtract = /pub\s+\w+[a-zA-Z](\d+)\W/;
+    const extracted = regexToExtract.exec(output);
 
-    const value = (regexToExtract.exec(output) ?? [])[0];
-    if (value !== undefined) {
-      return Number(value);
+    if (extracted !== null && extracted.length === 2) {
+      const asNumber = Number(extracted[1]);
+      if (Number.isFinite(asNumber)) {
+        return Number(extracted[1]);
+      }
     }
 
     return undefined;
