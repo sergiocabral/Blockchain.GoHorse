@@ -38,7 +38,7 @@ export class GpgExtractField {
    */
   public static keyIssued(output: string): Date | undefined {
     const regexToExtract =
-      /(?<=pub\s+\w+\s+)(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+      /pub\s+.*?(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
 
     const timezoneOffset = new Date().getTimezoneOffset();
 
