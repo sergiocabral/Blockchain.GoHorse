@@ -27,6 +27,9 @@ export class KeyInfo {
       keyInfo.mainKeyLength = GpgExtractField.mainKeyLength(block);
       keyInfo.mainKeyExpires = GpgExtractField.mainKeyExpires(block);
       keyInfo.subKeyId = GpgExtractField.subKeyId(block);
+      keyInfo.subKeyAlgorithm = GpgExtractField.subKeyAlgorithm(block);
+      keyInfo.subKeyLength = GpgExtractField.subKeyLength(block);
+      keyInfo.subKeyExpires = GpgExtractField.subKeyExpires(block);
       keyInfo.nameReal = GpgExtractField.nameReal(block);
       keyInfo.nameEmail = GpgExtractField.nameEmail(block);
 
@@ -70,6 +73,21 @@ export class KeyInfo {
    * Id da sub chave
    */
   public subKeyId?: string;
+
+  /**
+   * Algoritmo da sub chave.
+   */
+  public subKeyAlgorithm?: string;
+
+  /**
+   * Tamanho da sub chave.
+   */
+  public subKeyLength?: number;
+
+  /**
+   * Data de expiração da sub chave.
+   */
+  public subKeyExpires?: Date;
 
   /**
    * Nome da pessoa.
