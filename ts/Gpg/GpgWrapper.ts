@@ -1,6 +1,8 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { InvalidExecutionError } from '@sergiocabral/helper';
 import { KeyInfo } from './KeyInfo';
+import { IGenerateKeyOutput } from './IGenerateKeyOutput';
+import { IGenerateKeyConfiguration } from './IGenerateKeyConfiguration';
 
 /**
  * ProcessExecution para executar o GPG.
@@ -61,5 +63,18 @@ export class GpgWrapper extends ApplicationWrapper {
     }
 
     return KeyInfo.parse(output.all);
+  }
+
+  /**
+   * Cria um par de chave no GPG
+   */
+  private async generateKey(
+    configuration: IGenerateKeyConfiguration
+  ): Promise<IGenerateKeyOutput> {
+    // TODO: Implementar generateKey.
+    configuration;
+    return {
+      issued: new Date()
+    };
   }
 }
