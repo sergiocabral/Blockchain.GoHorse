@@ -20,15 +20,15 @@ export class KeyInfo {
 
       const keyInfo = new KeyInfo();
 
-      keyInfo.keyAlgorithm = GpgExtractField.keyAlgorithm(block);
-      keyInfo.keySize = GpgExtractField.keySize(block);
-      keyInfo.keyIssued = GpgExtractField.keyIssued(block);
-      keyInfo.keyExpires = GpgExtractField.keyExpires(block);
+      keyInfo.issued = GpgExtractField.issued(block);
+      keyInfo.thumbprint = GpgExtractField.thumbprint(block);
       keyInfo.mainKeyId = GpgExtractField.mainKeyId(block);
+      keyInfo.mainKeyAlgorithm = GpgExtractField.mainKeyAlgorithm(block);
+      keyInfo.mainKeyLength = GpgExtractField.mainKeyLength(block);
+      keyInfo.mainKeyExpires = GpgExtractField.mainKeyExpires(block);
       keyInfo.subKeyId = GpgExtractField.subKeyId(block);
-      keyInfo.keyThumbprint = GpgExtractField.keyThumbprint(block);
-      keyInfo.ownerName = GpgExtractField.keyOwnerName(block);
-      keyInfo.ownerEmail = GpgExtractField.keyOwnerEmail(block);
+      keyInfo.nameReal = GpgExtractField.nameReal(block);
+      keyInfo.nameEmail = GpgExtractField.nameEmail(block);
 
       result.push(keyInfo);
     }
@@ -37,34 +37,34 @@ export class KeyInfo {
   }
 
   /**
-   * Algoritmo.
-   */
-  public keyAlgorithm?: string;
-
-  /**
-   * Tamanho da chave.
-   */
-  public keySize?: number;
-
-  /**
    * Data de emissão.
    */
-  public keyIssued?: Date;
-
-  /**
-   * Data de expiração.
-   */
-  public keyExpires?: Date;
+  public issued?: Date;
 
   /**
    * Thumbprint da chave.
    */
-  public keyThumbprint?: string;
+  public thumbprint?: string;
 
   /**
    * Id da chave principal
    */
   public mainKeyId?: string;
+
+  /**
+   * Algoritmo da chave principal.
+   */
+  public mainKeyAlgorithm?: string;
+
+  /**
+   * Tamanho da chave principal.
+   */
+  public mainKeyLength?: number;
+
+  /**
+   * Data de expiração da chave principal.
+   */
+  public mainKeyExpires?: Date;
 
   /**
    * Id da sub chave
@@ -74,10 +74,10 @@ export class KeyInfo {
   /**
    * Nome da pessoa.
    */
-  public ownerName?: string;
+  public nameReal?: string;
 
   /**
    * Email da pessoa.
    */
-  public ownerEmail?: string;
+  public nameEmail?: string;
 }

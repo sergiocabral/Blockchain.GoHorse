@@ -3,40 +3,9 @@
  */
 export class GpgExtractField {
   /**
-   * Nome do algoritmo.
+   * Data de emissão das chaves.
    */
-  public static keyAlgorithm(output: string): string | undefined {
-    const regexToExtract = /pub\s+(\w+[a-zA-Z])\d+/;
-    const extracted = regexToExtract.exec(output);
-
-    if (extracted !== null && extracted.length === 2) {
-      return extracted[1];
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Tamanho da chave em bits.
-   */
-  public static keySize(output: string): number | undefined {
-    const regexToExtract = /pub\s+\w+[a-zA-Z](\d+)\W/;
-    const extracted = regexToExtract.exec(output);
-
-    if (extracted !== null && extracted.length === 2) {
-      const asNumber = Number(extracted[1]);
-      if (Number.isFinite(asNumber)) {
-        return Number(extracted[1]);
-      }
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Data de emissão da chave.
-   */
-  public static keyIssued(output: string): Date | undefined {
+  public static issued(output: string): Date | undefined {
     const regexToExtract =
       /pub\s+.*?(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
 
@@ -55,30 +24,9 @@ export class GpgExtractField {
   }
 
   /**
-   * Data de expiração da chave.
+   * Thumbprint.
    */
-  public static keyExpires(output: string): Date | undefined {
-    const regexToExtract =
-      /(?<=expires: )(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
-
-    const timezoneOffset = new Date().getTimezoneOffset();
-
-    const value = regexToExtract.exec(output);
-    if (value !== null && value.length > 0 && value.groups !== undefined) {
-      return new Date(
-        Number(value.groups['year']),
-        Number(value.groups['month']) - 1,
-        Number(value.groups['day'])
-      ).addMinutes(-timezoneOffset);
-    }
-
-    return undefined;
-  }
-
-  /**
-   * Thumbprint da chave pública.
-   */
-  public static keyThumbprint(output: string): string | undefined {
+  public static thumbprint(output: string): string | undefined {
     const regexToExtract = /^\s+[0-9A-F]{20,}\s+$/m;
 
     const value = (regexToExtract.exec(output) ?? [])[0];
@@ -105,6 +53,58 @@ export class GpgExtractField {
   }
 
   /**
+   * Nome do algoritmo da chave principal.
+   */
+  public static mainKeyAlgorithm(output: string): string | undefined {
+    const regexToExtract = /pub\s+(\w+[a-zA-Z])\d+/;
+    const extracted = regexToExtract.exec(output);
+
+    if (extracted !== null && extracted.length === 2) {
+      return extracted[1];
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Tamanho da chave principal.
+   */
+  public static mainKeyLength(output: string): number | undefined {
+    const regexToExtract = /pub\s+\w+[a-zA-Z](\d+)\W/;
+    const extracted = regexToExtract.exec(output);
+
+    if (extracted !== null && extracted.length === 2) {
+      const asNumber = Number(extracted[1]);
+      if (Number.isFinite(asNumber)) {
+        return Number(extracted[1]);
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Data de expiração da chave principal.
+   */
+  public static mainKeyExpires(output: string): Date | undefined {
+    const regexToExtract =
+      /(?<=expires: )(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+
+    const timezoneOffset = new Date().getTimezoneOffset();
+
+    const value = regexToExtract.exec(output);
+    if (value !== null && value.length > 0 && value.groups !== undefined) {
+      return new Date(
+        Number(value.groups['year']),
+        Number(value.groups['month']) - 1,
+        Number(value.groups['day'])
+      ).addMinutes(-timezoneOffset);
+    }
+
+    return undefined;
+  }
+
+  /**
    * Id da sub chave
    */
   public static subKeyId(output: string): string | undefined {
@@ -119,9 +119,9 @@ export class GpgExtractField {
   }
 
   /**
-   * Nome da pessoa proprietária da chave.
+   * Nome da pessoa.
    */
-  public static keyOwnerName(output: string): string | undefined {
+  public static nameReal(output: string): string | undefined {
     const regexToExtract = /^uid\s+\[[^\]]*]([^<]+)/m;
 
     const valueExtracted = regexToExtract.exec(output);
@@ -134,9 +134,9 @@ export class GpgExtractField {
   }
 
   /**
-   * Email da pessoa proprietária da chave.
+   * Email da pessoa.
    */
-  public static keyOwnerEmail(output: string): string | undefined {
+  public static nameEmail(output: string): string | undefined {
     const regexToExtract = /^uid\s+\[[^\]]*][^<]+<([^>]+)/m;
 
     const valueExtracted = regexToExtract.exec(output);
