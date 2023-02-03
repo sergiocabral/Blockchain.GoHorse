@@ -1,3 +1,5 @@
+import { ChildProcessWithoutNullStreams } from 'child_process';
+
 /**
  * Texto de saída após a execução de um processo.
  */
@@ -53,4 +55,9 @@ export interface IProcessExecutionOutput {
    * Todas as saídas juntas.
    */
   all: string;
+
+  /**
+   * Processo.
+   */
+  process: ChildProcessWithoutNullStreams;
 }

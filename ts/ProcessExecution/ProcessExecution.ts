@@ -3,6 +3,7 @@ import { IProcessExecutionOutput } from './IProcessExecutionOutput';
 import { ProcessExecutionOutput } from './ProcessExecutionOutput';
 import { IProcessExecutionConfiguration } from './IProcessExecutionConfiguration';
 import { ProcessExecutionError } from './ProcessExecutionError';
+import { InvalidExecutionError } from '@sergiocabral/helper';
 
 /**
  * Representa a excução de processo.
@@ -33,7 +34,8 @@ export class ProcessExecution {
 
       const spawnOptions: SpawnOptionsWithoutStdio = {
         cwd: this.configuration.workingDirectory,
-        windowsHide: true
+        windowsHide: this.configuration.windowsHide ?? true,
+        detached: this.configuration.detached ?? false
       };
 
       const childProcess = spawn(
@@ -42,7 +44,9 @@ export class ProcessExecution {
         spawnOptions
       );
 
-      const result: IProcessExecutionOutput = new ProcessExecutionOutput();
+      const result: IProcessExecutionOutput = new ProcessExecutionOutput(
+        childProcess
+      );
 
       childProcess.stdout.on('data', (output: Buffer) => {
         result.put(output.toString(), 'standard');
@@ -52,17 +56,38 @@ export class ProcessExecution {
         result.put(output.toString(), 'error');
       });
 
-      childProcess.on('close', (exitCode: number | null) => {
+      let finished = false;
+      const finish = (exit: number | null | Error) => {
+        if (finished) {
+          throw new InvalidExecutionError(
+            'Completion of the process occurred more than once.'
+          );
+        }
+        finished = true;
         this.isRunning = false;
-        result.exitCode = exitCode;
-        resolve(result);
-      });
+        const isSuccess = typeof exit === 'number' || exit === null;
+        if (isSuccess) {
+          result.exitCode = exit;
+          resolve(result);
+        } else {
+          result.exitError = exit;
+          reject(new ProcessExecutionError(result, exit));
+        }
+      };
 
-      childProcess.on('error', (exitError: Error) => {
-        this.isRunning = false;
-        result.exitError = exitError;
-        reject(new ProcessExecutionError(result, exitError));
-      });
+      childProcess.on('close', (exitCode: number | null) => finish(exitCode));
+
+      childProcess.on('error', (exitError: Error) => finish(exitError));
+
+      if (spawnOptions.detached) {
+        const verifyExitCode = (): unknown =>
+          childProcess.exitCode !== null
+            ? finish(childProcess.exitCode)
+            : setTimeout(verifyExitCode, 1);
+        verifyExitCode();
+      }
+
+      configuration.callbackResult = result;
     });
   }
 }

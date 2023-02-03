@@ -1,11 +1,18 @@
 import { IProcessExecutionOutput } from './IProcessExecutionOutput';
 import { HelperText, NotImplementedError } from '@sergiocabral/helper';
 import * as os from 'os';
+import { ChildProcessWithoutNullStreams } from 'child_process';
 
 /**
  * Texto de saída após a execução de um processo.
  */
 export class ProcessExecutionOutput implements IProcessExecutionOutput {
+  /**
+   * Construtor.
+   * @param process Processo.
+   */
+  public constructor(public readonly process: ChildProcessWithoutNullStreams) {}
+
   /**
    * Posta uma mensagem de saída.
    * @param output Mensagem.
