@@ -10,17 +10,21 @@ export class GenerateKeyConfiguration implements IGenerateKeyConfiguration {
    * @param nameReal Nome da pessoa.
    * @param nameEmail Endereço do email.
    * @param expires Data de expiração.
+   * @param nameComment Comentário opcional relacionado a pessoa.
+   * @param passphrase Senha opcional.
    */
   public constructor(
     public readonly nameReal: string,
     public readonly nameEmail: string,
-    public readonly expires: Date = new Date().addDays(365)
+    public readonly expires: Date = new Date().addDays(365),
+    public readonly nameComment?: string,
+    public readonly passphrase?: string
   ) {}
 
   /**
    * Algoritmo da chave principal.
    */
-  public readonly mainKeyType: GpgKeyType = GpgKeyType.RsaSignOnly;
+  public readonly mainKeyType: GpgKeyType = GpgKeyType.Rsa;
 
   /**
    * Tamanho da chave principal.
@@ -30,7 +34,7 @@ export class GenerateKeyConfiguration implements IGenerateKeyConfiguration {
   /**
    * Algoritmo da sub chave.
    */
-  public readonly subKeyType: GpgKeyType = GpgKeyType.RsaSignOnly;
+  public readonly subKeyType: GpgKeyType = GpgKeyType.Rsa;
 
   /**
    * Tamanho da sub chave.

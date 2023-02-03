@@ -35,7 +35,17 @@ export interface IGenerateKeyConfiguration {
   nameEmail: string;
 
   /**
+   * Comentário opcional relacionado a pessoa.
+   */
+  nameComment?: string;
+
+  /**
    * Data de expiração.
    */
   expires: Date;
+
+  /**
+   * Senha opcional.
+   */
+  passphrase?: string;
 }
