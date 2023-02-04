@@ -1,13 +1,25 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
-import { InvalidExecutionError } from '@sergiocabral/helper';
+import { HelperFileSystem, InvalidExecutionError } from '@sergiocabral/helper';
 import { KeyInfo } from './KeyInfo';
 import { IGenerateKeyOutput } from './IGenerateKeyOutput';
 import { IGenerateKeyConfiguration } from './IGenerateKeyConfiguration';
+import * as fs from 'fs';
+import * as path from 'path';
+import { GpgFieldHelper } from './GpgFieldHelper';
+import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOutput';
 
 /**
  * ProcessExecution para executar o GPG.
  */
 export class GpgWrapper extends ApplicationWrapper {
+  /**
+   * Verifica se o GPG resultou em sucesso na sua execução.
+   * @param output Saída do GPG.
+   */
+  protected override isSuccess(output: IProcessExecutionOutput): boolean {
+    return output.exitCode === 0;
+  }
+
   /**
    * Caminho da aplicação.
    */
@@ -68,12 +80,59 @@ export class GpgWrapper extends ApplicationWrapper {
   /**
    * Cria um par de chave no GPG
    */
-  private async generateKey(
+  public async generateKey(
     configuration: IGenerateKeyConfiguration
   ): Promise<IGenerateKeyOutput> {
-    // TODO: Implementar generateKey.
-    configuration;
+    const tempDirectoryName = `_temp-gpg${Math.random()}.tmp`.replace(
+      '0.',
+      '-'
+    ); // TODO: Usar @sergiocabral/helper random
+    fs.mkdirSync(tempDirectoryName);
+    const tempDirectoryPath = fs.realpathSync(tempDirectoryName);
+
+    const input = new Map<string, string | undefined>();
+    input.set('Key-Type', configuration.mainKeyType);
+    input.set('Key-Length', configuration.mainKeyLength.toFixed(0));
+    input.set('Subkey-Type', configuration.subKeyType);
+    input.set('Subkey-Length', configuration.subKeyLength.toFixed(0));
+    input.set('Name-Real', configuration.nameReal);
+    input.set('Name-Email', configuration.nameEmail);
+    input.set('Creation-Date', GpgFieldHelper.toDate(new Date().addDays(-45))); // TODO: colocar a data dce hoje
+    input.set('Expire-Date', GpgFieldHelper.toDate(configuration.expires));
+
+    if (configuration.passphrase) {
+      input.set('Passphrase', configuration.passphrase);
+    } else {
+      input.set('%no-ask-passphrase', undefined);
+      input.set('%no-protection', undefined);
+    }
+
+    if (configuration.nameComment) {
+      input.set('Name-Comment', configuration.nameComment);
+    }
+
+    input.set('%commit', undefined);
+
+    const inputFileName = path.join(tempDirectoryPath, 'gpg-batch');
+    fs.writeFileSync(inputFileName, GpgFieldHelper.toBatchFile(input));
+
+    const output = await super.run(
+      '--verbose',
+      '--batch',
+      '--generate-key',
+      inputFileName
+    );
+
+    HelperFileSystem.deleteRecursive(tempDirectoryPath);
+
+    if (!this.isSuccess(output)) {
+      throw new InvalidExecutionError(
+        'Gpg exit code did not result in success: ' + String(output.exitCode)
+      );
+    }
+
     return {
+      // TODO: Preencher as informações de retorno.
       issued: new Date()
     };
   }
