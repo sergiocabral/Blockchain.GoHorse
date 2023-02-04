@@ -7,11 +7,17 @@ import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOu
  */
 export abstract class ApplicationWrapper implements IApplicationWrapper {
   /**
-   * Verifica se a aplicação resultou em sucesso na sua execução.
+   * Monta a mensagem de erro (se houver) com base no output.
    * @param output Saída do aplicação.
    */
-  protected isSuccess(output: IProcessExecutionOutput): boolean {
-    return output.exitCode === 0 && output.errorLines.length === 0;
+  protected errorMessage(output: IProcessExecutionOutput): string | undefined {
+    return output.exitCode === 0 && output.errorLines.length === 0
+      ? undefined
+      : `The "${
+          this.path
+        }" application exit code did not result in success: ${String(
+          output.exitCode
+        )}`;
   }
 
   /**

@@ -13,11 +13,15 @@ import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOu
  */
 export class GpgWrapper extends ApplicationWrapper {
   /**
-   * Verifica se o GPG resultou em sucesso na sua execução.
+   * Monta a mensagem de erro (se houver) com base no output.
    * @param output Saída do GPG.
    */
-  protected override isSuccess(output: IProcessExecutionOutput): boolean {
-    return output.exitCode === 0;
+  protected override errorMessage(
+    output: IProcessExecutionOutput
+  ): string | undefined {
+    return output.exitCode === 0
+      ? undefined
+      : `GPG exit code did not result in success: ${String(output.exitCode)}`;
   }
 
   /**
@@ -44,10 +48,9 @@ export class GpgWrapper extends ApplicationWrapper {
   public async getVersion(): Promise<string> {
     const output = await super.run('--version');
 
-    if (!this.isSuccess(output)) {
-      throw new InvalidExecutionError(
-        'Gpg exit code did not result in success: ' + String(output.exitCode)
-      );
+    const errorMessage = this.errorMessage(output);
+    if (errorMessage !== undefined) {
+      throw new InvalidExecutionError(errorMessage);
     }
 
     const regexExtractVersion = /\d[\w.-]+\w/;
@@ -68,10 +71,9 @@ export class GpgWrapper extends ApplicationWrapper {
   public async listKeys(): Promise<KeyInfo[]> {
     const output = await super.run('--list-keys', '--keyid-format', 'long');
 
-    if (!this.isSuccess(output)) {
-      throw new InvalidExecutionError(
-        'Gpg exit code did not result in success: ' + String(output.exitCode)
-      );
+    const errorMessage = this.errorMessage(output);
+    if (errorMessage !== undefined) {
+      throw new InvalidExecutionError(errorMessage);
     }
 
     return KeyInfo.parse(output.all);
@@ -125,10 +127,9 @@ export class GpgWrapper extends ApplicationWrapper {
 
     HelperFileSystem.deleteRecursive(tempDirectoryPath);
 
-    if (!this.isSuccess(output)) {
-      throw new InvalidExecutionError(
-        'Gpg exit code did not result in success: ' + String(output.exitCode)
-      );
+    const errorMessage = this.errorMessage(output);
+    if (errorMessage !== undefined) {
+      throw new InvalidExecutionError(errorMessage);
     }
 
     return {

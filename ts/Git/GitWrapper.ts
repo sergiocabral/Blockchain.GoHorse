@@ -7,11 +7,20 @@ import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOu
  */
 export class GitWrapper extends ApplicationWrapper {
   /**
-   * Verifica se o Git resultou em sucesso na sua execução.
+   * Monta a mensagem de erro (se houver) com base no output.
    * @param output Saída do Git.
    */
-  protected override isSuccess(output: IProcessExecutionOutput): boolean {
-    return super.isSuccess(output) && !output.all.startsWith('fatal:');
+  protected override errorMessage(
+    output: IProcessExecutionOutput
+  ): string | undefined {
+    return (
+      super.errorMessage(output) ??
+      (!output.all.startsWith('fatal:')
+        ? undefined
+        : `Git resulted in a fatal error. Exit code: ${String(
+            output.exitCode
+          )}`)
+    );
   }
 
   /**
@@ -38,10 +47,9 @@ export class GitWrapper extends ApplicationWrapper {
   public async getVersion(): Promise<string> {
     const output = await super.run('--version');
 
-    if (!this.isSuccess(output)) {
-      throw new InvalidExecutionError(
-        'Git exit code did not result in success: ' + String(output.exitCode)
-      );
+    const errorMessage = this.errorMessage(output);
+    if (errorMessage !== undefined) {
+      throw new InvalidExecutionError(errorMessage);
     }
 
     const regexExtractVersion = /\d[\w.-]+\w/;
@@ -61,7 +69,7 @@ export class GitWrapper extends ApplicationWrapper {
    */
   public async isValidRepository(): Promise<boolean> {
     const output = await super.run('status');
-    return this.isSuccess(output);
+    return this.errorMessage(output) === undefined;
   }
 
   /**
@@ -74,7 +82,7 @@ export class GitWrapper extends ApplicationWrapper {
       args.push('--bare');
     }
     const output = await super.run(...args);
-    return this.isSuccess(output);
+    return this.errorMessage(output) === undefined;
   }
 
   /**
@@ -84,7 +92,7 @@ export class GitWrapper extends ApplicationWrapper {
   public async addFiles(...files: string[]): Promise<boolean> {
     const args: string[] = ['add'].concat(files);
     const output = await super.run(...args);
-    return this.isSuccess(output);
+    return this.errorMessage(output) === undefined;
   }
 
   /**
@@ -109,6 +117,6 @@ export class GitWrapper extends ApplicationWrapper {
       args.push('--no-edit');
     }
     const output = await super.run(...args);
-    return this.isSuccess(output);
+    return this.errorMessage(output) === undefined;
   }
 }
