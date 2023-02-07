@@ -16,18 +16,20 @@ export class GpgFieldHelper {
    * @param input Mapa com `chave: valor` ou `%chave valor`
    */
   public static toBatchFile(input: Map<string, string | undefined>): string {
-    return Array.from(input)
-      .map(entry => {
-        const key = entry[0];
-        const value = entry[1];
-        if (value === undefined) {
-          return key;
-        } else if (key.startsWith('%')) {
-          return `${key} ${value}`;
-        } else {
-          return `${key}: ${value}`;
-        }
-      })
-      .join(os.EOL);
+    return (
+      Array.from(input)
+        .map(entry => {
+          const key = entry[0];
+          const value = entry[1];
+          if (value === undefined) {
+            return key;
+          } else if (key.startsWith('%')) {
+            return `${key} ${value}`;
+          } else {
+            return `${key}: ${value}`;
+          }
+        })
+        .join(os.EOL) + os.EOL
+    );
   }
 }
