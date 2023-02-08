@@ -1,4 +1,4 @@
-import { ExtractFieldForListKeys } from '../ExtractField/ExtractFieldForListKeys';
+import { ExtractFieldForGenerateKey } from '../ExtractField/ExtractFieldForGenerateKey';
 
 /**
  * Parâmetro de saída para: --generate-key
@@ -11,7 +11,12 @@ export class GenerateKeyOutput {
   public static parse(output: string): GenerateKeyOutput {
     const result: GenerateKeyOutput = {};
 
-    result.thumbprint = ExtractFieldForListKeys.thumbprint(output);
+    result.thumbprint = ExtractFieldForGenerateKey.thumbprint(output);
+    result.mainKeyId = ExtractFieldForGenerateKey.mainKeyId(output);
+    result.mainKeyAlgorithm =
+      ExtractFieldForGenerateKey.mainKeyAlgorithm(output);
+    result.subKeyId = ExtractFieldForGenerateKey.subKeyId(output);
+    // TODO: Completar com os demais campos
 
     return result;
   }
@@ -37,7 +42,17 @@ export class GenerateKeyOutput {
   public mainKeyLength?: number;
 
   /**
-   * Data de expiração da chave principal.
+   * Id da sub-chave
    */
-  public mainKeyExpires?: Date;
+  public subKeyId?: string;
+
+  /**
+   * Algoritmo da sub-chave.
+   */
+  public subKeyAlgorithm?: string;
+
+  /**
+   * Tamanho da sub-chave.
+   */
+  public subKeyLength?: number;
 }
