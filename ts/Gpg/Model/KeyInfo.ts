@@ -1,4 +1,4 @@
-import { GpgFieldExtract } from './GpgFieldExtract';
+import { ExtractFieldForKeyInfo } from '../ExtractField/ExtractFieldForKeyInfo';
 
 /**
  * Informaçõesa sobre uma chave GPG
@@ -20,18 +20,18 @@ export class KeyInfo {
 
       const keyInfo = new KeyInfo();
 
-      keyInfo.issued = GpgFieldExtract.issued(block);
-      keyInfo.thumbprint = GpgFieldExtract.thumbprint(block);
-      keyInfo.mainKeyId = GpgFieldExtract.mainKeyId(block);
-      keyInfo.mainKeyAlgorithm = GpgFieldExtract.mainKeyAlgorithm(block);
-      keyInfo.mainKeyLength = GpgFieldExtract.mainKeyLength(block);
-      keyInfo.mainKeyExpires = GpgFieldExtract.mainKeyExpires(block);
-      keyInfo.subKeyId = GpgFieldExtract.subKeyId(block);
-      keyInfo.subKeyAlgorithm = GpgFieldExtract.subKeyAlgorithm(block);
-      keyInfo.subKeyLength = GpgFieldExtract.subKeyLength(block);
-      keyInfo.subKeyExpires = GpgFieldExtract.subKeyExpires(block);
-      keyInfo.nameReal = GpgFieldExtract.nameReal(block);
-      keyInfo.nameEmail = GpgFieldExtract.nameEmail(block);
+      keyInfo.issued = ExtractFieldForKeyInfo.issued(block);
+      keyInfo.thumbprint = ExtractFieldForKeyInfo.thumbprint(block);
+      keyInfo.mainKeyId = ExtractFieldForKeyInfo.mainKeyId(block);
+      keyInfo.mainKeyAlgorithm = ExtractFieldForKeyInfo.mainKeyAlgorithm(block);
+      keyInfo.mainKeyLength = ExtractFieldForKeyInfo.mainKeyLength(block);
+      keyInfo.mainKeyExpires = ExtractFieldForKeyInfo.mainKeyExpires(block);
+      keyInfo.subKeyId = ExtractFieldForKeyInfo.subKeyId(block);
+      keyInfo.subKeyAlgorithm = ExtractFieldForKeyInfo.subKeyAlgorithm(block);
+      keyInfo.subKeyLength = ExtractFieldForKeyInfo.subKeyLength(block);
+      keyInfo.subKeyExpires = ExtractFieldForKeyInfo.subKeyExpires(block);
+      keyInfo.nameReal = ExtractFieldForKeyInfo.nameReal(block);
+      keyInfo.nameEmail = ExtractFieldForKeyInfo.nameEmail(block);
 
       result.push(keyInfo);
     }

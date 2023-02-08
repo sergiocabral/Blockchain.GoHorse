@@ -1,4 +1,4 @@
-import { GpgKeyType } from './GpgKeyType';
+import { GpgKeyType } from '../GpgKeyType';
 import { IGenerateKeyConfiguration } from './IGenerateKeyConfiguration';
 
 /**

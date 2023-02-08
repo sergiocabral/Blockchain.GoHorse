@@ -3,7 +3,7 @@ import os from 'os';
 /**
  * Utilitário envolvendo parâmetro de/para campos GPG.
  */
-export class GpgFieldHelper {
+export class GpgHelper {
   /**
    * Formata uma data para uso como parâmetro.
    */

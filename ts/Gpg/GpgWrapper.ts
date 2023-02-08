@@ -1,12 +1,12 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { HelperFileSystem, InvalidExecutionError } from '@sergiocabral/helper';
-import { KeyInfo } from './KeyInfo';
-import { IGenerateKeyOutput } from './IGenerateKeyOutput';
-import { IGenerateKeyConfiguration } from './IGenerateKeyConfiguration';
+import { KeyInfo } from './Model/KeyInfo';
+import { IGenerateKeyConfiguration } from './Model/IGenerateKeyConfiguration';
 import * as fs from 'fs';
 import * as path from 'path';
-import { GpgFieldHelper } from './GpgFieldHelper';
+import { GpgHelper } from './GpgHelper';
 import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOutput';
+import { GenerateKeyInfo } from './Model/GenerateKeyInfo';
 
 /**
  * ProcessExecution para executar o GPG.
@@ -84,7 +84,7 @@ export class GpgWrapper extends ApplicationWrapper {
    */
   public async generateKey(
     configuration: IGenerateKeyConfiguration
-  ): Promise<IGenerateKeyOutput> {
+  ): Promise<GenerateKeyInfo> {
     const tempDirectoryName = `_temp-gpg${Math.random()}.tmp`.replace(
       '0.',
       '-'
@@ -99,8 +99,8 @@ export class GpgWrapper extends ApplicationWrapper {
     input.set('Subkey-Length', configuration.subKeyLength.toFixed(0));
     input.set('Name-Real', configuration.nameReal);
     input.set('Name-Email', configuration.nameEmail);
-    input.set('Creation-Date', GpgFieldHelper.toDate(new Date()));
-    input.set('Expire-Date', GpgFieldHelper.toDate(configuration.expires));
+    input.set('Creation-Date', GpgHelper.toDate(new Date()));
+    input.set('Expire-Date', GpgHelper.toDate(configuration.expires));
 
     if (configuration.passphrase) {
       input.set('Passphrase', configuration.passphrase);
@@ -116,7 +116,7 @@ export class GpgWrapper extends ApplicationWrapper {
     input.set('%commit', undefined);
 
     const inputFileName = path.join(tempDirectoryPath, 'gpg-batch');
-    fs.writeFileSync(inputFileName, GpgFieldHelper.toBatchFile(input));
+    fs.writeFileSync(inputFileName, GpgHelper.toBatchFile(input));
 
     const output = await super.run(
       '--verbose',

@@ -1,4 +1,4 @@
-import { GpgKeyType } from './GpgKeyType';
+import { GpgKeyType } from '../GpgKeyType';
 
 /**
  * Parâmetrode entrada para gerar uma chave GPG
