@@ -1,9 +1,9 @@
 import { GpgKeyType } from '../GpgKeyType';
 
 /**
- * Parâmetrode entrada para gerar uma chave GPG
+ * Parâmetro de entrada para: --generate-key
  */
-export interface IGenerateKeyConfiguration {
+export interface IGenerateKeyInput {
   /**
    * Algoritmo da chave principal.
    */

@@ -1,7 +1,7 @@
 /**
- * Extrai os campos de uma saída da aplicação gpg
+ * Extrai campos para da saída de: --list-keys
  */
-export class ExtractFieldForKeyInfo {
+export class ExtractFieldForListKeys {
   /**
    * Data de emissão das chaves.
    */

@@ -1,15 +1,15 @@
-import { ExtractFieldForKeyInfo } from '../ExtractField/ExtractFieldForKeyInfo';
+import { ExtractFieldForListKeys } from '../ExtractField/ExtractFieldForListKeys';
 
 /**
- * Informaçõesa sobre uma chave GPG
+ * Parâmetro de saída para: --list-keys
  */
-export class KeyInfo {
+export class ListKeysOutput {
   /**
    * Faz um parse da saída do comando `gpg --list-keys --keyid-format long`
    * @param output Output bruto do comando gpg
    */
-  public static parse(output: string): KeyInfo[] {
-    const result: KeyInfo[] = [];
+  public static parse(output: string): ListKeysOutput[] {
+    const result: ListKeysOutput[] = [];
 
     const regexEmptyLine = /(\r\n|\n\r|\r|\n)\s*\1/;
     const blocks = output.split(regexEmptyLine);
@@ -18,20 +18,21 @@ export class KeyInfo {
         continue;
       }
 
-      const keyInfo = new KeyInfo();
+      const keyInfo = new ListKeysOutput();
 
-      keyInfo.issued = ExtractFieldForKeyInfo.issued(block);
-      keyInfo.thumbprint = ExtractFieldForKeyInfo.thumbprint(block);
-      keyInfo.mainKeyId = ExtractFieldForKeyInfo.mainKeyId(block);
-      keyInfo.mainKeyAlgorithm = ExtractFieldForKeyInfo.mainKeyAlgorithm(block);
-      keyInfo.mainKeyLength = ExtractFieldForKeyInfo.mainKeyLength(block);
-      keyInfo.mainKeyExpires = ExtractFieldForKeyInfo.mainKeyExpires(block);
-      keyInfo.subKeyId = ExtractFieldForKeyInfo.subKeyId(block);
-      keyInfo.subKeyAlgorithm = ExtractFieldForKeyInfo.subKeyAlgorithm(block);
-      keyInfo.subKeyLength = ExtractFieldForKeyInfo.subKeyLength(block);
-      keyInfo.subKeyExpires = ExtractFieldForKeyInfo.subKeyExpires(block);
-      keyInfo.nameReal = ExtractFieldForKeyInfo.nameReal(block);
-      keyInfo.nameEmail = ExtractFieldForKeyInfo.nameEmail(block);
+      keyInfo.issued = ExtractFieldForListKeys.issued(block);
+      keyInfo.thumbprint = ExtractFieldForListKeys.thumbprint(block);
+      keyInfo.mainKeyId = ExtractFieldForListKeys.mainKeyId(block);
+      keyInfo.mainKeyAlgorithm =
+        ExtractFieldForListKeys.mainKeyAlgorithm(block);
+      keyInfo.mainKeyLength = ExtractFieldForListKeys.mainKeyLength(block);
+      keyInfo.mainKeyExpires = ExtractFieldForListKeys.mainKeyExpires(block);
+      keyInfo.subKeyId = ExtractFieldForListKeys.subKeyId(block);
+      keyInfo.subKeyAlgorithm = ExtractFieldForListKeys.subKeyAlgorithm(block);
+      keyInfo.subKeyLength = ExtractFieldForListKeys.subKeyLength(block);
+      keyInfo.subKeyExpires = ExtractFieldForListKeys.subKeyExpires(block);
+      keyInfo.nameReal = ExtractFieldForListKeys.nameReal(block);
+      keyInfo.nameEmail = ExtractFieldForListKeys.nameEmail(block);
 
       result.push(keyInfo);
     }

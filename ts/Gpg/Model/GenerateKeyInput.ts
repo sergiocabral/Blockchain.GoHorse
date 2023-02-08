@@ -1,10 +1,10 @@
 import { GpgKeyType } from '../GpgKeyType';
-import { IGenerateKeyConfiguration } from './IGenerateKeyConfiguration';
+import { IGenerateKeyInput } from './IGenerateKeyInput';
 
 /**
- * Parâmetrode entrada para gerar uma chave GPG
+ * Parâmetro de entrada para: --generate-key
  */
-export class GenerateKeyConfiguration implements IGenerateKeyConfiguration {
+export class GenerateKeyInput implements IGenerateKeyInput {
   /**
    * Construtor.
    * @param nameReal Nome da pessoa.

@@ -1,12 +1,12 @@
 import { ApplicationWrapper } from '../Wrapper/ApplicationWrapper';
 import { HelperFileSystem, InvalidExecutionError } from '@sergiocabral/helper';
-import { KeyInfo } from './Model/KeyInfo';
-import { IGenerateKeyConfiguration } from './Model/IGenerateKeyConfiguration';
+import { ListKeysOutput } from './Model/ListKeysOutput';
+import { IGenerateKeyInput } from './Model/IGenerateKeyInput';
 import * as fs from 'fs';
 import * as path from 'path';
 import { GpgHelper } from './GpgHelper';
 import { IProcessExecutionOutput } from '../ProcessExecution/IProcessExecutionOutput';
-import { GenerateKeyInfo } from './Model/GenerateKeyInfo';
+import { GenerateKeyOutput } from './Model/GenerateKeyOutput';
 
 /**
  * ProcessExecution para executar o GPG.
@@ -68,7 +68,7 @@ export class GpgWrapper extends ApplicationWrapper {
   /**
    * Obter versão do Git.
    */
-  public async listKeys(): Promise<KeyInfo[]> {
+  public async listKeys(): Promise<ListKeysOutput[]> {
     const output = await super.run('--list-keys', '--keyid-format', 'long');
 
     const errorMessage = this.errorMessage(output);
@@ -76,15 +76,15 @@ export class GpgWrapper extends ApplicationWrapper {
       throw new InvalidExecutionError(errorMessage);
     }
 
-    return KeyInfo.parse(output.all);
+    return ListKeysOutput.parse(output.all);
   }
 
   /**
    * Cria um par de chave no GPG
    */
   public async generateKey(
-    configuration: IGenerateKeyConfiguration
-  ): Promise<GenerateKeyInfo> {
+    configuration: IGenerateKeyInput
+  ): Promise<GenerateKeyOutput> {
     const tempDirectoryName = `_temp-gpg${Math.random()}.tmp`.replace(
       '0.',
       '-'
@@ -132,9 +132,6 @@ export class GpgWrapper extends ApplicationWrapper {
       throw new InvalidExecutionError(errorMessage);
     }
 
-    return {
-      // TODO: Preencher as informações de retorno.
-      issued: new Date()
-    };
+    return GenerateKeyOutput.parse(output.all);
   }
 }
