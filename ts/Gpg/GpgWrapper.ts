@@ -99,7 +99,7 @@ export class GpgWrapper extends ApplicationWrapper {
     input.set('Subkey-Length', configuration.subKeyLength.toFixed(0));
     input.set('Name-Real', configuration.nameReal);
     input.set('Name-Email', configuration.nameEmail);
-    input.set('Creation-Date', GpgFieldHelper.toDate(new Date().addDays(-45))); // TODO: colocar a data dce hoje
+    input.set('Creation-Date', GpgFieldHelper.toDate(new Date()));
     input.set('Expire-Date', GpgFieldHelper.toDate(configuration.expires));
 
     if (configuration.passphrase) {
