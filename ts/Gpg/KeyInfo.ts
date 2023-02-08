@@ -5,7 +5,7 @@ import { GpgFieldExtract } from './GpgFieldExtract';
  */
 export class KeyInfo {
   /**
-   * Faz um parse da saída do comando `gpg --list-keys`
+   * Faz um parse da saída do comando `gpg --list-keys --keyid-format long`
    * @param output Output bruto do comando gpg
    */
   public static parse(output: string): KeyInfo[] {
