@@ -176,7 +176,11 @@ export class ApplicationParameters
       );
       if (applications.length !== 1) {
         throw new InvalidDataError(
-          `Expected one package.json but found ${applications.length}.`
+          `Expected one package.json but found ${
+            applications.length
+          }: ${applications
+            .map(application => `"${application.Key}"`)
+            .join(', ')}`
         );
       }
       ApplicationParameters.packageJsonValue = applications[0].Value;
