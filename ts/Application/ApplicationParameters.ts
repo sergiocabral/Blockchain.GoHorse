@@ -168,12 +168,16 @@ export class ApplicationParameters
    */
   public static get packageJson(): IPackageJson {
     if (ApplicationParameters.packageJsonValue === undefined) {
-      const mark = /^@gohorse\//;
       const applications = HelperNodeJs.getAllPreviousPackagesJson(
-        ApplicationParameters.packageDirectory
-      ).filter(packageJson =>
-        HelperText.matchFilter(String(packageJson.Value.name), mark)
+        path.join(ApplicationParameters.packageDirectory, '..')
       );
+      if (applications.length === 0) {
+        applications.push(
+          ...HelperNodeJs.getAllPreviousPackagesJson(
+            ApplicationParameters.packageDirectory
+          )
+        );
+      }
       if (applications.length !== 1) {
         throw new InvalidDataError(
           `Expected one package.json but found ${
