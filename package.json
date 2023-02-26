@@ -1,6 +1,6 @@
 {
   "name": "@gohorse/npm-database",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "GoHorse is a Git-based blockchain. Abstraction for database connection implementations.",
   "bin": "js/index.js",
   "main": "js/index.js",
