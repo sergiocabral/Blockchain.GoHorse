@@ -103,6 +103,9 @@ export abstract class Database<
    * Abre a conexão.
    */
   public async open(): Promise<void> {
+    if (!this.configuration.enabled) {
+      return;
+    }
     if (this.connectionState === ConnectionState.Closed) {
       this.connectionState = ConnectionState.Switching;
       Logger.post(
