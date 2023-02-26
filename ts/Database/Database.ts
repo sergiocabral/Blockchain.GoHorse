@@ -104,6 +104,14 @@ export abstract class Database<
    */
   public async open(): Promise<void> {
     if (!this.configuration.enabled) {
+      Logger.post(
+        'The database connection of type "{className}" will not be opened because it is disabled.',
+        {
+          className: this.constructor.name
+        },
+        LogLevel.Debug,
+        Database.logContext2
+      );
       return;
     }
     if (this.connectionState === ConnectionState.Closed) {
