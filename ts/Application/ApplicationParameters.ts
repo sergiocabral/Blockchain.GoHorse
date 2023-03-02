@@ -108,9 +108,10 @@ export class ApplicationParameters
   /**
    * Diretório do pacote npm.
    */
-  public static readonly packageDirectory: string = path.dirname(
-    HelperFileSystem.findFilesOut(__dirname, 'package.json', 1)[0]
-  );
+  public static get packageDirectory(): string {
+    const files = HelperFileSystem.findFilesOut(__dirname, 'package.json', 2);
+    return path.dirname(files[files.length - 1]);
+  }
 
   /**
    * Nome do pacote npm.
