@@ -46,9 +46,9 @@
   "homepage": "https://github.com/sergiocabral/Blockchain.GoHorse/tree/npm-application",
   "devDependencies": {
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.14.1",
-    "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.53.0",
+    "@types/node": "^18.14.4",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "eslint": "^8.35.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
@@ -69,6 +69,6 @@
     "@gohorse/npm-log-database": "^2.0.11",
     "@gohorse/npm-log-file": "^1.2.12",
     "tslib": "^2.5.0",
-    "@sergiocabral/helper": "^11.10.0"
+    "@sergiocabral/helper": "^11.11.0"
   }
 }
