@@ -550,7 +550,7 @@ Application
       );
     } catch (error) {
       Logger.post(
-        'An error occurred while releasing resources.: {errorDescription}',
+        'An error occurred while releasing resources: {errorDescription}',
         () => ({
           errorDescription: HelperText.formatError(error),
           error
